@@ -169,6 +169,7 @@ Spell.Druid.Feral = MergeTableByKey(Spell.Druid.Commons, {
   -- Abilties
   -- Talents
   AdaptiveSwarm                         = Spell(391888),
+  ApexPredatorsCraving                  = Spell(391881),
   Berserk                               = Spell(106951),
   Bloodtalons                           = Spell(319439),
   BrutalSlash                           = Spell(202028),
@@ -183,8 +184,8 @@ Spell.Druid.Feral = MergeTableByKey(Spell.Druid.Commons, {
   SouloftheForest                       = Spell(158476),
   TearOpenWounds                        = Spell(391785),
   TigersFury                            = Spell(5217),
-  ApexPredatorsCravingBuff              = Spell(391882),
   -- Buffs
+  ApexPredatorsCravingBuff              = Spell(391882),
   BloodtalonsBuff                       = Spell(145152),
   Clearcasting                          = Spell(135700),
   -- Debuffs
@@ -192,7 +193,7 @@ Spell.Druid.Feral = MergeTableByKey(Spell.Druid.Commons, {
   AdaptiveSwarmHeal                     = Spell(391891),
   LIMoonfireDebuff                      = Spell(155625),
   -- Legendary Effects
-  -- ApexPredatorsCravingBuff              = Spell(339140)
+  ApexPredatorsCravingBuff              = Spell(339140)
 })
 
 Spell.Druid.Guardian = MergeTableByKey(Spell.Druid.Commons, {
