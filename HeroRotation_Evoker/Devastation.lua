@@ -208,7 +208,7 @@ local function APL()
       if Cast(S.DeepBreath, Settings.Devastation.GCDasOffGCD.DeepBreath, nil, not Target:IsInRange(50)) then return "deep_breath main 8"; end
     end
     -- dragonrage,if=cooldown.eternity_surge.remains<=(buff.dragonrage.duration+6)&(cooldown.fire_breath.remains<=2*gcd.max|!talent.feed_the_flames)
-    if S.Dragonrage:IsCastable() and (S.EternitySurge:CooldownRemains() <= (S.Dragonrage:BaseDuration() + 6) and (S.FireBreath:CooldownRemains() <= 2 * GCDMax or not S.FeedtheFlames:IsAvailable())) then
+    if CDsON() and S.Dragonrage:IsCastable() and (S.EternitySurge:CooldownRemains() <= (S.Dragonrage:BaseDuration() + 6) and (S.FireBreath:CooldownRemains() <= 2 * GCDMax or not S.FeedtheFlames:IsAvailable())) then
       if Cast(S.Dragonrage, Settings.Devastation.GCDasOffGCD.Dragonrage, nil, not Target:IsInRange(25)) then return "dragonrage main 10"; end
     end
     -- tip_the_scales,if=buff.dragonrage.up&(cooldown.eternity_surge.up|cooldown.fire_breath.up)&buff.dragonrage.remains<=gcd.max
