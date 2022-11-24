@@ -228,7 +228,7 @@ local function Bear()
     if Cast(S.ConvoketheSpirits, nil, Settings.Commons.DisplayStyle.Covenant) then return "convoke_the_spirits bear 12"; end
   end
   -- TODO: Remove me after expansion launch
-  if S.ConvoketheSpiritsCov:IsReady() and (I.CacheofAcquiredTreasures:IsEquipped()) then
+  if S.ConvoketheSpiritsCov:IsReady() then
     if Cast(S.ConvoketheSpiritsCov, nil, Settings.Commons.DisplayStyle.Covenant) then return "convoke_the_spirits covenant bear 12"; end
   end
   -- incarnation,if=(!covenant.venthyr&((trinket.1.is.cache_of_acquired_treasures|trinket.2.is.cache_of_acquired_treasures)&buff.acquired_axe.up))
