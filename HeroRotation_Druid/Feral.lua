@@ -238,6 +238,10 @@ local function Precombat()
   -- food
   -- augmentation
   -- snapshot_stats
+  -- Manually added: Group buff check
+  if S.MarkoftheWild:IsCastable() and (Player:BuffDown(S.MarkoftheWildBuff, true) or Everyone.GroupBuffMissing(S.MarkoftheWildBuff)) then
+    if Cast(S.MarkoftheWild, Settings.Commons.GCDasOffGCD.MarkOfTheWild) then return "mark_of_the_wild precombat"; end
+  end
   -- cat_form
   if S.CatForm:IsCastable() then
     if Cast(S.CatForm) then return "cat_form precombat 2"; end
@@ -358,10 +362,10 @@ local function Cooldown()
   end
   -- convoke_the_spirits,if=buff.tigers_fury.up&combo_points<3|fight_remains<5
   if S.ConvoketheSpirits:IsReady() and (Player:BuffUp(S.TigersFury) and ComboPoints < 3 or FightRemains < 5) then
-    if Cast(S.ConvoketheSpirits, nil, Settings.Commons.DisplayStyle.Covenant, not Target:IsInMeleeRange(8)) then return "convoke_the_spirits cooldown 6"; end
+    if Cast(S.ConvoketheSpirits, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsInMeleeRange(8)) then return "convoke_the_spirits cooldown 6"; end
   end
   if S.ConvoketheSpiritsCov:IsReady() and (Player:BuffUp(S.TigersFury) and ComboPoints < 3 or FightRemains < 5) then
-    if Cast(S.ConvoketheSpiritsCov, nil, Settings.Commons.DisplayStyle.Covenant, not Target:IsInMeleeRange(8)) then return "convoke_the_spirits covenant cooldown 6"; end
+    if Cast(S.ConvoketheSpiritsCov, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsInMeleeRange(8)) then return "convoke_the_spirits covenant cooldown 6"; end
   end
   -- berserking
   if S.Berserking:IsCastable() then
@@ -372,8 +376,11 @@ local function Cooldown()
     if Cast(S.Shadowmeld, Settings.Commons.OffGCDasOffGCD.Racials) then return "shadowmeld cooldown 10"; end
   end
   -- potion,if=buff.bs_inc.up|fight_remains<cooldown.bs_inc.remains|fight_remains<25
-  if I.PotionofSpectralAgility:IsReady() and Settings.Commons.Enabled.Potions and (Player:BuffUp(BsInc) or FightRemains < BsInc:CooldownRemains() or FightRemains < 25) then
-    if Cast(I.PotionofSpectralAgility, nil, Settings.Commons.DisplayStyle.Potions) then return "potion cooldown 12"; end
+  if Settings.Commons.Enabled.Potions and (Player:BuffUp(BsInc) or FightRemains < BsInc:CooldownRemains() or FightRemains < 25) then
+    local PotionSelected = Everyone.PotionSelected()
+    if PotionSelected and PotionSelected:IsReady() then
+      if Cast(PotionSelected, nil, Settings.Commons.DisplayStyle.Potions) then return "potion cooldown 12"; end
+    end
   end
   -- use_items
   if (Settings.Commons.Enabled.Trinkets) then

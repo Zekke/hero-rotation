@@ -143,7 +143,7 @@ local function Precombat()
   -- snapshot_stats
   -- fleshcraft,if=soulbind.pustule_eruption|soulbind.volatile_solvent
   if S.Fleshcraft:IsCastable() and (S.PustuleEruption:SoulbindEnabled() or S.VolatileSolvent:SoulbindEnabled()) then
-    if Cast(S.Fleshcraft, nil, Settings.Commons.DisplayStyle.Covenant) then return "fleshcraft precombat 2"; end
+    if Cast(S.Fleshcraft, nil, Settings.Commons.DisplayStyle.Signature) then return "fleshcraft precombat 2"; end
   end
   -- First attacks
   if S.TheHunt:IsCastable() and not IsInMeleeRange then
@@ -179,7 +179,7 @@ local function Defensives()
   end
   -- Manual add: Door of Shadows with Enduring Gloom for the absorb shield
   if S.DoorofShadows:IsCastable() and S.EnduringGloom:IsAvailable() then
-    if Cast(S.DoorofShadows, nil, Settings.Commons.DisplayStyle.Covenant) then return "door_of_shadows defensives"; end
+    if Cast(S.DoorofShadows, nil, Settings.Commons.DisplayStyle.Signature) then return "door_of_shadows defensives"; end
   end
   -- Manual add: fel_devastation,if=buff.blind_faith.up&health.pct<30
   if S.FelDevastation:IsReady() and (Player:BuffUp(S.BlindFaithBuff) and Player:HealthPercentage() < Settings.Vengeance.FelDevHealthThreshold) then
@@ -200,8 +200,11 @@ end
 
 local function Cooldowns()
   -- potion
-  if I.PotionofPhantomFire:IsReady() and Settings.Commons.Enabled.Potions then
-    if Cast(I.PotionofPhantomFire, nil, Settings.Commons.DisplayStyle.Potions) then return "potion_of_unbridled_fury cooldowns 2"; end
+  if Settings.Commons.Enabled.Potions then
+    local PotionSelected = Everyone.PotionSelected()
+    if PotionSelected and PotionSelected:IsReady() then
+      if Cast(PotionSelected, nil, Settings.Commons.DisplayStyle.Potions) then return "potion cooldowns 2"; end
+    end
   end
   -- Manually added: use_item,name=cache_of_acquired_treasures,if=buff.acquired_sword.up
   if Settings.Commons.Enabled.Trinkets and I.CacheofAcquiredTreasures:IsEquippedAndReady() and (Player:BuffUp(S.AcquiredSwordBuff)) then
@@ -216,22 +219,22 @@ local function Cooldowns()
   end
   -- sinful_brand,if=!dot.sinful_brand.ticking
   if S.SinfulBrand:IsCastable() and (Target:BuffDown(S.SinfulBrandDebuff)) then
-    if Cast(S.SinfulBrand, nil, Settings.Commons.DisplayStyle.Covenant, not Target:IsSpellInRange(S.SinfulBrand)) then return "sinful_brand cooldowns 6"; end
+    if Cast(S.SinfulBrand, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsSpellInRange(S.SinfulBrand)) then return "sinful_brand cooldowns 6"; end
   end
   -- the_hunt
   if S.TheHuntCov:IsReady() then
-    if Cast(S.TheHuntCov, nil, Settings.Commons.DisplayStyle.Covenant, not Target:IsSpellInRange(S.TheHuntCov)) then return "the_hunt covenant cooldowns 8"; end
+    if Cast(S.TheHuntCov, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsSpellInRange(S.TheHuntCov)) then return "the_hunt covenant cooldowns 8"; end
   end
   if S.TheHunt:IsCastable() then
-    if Cast(S.TheHunt, nil, Settings.Commons.DisplayStyle.Covenant, not Target:IsSpellInRange(S.TheHunt)) then return "the_hunt cooldowns 8"; end
+    if Cast(S.TheHunt, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsSpellInRange(S.TheHunt)) then return "the_hunt cooldowns 8"; end
   end
   -- elysian_decree
   -- Note: Added Unity/Blind Faith handling
   if S.ElysianDecreeCov:IsReady() and ((not KyrianLegendaryAndSpB) or SoulFragments >= 4) then
-    if Cast(S.ElysianDecreeCov, nil, Settings.Commons.DisplayStyle.Covenant) then return "elysian_decree covenant cooldowns 10"; end
+    if Cast(S.ElysianDecreeCov, nil, Settings.Commons.DisplayStyle.Signature) then return "elysian_decree covenant cooldowns 10"; end
   end
   if S.ElysianDecree:IsCastable() then
-    if Cast(S.ElysianDecree, nil, Settings.Commons.DisplayStyle.Covenant) then return "elysian_decree cooldowns 10"; end
+    if Cast(S.ElysianDecree, nil, Settings.Commons.DisplayStyle.Signature) then return "elysian_decree cooldowns 10"; end
   end
 end
 

@@ -207,8 +207,11 @@ local function CDs()
     if Cast(S.Fireblood, Settings.Commons.GCDasOffGCD.Racials) then return "fireblood cds 12"; end
   end
   -- potion,if=buff.call_of_the_wild.up|!talent.call_of_the_wild&(buff.bestial_wrath.up&(buff.bloodlust.up|target.health.pct<20))|fight_remains<31
-  if Settings.Commons.Enabled.Potions and I.PotionOfSpectralAgility:IsReady() and (Player:BuffUp(S.CalloftheWildBuff) or (not S.CalloftheWild:IsAvailable()) and (Player:BuffUp(S.BestialWrathBuff) and (Player:BloodlustUp() or Target:HealthPercentage() < 20)) or FightRemains < 31) then
-    if Cast(I.PotionOfSpectralAgility, nil, Settings.Commons.DisplayStyle.Potions) then return "potion cds 14"; end
+  if Settings.Commons.Enabled.Potions and (Player:BuffUp(S.CalloftheWildBuff) or (not S.CalloftheWild:IsAvailable()) and (Player:BuffUp(S.BestialWrathBuff) and (Player:BloodlustUp() or Target:HealthPercentage() < 20)) or FightRemains < 31) then
+    local PotionSelected = Everyone.PotionSelected()
+    if PotionSelected and PotionSelected:IsReady() then
+      if Cast(PotionSelected, nil, Settings.Commons.DisplayStyle.Potions) then return "potion cds 14"; end
+    end
   end
 end
 
@@ -252,7 +255,7 @@ local function Cleave()
   end
   -- stampede,if=buff.bestial_wrath.up|target.time_to_die<15
   if S.Stampede:IsCastable() and CDsON() and (Player:BuffUp(S.BestialWrathBuff) or FightRemains < 15) then
-    if Cast(S.Stampede, Settings.BeastMastery.GCDasOffGCD.Stampede, nil, not Target:IsSpellInRange(S.Stampede)) then return "stampede cleave 14"; end
+    if Cast(S.Stampede, Settings.Commons2.GCDasOffGCD.Stampede, nil, not Target:IsSpellInRange(S.Stampede)) then return "stampede cleave 14"; end
   end
   -- bloodshed
   if S.Bloodshed:IsCastable() then
@@ -282,8 +285,8 @@ local function Cleave()
   if S.BarbedShot:IsCastable() then
     if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, EvaluateTargetIfBarbedShotCleave4, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot cleave 28"; end
   end
-  -- kill_command,if=focus>cost+action.multishot.cost
-  if S.KillCommand:IsReady() and (Player:Focus() > S.KillCommand:Cost() + S.MultiShot:Cost()) then
+  -- kill_command
+  if S.KillCommand:IsReady() then
     if Cast(S.KillCommand, nil, nil, not Target:IsInRange(50)) then return "kill_command cleave 30"; end
   end
   -- dire_beast
@@ -347,7 +350,7 @@ local function ST()
   end
   -- stampede
   if S.Stampede:IsCastable() and CDsON() then
-    if Cast(S.Stampede, Settings.BeastMastery.GCDasOffGCD.Stampede, nil, not Target:IsSpellInRange(S.Stampede)) then return "stampede st 12"; end
+    if Cast(S.Stampede, Settings.Commons2.GCDasOffGCD.Stampede, nil, not Target:IsSpellInRange(S.Stampede)) then return "stampede st 12"; end
   end
   -- a_murder_of_crows
   if S.AMurderofCrows:IsCastable() then
@@ -482,6 +485,7 @@ local function APL()
       local ShouldReturn = CDs(); if ShouldReturn then return ShouldReturn; end
     end
     -- Manually added: call_action_list,name=trinkets
+    -- Note: Shifted Trinket usage from CDs() to its own function so Trinket usage isn't reliant upon CDsON()
     if (Settings.Commons.Enabled.Trinkets) then
       local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
     end
@@ -498,7 +502,7 @@ local function APL()
       if Cast(S.MendPet) then return "Mend Pet Low Priority (w/ Target)"; end
     end
     -- Pool Focus if nothing else to do
-    if Cast(S.PoolFocus) then return "Pooling Focus"; end
+    if HR.CastAnnotated(S.PoolFocus, false, "WAIT") then return "Pooling Focus"; end
   end
 
   -- Note: We have to put it again in case we don't have a target but our pet is dying.
@@ -509,7 +513,7 @@ end
 
 local function OnInit ()
   HR.Print("Beast Mastery can use pet abilities to better determine AoE. Make sure you have Growl and Blood Bolt / Bite / Claw / Smack in your player action bars.")
-  HR.Print("Beast Mastery Hunter rotation is currently a work in progress, but has been updated for patch 10.0.0.")
+  HR.Print("Beast Mastery Hunter rotation is currently a work in progress, but has been updated for patch 10.0.2.")
 end
 
 HR.SetAPL(253, APL, OnInit)

@@ -25,12 +25,13 @@ HR.GUISettings.APL.Druid = {
     DisplayStyle = {
       Potions = "Suggested",
       Trinkets = "Suggested",
-      Covenant = "Suggested",
+      Signature = "Suggested",
       Items = "Suggested",
     },
     -- {Display GCD as OffGCD, ForceReturn}
     GCDasOffGCD = {
       -- Abilities
+      MarkOfTheWild = true,
       WildCharge = true,
     },
     -- {Display OffGCD as OffGCD, ForceReturn}

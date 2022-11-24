@@ -326,8 +326,8 @@
       --[1468] = "HeroRotation_Evoker",         -- Preservation
     -- Hunter
       [253]   = "HeroRotation_Hunter",        -- Beast Mastery
-      --[254]   = "HeroRotation_Hunter",        -- Marksmanship
-      --[255]   = "HeroRotation_Hunter",        -- Survival
+      [254]   = "HeroRotation_Hunter",        -- Marksmanship
+      [255]   = "HeroRotation_Hunter",        -- Survival
     -- Mage
       --[62]    = "HeroRotation_Mage",          -- Arcane
       --[63]    = "HeroRotation_Mage",          -- Fire
@@ -350,7 +350,7 @@
       --[261]   = "HeroRotation_Rogue",         -- Subtlety
     -- Shaman
       --[262]   = "HeroRotation_Shaman",        -- Elemental
-      --[263]   = "HeroRotation_Shaman",        -- Enhancement
+      [263]   = "HeroRotation_Shaman",        -- Enhancement
       --[264]   = "HeroRotation_Shaman",        -- Restoration
     -- Warlock
       --[265]   = "HeroRotation_Warlock",       -- Affliction

@@ -105,6 +105,10 @@ local function Precombat()
   -- augmentation
   -- food
   -- snapshot_stats
+  -- Manually added: Group buff check
+  if S.BlessingoftheBronze:IsCastable() and (Player:BuffDown(S.BlessingoftheBronzeBuff) or Everyone.GroupBuffMissing(S.BlessingoftheBronzeBuff)) then
+    if Cast(S.BlessingoftheBronze, Settings.Commons.GCDasOffGCD.BlessingOfTheBronze) then return "blessing_of_the_bronze precombat"; end
+  end
   -- variable,name=trinket_1_sync,op=setif,value=1,value_else=0.5,condition=trinket.1.has_use_buff&(trinket.1.cooldown.duration%%cooldown.dragonrage.duration=0)
   -- VarTrinket1Sync = (trinket1:TrinketHasUseBuff() and (trinket1:Cooldown() % 120 == 0)) and 1 or 0
   -- variable,name=trinket_2_sync,op=setif,value=1,value_else=0.5,condition=trinket.2.has_use_buff&(trinket.2.cooldown.duration%%cooldown.dragonrage.duration=0)
@@ -138,12 +142,12 @@ local function Trinkets()
   -- use_item,slot=trinket2,if=(!trinket.2.has_use_buff&(trinket.1.cooldown.remains|!trinket.1.has_use_buff)|cooldown.dragonrage.remains>20|!talent.dragonrage)
   -- Note: Can't handle above trinket tracking, so let's use the old fallback. When we can do above tracking, the below can be removed.
   -- use_items,if=buff.dragonrage.up
-      if Player:BuffUp(S.Dragonrage) then
-        local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
-        if TrinketToUse then
-          if Cast(TrinketToUse, nil, Settings.Commons.DisplayStyle.Trinkets) then return "Generic use_items for " .. TrinketToUse:Name(); end
-        end
-      end
+  if Player:BuffUp(S.Dragonrage) then
+    local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
+    if TrinketToUse then
+      if Cast(TrinketToUse, nil, Settings.Commons.DisplayStyle.Trinkets) then return "Generic use_items for " .. TrinketToUse:Name(); end
+    end
+  end
 end
 
 -- APL Main
@@ -182,12 +186,12 @@ local function APL()
     -- Manually added: boon_of_the_covenants,if=buff.dragonrage.up
     -- TODO: Remove this when Dragonflight launches
     if S.BoonoftheCovenants:IsReady() and (Player:BuffUp(S.Dragonrage)) then
-      if Cast(S.BoonoftheCovenants, nil, Settings.Commons.DisplayStyle.Covenant) then return "boon_of_the_covenants main 1"; end
+      if Cast(S.BoonoftheCovenants, nil, Settings.Commons.DisplayStyle.Signature) then return "boon_of_the_covenants main 1"; end
     end
     -- potion,if=buff.dragonrage.up|time>=300&fight_remains<35
-    if Settings.Commons.Enabled.Potions then
+    if Settings.Commons.Enabled.Potions and (Player:BuffUp(S.Dragonrage) or HL.CombatTime() >= 300 or FightRemains < 35) then
       local PotionSelected = Everyone.PotionSelected()
-      if PotionSelected and PotionSelected:IsReady() and (Player:BuffUp(S.Dragonrage) or HL.CombatTime() >= 300 or FightRemains < 35) then
+      if PotionSelected and PotionSelected:IsReady() then
         if Cast(PotionSelected, nil, Settings.Commons.DisplayStyle.Potions) then return "potion main 2"; end
       end
     end

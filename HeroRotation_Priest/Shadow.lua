@@ -155,9 +155,13 @@ local function Precombat()
   -- food
   -- augmentation
   -- snapshot_stats
+  -- Manually added: Group buff check
+  if S.PowerWordFortitude:IsCastable() and (Player:BuffDown(S.PowerWordFortitudeBuff, true) or Everyone.GroupBuffMissing(S.PowerWordFortitudeBuff)) then
+    if Cast(S.PowerWordFortitude, Settings.Commons.GCDasOffGCD.PowerWordFortitude) then return "power_word_fortitude precombat"; end
+  end
   -- fleshcraft,if=soulbind.pustule_eruption|soulbind.volatile_solvent
   if S.Fleshcraft:IsReady() and (S.PustuleEruption:SoulbindEnabled() or S.VolatileSolvent:SoulbindEnabled()) then
-    if Cast(S.Fleshcraft, nil, Settings.Commons.DisplayStyle.Covenant) then return "fleshcraft 10"; end
+    if Cast(S.Fleshcraft, nil, Settings.Commons.DisplayStyle.Signature) then return "fleshcraft 10"; end
   end
   -- shadowform,if=!buff.shadowform.up
   if S.Shadowform:IsCastable() and (Player:BuffDown(S.ShadowformBuff)) then
@@ -276,7 +280,7 @@ local function Cds()
   -- unholy_nova,if=dot.shadow_word_pain.ticking&variable.vts_applied|action.shadow_crash.in_flight
   if S.UnholyNova:IsReady() and
       (Target:DebuffUp(S.ShadowWordPainDebuff) and VarVTsApplied or S.ShadowCrash:TimeSinceLastCast() <= 5) then
-    if Cast(S.UnholyNova, Settings.Commons.DisplayStyle.Covenant, nil, not Target:IsSpellInRange(S.UnholyNova)) then return "unholy_nova cds 50"; end
+    if Cast(S.UnholyNova, Settings.Commons.DisplayStyle.Signature, nil, not Target:IsSpellInRange(S.UnholyNova)) then return "unholy_nova cds 50"; end
   end
   --fae_guardians,if=(dot.shadow_word_pain.ticking&variable.vts_applied|action.shadow_crash.in_flight)&(!talent.void_eruption|buff.voidform.up&!cooldown.void_bolt.up&cooldown.mind_blast.full_recharge_time>gcd.max|!cooldown.void_eruption.up)
   if S.FaeGuardians:IsReady() and
@@ -285,7 +289,7 @@ local function Cds()
       not S.VoidEruption:IsAvailable() or
           Player:BuffUp(S.VoidformBuff) and S.VoidBolt:CooldownUp() and S.MindBlast:FullRechargeTime() > Player:GCD() or
           not S.VoidEruption:CooldownUp()) then
-    if Cast(S.FaeGuardians, Settings.Commons.DisplayStyle.Covenant) then return "fae_guardians cds 60"; end
+    if Cast(S.FaeGuardians, Settings.Commons.DisplayStyle.Signature) then return "fae_guardians cds 60"; end
   end
   -- mindbender,if=(dot.shadow_word_pain.ticking&variable.vts_applied|action.shadow_crash.in_flight)
   if S.Mindbender:IsCastable() and
@@ -379,7 +383,7 @@ local function Main()
           (S.MindgamesCov:IsReady() and not S.Mindgames:IsAvailable() and S.Mindgames:CooldownDown()
           )) and
       (EnemiesCount10ySplash < 5 and VarAllDotsUp) then
-    if Cast(S.Mindgames, nil, Settings.Commons.DisplayStyle.Covenant, not Target:IsSpellInRange(S.Mindgames)) then return "mindgames main 120"; end
+    if Cast(S.Mindgames, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsSpellInRange(S.Mindgames)) then return "mindgames main 120"; end
   end
   --shadow_crash,if=raid_event.adds.in>10
   if S.ShadowCrash:IsCastable() then
@@ -493,7 +497,7 @@ local function APL()
     if Settings.Commons.Enabled.Potions and (Player:BuffUp(S.PowerInfusionBuff) and (Player:BloodlustUp() or RemainsPlusTime >= 320)) then
       local PotionSelected = Everyone.PotionSelected()
       if PotionSelected and PotionSelected:IsReady() then
-        if Cast(I.PotionofSpectralIntellect, nil, Settings.Commons.DisplayStyle.Potions) then return "potion_of_spectral_intellect 20"; end
+        if Cast(PotionSelected, nil, Settings.Commons.DisplayStyle.Potions) then return "potion 20"; end
       end
     end
     -- variable,name=dots_up,op=set,value=dot.shadow_word_pain.ticking&dot.vampiric_touch.ticking

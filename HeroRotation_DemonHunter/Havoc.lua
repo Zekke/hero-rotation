@@ -159,7 +159,7 @@ local function Precombat()
   end
   -- fleshcraft,if=soulbind.pustule_eruption|soulbind.volatile_solvent
   if S.Fleshcraft:IsCastable() and (S.PustuleEruption:SoulbindEnabled() or S.VolatileSolvent:SoulbindEnabled()) then
-    if Cast(S.Fleshcraft, nil, Settings.Commons.DisplayStyle.Covenant) then return "fleshcraft precombat 1.5"; end
+    if Cast(S.Fleshcraft, nil, Settings.Commons.DisplayStyle.Signature) then return "fleshcraft precombat 1.5"; end
   end
   -- Manually added: Fel Rush if out of range
   if (not Target:IsInMeleeRange(5)) and S.FelRush:IsCastable() then
@@ -181,8 +181,11 @@ local function Cooldown()
     if Cast(S.Metamorphosis, nil, Settings.Commons.DisplayStyle.Metamorphosis, not Target:IsInRange(40)) then return "metamorphosis cooldown 4"; end
   end
   -- potion,if=buff.metamorphosis.remains>25|fight_remains<60
-  if I.PotionofPhantomFire:IsReady() and Settings.Commons.Enabled.Potions and (Player:BuffRemains(S.MetamorphosisBuff) > 25 or FightRemains < 60) then
-    if Cast(I.PotionofPhantomFire, nil, Settings.Commons.DisplayStyle.Potions) then return "potion cooldown 6"; end
+  if Settings.Commons.Enabled.Potions and (Player:BuffRemains(S.MetamorphosisBuff) > 25 or FightRemains < 60) then
+    local PotionSelected = Everyone.PotionSelected()
+    if PotionSelected and PotionSelected:IsReady() then
+      if Cast(PotionSelected, nil, Settings.Commons.DisplayStyle.Potions) then return "potion cooldown 6"; end
+    end
   end
   if Settings.Commons.Enabled.Items then
     -- use_item,name=wraps_of_electrostatic_potential
@@ -212,25 +215,25 @@ local function Cooldown()
   end
   -- sinful_brand,if=!dot.sinful_brand.ticking&(!runeforge.agony_gaze|(cooldown.eye_beam.remains<=gcd&fury>=30))&(!cooldown.metamorphosis.up|active_enemies=1)
   if S.SinfulBrand:IsCastable() and (Target:DebuffDown(S.SinfulBrandDebuff) and ((not AgonyGazeEquipped) or (S.EyeBeam:CooldownRemains() <= Player:GCD() and Player:Fury() >= 30)) and (S.Metamorphosis:CooldownDown() or EnemiesCount8 == 1)) then
-    if Cast(S.SinfulBrand, nil, Settings.Commons.DisplayStyle.Covenant, not Target:IsSpellInRange(S.SinfulBrand)) then return "sinful_brand cooldown 18"; end
+    if Cast(S.SinfulBrand, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsSpellInRange(S.SinfulBrand)) then return "sinful_brand cooldown 18"; end
   end
   -- the_hunt,if=!talent.demonic.enabled&!variable.waiting_for_momentum&!variable.pooling_for_meta|(buff.furious_gaze.up|!talent.furious_gaze)
   if S.TheHuntCov:IsReady() and ((not S.Demonic:IsAvailable()) and (not VarWaitingForMomentum) and (not VarPoolingForMeta) or (Player:BuffUp(S.FuriousGazeBuff) or not S.FuriousGaze:IsAvailable())) then
-    if Cast(S.TheHunt, nil, Settings.Commons.DisplayStyle.Covenant, not Target:IsSpellInRange(S.TheHunt)) then return "the_hunt covenant cooldown 20"; end
+    if Cast(S.TheHunt, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsSpellInRange(S.TheHunt)) then return "the_hunt covenant cooldown 20"; end
   end
   if S.TheHunt:IsCastable() and ((not S.Demonic:IsAvailable()) and (not VarWaitingForMomentum) and (not VarPoolingForMeta) or (Player:BuffUp(S.FuriousGazeBuff) or not S.FuriousGaze:IsAvailable())) then
-    if Cast(S.TheHunt, nil, Settings.Commons.DisplayStyle.Covenant, not Target:IsSpellInRange(S.TheHunt)) then return "the_hunt cooldown 20"; end
+    if Cast(S.TheHunt, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsSpellInRange(S.TheHunt)) then return "the_hunt cooldown 20"; end
   end
   -- elysian_decree,if=(active_enemies>desired_targets|raid_event.adds.in>30)
   if S.ElysianDecreeCov:IsReady() and (EnemiesCount8 > 0) then
-    if Cast(S.ElysianDecree, nil, Settings.Commons.DisplayStyle.Covenant, not Target:IsInRange(30)) then return "elysian_decree covenant cooldown 22"; end
+    if Cast(S.ElysianDecree, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsInRange(30)) then return "elysian_decree covenant cooldown 22"; end
   end
   if S.ElysianDecree:IsCastable() and (EnemiesCount8 > 0) then
-    if Cast(S.ElysianDecree, nil, Settings.Commons.DisplayStyle.Covenant, not Target:IsInRange(30)) then return "elysian_decree cooldown 22"; end
+    if Cast(S.ElysianDecree, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsInRange(30)) then return "elysian_decree cooldown 22"; end
   end
   -- fleshcraft,if=soulbind.volatile_solvent&!buff.volatile_solvent_humanoid.up,interrupt_immediate=1,interrupt_global=1,interrupt_if=soulbind.volatile_solvent
   if S.Fleshcraft:IsCastable() and (S.VolatileSolvent:SoulbindEnabled() and Player:BuffDown(S.VolatileSolventHumanBuff)) then
-    if Cast(S.Fleshcraft, nil, Settings.Commons.DisplayStyle.Covenant) then return "fleshcraft cooldown 24"; end
+    if Cast(S.Fleshcraft, nil, Settings.Commons.DisplayStyle.Signature) then return "fleshcraft cooldown 24"; end
   end
 end
 

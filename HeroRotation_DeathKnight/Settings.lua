@@ -26,7 +26,7 @@ HR.GUISettings.APL.DeathKnight = {
     },
     DisplayStyle = {
       Potions = "Suggested",
-      Covenant = "Suggested",
+      Signature = "Suggested",
       Trinkets = "Suggested",
       Items = "Suggested",
       RaiseDead = "Suggested",
@@ -39,7 +39,6 @@ HR.GUISettings.APL.DeathKnight = {
       SacrificialPact = true
     },
     OffGCDasOffGCD = {
-      Trinkets = true,
       Potions = true,
       MindFreeze = true,
     }
