@@ -334,7 +334,7 @@
       [64]    = "HeroRotation_Mage",          -- Frost
     -- Monk
       --[268]   = "HeroRotation_Monk",          -- Brewmaster
-      --[269]   = "HeroRotation_Monk",          -- Windwalker
+      [269]   = "HeroRotation_Monk",          -- Windwalker
       --[270]   = "HeroRotation_Monk",          -- Mistweaver
     -- Paladin
       --[65]    = "HeroRotation_Paladin",       -- Holy
@@ -345,11 +345,11 @@
       --[257]   = "HeroRotation_Priest",        -- Holy
       [258]   = "HeroRotation_Priest",        -- Shadow
     -- Rogue
-      --[259]   = "HeroRotation_Rogue",         -- Assassination
+      [259]   = "HeroRotation_Rogue",         -- Assassination
       [260]   = "HeroRotation_Rogue",         -- Outlaw
-      --[261]   = "HeroRotation_Rogue",         -- Subtlety
+      [261]   = "HeroRotation_Rogue",         -- Subtlety
     -- Shaman
-      --[262]   = "HeroRotation_Shaman",        -- Elemental
+      [262]   = "HeroRotation_Shaman",        -- Elemental
       [263]   = "HeroRotation_Shaman",        -- Enhancement
       --[264]   = "HeroRotation_Shaman",        -- Restoration
     -- Warlock
