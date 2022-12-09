@@ -44,6 +44,7 @@ Spell.Shaman.Commons = {
   EarthShield                           = Spell(974),
   ElementalBlast                        = Spell(117014),
   LavaBurst                             = Spell(51505),
+  DeeplyRootedElements                  = Spell(378270),
   NaturesSwiftness                      = Spell(378081),
   PrimordialWave                        = Spell(375982),
   SpiritwalkersGrace                    = Spell(79206),
@@ -53,6 +54,7 @@ Spell.Shaman.Commons = {
   LightningShieldBuff                   = Spell(192106),
   PrimordialWaveBuff                    = Spell(375986),
   SpiritwalkersGraceBuff                = Spell(79206),
+  SplinteredElementsBuff                = Spell(382043),
   -- Debuffs
   FlameShockDebuff                      = Spell(188389),
   -- Trinket Effects
@@ -79,6 +81,7 @@ Spell.Shaman.Enhancement = MergeTableByKey(Spell.Shaman.Commons, {
   IceStrike                             = Spell(342240),
   LashingFlames                         = Spell(334046),
   LavaLash                              = Spell(60103),
+  OverflowingMaelstrom                  = Spell(384149),
   Stormflurry                           = Spell(344357),
   Stormstrike                           = Spell(17364),
   Sundering                             = Spell(197214),
@@ -104,6 +107,7 @@ Spell.Shaman.Enhancement = MergeTableByKey(Spell.Shaman.Commons, {
   -- Elemental Spirits Buffs
   CracklingSurgeBuff                    = Spell(224127),
   EarthenWeaponBuff                     = Spell(392375),
+  LegacyoftheFrostWitch                 = Spell(335901),
   IcyEdgeBuff                           = Spell(224126),
   MoltenWeaponBuff                      = Spell(224125),
 })
@@ -116,7 +120,6 @@ Spell.Shaman.Elemental = MergeTableByKey(Spell.Shaman.Commons, {
   -- Talents
   Aftershock                            = Spell(273221),
   Ascendance                            = Spell(114050),
-  DeeplyRootedElements                  = Spell(378270),
   EarthenRage                           = Spell(170374),
   EchooftheElements                     = Spell(333919),
   EchoesofGreatSundering                = Spell(384087),
@@ -157,7 +160,6 @@ Spell.Shaman.Elemental = MergeTableByKey(Spell.Shaman.Commons, {
   LavaSurgeBuff                         = Spell(77762),
   MasteroftheElementsBuff               = Spell(260734),
   PoweroftheMaelstromBuff               = Spell(191877),
-  SplinteredElementsBuff                = Spell(382043),
   SurgeofPowerBuff                      = Spell(285514),
   WindspeakersLavaResurgenceBuff        = Spell(378269),
   -- Debuffs
