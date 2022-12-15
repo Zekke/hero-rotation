@@ -24,6 +24,15 @@ local Settings = HR.GUISettings.General;
 local AbilitySettings = HR.GUISettings.Abilities;
 
 --- ============================ CONTENT ============================
+-- Num/Bool helper functions
+function Commons.num(val)
+  if val then return 1 else return 0 end
+end
+
+function Commons.bool(val)
+  return val ~= 0
+end
+
 -- Is the current target valid?
 function Commons.TargetIsValid()
   return Target:Exists() and Player:CanAttack(Target) and not Target:IsDeadOrGhost();
@@ -42,7 +51,7 @@ end
 -- Interrupt
 function Commons.Interrupt(Range, Spell, Setting, StunSpells)
   if Settings.InterruptEnabled and Target:IsInterruptible() and Target:IsInRange(Range) then
-    if Spell:IsCastable() then
+    if Spell:IsCastable(true) then
       if HR.Cast(Spell, Setting) then return "Cast " .. Spell:Name() .. " (Interrupt)"; end
     elseif Settings.InterruptWithStun and Target:CanBeStunned() then
       if StunSpells then
