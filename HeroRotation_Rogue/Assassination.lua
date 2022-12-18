@@ -527,6 +527,22 @@ local function Stealthed ()
   end
 end
 
+local function IndiscriminateCarnageLogic ()
+  if Player:BuffUp(S.IndiscriminateCarnage) then
+    if S.Garrote:IsReady() then
+      -- if Cast(S.Garrote) then return "Cast Garrote (Indiscriminate Carnage)" end
+      for _, CycleUnit in pairs(MeleeEnemies10y) do
+        if CycleUnit:DebuffRemains(S.Garrote) < 7 then
+          if Cast(S.Garrote) then return "Cast Garrote (Indiscriminate Carnage)" end
+        end
+      end
+    end
+    if S.Rupture:IsReady() and ComboPoints >= 4 then
+      if Cast(S.Rupture) then return "Cast Rupture (Indiscriminate Carnage)" end
+    end
+  end
+end
+
 -- # Damage over time abilities
 local function Dot ()
   local SkipCycleGarrote, SkipCycleRupture, SkipRupture = false, false, false
@@ -819,6 +835,11 @@ local function APL ()
         and MeleeEnemies10yCount == 0 and Player:EnergyTimeToMax() <= Player:GCD() * 1.5 then
         if Cast(S.PoisonedKnife) then return "Cast Poisoned Knife" end
       end
+    end
+    -- test Indiscriminate Carnage logic
+    if AoEON() and MeleeEnemies10yCount >= 2 then
+      ShouldReturn = IndiscriminateCarnageLogic()
+      if ShouldReturn then return ShouldReturn end
     end
     -- actions+=/call_action_list,name=dot
     ShouldReturn = Dot()
