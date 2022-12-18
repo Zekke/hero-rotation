@@ -193,8 +193,9 @@ end
 
 local function RampED()
   -- fracture,if=fury.deficit>=30
-  if S.Fracture:IsCastable() and (Player:FuryDeficit() >= 30) then
-    if Cast(S.Fracture, nil, nil, IsInMeleeRange) then return "fracture ramped 2"; end
+  -- Manually added: &debuff.frailty.stack<=5 (otherwise, will continually loop Fracture and SpiritBomb/SoulCleave)
+  if S.Fracture:IsCastable() and (Player:FuryDeficit() >= 30 and Target:DebuffStack(S.FrailtyDebuff) <= 5) then
+    if Cast(S.Fracture, nil, nil, not IsInMeleeRange) then return "fracture ramped 2"; end
   end
   -- sigil_of_flame,if=fury.deficit>=30
   if S.SigilofFlame:IsCastable() and ((IsInAoERange or not S.ConcentratedSigils:IsAvailable()) and Target:DebuffRefreshable(S.SigilofFlameDebuff)) and (Player:FuryDeficit() >= 30) then
@@ -226,8 +227,9 @@ end
 
 local function RampSC()
   -- fracture,if=fury.deficit>=30
-  if S.Fracture:IsCastable() and (Player:FuryDeficit() >= 30) then
-    if Cast(S.Fracture, nil, nil, IsInMeleeRange) then return "fracture rampsc 2"; end
+  -- Manually added: &debuff.frailty.stack<=5 (otherwise, will continually loop Fracture and SpiritBomb/SoulCleave)
+  if S.Fracture:IsCastable() and (Player:FuryDeficit() >= 30 and Target:DebuffStack(S.FrailtyDebuff) <= 5) then
+    if Cast(S.Fracture, nil, nil, not IsInMeleeRange) then return "fracture rampsc 2"; end
   end
   -- sigil_of_flame,if=fury.deficit>=30
   if S.SigilofFlame:IsCastable() and ((IsInAoERange or not S.ConcentratedSigils:IsAvailable()) and Target:DebuffRefreshable(S.SigilofFlameDebuff)) and (Player:FuryDeficit() >= 30) then
@@ -398,7 +400,8 @@ local function APL()
       end
     end
     -- run_action_list,name=FD,if=variable.FD_done=0
-    if (not VarFDDone) then
+    -- Manually added: Check fiery_demise. If not talented, the VarFDDone check remains nil, causing the profile to enter FD().
+    if (S.FieryDemise:IsAvailable() and not VarFDDone) then
       local ShouldReturn = FD(); if ShouldReturn then return ShouldReturn; end
       if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for FD()"; end
     end
@@ -443,13 +446,13 @@ local function APL()
     if S.Shear:IsCastable() and IsInMeleeRange then
       if Cast(S.Shear) then return "shear main 30"; end
     end
-    --[[ Manually added: fracture as a fallback filler
+    -- Manually added: fracture as a fallback filler
     if S.Fracture:IsCastable() and IsInMeleeRange then
       if Cast(S.Fracture) then return "fracture main 32"; end
-    end]]
+    end
     -- throw_glaive
     if S.ThrowGlaive:IsCastable() then
-      if Cast(S.ThrowGlaive, nil, nil, not Target:IsSpellInRange(S.ThrowGlaive)) then return "throw_glaive main 34 (OOR)"; end
+      if Cast(S.ThrowGlaive, nil, nil, not Target:IsSpellInRange(S.ThrowGlaive)) then return "throw_glaive main 34"; end
     end
     -- If nothing else to do, show the Pool icon
     if CastAnnotated(S.Pool, false, "WAIT") then return "Wait/Pool Resources"; end

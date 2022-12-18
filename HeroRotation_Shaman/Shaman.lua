@@ -89,6 +89,8 @@ Spell.Shaman.Enhancement = MergeTableByKey(Spell.Shaman.Commons, {
   ThorimsInvocation                     = Spell(384444),
   WindfuryTotem                         = Spell(8512),
   WindfuryWeapon                        = Spell(33757),
+  MoltenAssault							= Spell(334033),
+  ConvergingStorms                      = Spell(384363),
   -- Buffs
   AscendanceBuff                        = Spell(114051),
   AshenCatalystBuff                     = Spell(390371),
@@ -110,6 +112,8 @@ Spell.Shaman.Enhancement = MergeTableByKey(Spell.Shaman.Commons, {
   LegacyoftheFrostWitch                 = Spell(335901),
   IcyEdgeBuff                           = Spell(224126),
   MoltenWeaponBuff                      = Spell(224125),
+  -- Tier 29 Buffs
+  MaelstromofElementsBuff               = Spell(394677),
 })
 
 Spell.Shaman.Elemental = MergeTableByKey(Spell.Shaman.Commons, {
