@@ -54,25 +54,6 @@ local StunInterrupts = {
   {S.IntimidatingShout, "Cast Intimidating Shout (Interrupt)", function () return true; end},
 }
 
--- Legendaries
-local ReprisalEquipped = Player:HasLegendaryEquipped(193)
-local GloryEquipped = Player:HasLegendaryEquipped(214)
-
--- Event Registrations
-HL:RegisterForEvent(function()
-  ReprisalEquipped = Player:HasLegendaryEquipped(193)
-  GloryEquipped = Player:HasLegendaryEquipped(214)
-end, "PLAYER_EQUIPMENT_CHANGED")
-
--- Player Covenant
--- 0: none, 1: Kyrian, 2: Venthyr, 3: Night Fae, 4: Necrolord
-local CovenantID = Player:CovenantID()
-
--- Update CovenantID if we change Covenants
-HL:RegisterForEvent(function()
-  CovenantID = Player:CovenantID()
-end, "COVENANT_CHOSEN")
-
 local function IsCurrentlyTanking()
   return Player:IsTankingAoE(16) or Player:IsTanking(Target) or Target:IsDummy()
 end
@@ -110,7 +91,7 @@ local function SuggestRageDump(RageFromSpell)
   local RageMax = Settings.Protection.RageCapValue
   -- If the setting value is lower than 35, it's not possible to cast Ignore Pain, so just return false
   if (RageMax < 35 or Player:Rage() < 35) then return false end
-  local ShouldPreRageDump = false
+  local shouldPreRageDump = false
   -- Make sure we have enough Rage to cast IP, that it's not on CD, and that we shouldn't use Shield Block
   local AbleToCastIP = (Player:Rage() >= 35 and not ShouldPressShieldBlock())
   if AbleToCastIP and (Player:Rage() + RageFromSpell >= RageMax or S.DemoralizingShout:IsReady()) then
@@ -134,15 +115,6 @@ local function Precombat()
   -- Manually added: Group buff check
   if S.BattleShout:IsCastable() and (Player:BuffDown(S.BattleShoutBuff, true) or Everyone.GroupBuffMissing(S.BattleShoutBuff)) then
     if Cast(S.BattleShout, Settings.Commons.GCDasOffGCD.BattleShout) then return "battle_shout precombat 2"; end
-  end
-  -- fleshcraft
-  -- Note: Manually moved this above conquerors_banner so we don't waste 3s of the banner buff
-  if S.Fleshcraft:IsCastable() then
-    if Cast(S.Fleshcraft, nil, Settings.Commons.DisplayStyle.Signature) then return "fleshcraft precombat"; end
-  end
-  -- conquerors_banner
-  if S.ConquerorsBanner:IsCastable() then
-    if Cast(S.ConquerorsBanner, nil, Settings.Commons.DisplayStyle.Signature) then return "conquerors_banner precombat"; end
   end
   -- Manually added opener
   if Target:IsInMeleeRange(12) then
@@ -179,6 +151,7 @@ local function Defensive()
   if S.DemoralizingShout:IsCastable() and (Player:BuffDown(S.LastStandBuff) and Player:BuffDown(S.ShieldWallBuff) and Player:BuffDown(S.RallyingCryBuff)) then
     if Cast(S.DemoralizingShout, nil, Settings.Protection.DisplayStyle.Defensive) then return "demoralizing_shout defensive"; end
   end
+  -- Manually added: VR/IV
   if Player:HealthPercentage() < Settings.Commons.VictoryRushHP then
     if S.VictoryRush:IsReady() then
       if Cast(S.VictoryRush) then return "victory_rush defensive"; end
@@ -202,17 +175,17 @@ local function Aoe()
   -- thunderous_roar
   if S.ThunderousRoar:IsCastable() then
     SuggestRageDump(10)
-    if Cast(S.ThunderousRoar, Settings.Commons.GCDasOffGCD.ThunderousRoar, nil, not Target:IsInMeleeRange(12)) then return "thunderous_roar aoe 6"; end
+    if Cast(S.ThunderousRoar, Settings.Protection.GCDasOffGCD.ThunderousRoar, nil, not Target:IsInMeleeRange(12)) then return "thunderous_roar aoe 6"; end
   end
   -- ravager
   if S.Ravager:IsCastable() then
     SuggestRageDump(10)
-    if Cast(S.Ravager, nil, nil, not Target:IsInRange(40)) then return "ravager aoe 8"; end
+    if Cast(S.Ravager, Settings.Protection.GCDasOffGCD.Ravager, nil, not Target:IsInRange(40)) then return "ravager aoe 8"; end
   end
   -- shockwave
   if S.Shockwave:IsCastable() then
     SuggestRageDump(10)
-    if Cast(S.Shockwave, Settings.Commons.GCDasOffGCD.Shockwave, nil, not Target:IsInMeleeRange(10)) then return "shockwave aoe 10"; end
+    if Cast(S.Shockwave, Settings.Protection.GCDasOffGCD.Shockwave, nil, not Target:IsInMeleeRange(10)) then return "shockwave aoe 10"; end
   end
   -- shield_charge
   if S.ShieldCharge:IsCastable() then
@@ -266,12 +239,12 @@ local function Generic()
   -- ravager
   if S.Ravager:IsCastable() then
     SuggestRageDump(10)
-    if Cast(S.Ravager, nil, nil, not Target:IsInRange(40)) then return "ravager generic 4"; end
+    if Cast(S.Ravager, Settings.Protection.GCDasOffGCD.Ravager, nil, not Target:IsInRange(40)) then return "ravager generic 4"; end
   end
   -- thunderous_roar
   if S.ThunderousRoar:IsCastable() then
     SuggestRageDump(10)
-    if Cast(S.ThunderousRoar, Settings.Commons.GCDasOffGCD.ThunderousRoar, nil, not Target:IsInMeleeRange(12)) then return "thunderous_roar generic 6"; end
+    if Cast(S.ThunderousRoar, Settings.Protection.GCDasOffGCD.ThunderousRoar, nil, not Target:IsInMeleeRange(12)) then return "thunderous_roar generic 6"; end
   end
   -- spear_of_bastion
   if S.SpearofBastion:IsCastable() then
@@ -285,7 +258,7 @@ local function Generic()
   -- shockwave
   if S.Shockwave:IsCastable() then
     SuggestRageDump(10)
-    if Cast(S.Shockwave, Settings.Commons.GCDasOffGCD.Shockwave, nil, not Target:IsInMeleeRange(10)) then return "shockwave generic 12"; end
+    if Cast(S.Shockwave, Settings.Protection.GCDasOffGCD.Shockwave, nil, not Target:IsInMeleeRange(10)) then return "shockwave generic 12"; end
   end
   -- execute
   if S.Execute:IsReady() and not ShouldPressShieldBlock() then
@@ -410,7 +383,7 @@ local function APL()
       if Cast(S.Revenge, nil, nil, not TargetInMeleeRange) then return "revenge main 12"; end
     end
     -- ignore_pain,if=target.health.pct>=20&(target.health.pct>=80&!covenant.venthyr)&(rage>=85&cooldown.shield_slam.ready&buff.shield_block.up|rage>=60&cooldown.demoralizing_shout.ready&talent.booming_voice.enabled|rage>=70&cooldown.avatar.ready|rage>=40&cooldown.demoralizing_shout.ready&talent.booming_voice.enabled&buff.last_stand.up|rage>=55&cooldown.avatar.ready&buff.last_stand.up|rage>=80|rage>=55&cooldown.shield_slam.ready&buff.violent_outburst.up&buff.shield_block.up|rage>=30&cooldown.shield_slam.ready&buff.violent_outburst.up&buff.last_stand.up&buff.shield_block.up),use_off_gcd=1
-    if S.IgnorePain:IsReady() and IgnorePainWillNotCap() and (Target:HealthPercentage() >= 20 and (Target:HealthPercentage() >= 80 and CovenantID ~= 2) and (Player:Rage() >= 85 and S.ShieldSlam:CooldownUp() and Player:BuffUp(S.ShieldBlockBuff) or Player:Rage() >= 60 and S.DemoralizingShout:CooldownUp() and S.BoomingVoice:IsAvailable() or Player:Rage() >= 70 and S.Avatar:CooldownUp() or Player:Rage() >= 40 and S.DemoralizingShout:CooldownUp() and S.BoomingVoice:IsAvailable() and Player:BuffUp(S.LastStandBuff) or Player:Rage() >= 55 and S.Avatar:CooldownUp() and Player:BuffUp(S.LastStandBuff) or Player:Rage() >= 80 or Player:Rage() >= 55 and S.ShieldSlam:CooldownUp() and Player:BuffUp(S.ViolentOutburstBuff) and Player:BuffUp(S.ShieldBlockBuff) or Player:Rage() >= 30 and S.ShieldSlam:CooldownUp() and Player:BuffUp(S.ViolentOutburstBuff) and Player:BuffUp(S.LastStandBuff) and Player:BuffUp(S.ShieldBlockBuff))) then
+    if S.IgnorePain:IsReady() and IgnorePainWillNotCap() and (Target:HealthPercentage() >= 20 and (Player:Rage() >= 85 and S.ShieldSlam:CooldownUp() and Player:BuffUp(S.ShieldBlockBuff) or Player:Rage() >= 60 and S.DemoralizingShout:CooldownUp() and S.BoomingVoice:IsAvailable() or Player:Rage() >= 70 and S.Avatar:CooldownUp() or Player:Rage() >= 40 and S.DemoralizingShout:CooldownUp() and S.BoomingVoice:IsAvailable() and Player:BuffUp(S.LastStandBuff) or Player:Rage() >= 55 and S.Avatar:CooldownUp() and Player:BuffUp(S.LastStandBuff) or Player:Rage() >= 80 or Player:Rage() >= 55 and S.ShieldSlam:CooldownUp() and Player:BuffUp(S.ViolentOutburstBuff) and Player:BuffUp(S.ShieldBlockBuff) or Player:Rage() >= 30 and S.ShieldSlam:CooldownUp() and Player:BuffUp(S.ViolentOutburstBuff) and Player:BuffUp(S.LastStandBuff) and Player:BuffUp(S.ShieldBlockBuff))) then
       if Cast(S.IgnorePain, nil, Settings.Protection.DisplayStyle.Defensive) then return "ignore_pain main 14"; end
     end
     -- shield_block,if=(buff.shield_block.down|buff.shield_block.remains<cooldown.shield_slam.remains)&target.health.pct>20

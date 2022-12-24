@@ -33,11 +33,7 @@ HR.GUISettings.APL.Warrior = {
     GCDasOffGCD = {
       Racials = true,
       -- Abilities
-      Avatar = true,
-      BattleCry = true,
       BattleShout = true,
-      Shockwave = true,
-      ThunderousRoar = false,
     },
     OffGCDasOffGCD = {
       Pummel = true,
@@ -52,7 +48,8 @@ HR.GUISettings.APL.Warrior = {
       -- Abilities
       Avatar = false,
       Bladestorm = false,
-      Ravager = false,
+      Shockwave = true,
+      ThunderousRoar = false,
     },
     OffGCDasOffGCD = {
     },
@@ -66,11 +63,12 @@ HR.GUISettings.APL.Warrior = {
       -- Abilities
     },
     GCDasOffGCD = {
-      Bladestorm = false,
-      DragonRoar = false,
+      Avatar = false,
+      OdinsFury = false,
       Ravager = false,
       Recklessness = false,
-      Siegebreaker = false,
+      Shockwave = true,
+      ThunderousRoar = false,
     }
   },
   Protection = {
@@ -87,9 +85,11 @@ HR.GUISettings.APL.Warrior = {
       -- Abilities
     },
     GCDasOffGCD = {
-      DemoralizingShout = false,
-      DragonRoar = false,
       Avatar = false,
+      Ravager = false,
+      DemoralizingShout = false,
+      Shockwave = true,
+      ThunderousRoar = false,
     }
   },
 }
