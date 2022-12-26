@@ -167,7 +167,7 @@ local function SingleTarget()
     if Cast(S.CrushingBlow, nil, nil, not TargetInMeleeRange) then return "crushing_blow single_target 102"; end
   end
   -- whirlwind
-  if S.Whirlwind:IsCastable() then
+  if AoEON() and S.Whirlwind:IsCastable() then
     if Cast(S.Whirlwind, nil, nil, not Target:IsInMeleeRange(8)) then return "whirlwind single_target 103"; end
   end
   -- wrecking_throw
@@ -213,8 +213,8 @@ local function MultiTarget()
   if S.Execute:IsReady() and EnrageUp then
     if Cast(S.Execute, nil, nil, not TargetInMeleeRange) then return "execute multi_target 61"; end
   end
-  -- CDsON() and odyns_fury,if=buff.enrage.up&raid_event.adds.in>15
-  if S.OdynsFury:IsCastable() and EnrageUp then
+  -- odyns_fury,if=buff.enrage.up&raid_event.adds.in>15
+  if CDsON() and S.OdynsFury:IsCastable() and EnrageUp then
     if Cast(S.OdynsFury, nil, nil, not Target:IsInMeleeRange(12)) then return "odyns_fury multi_target 62"; end
   end
   -- rampage,if=buff.recklessness.up|buff.enrage.remains<gcd|(rage>110&talent.overwhelming_rage)|(rage>80&!talent.overwhelming_rage)
@@ -345,11 +345,11 @@ local function APL()
         if Cast(TrinketToUse, nil, Settings.Commons.DisplayStyle.Trinkets) then return "Generic use_items for " .. TrinketToUse:Name(); end
       end
     end
-    -- ravager,if=cooldown.avatar.remains<3
-    if S.Ravager:IsCastable() and S.Avatar:CooldownRemains() < 3 then
-      if Cast(S.Ravager, Settings.Fury.GCDasOffGCD.Ravager, nil, not Target:IsInRange(40)) then return "ravager main 40"; end
-    end
     if CDsON() then
+      -- ravager,if=cooldown.avatar.remains<3
+      if S.Ravager:IsCastable() and S.Avatar:CooldownRemains() < 3 then
+        if Cast(S.Ravager, Settings.Fury.GCDasOffGCD.Ravager, nil, not Target:IsInRange(40)) then return "ravager main 40"; end
+      end
       -- blood_fury
       if S.BloodFury:IsCastable() then
         if Cast(S.BloodFury, Settings.Commons.GCDasOffGCD.Racials) then return "blood_fury main 41"; end
