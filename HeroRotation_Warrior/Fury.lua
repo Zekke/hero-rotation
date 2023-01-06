@@ -59,15 +59,15 @@ local function Precombat()
   -- food
   -- augmentation
   -- snapshot_stats
-  -- Manually added: Group buff check
-  if S.BattleShout:IsCastable() and (Player:BuffDown(S.BattleShoutBuff, true) or Everyone.GroupBuffMissing(S.BattleShoutBuff)) then
-    if Cast(S.BattleShout, Settings.Commons.GCDasOffGCD.BattleShout) then return "battle_shout precombat"; end
-  end
+
   -- berserker_stance,toggle=on
   if S.BerserkerStance:IsCastable() and Player:BuffDown(S.BerserkerStance, true) then
     if Cast(S.BerserkerStance) then return "berserker_stance 28"; end
   end
-  --use_item,name=algethar_puzzle_box
+  -- use_item,name=algethar_puzzle_box
+  if I.AlgethaPuzzleBox:IsEquippedAndReady() then
+    if Cast(I.AlgethaPuzzleBox, nil, Settings.Commons.DisplayStyle.Trinkets) then return "algethar_puzzle_box main 2"; end
+  end
   -- Manually Added: Charge if not in melee. Bloodthirst if in melee
   if S.Bloodthirst:IsCastable() and TargetInMeleeRange then
     if Cast(S.Bloodthirst, nil, nil, not TargetInMeleeRange) then return "bloodthirst precombat"; end
@@ -87,7 +87,7 @@ local function SingleTarget()
     if Cast(S.Execute, nil, nil, not TargetInMeleeRange) then return "execute single_target 82"; end
   end
   -- thunderous_roar,if=buff.enrage.up&(spell_targets.whirlwind>1|raid_event.adds.in>15)
-  if S.ThunderousRoar:IsCastable() and EnrageUp then
+  if CDsON() and S.ThunderousRoar:IsCastable() and EnrageUp then
     if Cast(S.ThunderousRoar, Settings.Fury.GCDasOffGCD.ThunderousRoar, nil, not Target:IsInMeleeRange(12)) then return "thunderous_roar single_target 83"; end
   end
   -- odyns_fury,if=buff.enrage.up&(spell_targets.whirlwind>1|raid_event.adds.in>15)&(talent.dancing_blades&buff.dancing_blades.remains<5|!talent.dancing_blades)
@@ -198,7 +198,7 @@ local function MultiTarget()
     if Cast(S.Execute, nil, nil, not TargetInMeleeRange) then return "execute multi_target 57"; end
   end
   -- thunderous_roar,if=buff.enrage.up&(spell_targets.whirlwind>1|raid_event.adds.in>15)
-  if S.ThunderousRoar:IsCastable() and EnrageUp then
+  if CDsON() and S.ThunderousRoar:IsCastable() and EnrageUp then
     if Cast(S.ThunderousRoar, Settings.Fury.GCDasOffGCD.ThunderousRoar, nil, not Target:IsInMeleeRange(12)) then return "thunderous_roar multi_target 58"; end
   end
   -- odyns_fury,if=active_enemies>1&buff.enrage.up&raid_event.adds.in>15
@@ -302,6 +302,10 @@ local function APL()
   TargetInMeleeRange = Target:IsInMeleeRange(5)
 
   if Everyone.TargetIsValid() then
+    -- Manually added: Group buff check
+    if S.BattleShout:IsCastable() and (Player:BuffDown(S.BattleShoutBuff, true) or Everyone.GroupBuffMissing(S.BattleShoutBuff)) then
+      if Cast(S.BattleShout, Settings.Commons.GCDasOffGCD.BattleShout) then return "battle_shout precombat"; end
+    end
     -- call Precombat
     if not Player:AffectingCombat() then
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
