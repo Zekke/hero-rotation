@@ -106,8 +106,8 @@ local function EvaluateTargetIfRaptorStrikeCleave(TargetUnit)
 end
 
 local function EvaluateTargetIfSerpentStingCleave(TargetUnit)
-  -- if=refreshable&target.time_to_die>12&(!talent.vipers_venom|talent.hydras_bite)
-  return (TargetUnit:DebuffRefreshable(S.SerpentStingDebuff) and TargetUnit:TimeToDie() > 12 and ((not S.VipersVenom:IsAvailable()) or S.HydrasBite:IsAvailable()))
+  -- if=refreshable&target.time_to_die>8
+  return (TargetUnit:DebuffRefreshable(S.SerpentStingDebuff) and TargetUnit:TimeToDie() > 8)
 end
 
 local function EvaluateTargetIfSerpentStingST(TargetUnit)
@@ -159,28 +159,28 @@ local function CDs()
   if (Player:BuffUp(S.CoordinatedAssault) or Player:BuffUp(S.SpearheadBuff) or (not S.Spearhead:IsAvailable()) and not S.CoordinatedAssault:IsAvailable()) then
     -- blood_fury,if=buff.coordinated_assault.up|buff.spearhead.up|!talent.spearhead&!talent.coordinated_assault
     if S.BloodFury:IsCastable() then
-      if Cast(S.BloodFury, Settings.Commons.GCDasOffGCD.Racials) then return "blood_fury cds 4"; end
+      if Cast(S.BloodFury, Settings.Commons.OffGCDasOffGCD.Racials) then return "blood_fury cds 4"; end
     end
     -- ancestral_call,if=buff.coordinated_assault.up|buff.spearhead.up|!talent.spearhead&!talent.coordinated_assault
     if S.AncestralCall:IsCastable() then
-      if Cast(S.AncestralCall, Settings.Commons.GCDasOffGCD.Racials) then return "ancestral_call cds 6"; end
+      if Cast(S.AncestralCall, Settings.Commons.OffGCDasOffGCD.Racials) then return "ancestral_call cds 6"; end
     end
     -- fireblood,if=buff.coordinated_assault.up|buff.spearhead.up|!talent.spearhead&!talent.coordinated_assault
     if S.Fireblood:IsCastable() then
-      if Cast(S.Fireblood, Settings.Commons.GCDasOffGCD.Racials) then return "fireblood cds 8"; end
+      if Cast(S.Fireblood, Settings.Commons.OffGCDasOffGCD.Racials) then return "fireblood cds 8"; end
     end
   end
   -- lights_judgment
   if S.LightsJudgment:IsCastable() then
-    if Cast(S.LightsJudgment, Settings.Commons.GCDasOffGCD.Racials, nil, not Target:IsSpellInRange(S.LightsJudgment)) then return "lights_judgment cds 10"; end
+    if Cast(S.LightsJudgment, Settings.Commons.OffGCDasOffGCD.Racials, nil, not Target:IsSpellInRange(S.LightsJudgment)) then return "lights_judgment cds 10"; end
   end
   -- bag_of_tricks,if=cooldown.kill_command.full_recharge_time>gcd
   if S.BagofTricks:IsCastable() and (S.KillCommand:FullRechargeTime() > Player:GCD()) then
-    if Cast(S.BagofTricks, Settings.Commons.GCDasOffGCD.Racials, nil, not Target:IsSpellInRange(S.BagofTricks)) then return "bag_of_tricks cds 12"; end
+    if Cast(S.BagofTricks, Settings.Commons.OffGCDasOffGCD.Racials, nil, not Target:IsSpellInRange(S.BagofTricks)) then return "bag_of_tricks cds 12"; end
   end
   -- berserking,if=buff.coordinated_assault.up|buff.spearhead.up|!talent.spearhead&!talent.coordinated_assault|time_to_die<13
   if S.Berserking:IsCastable() and (Player:BuffUp(S.CoordinatedAssault) or Player:BuffUp(S.SpearheadBuff) or (not S.Spearhead:IsAvailable()) and (not S.CoordinatedAssault:IsAvailable()) or FightRemains < 13) then
-    if Cast(S.Berserking, Settings.Commons.GCDasOffGCD.Racials) then return "berserking cds 14"; end
+    if Cast(S.Berserking, Settings.Commons.OffGCDasOffGCD.Racials) then return "berserking cds 14"; end
   end
   -- muzzle
   -- Handled via Interrupt in APL()
@@ -281,15 +281,15 @@ local function Cleave()
   if S.Carve:IsReady() then
     if Cast(S.Carve, nil, nil, not Target:IsInMeleeRange(5)) then return "carve cleave 36"; end
   end
-  -- kill_shot,if=!buff.coordinated_assault.up
-  if S.KillShot:IsReady() and (Player:BuffDown(S.CoordinatedAssaultBuff)) then
+  -- kill_shot
+  if S.KillShot:IsReady() then
     if Cast(S.KillShot, nil, nil, not Target:IsSpellInRange(S.KillShot)) then return "kill_shot cleave 38"; end
   end
   -- steel_trap,if=focus+cast_regen<focus.max
   if S.SteelTrap:IsCastable() and (CheckFocusCap(S.SteelTrap:ExecuteTime())) then
     if Cast(S.SteelTrap, Settings.Commons2.GCDasOffGCD.SteelTrap, nil, not Target:IsInRange(40)) then return "steel_trap cleave 40"; end
   end
-  -- serpent_sting,target_if=min:remains,if=refreshable&target.time_to_die>12&(!talent.vipers_venom|talent.hydras_bite)
+  -- serpent_sting,target_if=min:remains,if=refreshable&target.time_to_die>8
   if S.SerpentSting:IsReady() then
     if Everyone.CastTargetIf(S.SerpentSting, EnemyList, "min", EvaluateTargetIfFilterSerpentStingRemains, EvaluateTargetIfSerpentStingCleave, not Target:IsSpellInRange(S.SerpentSting)) then return "serpent_sting cleave 42"; end
   end

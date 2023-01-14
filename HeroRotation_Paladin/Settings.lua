@@ -28,6 +28,7 @@ HR.GUISettings.APL.Paladin = {
       Items = "Suggested",
     },
     GCDasOffGCD = {
+      HammerOfWrath = true,
     },
     OffGCDasOffGCD = {
       Racials = true,
@@ -46,17 +47,17 @@ HR.GUISettings.APL.Paladin = {
     },
     DisplayStyle = {
       Defensives = "SuggestedRight",
+      ShieldOfTheRighteous = "SuggestedRight",
     },
     GCDasOffGCD = {
-      AvengingWrath = true,
-      WordOfGlory = true,
       Seraphim = true,
-      GuardianofAncientKings = true,
-      ArdentDefender = true,
+      WordOfGlory = true,
     },
     OffGCDasOffGCD = {
+      AvengingWrath = true,
+      BastionOfLight = true,
+      HolyAvenger = true,
       MomentOfGlory = true,
-      ShieldOfTheRighteous = true,
     }
   },
   Retribution = {
@@ -65,7 +66,6 @@ HR.GUISettings.APL.Paladin = {
     },
     GCDasOffGCD = {
       ExecutionSentence = false,
-      HammerOfWrath = true,
       Seraphim = false,
       ShieldOfVengeance = true,
     },

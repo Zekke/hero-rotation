@@ -109,12 +109,12 @@ Spell.Druid.Balance = MergeTableByKey(Spell.Druid.Commons, {
   -- Talents
   AetherialKindling                     = Spell(327541),
   BalanceofAllThings                    = Spell(394048),
-  CelestialAlignment                    = Spell(383410),
+  CelestialAlignment                    = MultiSpell(194223,383410), -- 194223 without Orbital Strike, 383410 with Orbital Strike
   ElunesGuidance                        = Spell(393991),
   ForceofNature                         = Spell(205636),
   FungalGrowth                          = Spell(392999),
   FuryofElune                           = Spell(202770),
-  Incarnation                           = Spell(390414),
+  Incarnation                           = MultiSpell(102560,390414), -- 102560 without Orbital Strike, 390414 with Orbital Strike
   IncarnationTalent                     = Spell(394013),
   NaturesBalance                        = Spell(202430),
   OrbitBreaker                          = Spell(383197),
