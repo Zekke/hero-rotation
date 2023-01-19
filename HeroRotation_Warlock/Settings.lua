@@ -39,6 +39,7 @@ HR.GUISettings.APL.Warlock = {
     }
   },
   Destruction = {
+    IgnoreSTHavoc = false,
     PotionType = {
       Selected = "Power",
     },
@@ -46,11 +47,12 @@ HR.GUISettings.APL.Warlock = {
     -- {Display GCD as OffGCD, ForceReturn}
     GCDasOffGCD = {
       -- Abilities
-      SummonPet = false,
+      Cataclysm = false,
       GrimoireOfSacrifice = true,
-      SummonInfernal = true,
-      SummonSoulkeeper = false,
       InquisitorsGaze = false,
+      SummonInfernal = true,
+      SummonPet = false,
+      SummonSoulkeeper = false,
     },
     -- {Display OffGCD as OffGCD, ForceReturn}
     OffGCDasOffGCD = {
@@ -114,6 +116,7 @@ local CP_Destruction = CreateChildPanel(CP_Warlock, "Destruction")
 CreateARPanelOptions(CP_Warlock, "APL.Warlock.Commons")
 
 -- Destruction
+CreatePanelOption("CheckButton", CP_Destruction, "APL.Warlock.Destruction.IgnoreSTHavoc", "Ignore Havoc in Single Target", "Enable this option to not receive suggestions to use Havoc while in single target combat.")
 CreateARPanelOptions(CP_Destruction, "APL.Warlock.Destruction")
 
 -- Demonology

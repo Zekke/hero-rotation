@@ -122,7 +122,7 @@ local function Precombat()
   end
   -- cataclysm
   if S.Cataclysm:IsCastable() then
-    if Cast(S.Cataclysm, nil, nil, not Target:IsInRange(40)) then return "cataclysm precombat 6"; end
+    if Cast(S.Cataclysm, Settings.Destruction.GCDasOffGCD.Cataclysm, nil, not Target:IsInRange(40)) then return "cataclysm precombat 6"; end
   end
   -- incinerate
   if S.Incinerate:IsCastable() and (not Player:IsCasting(S.Incinerate)) then
@@ -241,7 +241,7 @@ local function Cleave()
   end
   -- cataclysm
   if CDsON() and S.Cataclysm:IsCastable() then
-    if Cast(S.Cataclysm, nil, nil, not Target:IsSpellInRange(S.Cataclysm)) then return "cataclysm cleave 6"; end
+    if Cast(S.Cataclysm, Settings.Destruction.GCDasOffGCD.Cataclysm, nil, not Target:IsSpellInRange(S.Cataclysm)) then return "cataclysm cleave 6"; end
   end
   -- channel_demonfire,if=talent.raging_demonfire
   if S.ChannelDemonfire:IsCastable() and (S.RagingDemonfire:IsAvailable()) then
@@ -367,7 +367,7 @@ local function Aoe()
   end
   -- cataclysm
   if CDsON() and S.Cataclysm:IsCastable() then
-    if Cast(S.Cataclysm, nil, nil, not Target:IsSpellInRange(S.Cataclysm)) then return "cataclysm aoe 10"; end
+    if Cast(S.Cataclysm, Settings.Destruction.GCDasOffGCD.Cataclysm, nil, not Target:IsSpellInRange(S.Cataclysm)) then return "cataclysm aoe 10"; end
   end
   -- channel_demonfire,if=dot.immolate.remains>cast_time&talent.raging_demonfire
   if S.ChannelDemonfire:IsCastable() and (Target:DebuffRemains(S.ImmolateDebuff) > S.ChannelDemonfire:CastTime() and S.RagingDemonfire:IsAvailable()) then
@@ -510,7 +510,7 @@ local function APL()
     end
     -- cataclysm
     if CDsON() and S.Cataclysm:IsReady() then
-      if Cast(S.Cataclysm, nil, nil, not Target:IsInRange(40)) then return "cataclysm main 6"; end
+      if Cast(S.Cataclysm, Settings.Destruction.GCDasOffGCD.Cataclysm, nil, not Target:IsInRange(40)) then return "cataclysm main 6"; end
     end
     -- channel_demonfire,if=talent.raging_demonfire
     if S.ChannelDemonfire:IsReady() and S.RagingDemonfire:IsAvailable() then
@@ -524,16 +524,9 @@ local function APL()
     if S.Immolate:IsCastable() and (((Target:DebuffRefreshable(S.ImmolateDebuff) and S.InternalCombustion:IsAvailable()) or Target:DebuffRemains(S.ImmolateDebuff) < 3) and ((not S.Cataclysm:IsAvailable()) or S.Cataclysm:CooldownRemains() > Target:DebuffRemains(S.ImmolateDebuff)) and ((not S.SoulFire:IsAvailable()) or S.SoulFire:CooldownRemains() > Target:DebuffRemains(S.ImmolateDebuff))) then
       if Cast(S.Immolate, nil, nil, not Target:IsSpellInRange(S.Immolate)) then return "immolate main 10"; end
     end
-    -- havoc,if=talent.cry_havoc&(buff.ritual_of_ruin.up|pet.infernal.active)
-    -- Should be a cycle_targets, like other Havoc casts?
-    if S.Havoc:IsCastable() and (S.CryHavoc:IsAvailable() and (Player:BuffUp(S.RitualofRuinBuff) or InfernalTime() > 0)) then
-      local TargetGUID = Target:GUID()
-      for _, CycleUnit in pairs(Enemies40y) do
-        if CycleUnit:GUID() ~= TargetGUID and not CycleUnit:IsFacingBlacklisted() and not CycleUnit:IsUserCycleBlacklisted() then
-          HR.CastLeftNameplate(CycleUnit, S.Havoc)
-          break
-        end
-      end
+    -- havoc,if=talent.cry_havoc&((buff.ritual_of_ruin.up&pet.infernal.active&talent.burn_to_ashes)|((buff.ritual_of_ruin.up|pet.infernal.active)&!talent.burn_to_ashes))
+    if S.Havoc:IsCastable() and (not Settings.Destruction.IgnoreSTHavoc) and (S.CryHavoc:IsAvailable() and ((Player:BuffUp(S.RitualofRuinBuff) or InfernalTime() > 0 and S.BurntoAshes:IsAvailable()) or ((Player:BuffUp(S.RitualofRuinBuff) or InfernalTime() > 0) and not S.BurntoAshes:IsAvailable()))) then
+      if Cast(S.Havoc, nil, nil, not Target:IsSpellInRange(S.Havoc)) then return "havoc (st) main 11"; end
     end
     -- chaos_bolt,if=pet.infernal.active|pet.blasphemy.active|soul_shard>=4
     if S.ChaosBolt:IsReady() and (InfernalTime() > 0 or BlasphemyTime() > 0 or Player:SoulShardsP() >= 4) then

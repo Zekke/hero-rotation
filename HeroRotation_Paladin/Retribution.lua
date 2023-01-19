@@ -178,7 +178,7 @@ local function Cooldowns()
     if Cast(S.ShieldofVengeance, Settings.Retribution.GCDasOffGCD.ShieldOfVengeance) then return "shield_of_vengeance cooldowns 10"; end
   end
   -- avenging_wrath,if=((holy_power>=4&time<5|holy_power>=3&time>5)|talent.holy_avenger&cooldown.holy_avenger.remains=0)&(!talent.seraphim|!talent.final_reckoning|cooldown.seraphim.remains>0)
-  if S.AvengingWrath:IsCastable() and (((Player:HolyPower() >= 4 and HL.CombatTime() < 5 or Player:HolyPower() >= 3 and HL.CombatTime() > 5) or S.HolyAvenger:IsAvailable() and S.HolyAvenger:CooldownUp()) ((not S.Seraphim:IsAvailable()) or (not S.FinalReckoning:IsAvailable()) or S.Seraphim:CooldownDown())) then
+  if S.AvengingWrath:IsCastable() and (((Player:HolyPower() >= 4 and HL.CombatTime() < 5 or Player:HolyPower() >= 3 and HL.CombatTime() > 5) or S.HolyAvenger:IsAvailable() and S.HolyAvenger:CooldownUp()) and ((not S.Seraphim:IsAvailable()) or (not S.FinalReckoning:IsAvailable()) or S.Seraphim:CooldownDown())) then
     if Cast(S.AvengingWrath, Settings.Retribution.OffGCDasOffGCD.AvengingWrath) then return "avenging_wrath cooldowns 12" end
   end
   -- crusade,if=holy_power>=4&time<5|holy_power>=3&time>5
@@ -319,7 +319,7 @@ local function ESFRActive()
     if Cast(S.WakeofAshes, nil, nil, not Target:IsInRange(12)) then return "wake_of_ashes es_fr_active 6"; end
   end
   -- blade_of_justice,if=talent.expurgation&(!talent.divine_resonance&holy_power<=3|holy_power<=2)
-  if S.BladeofJustice:IsCastable() and (S.Expurgation:ConduitEnabled() and ((not S.DivineResonance:IsAvailable()) and Player:HolyPower() <= 3 or Player:HolyPower() <= 2)) then
+  if S.BladeofJustice:IsCastable() and (S.Expurgation:IsAvailable() and ((not S.DivineResonance:IsAvailable()) and Player:HolyPower() <= 3 or Player:HolyPower() <= 2)) then
     if Cast(S.BladeofJustice, nil, nil, not Target:IsSpellInRange(S.BladeofJustice)) then return "blade_of_justice es_fr_active 8"; end
   end
   -- judgment,if=!debuff.judgment.up&holy_power>=2
