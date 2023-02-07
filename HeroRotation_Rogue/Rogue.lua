@@ -126,6 +126,7 @@ Spell.Rogue.Assassination = MergeTableByKey(Spell.Rogue.Commons, {
   WoundPoison             = Spell(8679),
   WoundPoisonDebuff       = Spell(8680),
   -- Talents
+  ArterialPrecision       = Spell(400783),
   AtrophicPoisonDebuff    = Spell(392388),
   BlindsideBuff           = Spell(121153),
   CrimsonTempest          = Spell(121411),
@@ -177,6 +178,7 @@ Spell.Rogue.Outlaw = MergeTableByKey(Spell.Rogue.Commons, {
   GreenskinsWickersBuff   = Spell(394131),
   HiddenOpportunity       = Spell(383281),
   ImprovedAdrenalineRush  = Spell(395422),
+  ImprovedBetweenTheEyes  = Spell(235484),
   KeepItRolling           = Spell(381989),
   KillingSpree            = Spell(51690),
   LoadedDiceBuff          = Spell(256171),
@@ -197,6 +199,8 @@ Spell.Rogue.Outlaw = MergeTableByKey(Spell.Rogue.Commons, {
   RuthlessPrecision       = Spell(193357),
   SkullandCrossbones      = Spell(199603),
   TrueBearing             = Spell(193359),
+  -- Set Bonuses
+  ViciousFollowup         = Spell(394879),
 })
 
 Spell.Rogue.Subtlety = MergeTableByKey(Spell.Rogue.Commons, {
@@ -224,6 +228,7 @@ Spell.Rogue.Subtlety = MergeTableByKey(Spell.Rogue.Commons, {
   Flagellation            = Spell(384631),
   FlagellationPersistBuff = Spell(394758),
   Gloomblade              = Spell(200758),
+  ImprovedShurikenStorm   = Spell(319951),
   LingeringShadow         = Spell(382524),
   LingeringShadowBuff     = Spell(385960),
   MasterofShadows         = Spell(196976),
@@ -248,6 +253,7 @@ Spell.Rogue.Subtlety = MergeTableByKey(Spell.Rogue.Commons, {
 if not Item.Rogue then Item.Rogue = {} end
 Item.Rogue.Assassination = {
   -- Trinkets
+  AlgetharPuzzleBox       = Item(193701, {13, 14}),
 }
 
 Item.Rogue.Outlaw = {
@@ -258,6 +264,7 @@ Item.Rogue.Outlaw = {
 
 Item.Rogue.Subtlety = {
   -- Trinkets
+  ManicGrieftorch         = Item(194308, {13, 14}),
 }
 
 function Commons.StealthSpell()
