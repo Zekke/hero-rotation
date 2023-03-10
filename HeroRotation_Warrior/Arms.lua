@@ -91,7 +91,7 @@ local function Precombat()
     if S.ColossusSmash:IsCastable() then
       if Cast(S.ColossusSmash) then return "colossus_smash precombat"; end
     end
-    if S.Warbreaker:IsCastable() then
+    if S.Warbreaker:IsCastable() and CDsON() then
       if Cast(S.Warbreaker) then return "warbreaker precombat"; end
     end
     if S.Overpower:IsCastable() then
@@ -125,7 +125,7 @@ local function Hac()
     if Cast(S.Avatar, Settings.Arms.GCDasOffGCD.Avatar) then return "avatar hac 71"; end
   end
   -- warbreaker,if=raid_event.adds.in>22|active_enemies>1
-  if S.Warbreaker:IsCastable() and (EnemiesCount8y > 1) then
+  if S.Warbreaker:IsCastable() and CDsON() and (EnemiesCount8y > 1) then
     if Cast(S.Warbreaker, nil, nil, not TargetInMeleeRange) then return "warbreaker hac 72"; end
   end
   -- colossus_smash,cycle_targets=1,if=(target.health.pct<20|talent.massacre&target.health.pct<35)

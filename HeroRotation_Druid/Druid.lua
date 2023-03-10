@@ -179,6 +179,7 @@ Spell.Druid.Feral = MergeTableByKey(Spell.Druid.Commons, {
   DoubleClawedRake                      = Spell(391700),
   FeralFrenzy                           = Spell(274837),
   Incarnation                           = Spell(102543),
+  LionsStrength                         = Spell(391972),
   LunarInspiration                      = Spell(155580),
   LIMoonfire                            = Spell(155625), -- Lunar Inspiration Moonfire
   MomentofClarity                       = Spell(236068),
@@ -190,6 +191,8 @@ Spell.Druid.Feral = MergeTableByKey(Spell.Druid.Commons, {
   Swipe                                 = Spell(106785),
   TearOpenWounds                        = Spell(391785),
   TigersFury                            = Spell(5217),
+  -- PvP Talents
+  FerociousWound                        = Spell(236020),
   -- Buffs
   ApexPredatorsCravingBuff              = Spell(391882),
   BloodtalonsBuff                       = Spell(145152),
@@ -200,7 +203,7 @@ Spell.Druid.Feral = MergeTableByKey(Spell.Druid.Commons, {
   AdaptiveSwarmHeal                     = Spell(391891),
   LIMoonfireDebuff                      = Spell(155625),
   -- Legendary Effects
-  ApexPredatorsCravingBuff              = Spell(339140)
+  --ApexPredatorsCravingBuff              = Spell(339140)
 })
 
 Spell.Druid.Guardian = MergeTableByKey(Spell.Druid.Commons, {

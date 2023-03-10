@@ -180,7 +180,7 @@ end
 -- CastCycle/CastTargetIf Functions
 local function EvaluateCycleAdaptiveSwarm(TargetUnit)
   -- target_if=((!dot.adaptive_swarm_damage.ticking|dot.adaptive_swarm_damage.remains<2)&(dot.adaptive_swarm_damage.stack<3|!dot.adaptive_swarm_heal.stack>1)&!action.adaptive_swarm_heal.in_flight&!action.adaptive_swarm_damage.in_flight&!action.adaptive_swarm.in_flight)&target.time_to_die>5|active_enemies>2&!dot.adaptive_swarm_damage.ticking&energy<35&target.time_to_die>5
-  return (((TargetUnit:DebuffDown(S.AdaptiveSwarmDebuff) or TargetUnit:DebuffRemains(S.AdaptiveSwarmDebuff) < 2) and (TargetUnit:DebuffStack(S.AdaptiveSwarmDebuff) < 3 or not Player:BuffStack(S.AdaptiveSwarmHeal) > 1) and (not S.AdaptiveSwarm:InFlight())) and TargetUnit:TimeToDie() > 5 or EnemiesCount11y > 2 and TargetUnit:DebuffDown(S.AdaptiveSwarmDebuff) and Player:Energy() < 35 and TargetUnit:TimeToDie() > 5)
+  return (((TargetUnit:DebuffDown(S.AdaptiveSwarmDebuff) or TargetUnit:DebuffRemains(S.AdaptiveSwarmDebuff) < 2) and (TargetUnit:DebuffStack(S.AdaptiveSwarmDebuff) < 3 or Player:BuffStack(S.AdaptiveSwarmHeal) <= 1) and (not S.AdaptiveSwarm:InFlight())) and TargetUnit:TimeToDie() > 5 or EnemiesCount11y > 2 and TargetUnit:DebuffDown(S.AdaptiveSwarmDebuff) and Player:Energy() < 35 and TargetUnit:TimeToDie() > 5)
 end
 
 local function EvaluateCycleLIMoonfire(TargetUnit)
@@ -276,8 +276,8 @@ local function Clearcasting()
   if S.Swipe:IsReady() and (EnemiesCount11y > 1) then
     if Cast(S.Swipe, nil, nil, not Target:IsInMeleeRange(11)) then return "swipe clearcasting 4"; end
   end
-  -- brutal_slash,if=spell_targets.brutal_slash>5&talent.moment_of_clarity.enabled
-  if S.BrutalSlash:IsReady() and (EnemiesCount11y > 5 and S.MomentofClarity:IsAvailable()) then
+  -- brutal_slash,if=spell_targets.brutal_slash>2&talent.moment_of_clarity.enabled
+  if S.BrutalSlash:IsReady() and (EnemiesCount11y > 2 and S.MomentofClarity:IsAvailable()) then
     if Cast(S.BrutalSlash, nil, nil, not Target:IsInMeleeRange(8)) then return "brutal_slash clearcasting 6"; end
   end
   -- shred
@@ -328,6 +328,10 @@ local function BerserkBuilders()
   if S.Swipe:IsReady() and (EnemiesCount11y > 1) then
     if Cast(S.Swipe, nil, nil, not Target:IsInMeleeRange(11)) then return "swipe berserk_builders 4"; end
   end
+  -- shred,if=active_bt_triggers=2&buff.bt_shred.down
+  if S.Shred:IsReady() and (CountActiveBtTriggers() == 2 and BTBuffDown(S.Shred)) then
+    if Cast(S.Shred, nil, nil, not Target:IsInMeleeRange(11)) then return "shred berserk_builders 5"; end
+  end
   -- brutal_slash,if=active_bt_triggers=2&buff.bt_brutal_slash.down
   if S.BrutalSlash:IsReady() and (CountActiveBtTriggers() == 2 and BTBuffDown(S.BrutalSlash)) then
     if Cast(S.BrutalSlash, nil, nil, not Target:IsInMeleeRange(11)) then return "brutal_slash berserk_builders 6"; end
@@ -355,6 +359,10 @@ local function Finisher()
   if S.Rip:IsReady() then
     if Everyone.CastCycle(S.Rip, EnemiesMelee, EvaluateCycleRip, not Target:IsInRange(8)) then return "rip finisher 6"; end
   end
+  -- test
+  -- if S.Rip:IsReady() and Target:DebuffDown(S.Rip) or (Target:DebuffRemains(S.Rip) <= 6 and Player:BuffUp(S.TigersFury)) then
+  --  if Cast(S.Rip, nil, nil, not Target:IsInMeleeRange(8)) then return "rip finisher"; end
+  -- end
   -- pool_resource,for_next=1
   -- ferocious_bite,max_energy=1,if=!buff.bs_inc.up|(buff.bs_inc.up&!talent.soul_of_the_forest.enabled)
   if S.FerociousBite:IsReady() and (Player:BuffDown(BsInc) or (Player:BuffUp(BsInc) and not S.SouloftheForest:IsAvailable())) then
@@ -461,12 +469,12 @@ end
 
 local function Aoe()
   -- pool_resource,for_next=1
-  -- primal_wrath,if=combo_points=5
-  if S.PrimalWrath:IsCastable() and (ComboPoints == 5) then
+  -- primal_wrath,if=combo_points>3
+  if S.PrimalWrath:IsCastable() and (ComboPoints > 3) then
     if CastPooling(S.PrimalWrath, Player:EnergyTimeToX(20), not Target:IsInMeleeRange(11)) then return "primal_wrath aoe 2"; end
   end
-  -- ferocious_bite,if=buff.apex_predators_craving.up&buff.sabertooth.down
-  if S.FerociousBite:IsReady() and (Player:BuffUp(S.ApexPredatorsCravingBuff) and Player:BuffDown(S.SabertoothBuff)) then
+  -- ferocious_bite,if=buff.apex_predators_craving.up&(!buff.sabertooth.up|(!buff.bloodtalons.stack=1))
+  if S.FerociousBite:IsReady() and (Player:BuffUp(S.ApexPredatorsCravingBuff) and (Player:BuffDown(S.SabertoothBuff) or not Player:BuffStack(S.BloodtalonsBuff) == 1)) then
     if Cast(S.FerociousBite, nil, nil, not Target:IsInMeleeRange(8)) then return "ferocious_bite aoe 4"; end
   end
   -- run_action_list,name=bloodtalons,if=variable.need_bt&active_bt_triggers>=1
@@ -506,6 +514,13 @@ local function Aoe()
   end
 end
 
+local function Bear()
+  -- frenzied regen condition
+  -- mangle is up
+  -- thrash is up
+  -- brs is up
+end
+
 local function APL()
   -- Update Enemies
   if AoEON() then
@@ -523,6 +538,17 @@ local function APL()
   -- Combo Points
   ComboPoints = Player:ComboPoints()
   ComboPointsDeficit = Player:ComboPointsDeficit()
+
+  -- PvP
+  if S.FerociousWound:IsAvailable() then
+    HR.Print("Ferocious Wound")
+  end
+
+  -- Defensives
+  -- Regrowth
+  -- if S.Regrowth:IsCastable() and Player:HealthPercentage() <= Settings.Feral.FeralRegrowthHP then
+  --  if HR.Cast(S.Regrowth, Settings.Commons2.GCDasOffGCD.CrimsonVial) then return "Cast Crimson Vial (Defensives)" end
+  -- end
 
   if Everyone.TargetIsValid() or Player:AffectingCombat() then
     -- Calculate fight_remains
@@ -545,67 +571,76 @@ local function APL()
     end
     -- Interrupts
     local ShouldReturn = Everyone.Interrupt(13, S.SkullBash, Settings.Feral.OffGCDasOffGCD.SkullBash, InterruptStuns); if ShouldReturn then return ShouldReturn; end
-    -- prowl
-    if S.Prowl:IsCastable() then
-      if Cast(S.Prowl) then return "prowl main 2"; end
-    end
-    -- invoke_external_buff,name=power_infusion,if=buff.bs_inc.up|fight_remains<cooldown.bs_inc.remains
-    -- Note: We're not handling external buffs
-    -- variable,name=need_bt,value=talent.bloodtalons.enabled&buff.bloodtalons.down
-    VarNeedBT = (S.Bloodtalons:IsAvailable() and Player:BuffDown(S.BloodtalonsBuff))
-    -- tigers_fury
-    if S.TigersFury:IsCastable() and CDsON() then
-      if Cast(S.TigersFury, Settings.Feral.OffGCDasOffGCD.TigersFury) then return "tigers_fury main 4"; end
-    end
-    -- rake,if=buff.prowl.up|buff.shadowmeld.up
-    if S.Rake:IsReady() and (Player:StealthUp(false, true)) then
-      if Cast(S.Rake, nil, nil, not Target:IsInMeleeRange(8)) then return "rake main 6"; end
-    end
-    -- cat_form,if=!buff.cat_form.up
-    if S.CatForm:IsCastable() then
-      if Cast(S.CatForm) then return "cat_form main 8"; end
-    end
-    -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
-    -- call_action_list,name=cooldown
-    if CDsON() then
-      local ShouldReturn = Cooldown(); if ShouldReturn then return ShouldReturn; end
-    end
-    -- adaptive_swarm,target_if=((!dot.adaptive_swarm_damage.ticking|dot.adaptive_swarm_damage.remains<2)&(dot.adaptive_swarm_damage.stack<3|!dot.adaptive_swarm_heal.stack>1)&!action.adaptive_swarm_heal.in_flight&!action.adaptive_swarm_damage.in_flight&!action.adaptive_swarm.in_flight)&target.time_to_die>5|active_enemies>2&!dot.adaptive_swarm_damage.ticking&energy<35&target.time_to_die>5
-    if S.AdaptiveSwarm:IsReady() then
-      if Everyone.CastCycle(S.AdaptiveSwarm, Enemies11y, EvaluateCycleAdaptiveSwarm, not Target:IsSpellInRange(S.AdaptiveSwarm)) then return "adaptive_swarm main 8"; end
-    end
-    -- feral_frenzy,if=combo_points<2|combo_points=2&buff.bs_inc.up
-    if S.FeralFrenzy:IsReady() and (ComboPoints < 2 or ComboPoints == 2 and Player:BuffUp(BsInc)) then
-      if Cast(S.FeralFrenzy, nil, nil, not Target:IsInMeleeRange(8)) then return "feral_frenzy main 12"; end
-    end
-    -- run_action_list,name=aoe,if=spell_targets.swipe_cat>1&talent.primal_wrath.enabled
-    if (EnemiesCount11y > 1 and S.PrimalWrath:IsAvailable()) then
-      local ShouldReturn = Aoe(); if ShouldReturn then return ShouldReturn; end
-      if HR.CastAnnotated(S.Pool, false, "WAIT") then return "Pool for Aoe()"; end
-    end
-    -- ferocious_bite,if=buff.apex_predators_craving.up
-    if S.FerociousBite:IsReady() and (Player:BuffUp(S.ApexPredatorsCravingBuff)) then
-      if Cast(S.FerociousBite, nil, nil, not Target:IsInMeleeRange(8)) then return "ferocious_bite main 10"; end
-    end
-    -- call_action_list,name=bloodtalons,if=variable.need_bt&!buff.bs_inc.up
-    if (VarNeedBT and Player:BuffDown(BsInc)) then
-      local ShouldReturn = Bloodtalons(); if ShouldReturn then return ShouldReturn; end
-    end
-    -- call_action_list,name=finisher,if=combo_points=5
-    if (ComboPoints == 5) then
-      local ShouldReturn = Finisher(); if ShouldReturn then return ShouldReturn; end
-    end
-    -- call_action_list,name=berserk_builders,if=combo_points<5&buff.bs_inc.up
-    if (ComboPoints < 5 and Player:BuffUp(BsInc)) then
-      local ShouldReturn = BerserkBuilders(); if ShouldReturn then return ShouldReturn; end
-    end
-    -- call_action_list,name=builder,if=combo_points<5
-    if (ComboPoints < 5) then
-      local ShouldReturn = Builder(); if ShouldReturn then return ShouldReturn; end
-    end
-    -- Pool if nothing else to do
-    if (true) then
-      if HR.CastAnnotated(S.Pool, false, "WAIT") then return "Pool Energy"; end
+    if Player:BuffUp(S.CatForm) then
+      -- prowl
+      if S.Prowl:IsCastable() and not Player:StealthUp(false, true) then
+        if Cast(S.Prowl) then return "prowl main 2"; end
+      end
+      -- invoke_external_buff,name=power_infusion,if=buff.bs_inc.up|fight_remains<cooldown.bs_inc.remains
+      -- Note: We're not handling external buffs
+      -- variable,name=need_bt,value=talent.bloodtalons.enabled&buff.bloodtalons.down
+      VarNeedBT = (S.Bloodtalons:IsAvailable() and Player:BuffDown(S.BloodtalonsBuff))
+      -- tigers_fury
+      if S.TigersFury:IsCastable() and CDsON() and (Player:BuffDown(S.TigersFury) or Player:EnergyDeficit() >= 50) then
+        if Cast(S.TigersFury, Settings.Feral.OffGCDasOffGCD.TigersFury) then return "tigers_fury main 4"; end
+      end
+      -- rake,if=buff.prowl.up|buff.shadowmeld.up
+      if S.Rake:IsReady() and (Player:StealthUp(false, true)) then
+        if Cast(S.Rake, nil, nil, not Target:IsInMeleeRange(8)) then return "rake main 6"; end
+      end
+      -- cat_form,if=!buff.cat_form.up
+      if S.CatForm:IsCastable() then
+        if Cast(S.CatForm) then return "cat_form main 8"; end
+      end
+      -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
+      -- call_action_list,name=cooldown
+      if CDsON() and Target:IsSpellInRange(S.Shred) then
+        local ShouldReturn = Cooldown(); if ShouldReturn then return ShouldReturn; end
+      end
+      -- test force rake
+      if S.Rake:IsReady() and ComboPoints < 5 and Target:DebuffDown(S.RakeDebuff) and Target:TimeToDie() >= 12 then
+        if Cast(S.Rake, nil, nil, not Target:IsInMeleeRange(8)) then return "rake force"; end
+      end
+      -- adaptive_swarm,target_if=((!dot.adaptive_swarm_damage.ticking|dot.adaptive_swarm_damage.remains<2)&(dot.adaptive_swarm_damage.stack<3|!dot.adaptive_swarm_heal.stack>1)&!action.adaptive_swarm_heal.in_flight&!action.adaptive_swarm_damage.in_flight&!action.adaptive_swarm.in_flight)&target.time_to_die>5|active_enemies>2&!dot.adaptive_swarm_damage.ticking&energy<35&target.time_to_die>5
+      if S.AdaptiveSwarm:IsReady() then
+        if Everyone.CastCycle(S.AdaptiveSwarm, Enemies11y, EvaluateCycleAdaptiveSwarm, not Target:IsSpellInRange(S.AdaptiveSwarm)) then return "adaptive_swarm main 8"; end
+      end
+      if S.AdaptiveSwarm:IsReady() then
+        if Cast(S.AdaptiveSwarm, nil, nil, not Target:IsInMeleeRange(11)) then return "adaptive_swarm_fix main"; end
+      end
+      -- feral_frenzy,if=combo_points<2|combo_points=2&buff.bs_inc.up
+      if S.FeralFrenzy:IsReady() and (ComboPoints < 2 or ComboPoints == 2 and Player:BuffUp(BsInc)) then
+        if Cast(S.FeralFrenzy, nil, nil, not Target:IsInMeleeRange(8)) then return "feral_frenzy main 12"; end
+      end
+      -- run_action_list,name=aoe,if=spell_targets.swipe_cat>1&talent.primal_wrath.enabled
+      if (EnemiesCount11y > 1 and S.PrimalWrath:IsAvailable()) then
+        local ShouldReturn = Aoe(); if ShouldReturn then return ShouldReturn; end
+        if HR.CastAnnotated(S.Pool, false, "WAIT") then return "Pool for Aoe()"; end
+      end
+      -- ferocious_bite,if=buff.apex_predators_craving.up
+      if S.FerociousBite:IsReady() and (Player:BuffUp(S.ApexPredatorsCravingBuff)) then
+        if Cast(S.FerociousBite, nil, nil, not Target:IsInMeleeRange(8)) then return "ferocious_bite main 10"; end
+      end
+      -- call_action_list,name=bloodtalons,if=variable.need_bt&!buff.bs_inc.up
+      if (VarNeedBT and Player:BuffDown(BsInc)) then
+        local ShouldReturn = Bloodtalons(); if ShouldReturn then return ShouldReturn; end
+      end
+      -- call_action_list,name=finisher,if=(combo_points>3&talent.lions_strength.enabled)|combo_points=5&!talent.lions_strength.enabled
+      if (S.LionsStrength:IsAvailable() and ComboPoints > 3) or (ComboPoints == 5) then
+        local ShouldReturn = Finisher(); if ShouldReturn then return ShouldReturn; end
+      end
+      -- call_action_list,name=berserk_builders,if=combo_points<5&buff.bs_inc.up
+      if (ComboPoints < 5 and Player:BuffUp(BsInc)) then
+        local ShouldReturn = BerserkBuilders(); if ShouldReturn then return ShouldReturn; end
+      end
+      -- call_action_list,name=builder,if=combo_points<5
+      if (ComboPoints < 5) then
+        local ShouldReturn = Builder(); if ShouldReturn then return ShouldReturn; end
+      end
+      -- Pool if nothing else to do
+      if (true) then
+        if HR.CastAnnotated(S.Pool, false, "WAIT") then return "Pool Energy"; end
+      end
     end
   end
 end

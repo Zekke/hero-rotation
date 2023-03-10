@@ -65,6 +65,8 @@ HR.GUISettings.APL.Druid = {
     }
   },
   Feral = {
+    FeralRegrowthHP = 50,
+    FeralFrenziedRegenHP = 70,
     FillerSpell = "Rake Non-Snapshot",
     ShowCatFormOOC = false,
     UseOwlweave = false,
@@ -136,6 +138,8 @@ CreateARPanelOptions(CP_Balance, "APL.Druid.Balance")
 CreatePanelOption("Dropdown", CP_Feral, "APL.Druid.Feral.FillerSpell", {"Shred", "Rake Non-Snapshot", "Rake Snapshot", "Moonfire", "Swipe"}, "Preferred Filler Spell", "Select which spell to use as your filler spell. The SimC APL default is Rake Non-Snapshot.")
 CreatePanelOption("CheckButton", CP_Feral, "APL.Druid.Feral.ShowCatFormOOC", "Show Cat Form Out of Combat", "Enable this if you want the addon to show you the Cat Form reminder out of combat.")
 CreatePanelOption("CheckButton", CP_Feral, "APL.Druid.Feral.UseOwlweave", "Utilize Owleaving", "Enable this if you want Owlweaving spell suggestions when talented into Balance Affinity.")
+CreatePanelOption("Slider", CP_Feral, "APL.Druid.Feral.FeralRegrowthHP", {0, 100, 1}, "Regrowth HP", "Set the Regrowth HP threshold.")
+CreatePanelOption("Slider", CP_Feral, "APL.Druid.Feral.FeralFrenziedRegenHP", {0, 100, 1}, "Frenzied Regen HP", "Set the Frenzied Regen HP threshold.")
 CreateARPanelOptions(CP_Feral, "APL.Druid.Feral")
 
 -- Guardian
