@@ -88,7 +88,7 @@ local function Precombat()
     if S.Skullsplitter:IsCastable() then
       if Cast(S.Skullsplitter) then return "skullsplitter precombat"; end
     end
-    if S.ColossusSmash:IsCastable() then
+    if S.ColossusSmash:IsCastable() and CDsON() then
       if Cast(S.ColossusSmash) then return "colossus_smash precombat"; end
     end
     if S.Warbreaker:IsCastable() and CDsON() then

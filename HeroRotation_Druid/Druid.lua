@@ -63,7 +63,7 @@ Spell.Druid.Commons = {
   RakeDebuff                            = Spell(155722),
   RipDebuff                             = Spell(1079),
   SunfireDebuff                         = Spell(164815),
-  ThrashDebuff                          = MultiSpell(106830,192090),
+  ThrashDebuff                          = MultiSpell(106830,192090,405233),
   -- Covenant Abilities
   AdaptiveSwarmCov                      = Spell(325727),
   AdaptiveSwarmCovDebuff                = Spell(325733),
@@ -190,6 +190,7 @@ Spell.Druid.Feral = MergeTableByKey(Spell.Druid.Commons, {
   SouloftheForest                       = Spell(158476),
   Swipe                                 = Spell(106785),
   TearOpenWounds                        = Spell(391785),
+  ThrashingClaws                        = Spell(405300),
   TigersFury                            = Spell(5217),
   -- PvP Talents
   FerociousWound                        = Spell(236020),
