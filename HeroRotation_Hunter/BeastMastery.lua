@@ -155,30 +155,30 @@ local function Precombat()
   end
   -- steel_trap,precast_time=1.5,if=!talent.wailing_arrow&talent.steel_trap
   if S.SteelTrap:IsCastable() and ((not S.WailingArrow:IsAvailable()) and S.SteelTrap:IsAvailable()) then
-    if Cast(S.SteelTrap, Settings.Commons2.GCDasOffGCD.SteelTrap) then return "steel_trap precombat 2"; end
+    if Cast(S.SteelTrap, Settings.Commons2.GCDasOffGCD.SteelTrap, nil, not Target:IsInRange(40)) then return "steel_trap precombat 2"; end
   end
   -- Manually added opener abilities
   -- Barbed Shot
   if S.BarbedShot:IsCastable() and S.BarbedShot:Charges() >= 2 then
-    if Cast(S.BarbedShot) then return "barbed_shot precombat 8"; end
+    if Cast(S.BarbedShot, nil, nil, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot precombat 8"; end
   end
   -- Kill Shot
   if S.KillShot:IsReady() then
-    if Cast(S.KillShot) then return "kill_shot precombat 10"; end
+    if Cast(S.KillShot, nil, nil, not Target:IsSpellInRange(S.KillShot)) then return "kill_shot precombat 10"; end
   end
   -- Kill Command
   if S.KillCommand:IsReady() and TargetInRangePet30y then
-    if Cast(S.KillCommand) then return "kill_command precombat 12"; end
+    if Cast(S.KillCommand, nil, nil, not Target:IsSpellInRange(S.KillCommand)) then return "kill_command precombat 12"; end
   end
   if PetEnemiesMixedyCount > 1 then
     -- Multi Shot
     if S.MultiShot:IsReady()  then
-      if Cast(S.MultiShot) then return "multishot precombat 14"; end
+      if Cast(S.MultiShot, nil, nil, not Target:IsSpellInRange(S.MultiShot)) then return "multishot precombat 14"; end
     end
   else
     -- Cobra Shot
     if S.CobraShot:IsReady()  then
-      if Cast(S.CobraShot) then return "cobra_shot precombat 16"; end
+      if Cast(S.CobraShot, nil, nil, not Target:IsSpellInRange(S.CobraShot)) then return "cobra_shot precombat 16"; end
     end
   end
 end
@@ -234,7 +234,7 @@ local function Cleave()
   end
   -- explosive_shot
   if S.ExplosiveShot:IsReady() then
-    if Cast(S.ExplosiveShot, nil, nil, not Target:IsSpellInRange(S.ExplosiveShot)) then return "explosive_shot cleave 12"; end
+    if Cast(S.ExplosiveShot, Settings.Commons2.GCDasOffGCD.ExplosiveShot, nil, not Target:IsSpellInRange(S.ExplosiveShot)) then return "explosive_shot cleave 12"; end
   end
   -- stampede,if=buff.bestial_wrath.up|target.time_to_die<15
   if S.Stampede:IsCastable() and CDsON() and (Player:BuffUp(S.BestialWrathBuff) or FightRemains < 15) then
@@ -254,7 +254,7 @@ local function Cleave()
   end
   -- steel_trap
   if S.SteelTrap:IsCastable() then
-    if Cast(S.SteelTrap, Settings.Commons2.GCDasOffGCD.SteelTrap) then return "steel_trap cleave 22"; end
+    if Cast(S.SteelTrap, Settings.Commons2.GCDasOffGCD.SteelTrap, nil, not Target:IsInRange(40)) then return "steel_trap cleave 22"; end
   end
   -- a_murder_of_crows
   if S.AMurderofCrows:IsReady() then
@@ -270,7 +270,7 @@ local function Cleave()
   end
   -- kill_command
   if S.KillCommand:IsReady() then
-    if Cast(S.KillCommand, nil, nil, not Target:IsInRange(50)) then return "kill_command cleave 30"; end
+    if Cast(S.KillCommand, nil, nil, not Target:IsSpellInRange(S.KillCommand)) then return "kill_command cleave 30"; end
   end
   -- dire_beast
   if S.DireBeast:IsCastable() then
@@ -315,9 +315,13 @@ local function ST()
   if S.BarbedShot:IsCastable() then
     if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, EvaluateTargetIfBarbedShotST, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot st 2"; end
   end
+  -- Main Target backup
+  if S.BarbedShot:IsCastable() and EvaluateTargetIfBarbedShotST(Target) then
+    if Cast(S.BarbedShot, nil, nil, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot st mt_backup 3"; end
+  end
   -- kill_command,if=full_recharge_time<gcd&talent.alpha_predator
   if S.KillCommand:IsReady() and (S.KillCommand:FullRechargeTime() < GCDMax and S.AlphaPredator:IsAvailable()) then
-    if Cast(S.KillCommand, nil, nil, not Target:IsInRange(50)) then return "kill_command st 4"; end
+    if Cast(S.KillCommand, nil, nil, not Target:IsSpellInRange(S.KillCommand)) then return "kill_command st 4"; end
   end
   -- call_of_the_wild
   if S.CalloftheWild:IsCastable() and CDsON() then
@@ -341,11 +345,11 @@ local function ST()
   end
   -- steel_trap
   if S.SteelTrap:IsCastable() then
-    if Cast(S.SteelTrap, Settings.Commons2.GCDasOffGCD.SteelTrap) then return "steel_trap st 16"; end
+    if Cast(S.SteelTrap, Settings.Commons2.GCDasOffGCD.SteelTrap, nil, not Target:IsInRange(40)) then return "steel_trap st 16"; end
   end
   -- explosive_shot
   if S.ExplosiveShot:IsReady() then
-    if Cast(S.ExplosiveShot, nil, nil, not Target:IsSpellInRange(S.ExplosiveShot)) then return "explosive_shot st 18"; end
+    if Cast(S.ExplosiveShot, Settings.Commons2.GCDasOffGCD.ExplosiveShot, nil, not Target:IsSpellInRange(S.ExplosiveShot)) then return "explosive_shot st 18"; end
   end
   -- bestial_wrath
   if S.BestialWrath:IsCastable() and CDsON() then
@@ -353,11 +357,15 @@ local function ST()
   end
   -- kill_command
   if S.KillCommand:IsReady() then
-    if Cast(S.KillCommand, nil, nil, not Target:IsInRange(50)) then return "kill_command st 22"; end
+    if Cast(S.KillCommand, nil, nil, not Target:IsSpellInRange(S.KillCommand)) then return "kill_command st 22"; end
   end
   -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=talent.wild_instincts&buff.call_of_the_wild.up|talent.wild_call&charges_fractional>1.4|full_recharge_time<gcd&cooldown.bestial_wrath.remains|talent.scent_of_blood&(cooldown.bestial_wrath.remains<12+gcd|full_recharge_time+gcd<8&cooldown.bestial_wrath.remains<24+(8-gcd)+full_recharge_time)|fight_remains<9
   if S.BarbedShot:IsCastable() then
     if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, EvaluateTargetIfBarbedShotST2, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot st 24"; end
+  end
+  -- Main Target backup
+  if S.BarbedShot:IsCastable() and EvaluateTargetIfBarbedShotST2(Target) then
+    if Cast(S.BarbedShot, nil, nil, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot st mt_backup 25"; end
   end
   -- dire_beast
   if S.DireBeast:IsCastable() then
@@ -467,14 +475,16 @@ local function APL()
   end
 
   -- Pet Management
-  if S.SummonPet:IsCastable() then
-    if Cast(SummonPetSpells[Settings.Commons2.SummonPetSlot], Settings.Commons2.GCDasOffGCD.SummonPet) then return "Summon Pet"; end
-  end
-  if Pet:IsDeadOrGhost() and S.RevivePet:IsCastable() then
-    if Cast(S.RevivePet, Settings.Commons2.GCDasOffGCD.RevivePet) then return "Revive Pet"; end
-  end
-  if (not Pet:IsDeadOrGhost()) and S.MendPet:IsCastable() and Pet:HealthPercentage() <= Settings.Commons2.MendPetHighHP then
-    if Cast(S.MendPet) then return "Mend Pet High Priority"; end
+  if not (Player:IsMounted() or Player:IsInVehicle()) then
+    if S.SummonPet:IsCastable() then
+      if Cast(SummonPetSpells[Settings.Commons2.SummonPetSlot], Settings.Commons2.GCDasOffGCD.SummonPet) then return "Summon Pet"; end
+    end
+    if Pet:IsDeadOrGhost() and S.RevivePet:IsCastable() then
+      if Cast(S.RevivePet, Settings.Commons2.GCDasOffGCD.RevivePet) then return "Revive Pet"; end
+    end
+    if (not Pet:IsDeadOrGhost()) and S.MendPet:IsCastable() and Pet:HealthPercentage() <= Settings.Commons2.MendPetHighHP then
+      if Cast(S.MendPet) then return "Mend Pet High Priority"; end
+    end
   end
 
   if Everyone.TargetIsValid() then
@@ -502,7 +512,7 @@ local function APL()
       local ShouldReturn = Cleave(); if ShouldReturn then return ShouldReturn; end
     end
     -- Manually added pet healing
-    if not Pet:IsDeadOrGhost() and S.MendPet:IsCastable() and Pet:HealthPercentage() <= Settings.Commons2.MendPetLowHP then
+    if (not (Player:IsMounted() or Player:IsInVehicle())) and (not Pet:IsDeadOrGhost()) and S.MendPet:IsCastable() and Pet:HealthPercentage() <= Settings.Commons2.MendPetLowHP then
       if Cast(S.MendPet) then return "Mend Pet Low Priority (w/ Target)"; end
     end
     -- Pool Focus if nothing else to do
@@ -510,13 +520,13 @@ local function APL()
   end
 
   -- Note: We have to put it again in case we don't have a target but our pet is dying.
-  if not Pet:IsDeadOrGhost() and S.MendPet:IsCastable() and Pet:HealthPercentage() <= Settings.Commons2.MendPetLowHP then
+  if (not (Player:IsMounted() or Player:IsInVehicle())) and (not Pet:IsDeadOrGhost()) and S.MendPet:IsCastable() and Pet:HealthPercentage() <= Settings.Commons2.MendPetLowHP then
     if Cast(S.MendPet) then return "Mend Pet Low Priority (w/o Target)"; end
   end
 end
 
 local function OnInit ()
-  HR.Print("Beast Mastery can use pet abilities to better determine AoE. Make sure you have Growl and Blood Bolt / Bite / Claw / Smack in your player action bars.")
+  HR.Print("Beast Mastery can use pet abilities to better determine AoE. Make sure you have Growl and Blood Bolt / Bite / Claw / Smack on your player action bars.")
   HR.Print("Beast Mastery Hunter rotation is currently a work in progress, but has been updated for patch 10.0.")
 end
 

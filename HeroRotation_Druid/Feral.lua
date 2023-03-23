@@ -340,7 +340,7 @@ local function BerserkBuilders()
   end
   -- moonfire_cat,target_if=refreshable
   if S.LIMoonfire:IsReady() then
-    if Everyone.CastCycle(S.LIMoonfire, Enemies11y, EvaluateCycleLIMoonfire, not Target:IsSpellInRange(S.LIMoonfire)) then return "moonfire_cat berserk_builder 10"; end
+    if Everyone.CastCycle(S.LIMoonfire, Enemies11y, EvaluateCycleLIMoonfire, not Target:IsSpellInRange(S.LIMoonfire)) then return "moonfire_cat berserk_builders 10"; end
   end
   -- shred
   if S.Shred:IsReady() then
@@ -373,32 +373,32 @@ local function Finisher()
 end
 
 local function Cooldown()
-  -- berserk
-  if S.Berserk:IsReady() then
-    if Cast(S.Berserk, Settings.Feral.GCDasOffGCD.BsInc) then return "berserk cooldown 2"; end
-  end
   -- incarnation
   if S.Incarnation:IsReady() then
-    if Cast(S.Incarnation, Settings.Feral.GCDasOffGCD.BsInc) then return "incarnation cooldown 4"; end
+    if Cast(S.Incarnation, Settings.Feral.GCDasOffGCD.BsInc) then return "incarnation cooldown 2"; end
   end
-  -- convoke_the_spirits,if=buff.tigers_fury.up&combo_points<3|fight_remains<5
-  if S.ConvoketheSpirits:IsReady() and (Player:BuffUp(S.TigersFury) and ComboPoints < 3 or FightRemains < 5) then
-    if Cast(S.ConvoketheSpirits, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsInMeleeRange(8)) then return "convoke_the_spirits cooldown 6"; end
+  -- berserk,if=!talent.convoke_the_spirits.enabled|talent.convoke_the_spirits.enabled&!(fight_remains<cooldown.convoke_the_spirits.remains)|talent.convoke_the_spirits.enabled&cooldown.convoke_the_spirits.remains<10|talent.convoke_the_spirits.enabled&fight_remains>120&cooldown.convoke_the_spirits.remains>25
+  if S.Berserk:IsReady() and ((not S.ConvoketheSpirits:IsAvailable()) or S.ConvoketheSpirits:IsAvailable() and FightRemains >= S.ConvoketheSpirits:CooldownRemains() or S.ConvoketheSpirits:IsAvailable() and S.ConvoketheSpirits:CooldownRemains() < 10 or S.ConvoketheSpirits:IsAvailable() and FightRemains < 120 and S.ConvoketheSpirits:CooldownRemains() > 25) then
+    if Cast(S.Berserk, Settings.Feral.GCDasOffGCD.BsInc) then return "berserk cooldown 4"; end
   end
-  -- berserking
-  if S.Berserking:IsCastable() then
-    if Cast(S.Berserking, Settings.Commons.OffGCDasOffGCD.Racials) then return "berserking cooldown 8"; end
+  -- potion,if=buff.bs_inc.up|fight_remains<32|buff.tigers_fury.up&cooldown.convoke_the_spirits.up&talent.convoke_the_spirits.enabled&fight_remains<cooldown.bs_inc.remains
+  if Settings.Commons.Enabled.Potions and (Player:BuffUp(BsInc) or FightRemains < 32 or Player:BuffUp(S.TigersFury) and S.ConvoketheSpirits:CooldownUp() and S.ConvoketheSpirits:IsAvailable() and FightRemains < BsInc:CooldownRemains()) then
+    local PotionSelected = Everyone.PotionSelected()
+    if PotionSelected and PotionSelected:IsReady() then
+      if Cast(PotionSelected, nil, Settings.Commons.DisplayStyle.Potions) then return "potion cooldown 6"; end
+    end
+  end
+  -- convoke_the_spirits,if=dot.rip.duration>5&(buff.tigers_fury.up&combo_points<4&cooldown.bs_inc.remains>20|fight_remains<5)
+  if S.ConvoketheSpirits:IsReady() and (Target:DebuffRemains(S.RipDebuff) > 5 and (Player:BuffUp(S.TigersFury) and ComboPoints < 4 and BsInc:CooldownRemains() > 20 or FightRemains < 5)) then
+    if Cast(S.ConvoketheSpirits, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsInMeleeRange(8)) then return "convoke_the_spirits cooldown 8"; end
+  end
+  -- berserking,if=buff.bs_inc.up|fight_remains<15
+  if S.Berserking:IsCastable() and (Player:BuffUp(BsInc) or FightRemains < 15) then
+    if Cast(S.Berserking, Settings.Commons.OffGCDasOffGCD.Racials) then return "berserking cooldown 10"; end
   end
   -- shadowmeld,if=buff.tigers_fury.up&buff.bs_inc.down&combo_points<4&buff.sudden_ambush.down&dot.rake.pmultiplier<1.6&energy>40&druid.rake.ticks_gained_on_refresh>spell_targets.swipe_cat*2-2&target.time_to_die>5
   if S.Shadowmeld:IsCastable() and (Player:BuffUp(S.TigersFury) and Player:BuffDown(BsInc) and ComboPoints < 4 and Player:BuffDown(S.SuddenAmbushBuff) and Target:PMultiplier(S.Rake) < 1.6 and Player:Energy() > 40 and TicksGainedOnRefresh(S.RakeDebuff) > EnemiesCount11y * 2 - 2 and Target:TimeToDie() > 5) then
-    if Cast(S.Shadowmeld, Settings.Commons.OffGCDasOffGCD.Racials) then return "shadowmeld cooldown 10"; end
-  end
-  -- potion,if=buff.bs_inc.up|fight_remains<cooldown.bs_inc.remains|fight_remains<35
-  if Settings.Commons.Enabled.Potions and (Player:BuffUp(BsInc) or FightRemains < BsInc:CooldownRemains() or FightRemains < 35) then
-    local PotionSelected = Everyone.PotionSelected()
-    if PotionSelected and PotionSelected:IsReady() then
-      if Cast(PotionSelected, nil, Settings.Commons.DisplayStyle.Potions) then return "potion cooldown 12"; end
-    end
+    if Cast(S.Shadowmeld, Settings.Commons.OffGCDasOffGCD.Racials) then return "shadowmeld cooldown 12"; end
   end
   -- use_item,name=manic_grieftorch,if=energy.deficit>40
   if I.ManicGrieftorch:IsEquippedAndReady() and (Player:EnergyDeficit() > 40) then
@@ -417,12 +417,12 @@ local function Owlweaving()
   if (Player:BuffUp(S.MoonkinForm)) then
     -- sunfire,line_cd=4*gcd
     if S.Sunfire:IsReady() and (S.Sunfire:TimeSinceLastCast() > 4 * Player:GCD()) then
-      if Cast(S.Sunfire, nil, nil, not Target:IsSpellInRange(S.Sunfire)) then return "sunfire owlweaving 4"; end
+      if Cast(S.Sunfire, nil, nil, not Target:IsSpellInRange(S.Sunfire)) then return "sunfire owlweaving 2"; end
     end
   end
   -- Manually added: moonkin_form,if=!buff.moonkin_form.up
   if S.MoonkinForm:IsCastable() and (Player:BuffDown(S.MoonkinForm)) then
-    if Cast(S.MoonkinForm) then return "moonkin_form owlweave 10"; end
+    if Cast(S.MoonkinForm) then return "moonkin_form owlweave 4"; end
   end
 end
 
@@ -519,10 +519,10 @@ local function Aoe()
     if CastPooling(S.PrimalWrath, Player:EnergyTimeToX(20), not Target:IsInMeleeRange(11)) then return "primal_wrath aoe 2"; end
   end
   -- ferocious_bite,if=buff.apex_predators_craving.up&(!buff.sabertooth.up|(!buff.bloodtalons.stack=1))
-  if S.FerociousBite:IsReady() and (Player:BuffUp(S.ApexPredatorsCravingBuff) and (Player:BuffDown(S.SabertoothBuff) or not Player:BuffStack(S.BloodtalonsBuff) == 1)) then
+  if S.FerociousBite:IsReady() and (Player:BuffUp(S.ApexPredatorsCravingBuff) and (Player:BuffDown(S.SabertoothBuff) or Player:BuffStack(S.BloodtalonsBuff) ~= 1)) then
     if Cast(S.FerociousBite, nil, nil, not Target:IsInMeleeRange(8)) then return "ferocious_bite aoe 4"; end
   end
-  -- run_action_list,name=bloodtalons,if=variable.need_bt&active_bt_triggers>=1
+  -- run_action_list,name=bloodtalons_aoe,if=variable.need_bt&active_bt_triggers>=1
   if (VarNeedBT and CountActiveBtTriggers() >= 1) then
     local ShouldReturn = BloodtalonsAoE(); if ShouldReturn then return ShouldReturn; end
     if HR.CastAnnotated(S.Pool, false, "WAIT") then return "Pool for Bloodtalons()"; end
