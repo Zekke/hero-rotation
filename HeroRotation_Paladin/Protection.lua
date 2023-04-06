@@ -117,9 +117,8 @@ local function Defensives()
       if HR.CastAnnotated(S.WordofGlory, false, "KITE") then return "word_of_glory defensive 10"; end
     end
   end
-
   if S.ShieldoftheRighteous:IsReady() and (Player:BuffRefreshable(S.ShieldoftheRighteousBuff) and (ActiveMitigationNeeded or Player:HealthPercentage() <= Settings.Protection.ShieldoftheRighteousHP)) then
-    if Cast(S.ShieldoftheRighteous, nil, Settings.Protection.DisplayStyle.ShieldOfTheRighteous) then return "shield_of_the_righteous defensive 12"; end
+    if Cast(S.ShieldoftheRighteous, nil, Settings.Protection.DisplayStyle.ShieldOfTheRighteous) then return "shield_of_the_righteous defensive 14"; end
   end
 end
 
@@ -127,6 +126,11 @@ local function Cooldowns()
   -- avenging_wrath
   if S.AvengingWrath:IsCastable() then
     if Cast(S.AvengingWrath, Settings.Protection.OffGCDasOffGCD.AvengingWrath) then return "avenging_wrath cooldowns 2"; end
+  end
+  -- sentinel
+  -- Note: Protection Paladin APL has back-end code to replace AW with Sentinel when talented.
+  if S.Sentinel:IsCastable() then
+    if Cast(S.Sentinel, Settings.Protection.OffGCDasOffGCD.Sentinel) then return "sentinel cooldowns 3"; end
   end
   -- potion,if=buff.avenging_wrath.up
   if Settings.Commons.Enabled.Potions and (Player:BuffUp(S.AvengingWrathBuff)) then
@@ -140,9 +144,7 @@ local function Cooldowns()
     if Cast(S.MomentofGlory, Settings.Protection.OffGCDasOffGCD.MomentOfGlory) then return "moment_of_glory cooldowns 6"; end
   end
   -- holy_avenger,if=buff.avenging_wrath.up|cooldown.avenging_wrath.remains>60
-  if S.HolyAvenger:IsCastable() and (Player:BuffUp(S.AvengingWrathBuff) or S.AvengingWrath:CooldownRemains() > 60) then
-    if Cast(S.HolyAvenger, Settings.Protection.OffGCDasOffGCD.HolyAvenger) then return "holy_avenger cooldowns 8"; end
-  end
+  -- Note: Appears to have been removed in 10.0.7
   -- bastion_of_light,if=buff.avenging_wrath.up
   if S.BastionofLight:IsCastable() and (Player:BuffUp(S.AvengingWrathBuff)) then
     if Cast(S.BastionofLight, Settings.Protection.OffGCDasOffGCD.BastionOfLight) then return "bastion_of_light cooldowns 10"; end

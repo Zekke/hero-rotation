@@ -67,8 +67,8 @@ HL:RegisterForEvent(function()
 end, "PLAYER_REGEN_ENABLED")
 
 HL:RegisterForEvent(function()
-  VerdictSpell = (S.FinalVerdict:IsAvailable()) and S.FinalVerdict or S.TemplarsVerdict
-end, "PLAYER_TALENT_UPDATE")
+  VerdictSpell = (S.FinalVerdict:IsLearned()) and S.FinalVerdict or S.TemplarsVerdict
+end, "SPELLS_CHANGED", "LEARNED_SPELL_IN_TAB")
 
 -- Interrupts
 local Interrupts = {
@@ -124,8 +124,8 @@ local function Precombat()
   -- variable,name=trinket_priority,op=setif,value=2,value_else=1,condition=!variable.trinket_1_buffs&variable.trinket_2_buffs|variable.trinket_2_buffs&((trinket.2.cooldown.duration%trinket.2.proc.any_dps.duration)*(1.5+trinket.2.has_buff.strength)*(variable.trinket_2_sync))>((trinket.1.cooldown.duration%trinket.1.proc.any_dps.duration)*(1.5+trinket.1.has_buff.strength)*(variable.trinket_1_sync))
   -- Note: Currently unable to handle some of the above trinket conditions.
   -- Manually added: openers
-  if VerdictSpell:IsReady() and HolyPower >= 4 and Target:IsInMeleeRange(VerdictRange) then
-    if Cast(VerdictSpell) then return "either verdict precombat 2" end
+  if VerdictSpell:IsReady() and HolyPower >= 4 and Target:IsSpellInRange(VerdictSpell) then
+    if Cast(VerdictSpell, nil, nil, not Target:IsSpellInRange(VerdictSpell)) then return "either verdict precombat 2" end
   end
   if S.BladeofJustice:IsCastable() then
     if Cast(S.BladeofJustice, nil, nil, not Target:IsSpellInRange(S.BladeofJustice)) then return "blade_of_justice precombat 4" end
@@ -137,7 +137,7 @@ local function Precombat()
     if Cast(S.HammerofWrath, Settings.Commons.GCDasOffGCD.HammerOfWrath, nil, not Target:IsSpellInRange(S.HammerofWrath)) then return "hammer_of_wrath precombat 8" end
   end
   if S.CrusaderStrike:IsCastable() then
-    if Cast(S.CrusaderStrike, nil, nil, not Target:IsInMeleeRange(5)) then return "crusader_strike 10" end
+    if Cast(S.CrusaderStrike, nil, nil, not Target:IsSpellInRange(S.CrusaderStrike)) then return "crusader_strike 10" end
   end
 end
 
@@ -199,15 +199,30 @@ local function Finishers()
   VarDSCastable = (EnemiesCount8y >= 2 or Player:BuffUp(S.EmpyreanPowerBuff))
   -- divine_storm,if=variable.ds_castable&!buff.empyrean_legacy.up&!(buff.divine_arbiter.up&buff.divine_arbiter.stack>24)&((!talent.crusade|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence|talent.divine_auxiliary|target.time_to_die<8|cooldown.execution_sentence.remains>gcd*2)&(!talent.final_reckoning|talent.divine_auxiliary|cooldown.final_reckoning.remains>gcd*2)|buff.crusade.up&buff.crusade.stack<10)
   if S.DivineStorm:IsReady() and (VarDSCastable and Player:BuffDown(S.EmpyreanLegacyBuff) and (not (Player:BuffUp(S.DivineArbiterBuff) and Player:BuffStack(S.DivineArbiterBuff) > 24)) and (((not S.Crusade:IsAvailable()) or S.Crusade:CooldownRemains() > PlayerGCD * 3) and ((not S.ExecutionSentence:IsAvailable()) or S.DivineAuxiliary:IsAvailable() or FightRemains < 8 or S.ExecutionSentence:CooldownRemains() > PlayerGCD * 2) and ((not S.FinalReckoning:IsAvailable()) or S.DivineAuxiliary or S.FinalReckoning:CooldownRemains() > PlayerGCD * 2) or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10)) then
-    if Cast(S.DivineStorm, nil, nil, not Target:IsInRange(8)) then return "divine_storm finishers 2" end
+    if Cast(S.DivineStorm, nil, nil, not Target:IsInMeleeRange(8)) then return "divine_storm finishers 2" end
   end
   -- justicars_vengeance,if=(!talent.crusade|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence|talent.divine_auxiliary|target.time_to_die<8|cooldown.execution_sentence.remains>gcd*2)&(!talent.final_reckoning|talent.divine_auxiliary|cooldown.final_reckoning.remains>gcd*2)|buff.crusade.up&buff.crusade.stack<10
   if S.JusticarsVengeance:IsReady() and (((not S.Crusade:IsAvailable()) or S.Crusade:CooldownRemains() > PlayerGCD * 3) and ((not S.ExecutionSentence:IsAvailable()) or S.DivineAuxiliary:IsAvailable() or FightRemains < 8 or S.ExecutionSentence:CooldownRemains() > PlayerGCD * 2) and ((not S.FinalReckoning:IsAvailable()) or S.DivineAuxiliary:IsAvailable() or S.FinalReckoning:CooldownRemains() > PlayerGCD * 2) or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10) then
-    if Cast(S.JusticarsVengeance, nil, nil, not Target:IsInMeleeRange(5)) then return "justicars_vengeance finishers 4"; end
+    if Cast(S.JusticarsVengeance, nil, nil, not Target:IsSpellInRange(S.JusticarsVengeance)) then return "justicars_vengeance finishers 4"; end
   end
   -- templars_verdict,if=(!talent.crusade|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence|talent.divine_auxiliary|target.time_to_die<8|cooldown.execution_sentence.remains>gcd*2)&(!talent.final_reckoning|talent.divine_auxiliary|cooldown.final_reckoning.remains>gcd*2)|buff.crusade.up&buff.crusade.stack<10
   if VerdictSpell:IsReady() and (((not S.Crusade:IsAvailable()) or S.Crusade:CooldownRemains() > PlayerGCD * 3) and ((not S.ExecutionSentence:IsAvailable()) or S.DivineAuxiliary:IsAvailable() or FightRemains < 8 or S.ExecutionSentence:CooldownRemains() > PlayerGCD * 2) and ((not S.FinalReckoning:IsAvailable()) or S.DivineAuxiliary:IsAvailable() or S.FinalReckoning:CooldownRemains() > PlayerGCD * 2) or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10) then
-    if Cast(VerdictSpell, nil, nil, not Target:IsInMeleeRange(VerdictRange)) then return "either verdict finishers 6" end
+    if Cast(VerdictSpell, nil, nil, not Target:IsSpellInRange(VerdictSpell)) then return "either verdict finishers 6" end
+  end
+  -- Note: Purpose of no_cds lines is to avoid the rotation hanging when delaying CD usage.
+  if Settings.Retribution.DisableFinisherCDCheck or not CDsON() then
+    -- Manually added: divine_storm,if=no_cds
+    if S.DivineStorm:IsReady() and (VarDSCastable and Player:BuffDown(S.EmpyreanLegacyBuff) and (not (Player:BuffUp(S.DivineArbiterBuff) and Player:BuffStack(S.DivineArbiterBuff) > 24))) then
+      if Cast(S.DivineStorm, nil, nil, not Target:IsInMeleeRange(8)) then return "divine_storm no_cds finishers 8" end
+    end
+    -- Manually added: justicars_vengeance,if=no_cds
+    if S.JusticarsVengeance:IsReady() then
+      if Cast(S.JusticarsVengeance, nil, nil, not Target:IsSpellInRange(S.JusticarsVengeance)) then return "justicars_vengeance no_cds finishers 10"; end
+    end
+    -- Manually added: templars_verdict,if=no_cds
+    if VerdictSpell:IsReady() then
+      if Cast(VerdictSpell, nil, nil, not Target:IsSpellInRange(VerdictSpell)) then return "either verdict no_cds finishers 12"; end
+    end
   end
 end
 
@@ -218,7 +233,7 @@ local function Generators()
   end
   -- wake_of_ashes,if=holy_power<=2&(cooldown.avenging_wrath.remains|cooldown.crusade.remains)&(!talent.execution_sentence|cooldown.execution_sentence.remains>4|target.time_to_die<8)&(!raid_event.adds.exists|raid_event.adds.in>20|raid_event.adds.up)
   if S.WakeofAshes:IsCastable() and (HolyPower <= 2 and (S.AvengingWrath:CooldownDown() or S.Crusade:CooldownDown()) and ((not S.ExecutionSentence:IsAvailable()) or S.ExecutionSentence:CooldownRemains() > 4 or FightRemains < 8)) then
-    if Cast(S.WakeofAshes, nil, nil, not Target:IsInMeleeRange(12)) then return "wake_of_ashes generators 2"; end
+    if Cast(S.WakeofAshes, nil, nil, not Target:IsInMeleeRange(14)) then return "wake_of_ashes generators 2"; end
   end
   -- divine_toll,if=holy_power<=2&!debuff.judgment.up&(!raid_event.adds.exists|raid_event.adds.in>30|raid_event.adds.up)&(cooldown.avenging_wrath.remains>15|cooldown.crusade.remains>15|fight_remains<8)
   if S.DivineToll:IsCastable() and (HolyPower <= 2 and Target:DebuffDown(S.JudgmentDebuff) and (S.AvengingWrath:CooldownRemains() > 15 or S.Crusade:CooldownRemains() > 15 or FightRemains < 8)) then
@@ -230,7 +245,7 @@ local function Generators()
   end
   -- templar_slash,if=buff.templar_strikes.remains<gcd&spell_targets.divine_storm>=2
   if S.TemplarSlash:IsReady() and (S.TemplarStrike:TimeSinceLastCast() + PlayerGCD < 4 and EnemiesCount8y >= 2) then
-    if Cast(S.TemplarSlash, nil, nil, not Target:IsInMeleeRange(9)) then return "templar_slash generators 8"; end
+    if Cast(S.TemplarSlash, nil, nil, not Target:IsSpellInRange(S.TemplarSlash)) then return "templar_slash generators 8"; end
   end
   -- judgment,if=!debuff.judgment.up&(holy_power<=3|!talent.boundless_judgment)&spell_targets.divine_storm>=2
   if S.Judgment:IsReady() and (Target:DebuffDown(S.JudgmentDebuff) and (HolyPower <= 3 or not S.BoundlessJudgment:IsAvailable()) and EnemiesCount8y >= 2) then
@@ -246,7 +261,7 @@ local function Generators()
   end
   -- templar_slash,if=buff.templar_strikes.remains<gcd
   if S.TemplarSlash:IsReady() and (S.TemplarStrike:TimeSinceLastCast() + PlayerGCD < 4) then
-    if Cast(S.TemplarSlash, nil, nil, not Target:IsInMeleeRange(9)) then return "templar_slash generators 16"; end
+    if Cast(S.TemplarSlash, nil, nil, not Target:IsSpellInRange(S.TemplarSlash)) then return "templar_slash generators 16"; end
   end
   -- blade_of_justice,if=holy_power<=3|!talent.holy_blade
   if S.BladeofJustice:IsCastable() and (HolyPower <= 3 or not S.HolyBlade:IsAvailable()) then
@@ -270,17 +285,17 @@ local function Generators()
   end
   -- crusader_strike,if=cooldown.crusader_strike.charges_fractional>=1.75&(holy_power<=2|holy_power<=3&cooldown.blade_of_justice.remains>gcd*2|holy_power=4&cooldown.blade_of_justice.remains>gcd*2&cooldown.judgment.remains>gcd*2)
   if S.CrusaderStrike:IsCastable() and (S.CrusaderStrike:ChargesFractional() >= 1.75 and (HolyPower <= 2 or HolyPower <= 3 and S.BladeofJustice:CooldownRemains() > PlayerGCD * 2 or HolyPower == 4 and S.BladeofJustice:CooldownRemains() > PlayerGCD * 2 and S.Judgment:CooldownRemains() > PlayerGCD * 2)) then
-    if Cast(S.CrusaderStrike, nil, nil, not Target:IsInMeleeRange(5)) then return "crusader_strike generators 26"; end
+    if Cast(S.CrusaderStrike, nil, nil, not Target:IsSpellInRange(S.CrusaderStrike)) then return "crusader_strike generators 26"; end
   end
   -- call_action_list,name=finishers
   local ShouldReturn = Finishers(); if ShouldReturn then return ShouldReturn; end
   -- templar_slash
   if S.TemplarSlash:IsReady() then
-    if Cast(S.TemplarSlash, nil, nil, not Target:IsInMeleeRange(9)) then return "templar_slash generators 28"; end
+    if Cast(S.TemplarSlash, nil, nil, not Target:IsSpellInRange(S.TemplarSlash)) then return "templar_slash generators 28"; end
   end
   -- templar_strike
   if S.TemplarStrike:IsReady() then
-    if Cast(S.TemplarStrike, nil, nil, not Target:IsInMeleeRange(9)) then return "templar_strike generators 30"; end
+    if Cast(S.TemplarStrike, nil, nil, not Target:IsSpellInRange(S.TemplarStrike)) then return "templar_strike generators 30"; end
   end
   -- judgment,if=holy_power<=3|!talent.boundless_judgment
   if S.Judgment:IsReady() and (HolyPower <= 3 or not S.BoundlessJudgment:IsAvailable()) then
@@ -292,7 +307,7 @@ local function Generators()
   end
   -- crusader_strike
   if S.CrusaderStrike:IsCastable() then
-    if Cast(S.CrusaderStrike, nil, nil, not Target:IsInMeleeRange(5)) then return "crusader_strike generators 26"; end
+    if Cast(S.CrusaderStrike, nil, nil, not Target:IsSpellInRange(S.CrusaderStrike)) then return "crusader_strike generators 26"; end
   end
   -- arcane_torrent
   if S.ArcaneTorrent:IsCastable() then

@@ -58,9 +58,11 @@ HR.GUISettings.APL.Paladin = {
       BastionOfLight = true,
       HolyAvenger = true,
       MomentOfGlory = true,
+      Sentinel = true,
     }
   },
   Retribution = {
+    DisableFinisherCDCheck = false,
     PotionType = {
       Selected = "Power",
     },
@@ -98,6 +100,7 @@ HR.GUI.LoadSettingsRecursively(HR.GUISettings)
 local ARPanel = HR.GUI.Panel
 local CP_Paladin = CreateChildPanel(ARPanel, "Paladin")
 local CP_Protection = CreateChildPanel(CP_Paladin, "Protection")
+local CP_Protection2 = CreateChildPanel(CP_Paladin, "Protection2")
 local CP_Retribution = CreateChildPanel(CP_Paladin, "Retribution")
 local CP_Holy = CreateChildPanel(CP_Paladin, "Holy")
 
@@ -110,9 +113,10 @@ CreatePanelOption("Slider", CP_Protection, "APL.Paladin.Protection.GoAKHP", {0, 
 CreatePanelOption("Slider", CP_Protection, "APL.Paladin.Protection.WordofGloryHP", {0, 100, 1}, "Word of Glory HP", "Set the Word of Glory HP threshold.")
 CreatePanelOption("Slider", CP_Protection, "APL.Paladin.Protection.ArdentDefenderHP", {0, 100, 1}, "Ardent Defender HP", "Set the Ardent Defender HP threshold.")
 CreatePanelOption("Slider", CP_Protection, "APL.Paladin.Protection.ShieldoftheRighteousHP", {0, 100, 1}, "Shield of the Righteous HP", "Set the Shield of the Righteous HP threshold.")
-CreateARPanelOptions(CP_Protection, "APL.Paladin.Protection")
+CreateARPanelOptions(CP_Protection2, "APL.Paladin.Protection")
 
 -- Retribution
+CreatePanelOption("CheckButton", CP_Retribution, "APL.Paladin.Retribution.DisableFinisherCDCheck", "Disable CDs for Finishers", "Enable this option to ignore the status of cooldowns, such as Crusade, Execution Sentence, and Final Reckoning, when deciding whether to suggest finishers.")
 CreateARPanelOptions(CP_Retribution, "APL.Paladin.Retribution")
 
 -- Holy

@@ -82,15 +82,17 @@ Spell.Paladin.Protection = MergeTableByKey(Spell.Paladin.Commons, {
   CrusadersJudgment                     = Spell(204023),
   DivineToll                            = Spell(375576),
   EyeofTyr                              = Spell(387174),
-  GuardianofAncientKings                = Spell(86659),
+  GuardianofAncientKings                = MultiSpell(86659,212641),
   HammeroftheRighteous                  = Spell(53595),
   MomentofGlory                         = Spell(327193),
   RighteousProtector                    = Spell(204074),
+  Sentinel                              = Spell(389539),
   -- Buffs
   ArdentDefenderBuff                    = Spell(31850),
   BastionofLightBuff                    = Spell(378974),
-  GuardianofAncientKingsBuff            = Spell(86659),
+  GuardianofAncientKingsBuff            = MultiSpell(86659,212641),
   MomentofGloryBuff                     = Spell(327193),
+  SentinelBuff                          = Spell(389539),
   ShiningLightFreeBuff                  = Spell(327510),
   -- Debuffs
 })
@@ -120,6 +122,7 @@ Spell.Paladin.Retribution = MergeTableByKey(Spell.Paladin.Commons, {
   FinalVerdict                          = Spell(383328),
   FiresofJustice                        = Spell(203316),
   HolyBlade                             = Spell(383342),
+  Jurisdiction                          = Spell(402971),
   JusticarsVengeance                    = Spell(215661),
   RadiantDecree                         = Spell(383469),
   RadiantDecreeTalent                   = Spell(384052),
