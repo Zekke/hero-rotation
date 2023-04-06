@@ -59,6 +59,7 @@ local HolyPower = 0
 local PlayerGCD = 0
 local VarDSCastable
 local VerdictSpell = (S.FinalVerdict:IsLearned()) and S.FinalVerdict or S.TemplarsVerdict
+local VerdictRange = 5
 
 HL:RegisterForEvent(function()
   BossFightRemains = 11111
@@ -104,6 +105,13 @@ local function Precombat()
   -- augmentation
   -- snapshot_stats
   -- shield_of_vengeance
+  if S.FinalVerdict:IsAvailable() then
+    VerdictRange = 20
+  elseif S.JusticarsVengeance:IsAvailable() then
+    VerdictRange = 8
+  else
+    VerdictRange = 5
+  end
   if S.ShieldofVengeance:IsCastable() then
     if Cast(S.ShieldofVengeance, Settings.Retribution.GCDasOffGCD.ShieldOfVengeance) then return "shield_of_vengeance precombat 6"; end
   end
@@ -116,7 +124,7 @@ local function Precombat()
   -- variable,name=trinket_priority,op=setif,value=2,value_else=1,condition=!variable.trinket_1_buffs&variable.trinket_2_buffs|variable.trinket_2_buffs&((trinket.2.cooldown.duration%trinket.2.proc.any_dps.duration)*(1.5+trinket.2.has_buff.strength)*(variable.trinket_2_sync))>((trinket.1.cooldown.duration%trinket.1.proc.any_dps.duration)*(1.5+trinket.1.has_buff.strength)*(variable.trinket_1_sync))
   -- Note: Currently unable to handle some of the above trinket conditions.
   -- Manually added: openers
-  if VerdictSpell:IsReady() and HolyPower >= 4 and Target:IsInMeleeRange(5) then
+  if VerdictSpell:IsReady() and HolyPower >= 4 and Target:IsInMeleeRange(VerdictRange) then
     if Cast(VerdictSpell) then return "either verdict precombat 2" end
   end
   if S.BladeofJustice:IsCastable() then
@@ -181,8 +189,8 @@ local function Cooldowns()
     if Cast(S.ExecutionSentence, Settings.Retribution.GCDasOffGCD.ExecutionSentence, nil, not Target:IsSpellInRange(S.ExecutionSentence)) then return "execution_sentence cooldowns 16"; end
   end
   -- final_reckoning,if=(holy_power>=4&time<8|holy_power>=3&time>=8|holy_power>=2&talent.divine_auxiliary)&(cooldown.avenging_wrath.remains>gcd|cooldown.crusade.remains&(!buff.crusade.up|buff.crusade.stack>=10))&(time_to_hpg>0|holy_power=5|holy_power>=2&talent.divine_auxiliary)&(!raid_event.adds.exists|raid_event.adds.up|raid_event.adds.in>40)
-  if S.FinalReckoning:IsCastable() and ((HolyPower >= 4 and HL.CombatTime() < 8 or HolyPower >= 3 and HL.CombatTime() >= 8 or HolyPower >= 2 and S.DivineAuxiliary:IsAvailable()) and (S.AvengingWrath:CooldownRemains() > PlayerGCD or S.Crusade:CooldownDown() and (Player:BuffDown(S.CrusadeBuff) or Player:BuffStack(S.CrusadeBuff) >= 10)) and (TimeToHPG > 0 or HolyPower == 5 or HolyPower >= 2 and S.DivineAuxiliary:IsAvailable())) then
-    if Cast(S.FinalReckoning, Settings.Retribution.GCDasOffGCD.FinalReckoning, nil, not Target:IsSpellInRange(S.FinalReckoning)) then return "final_reckoning cooldowns 18" end
+  if S.FinalReckoning:IsCastable() and (Player:BuffUp(S.AvengingWrathBuff)) and ((HolyPower >= 4 and HL.CombatTime() < 8 or HolyPower >= 3 and HL.CombatTime() >= 8 or HolyPower >= 2 and S.DivineAuxiliary:IsAvailable()) and (S.AvengingWrath:CooldownRemains() > PlayerGCD or S.Crusade:CooldownDown() and (Player:BuffDown(S.CrusadeBuff) or Player:BuffStack(S.CrusadeBuff) >= 10)) and (TimeToHPG > 0 or HolyPower == 5 or HolyPower >= 2 and S.DivineAuxiliary:IsAvailable())) then
+    if Cast(S.FinalReckoning, Settings.Retribution.GCDasOffGCD.FinalReckoning, nil, not Target:IsInMeleeRange(5)) then return "final_reckoning cooldowns 18" end
   end
 end
 
@@ -199,7 +207,7 @@ local function Finishers()
   end
   -- templars_verdict,if=(!talent.crusade|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence|talent.divine_auxiliary|target.time_to_die<8|cooldown.execution_sentence.remains>gcd*2)&(!talent.final_reckoning|talent.divine_auxiliary|cooldown.final_reckoning.remains>gcd*2)|buff.crusade.up&buff.crusade.stack<10
   if VerdictSpell:IsReady() and (((not S.Crusade:IsAvailable()) or S.Crusade:CooldownRemains() > PlayerGCD * 3) and ((not S.ExecutionSentence:IsAvailable()) or S.DivineAuxiliary:IsAvailable() or FightRemains < 8 or S.ExecutionSentence:CooldownRemains() > PlayerGCD * 2) and ((not S.FinalReckoning:IsAvailable()) or S.DivineAuxiliary:IsAvailable() or S.FinalReckoning:CooldownRemains() > PlayerGCD * 2) or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10) then
-    if Cast(VerdictSpell, nil, nil, not Target:IsInMeleeRange(5)) then return "either verdict finishers 6" end
+    if Cast(VerdictSpell, nil, nil, not Target:IsInMeleeRange(VerdictRange)) then return "either verdict finishers 6" end
   end
 end
 
@@ -213,7 +221,7 @@ local function Generators()
     if Cast(S.WakeofAshes, nil, nil, not Target:IsInMeleeRange(12)) then return "wake_of_ashes generators 2"; end
   end
   -- divine_toll,if=holy_power<=2&!debuff.judgment.up&(!raid_event.adds.exists|raid_event.adds.in>30|raid_event.adds.up)&(cooldown.avenging_wrath.remains>15|cooldown.crusade.remains>15|fight_remains<8)
-  if S.DivineToll:IsCastable() and (HolyPower <= 2 and Target:DebuffDown(S.JudgmentDebuff) and ((not S.Seraphim:IsAvailable()) or Player:BuffUp(S.SeraphimBuff)) and (not S.FinalReckoning:IsAvailable()) and ((not S.ExecutionSentence) or FightRemains < 8 or EnemiesCount8y >= 5) and (S.AvengingWrath:CooldownRemains() > 15 or S.Crusade:CooldownRemains() > 15 or FightRemains < 8)) then
+  if S.DivineToll:IsCastable() and (HolyPower <= 2 and Target:DebuffDown(S.JudgmentDebuff) and (S.AvengingWrath:CooldownRemains() > 15 or S.Crusade:CooldownRemains() > 15 or FightRemains < 8)) then
     if Cast(S.DivineToll, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsInRange(30)) then return "divine_toll generators 6"; end
   end
   -- call_action_list,name=finishers,if=holy_power>=3&buff.crusade.up&buff.crusade.stack<10

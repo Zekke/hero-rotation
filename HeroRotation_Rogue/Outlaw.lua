@@ -476,6 +476,12 @@ local function Finish ()
     and Player:BuffRemains(S.SliceandDice) < (1 + ComboPoints) * 1.8 and (not S.SwiftSlasher:IsAvailable() or ComboPointsDeficit == 0) and Player:BuffDown(S.GrandMelee) then
     if HR.CastPooling(S.SliceandDice) then return "Cast Slice and Dice" end
   end
+  
+  if S.BetweentheEyes:IsCastable() and Target:IsSpellInRange(S.BetweentheEyes)
+    and Target:DebuffUp(S.Soulrip) then
+    if HR.CastPooling(S.BetweentheEyes) then return "Cast Between the Eyes Soulrip" end
+  end
+  
   if S.ColdBlood:IsCastable() and Player:BuffDown(S.ColdBlood) and Target:IsSpellInRange(S.Dispatch) then
     if HR.Cast(S.ColdBlood, Settings.Commons.OffGCDasOffGCD.ColdBlood) then return "Cast Cold Blood" end
   end

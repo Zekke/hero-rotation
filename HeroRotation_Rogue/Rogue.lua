@@ -201,6 +201,7 @@ Spell.Rogue.Outlaw = MergeTableByKey(Spell.Rogue.Commons, {
   TrueBearing             = Spell(193359),
   -- Set Bonuses
   ViciousFollowup         = Spell(394879),
+  Soulrip				  = Spell(409604),
 })
 
 Spell.Rogue.Subtlety = MergeTableByKey(Spell.Rogue.Commons, {
