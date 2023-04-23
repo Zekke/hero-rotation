@@ -34,6 +34,7 @@ Spell.Shaman.Commons = {
   FlameShock                            = Spell(188389),
   FlamentongueWeapon                    = Spell(318038),
   FrostShock                            = Spell(196840),
+  HealingSurge                          = Spell(8004),
   LightningBolt                         = Spell(188196),
   LightningShield                       = Spell(192106),
   -- Talents
@@ -142,6 +143,7 @@ Spell.Shaman.Elemental = MergeTableByKey(Spell.Shaman.Commons, {
   MagmaChamber                          = Spell(381932),
   MasteroftheElements                   = Spell(16166),
   PrimalElementalist                    = Spell(117013),
+  PrimordialSurge                       = Spell(386474),
   SearingFlames                         = Spell(381782),
   SkybreakersFieryDemise                = Spell(378310),
   StaticDischarge                       = Spell(342243),

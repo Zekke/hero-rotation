@@ -96,6 +96,7 @@ Spell.Warlock.Affliction = MergeTableByKey(Spell.Warlock.Commons, {
   SummonPet                             = Spell(688),
   -- Talents
   AbsoluteCorruption                    = Spell(196103),
+  DoomBlossom                           = Spell(389764),
   DrainSoul                             = Spell(198590),
   DreadTouch                            = Spell(389775),
   Haunt                                 = Spell(48181),
@@ -148,6 +149,7 @@ Spell.Warlock.Destruction = MergeTableByKey(Spell.Warlock.Commons, {
   Cataclysm                             = Spell(152108),
   ChannelDemonfire                      = Spell(196447),
   ChaosBolt                             = Spell(116858),
+  ChaosIncarnate                        = Spell(387275),
   Conflagrate                           = Spell(17962),
   CryHavoc                              = Spell(387522),
   DiabolicEmbers                        = Spell(387173),
@@ -169,6 +171,8 @@ Spell.Warlock.Destruction = MergeTableByKey(Spell.Warlock.Commons, {
   -- Buffs
   BackdraftBuff                         = Spell(117828),
   MadnessCBBuff                         = Spell(387409),
+  MadnessRoFBuff                        = Spell(387413),
+  MadnessSBBuff                         = Spell(387414),
   RainofChaosBuff                       = Spell(266087),
   RitualofRuinBuff                      = Spell(387157),
   BurntoAshesBuff                       = Spell(387154),
@@ -176,6 +180,7 @@ Spell.Warlock.Destruction = MergeTableByKey(Spell.Warlock.Commons, {
   EradicationDebuff                     = Spell(196414),
   HavocDebuff                           = Spell(80240),
   ImmolateDebuff                        = Spell(157736),
+  PyrogenicsDebuff                      = Spell(387096),
   RoaringBlazeDebuff                    = Spell(265931),
 })
 
@@ -185,6 +190,8 @@ Item.Warlock.Commons = {
   -- Trinkets
   ConjuredChillglobe                    = Item(194300, {13, 14}),
   DesperateInvokersCodex                = Item(194310, {13, 14}),
+  EruptingSpearFragment                 = Item(193769, {13, 14}),
+  IcebloodDeathsnare                    = Item(194304, {13, 14}),
   TimebreachingTalon                    = Item(193791, {13, 14}),
 }
 
