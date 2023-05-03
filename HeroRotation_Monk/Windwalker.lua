@@ -141,6 +141,7 @@ local function SCKMax()
 end
 
 local function ToDTarget()
+  if not (S.TouchofDeath:CooldownUp() or Player:BuffUp(S.HiddenMastersForbiddenTouchBuff)) then return nil end
   local BestUnit, BestConditionValue = nil, nil
   for _, CycleUnit in pairs(Enemies5y) do
     if (not CycleUnit:IsFacingBlacklisted()) and (not CycleUnit:IsUserCycleBlacklisted()) and (CycleUnit:AffectingCombat() or CycleUnit:IsDummy()) and (S.ImpTouchofDeath:IsAvailable() and CycleUnit:HealthPercentage() <= 15 or CycleUnit:Health() < Player:Health()) and ((not BestConditionValue) or Utils.CompareThis("max", CycleUnit:Health(), BestConditionValue)) then
@@ -171,6 +172,7 @@ end
 local function EvaluateTargetIfFilterMarkoftheCrane102(TargetUnit)
   -- target_if=min:debuff.mark_of_the_crane.remains+spinning_crane_kick.max*target.time_to_die
   return TargetUnit:DebuffRemains(S.MarkoftheCraneDebuff) + num(SCKMax()) * TargetUnit:TimeToDie()
+end
 
 local function EvaluateTargetIfFilterFaeExposure(TargetUnit)
   -- target_if=min:debuff.fae_exposure_damage.remains
