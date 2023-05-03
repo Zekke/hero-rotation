@@ -615,7 +615,7 @@ local function APL ()
         end
       end
       -- actions.precombat+=/adrenaline_rush,precombat_seconds=3,if=talent.improved_adrenaline_rush
-      if CDsON() and S.AdrenalineRush:IsReady() and S.ImprovedAdrenalineRush:IsAvailable() and ComboPoints <= 2 then
+      if CDsON() and S.AdrenalineRush:IsReady() and ((S.ImprovedAdrenalineRush:IsAvailable() and ComboPoints <= 2) or S.LoadedDice:IsAvailable()) then
         if HR.Cast(S.AdrenalineRush) then return "Cast Adrenaline Rush (Opener)" end
       end
       -- actions.precombat+=/roll_the_bones,precombat_seconds=2
