@@ -77,6 +77,7 @@ HR.GUISettings.APL.Druid = {
       BsInc = true,
     },
     OffGCDasOffGCD = {
+      NaturesVigil = true,
       SkullBash = true,
       TigersFury = true,
     }
