@@ -137,6 +137,7 @@ Spell.Druid.Balance = MergeTableByKey(Spell.Druid.Commons, {
   WaningTwilight                        = Spell(393956),
   WarriorofElune                        = Spell(202425),
   WildMushroom                          = Spell(88747),
+  WildSurges                            = Spell(406890),
   -- New Moon Phases
   FullMoon                              = Spell(274283),
   HalfMoon                              = Spell(274282),
@@ -262,6 +263,7 @@ Item.Druid.Commons = {
   AlgetharPuzzleBox                     = Item(193701, {13, 14}),
   ManicGrieftorch                       = Item(194308, {13, 14}),
   -- Other On-Use Items
+  Djaruun                               = Item(202569),
   Jotungeirr                            = Item(186404),
 }
 
