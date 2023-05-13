@@ -42,18 +42,6 @@ local OnUseExcludes = {
   I.ManicGrieftorch:ID(),
 }
 
--- Trinket Item Objects
-local equip = Player:GetEquipment()
-local trinket1 = (equip[13]) and Item(equip[13]) or Item(0)
-local trinket2 = (equip[14]) and Item(equip[14]) or Item(0)
-
--- Check when equipment changes
-HL:RegisterForEvent(function()
-  equip = Player:GetEquipment()
-  trinket1 = (equip[13]) and Item(equip[13]) or Item(0)
-  trinket2 = (equip[14]) and Item(equip[14]) or Item(0)
-end, "PLAYER_EQUIPMENT_CHANGED")
-
 -- Rotation Var
 local SummonPetSpells = { S.SummonPet, S.SummonPet2, S.SummonPet3, S.SummonPet4, S.SummonPet5 }
 local EnemyCount8ySplash, EnemyList
@@ -142,7 +130,7 @@ local function Precombat()
   -- Moved to Pet Management section in APL()
   -- snapshot_stat
   -- use_item,name=algethar_puzzle_box
-  if I.AlgetharPuzzleBox:IsEquippedAndReady() then
+  if Settings.Commons.Enabled.Trinkets and I.AlgetharPuzzleBox:IsEquippedAndReady() then
     if Cast(I.AlgetharPuzzleBox, nil, Settings.Commons.DisplayStyle.Trinkets) then return "algethar_puzzle_box precombat 1"; end
   end
   -- steel_trap,precast_time=2
@@ -203,19 +191,29 @@ local function CDs()
       if Cast(PotionSelected, nil, Settings.Commons.DisplayStyle.Potions) then return "potion cds 16"; end
     end
   end
-  -- use_item,name=algethar_puzzle_box,use_off_gcd=1,if=gcd.remains>gcd.max-0.1
-  -- Note: Widened the available window by half a second to account for player reaction.
-  if I.AlgetharPuzzleBox:IsEquippedAndReady() and (Player:GCDRemains() > Player:GCD() - 0.6) then
-    if Cast(I.AlgetharPuzzleBox, nil, Settings.Commons.DisplayStyle.Trinkets) then return "algethar_puzzle_box cds 17"; end
+  if Settings.Commons.Enabled.Trinkets then
+    -- use_item,name=algethar_puzzle_box,use_off_gcd=1,if=gcd.remains>gcd.max-0.1
+    -- Note: Widened the available window by half a second to account for player reaction.
+    if I.AlgetharPuzzleBox:IsEquippedAndReady() and (Player:GCDRemains() > Player:GCD() - 0.6) then
+      if Cast(I.AlgetharPuzzleBox, nil, Settings.Commons.DisplayStyle.Trinkets) then return "algethar_puzzle_box cds 17"; end
+    end
+    -- use_item,name=manic_grieftorch,use_off_gcd=1,if=gcd.remains>gcd.max-0.1&!buff.spearhead.up
+    if I.ManicGrieftorch:IsEquippedAndReady() and (Player:GCDRemains() > Player:GCD() - 0.6 and Player:BuffDown(S.SpearheadBuff)) then
+      if Cast(I.ManicGrieftorch, nil, Settings.Commons.DisplayStyle.Trinkets) then return "manic_grieftorch cds 18"; end
+    end
   end
-  -- use_item,name=manic_grieftorch,use_off_gcd=1,if=gcd.remains>gcd.max-0.1&!buff.spearhead.up
-  if I.ManicGrieftorch:IsEquippedAndReady() and (Player:GCDRemains() > Player:GCD() - 0.6 and Player:BuffDown(S.SpearheadBuff)) then
-    if Cast(I.ManicGrieftorch, nil, Settings.Commons.DisplayStyle.Trinkets) then return "manic_grieftorch cds 18"; end
-  end
-  -- use_items,use_off_gcd=1,if=gcd.remains>gcd.max-0.1&!buff.spearhead.up
-  local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
-  if TrinketToUse then
-    if Cast(TrinketToUse, nil, Settings.Commons.DisplayStyle.Trinkets) then return "Generic use_items for " .. TrinketToUse:Name(); end
+  if Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items then
+    -- use_items,use_off_gcd=1,if=gcd.remains>gcd.max-0.1&!buff.spearhead.up
+    if Player:BuffDown(S.SpearheadBuff) then
+      local ItemToUse, ItemSlot, ItemRange = Player:GetUseableItems(OnUseExcludes)
+      if ItemToUse then
+        local DisplayStyle = Settings.Commons.DisplayStyle.Trinkets
+        if ItemSlot ~= 13 and ItemSlot ~= 14 then DisplayStyle = Settings.Commons.DisplayStyle.Items end
+        if ((ItemSlot == 13 or ItemSlot == 14) and Settings.Commons.Enabled.Trinkets) or (ItemSlot ~= 13 and ItemSlot ~= 14 and Settings.Commons.Enabled.Items) then
+          if Cast(ItemToUse, nil, DisplayStyle, not Target:IsInRange(ItemRange)) then return "Generic use_items for " .. ItemToUse:Name(); end
+        end
+      end
+    end
   end
   -- aspect_of_the_eagle,if=target.distance>=6
   if S.AspectoftheEagle:IsCastable() and Settings.Survival.AspectOfTheEagle and not Target:IsInRange(6) then
@@ -249,7 +247,7 @@ local function Cleave()
     if Cast(S.CoordinatedAssault, Settings.Survival.GCDasOffGCD.CoordinatedAssault, nil, not Target:IsSpellInRange(S.CoordinatedAssault)) then return "coordinated_assault cleave 8"; end
   end
   -- kill_shot,if=buff.coordinated_assault_empower.up
-  if S.KillShot:IsReady() and (Player:BuffUp(S.CoordinatedAssaultBuff)) then
+  if S.KillShot:IsReady() and (Player:BuffUp(S.CoordinatedAssaultBuff) or Settings.Survival.CAKSMacro and Player:BuffUp(S.CoordinatedAssault) and (S.Bite:IsReady() or S.Claw:IsReady() or S.Smack:IsReady())) then
     if Cast(S.KillShot, nil, nil, not Target:IsSpellInRange(S.KillShot)) then return "kill_shot cleave 10"; end
   end
   -- explosive_shot
@@ -342,7 +340,7 @@ local function ST()
     if Cast(S.Spearhead, nil, nil, not Target:IsSpellInRange(S.Spearhead)) then return "spearhead st 4"; end
   end
   -- kill_shot,if=buff.coordinated_assault_empower.up
-  if S.KillShot:IsReady() and (Player:BuffUp(S.CoordinatedAssaultBuff)) then
+  if S.KillShot:IsReady() and (Player:BuffUp(S.CoordinatedAssaultBuff) or Settings.Survival.CAKSMacro and Player:BuffUp(S.CoordinatedAssault) and (S.Bite:IsReady() or S.Claw:IsReady() or S.Smack:IsReady())) then
     if Cast(S.KillShot, nil, nil, not Target:IsSpellInRange(S.KillShot)) then return "kill_shot st 6"; end
   end
   -- wildfire_bomb,if=(raid_event.adds.in>cooldown.wildfire_bomb.full_recharge_time-(cooldown.wildfire_bomb.full_recharge_time%3.5)&debuff.shredded_armor.up&(full_recharge_time<2*gcd|talent.bombardier&!cooldown.coordinated_assault.remains|talent.bombardier&buff.coordinated_assault.up&buff.coordinated_assault.remains<2*gcd)|!raid_event.adds.exists&time_to_die<7)&set_bonus.tier30_4pc
