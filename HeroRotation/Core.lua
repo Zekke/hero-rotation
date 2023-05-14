@@ -294,6 +294,10 @@
       HeroRotationCharDB.Toggles[3] = not HeroRotationCharDB.Toggles[3];
       HR.ToggleIconFrame:UpdateButtonText(3);
       HR.Print("HeroRotation is now "..(HeroRotationCharDB.Toggles[3] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."));
+    elseif Argument1 == "funnel" then
+      HeroRotationCharDB.Toggles[4] = not HeroRotationCharDB.Toggles[4];
+      HR.ToggleIconFrame:UpdateButtonText(4);
+      HR.Print("Funnel is now "..(HeroRotationCharDB.Toggles[4] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."));
     elseif Argument1 == "unlock" then
       HR.MainFrame:Unlock();
       HR.Print("HeroRotation UI is now |cff00ff00unlocked|r.");
@@ -373,6 +377,11 @@
   -- Get if the main toggle is on.
   function HR.ON ()
     return HeroRotationCharDB.Toggles[3];
+  end
+
+  -- Get if the Funnel is enabled.
+  function HR.FunnelON ()
+    return HeroRotationCharDB.Toggles[4];
   end
 
   -- Get if the UI is locked.

@@ -8,6 +8,9 @@
   <Binding name="HEROROTATION_TOGGLE" description="Toggle On/Off the Addon." category="ADDONS">
     HeroRotation.CmdHandler("toggle");
   </Binding>
+  <Binding name="HEROROTATION_FUNNEL" description="Toggle On/Off the Funnel." category="ADDONS">
+    HeroRotation.CmdHandler("funnel");
+  </Binding>
   <Binding name="HEROROTATION_UNLOCK" description="Unlock the addon's icons to move them." category="ADDONS">
     HeroRotation.CmdHandler("lock");
   </Binding>

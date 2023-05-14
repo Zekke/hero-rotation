@@ -311,7 +311,7 @@ local function Finish (ReturnSpellOnly, StealthSpell)
     end
   end
   -- actions.finish+=/black_powder,if=!variable.priority_rotation&spell_targets>=3
-  if S.BlackPowder:IsCastable() and not PriorityRotation and MeleeEnemies10yCount >= 3 then
+  if S.BlackPowder:IsCastable() and not PriorityRotation and MeleeEnemies10yCount >= 3 and not HR.FunnelON() then
     if ReturnSpellOnly then
       return S.BlackPowder
     else
@@ -543,7 +543,7 @@ local function CDs ()
     if ShouldReturn then return "Vanish Macro (DM) " .. ShouldReturn end
   end
   -- actions.cds+=/cold_blood,if=!talent.secret_technique&combo_points>=5
-  if S.ColdBlood:IsReady() and not S.SecretTechnique:IsAvailable() and ComboPoints >= 5 then
+  if S.ColdBlood:IsReady() and (not S.SecretTechnique:IsAvailable()) and ComboPoints >= 5 then
     if HR.Cast(S.ColdBlood, Settings.Commons.OffGCDasOffGCD.ColdBlood) then return "Cast Cold Blood" end
   end
   if TargetInMeleeRange then

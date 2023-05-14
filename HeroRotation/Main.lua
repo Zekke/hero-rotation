@@ -66,6 +66,7 @@
   BINDING_NAME_HEROROTATION_TOGGLE = "Toggle On/Off";
   BINDING_NAME_HEROROTATION_UNLOCK = "Unlock the addon to move icons";
   BINDING_NAME_HEROROTATION_LOCK = "Lock the addon in place";
+  BINDING_NAME_HEROROTATION_FUNNEL = "Toggle Funnel";
 
 --- ======= MAIN FRAME =======
   HR.MainFrame = CreateFrame("Frame", "HeroRotation_MainFrame", UIParent);
