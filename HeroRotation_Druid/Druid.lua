@@ -64,7 +64,8 @@ Spell.Druid.Commons = {
   RakeDebuff                            = Spell(155722),
   RipDebuff                             = Spell(1079),
   SunfireDebuff                         = Spell(164815),
-  ThrashDebuff                          = MultiSpell(106830,192090,405233),
+  -- ThrashDebuff                          = MultiSpell(106830,192090,405233),
+  ThrashDebuff                          = Spell(405233),
   -- Covenant Abilities
   AdaptiveSwarmCov                      = Spell(325727),
   AdaptiveSwarmCovDebuff                = Spell(325733),

@@ -143,6 +143,7 @@ Spell.Rogue.Assassination = MergeTableByKey(Spell.Rogue.Commons, {
   IndiscriminateCarnage   = Spell(381802),
   InternalBleeding        = Spell(154953),
   Kingsbane               = Spell(385627),
+  LightweightShiv         = Spell(394983),
   MasterAssassin          = Spell(255989),
   MasterAssassinBuff      = Spell(256735),
   PreyontheWeak           = Spell(131511),

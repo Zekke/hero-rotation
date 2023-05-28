@@ -74,9 +74,9 @@ local TrinketItem2 = Equipment[14] and Item(Equipment[14]) or Item(0)
 local function SetTrinketVariables ()
   -- actions.precombat+=/variable,name=trinket_sync_slot,value=1,if=trinket.1.has_stat.any_dps&(!trinket.2.has_stat.any_dps|trinket.1.cooldown.duration>=trinket.2.cooldown.duration)
   -- actions.precombat+=/variable,name=trinket_sync_slot,value=2,if=trinket.2.has_stat.any_dps&(!trinket.1.has_stat.any_dps|trinket.2.cooldown.duration>trinket.1.cooldown.duration)
-  if TrinketItem1:TrinketHasStatAnyDps() and (not TrinketItem2:TrinketHasStatAnyDps() or TrinketItem1:Cooldown() >= TrinketItem2:Cooldown()) then
+  if TrinketItem1:HasStatAnyDps() and (not TrinketItem2:HasStatAnyDps() or TrinketItem1:Cooldown() >= TrinketItem2:Cooldown()) then
     TrinketSyncSlot = 1
-  elseif TrinketItem2:TrinketHasStatAnyDps() and (not TrinketItem1:TrinketHasStatAnyDps() or TrinketItem2:Cooldown() > TrinketItem1:Cooldown()) then
+  elseif TrinketItem2:HasStatAnyDps() and (not TrinketItem1:HasStatAnyDps() or TrinketItem2:Cooldown() > TrinketItem1:Cooldown()) then
     TrinketSyncSlot = 2
   else
     TrinketSyncSlot = 0
@@ -190,6 +190,15 @@ local function ExsangSyncRemains()
     return S.Deathmark:CooldownRemains()
   end
   return S.Exsanguinate:CooldownRemains()
+end
+
+-- actions+=/variable,name=sepsis_sync_remains,op=setif,condition=cooldown.deathmark.remains>cooldown.sepsis.remains&cooldown.deathmark.remains<fight_remains,value=cooldown.deathmark.remains,value_else=cooldown.sepsis.remains
+local function SepSyncRemains()
+  if S.Deathmark:CooldownRemains() > S.Sepsis:CooldownRemains()
+    and (HL.BossFightRemainsIsNotValid() or HL.BossFilteredFightRemains(">", S.Deathmark:CooldownRemains())) then
+    return S.Deathmark:CooldownRemains()
+  end
+  return S.Sepsis:CooldownRemains()
 end
 
 -- Custom Override for Handling 4pc Pandemics
@@ -399,8 +408,9 @@ local function CDs ()
   end
 
   if not Player:StealthUp(true, false) and HR.CDsON() then
-    -- actions.cds+=/sepsis,if=!stealthed.rogue&!stealthed.improved_garrote&(!talent.improved_garrote&dot.garrote.ticking|talent.improved_garrote&cooldown.garrote.up)&(target.time_to_die>10|fight_remains<10)
-    if S.Sepsis:IsReady() and ImprovedGarroteRemains() == 0 and (S.ImprovedGarrote:IsAvailable() and S.Garrote:CooldownUp() or Target:DebuffUp(S.Garrote))
+    -- actions.cds+=/sepsis,if=!stealthed.rogue&!stealthed.improved_garrote&dot.rupture.ticking&(!talent.exsanguinate|variable.exsang_sync_remains>7|dot.rupture.remains>20)&(!talent.improved_garrote&dot.garrote.ticking|talent.improved_garrote&cooldown.garrote.up)&(target.time_to_die>10|fight_remains<10)
+    if S.Sepsis:IsReady() and ImprovedGarroteRemains() == 0 and Target:DebuffUp(S.Rupture) and (not S.Exsanguinate:IsAvailable() or ExsanguinateSyncRemains > 7 or Target:DebuffRemains(S.Rupture) > 20)
+      and ((not S.ImprovedGarrote:IsAvailable() and Target:DebuffUp(S.Garrote)) or (S.ImprovedGarrote:IsAvailable() and S.Garrote:CooldownUp()))
       and (Target:FilteredTimeToDie(">", 10) or HL.BossFilteredFightRemains("<=", 10)) then
       if Cast(S.Sepsis, nil, Settings.Commons.CovenantDisplayStyle) then return "Cast Sepsis" end
     end
@@ -414,11 +424,11 @@ local function CDs ()
         and S.Deathmark:CooldownRemains() <= 2) or HL.BossFilteredFightRemains("<", 22)) then
         if HR.Cast(I.AlgetharPuzzleBox, nil, Settings.Commons.TrinketDisplayStyle) then return "Algethar Puzzle Box"; end
       end
-      if TrinketItem1:IsReady() and not Player:IsTrinketBlacklisted(TrinketItem1) and not ValueIsInArray(OnUseExcludeTrinkets, TrinketItem1:ID())
+      if TrinketItem1:IsReady() and not Player:IsItemBlacklisted(TrinketItem1) and not ValueIsInArray(OnUseExcludeTrinkets, TrinketItem1:ID())
         and (TrinketSyncSlot == 1 and (S.Deathmark:AnyDebuffUp() or HL.BossFilteredFightRemains("<", 20))
           or (TrinketSyncSlot == 2 and (not TrinketItem2:IsReady() or not S.Deathmark:AnyDebuffUp() and S.Deathmark:CooldownRemains() > 20)) or TrinketSyncSlot == 0) then
         if Cast(TrinketItem1, nil, Settings.Commons.TrinketDisplayStyle) then return "Trinket 1"; end
-      elseif TrinketItem2:IsReady() and not Player:IsTrinketBlacklisted(TrinketItem2) and not ValueIsInArray(OnUseExcludeTrinkets, TrinketItem2:ID())
+      elseif TrinketItem2:IsReady() and not Player:IsItemBlacklisted(TrinketItem2) and not ValueIsInArray(OnUseExcludeTrinkets, TrinketItem2:ID())
         and (TrinketSyncSlot == 2 and (S.Deathmark:AnyDebuffUp() or HL.BossFilteredFightRemains("<", 20))
           or (TrinketSyncSlot == 1 and (not TrinketItem1:IsReady() or not S.Deathmark:AnyDebuffUp() and S.Deathmark:CooldownRemains() > 20)) or TrinketSyncSlot == 0) then
         if Cast(TrinketItem2, nil, Settings.Commons.TrinketDisplayStyle) then return "Trinket 2"; end
@@ -442,7 +452,7 @@ local function CDs ()
       if Cast(S.Kingsbane, Settings.Assassination.GCDasOffGCD.Kingsbane) then return "Cast Kingsbane" end
     end
     -- actions.cds+=/variable,name=exsanguinate_condition,value=talent.exsanguinate&!stealthed.rogue&!stealthed.improved_garrote&!dot.deathmark.ticking&target.time_to_die>variable.exsang_sync_remains+4&variable.exsang_sync_remains<4
-    -- actions.cds+=/echoing_reprimand,if=talent.exsanguinate&talent.resounding_clarity&(variable.exsanguinate_condition&combo_points<=2&variable.exsang_sync_remains<=2&!dot.garrote.refreshable&dot.rupture.remains>9.6|variable.exsang_sync_remains>40)
+    -- actions.cds+=/echoing_reprimand,if=talent.exsanguinate&talent.resounding_clarity&(variable.exsanguinate_condition&combo_points<=2&variable.exsang_sync_remains<=2&!dot.garrote.refreshable&dot.rupture.remains>9.6)
     -- actions.cds+=/exsanguinate,if=variable.exsanguinate_condition&(!dot.garrote.refreshable&dot.rupture.remains>4+4*variable.exsanguinate_rupture_cp|dot.rupture.remains*0.5>target.time_to_die)    
     if S.Exsanguinate:IsAvailable() then
       if ImprovedGarroteRemains() == 0 and Target:DebuffDown(S.Deathmark) and Target:FilteredTimeToDie(">", ExsanguinateSyncRemains + 4) and ExsanguinateSyncRemains < 4 then
@@ -460,7 +470,7 @@ local function CDs ()
   end
   -- actions.cds+=/shiv,if=talent.kingsbane&!debuff.shiv.up&dot.kingsbane.ticking&dot.garrote.ticking&dot.rupture.ticking&(!talent.crimson_tempest.enabled|variable.single_target|dot.crimson_tempest.ticking)
   -- actions.cds+=/shiv,if=talent.arterial_precision&!debuff.shiv.up&dot.garrote.ticking&dot.rupture.ticking&(debuff.deathmark.up|cooldown.shiv.charges_fractional>max_charges-0.5&cooldown.deathmark.remains>10)
-  -- actions.cds+=/shiv,if=talent.sepsis&!talent.kingsbane&!talent.arterial_precision&!debuff.shiv.up&dot.garrote.ticking&dot.rupture.ticking&((cooldown.sepsis.ready|cooldown.sepsis.remains>12)+(cooldown.deathmark.ready|cooldown.deathmark.remains>12)=2)
+  -- actions.cds+=/shiv,if=talent.sepsis&!talent.kingsbane&!talent.arterial_precision&!debuff.shiv.up&dot.garrote.ticking&dot.rupture.ticking&((cooldown.shiv.charges_fractional>0.9+talent.lightweight_shiv.enabled&variable.sepsis_sync_remains>5)|dot.sepsis.ticking|dot.deathmark.ticking|fight_remains<20)
   -- actions.cds+=/shiv,if=!talent.kingsbane&!talent.arterial_precision&!talent.sepsis&!debuff.shiv.up&dot.garrote.ticking&dot.rupture.ticking&(!talent.crimson_tempest.enabled|variable.single_target|dot.crimson_tempest.ticking)&(!talent.exsanguinate|variable.exsang_sync_remains>2)
   if S.Shiv:IsCastable()
     and not Target:DebuffUp(S.ShivDebuff) and Target:DebuffUp(S.Garrote) and Target:DebuffUp(S.Rupture) then
@@ -474,9 +484,9 @@ local function CDs ()
         if Cast(S.Shiv, Settings.Assassination.GCDasOffGCD.Shiv) then return "Cast Shiv (Arterial Precision)" end
       end
     end
-    if not S.ArterialPrecision:IsAvailable() and not S.ArterialPrecision:IsAvailable() then
+    if not S.Kingsbane:IsAvailable() and not S.ArterialPrecision:IsAvailable() then
       if S.Sepsis:IsAvailable() then
-        if (BoolToInt(S.Sepsis:CooldownUp() or S.Sepsis:CooldownRemains() > 12) + BoolToInt(S.Deathmark:CooldownUp() or S.Deathmark:CooldownRemains() > 12) == 2) then
+        if ((S.Shiv:ChargesFractional() > (0.9 + BoolToInt(S.LightweightShiv:IsAvailable())) and SepsisSyncRemains > 5) or Target:DebuffUp(S.Sepsis) or Target:DebuffUp(S.Deathmark)) then
           if Cast(S.Shiv, Settings.Assassination.GCDasOffGCD.Shiv) then return "Cast Shiv (Sepsis)" end
         end
       else
@@ -512,7 +522,7 @@ local function CDs ()
   end
 
   -- actions.cds+=/call_action_list,name=vanish,if=!stealthed.all&master_assassin_remains=0
-  if not Player:StealthUp(true, true) and ImprovedGarroteRemains() <= 0 and MasterAssassinRemains() <= 0 then
+  if not Player:StealthUp(true, true) and ImprovedGarroteRemains() <= 0 and MasterAssassinRemains() <= 0 and not Player:BuffUp(S.SepsisBuff) then
     if ShouldReturn then
       Vanish()
     else
@@ -534,14 +544,14 @@ local function Stealthed ()
   if S.IndiscriminateCarnage:IsReady() and MeleeEnemies10yCount > 1 then
     if Cast(S.IndiscriminateCarnage, Settings.Assassination.OffGCDasOffGCD.IndiscriminateCarnage) then return "Cast Indiscriminate Carnage" end
   end
-  if S.Garrote:IsCastable() and ImprovedGarroteRemains() > 0 then
-    -- actions.stealthed+=/garrote,target_if=min:remains,if=stealthed.improved_garrote&!will_lose_exsanguinate&(remains<12%exsanguinated_rate|pmultiplier<=1)&target.time_to_die-remains>2
+  if S.Garrote:IsCastable() and (ImprovedGarroteRemains() > 0 or Player:BuffUp(S.SepsisBuff)) then
+    -- actions.stealthed+=/garrote,target_if=min:remains,if=stealthed.improved_garrote&!will_lose_exsanguinate&(remains<(12-buff.sepsis_buff.remains)%exsanguinated_rate|pmultiplier<=1)&target.time_to_die-remains>2
     local function GarroteTargetIfFunc(TargetUnit)
       return TargetUnit:DebuffRemains(S.Garrote)
     end
     local function GarroteIfFunc(TargetUnit)
       return not Rogue.WillLoseExsanguinate(TargetUnit, S.Garrote) and
-        (TargetUnit:PMultiplier(S.Garrote) <= 1 or TargetUnit:DebuffRemains(S.Garrote) < (12 / Rogue.ExsanguinatedRate(TargetUnit, S.Garrote)))
+        (TargetUnit:PMultiplier(S.Garrote) <= 1 or TargetUnit:DebuffRemains(S.Garrote) < ((12 - Player:BuffRemains(S.SepsisBuff)) / Rogue.ExsanguinatedRate(TargetUnit, S.Garrote)))
         and (TargetUnit:FilteredTimeToDie(">", 2, -TargetUnit:DebuffRemains(S.Garrote)) or TargetUnit:TimeToDieIsNotValid())
         and Rogue.CanDoTUnit(TargetUnit, GarroteDMGThreshold)
     end
@@ -565,22 +575,6 @@ local function Stealthed ()
   end
 end
 
-local function IndiscriminateCarnageLogic ()
-  if Player:BuffUp(S.IndiscriminateCarnage) then
-    if S.Garrote:IsReady() then
-      -- if Cast(S.Garrote) then return "Cast Garrote (Indiscriminate Carnage)" end
-      for _, CycleUnit in pairs(MeleeEnemies10y) do
-        if CycleUnit:DebuffRemains(S.Garrote) < 7 then
-          if Cast(S.Garrote) then return "Cast Garrote (Indiscriminate Carnage)" end
-        end
-      end
-    end
-    if S.Rupture:IsReady() and ComboPoints >= 4 then
-      if Cast(S.Rupture) then return "Cast Rupture (Indiscriminate Carnage)" end
-    end
-  end
-end
-
 -- # Damage over time abilities
 local function Dot ()
   local SkipCycleGarrote, SkipCycleRupture, SkipRupture = false, false, false
@@ -593,6 +587,11 @@ local function Dot ()
   -- actions.dot+=/variable,name=skip_rupture,value=0
   -- SkipRupture = false
   if HR.CDsON() and S.Exsanguinate:IsAvailable() and ExsanguinateSyncRemains < 2 then
+    -- actions.dot+=/rupture,if=talent.exsanguinate.enabled&!will_lose_exsanguinate&dot.rupture.pmultiplier<=1&!dot.rupture.ticking&effective_combo_points<=3&variable.single_target
+    if S.Rupture:IsReady() and TargetInMeleeRange and Target:PMultiplier(S.Rupture) <= 1 and not Rogue.WillLoseExsanguinate(Target, S.Rupture)
+      and not Target:DebuffUp(S.Rupture) and ComboPoints <= 3 then
+      if Cast(S.Rupture) then return "Cast Rupture (Pre-Exsanguinate) Test" end
+    end
     -- actions.dot+=/garrote,if=talent.exsanguinate.enabled&!will_lose_exsanguinate&dot.garrote.pmultiplier<=1&cooldown.exsanguinate.remains<2&spell_targets.fan_of_knives=1&raid_event.adds.in>6&dot.garrote.remains*0.5<target.time_to_die
     if S.Garrote:IsCastable() and TargetInMeleeRange and MeleeEnemies10yCount == 1
       and not Rogue.WillLoseExsanguinate(Target, S.Garrote) and Target:PMultiplier(S.Garrote) <= 1
@@ -714,7 +713,7 @@ local function Direct ()
       end
     end
   end
-  -- actions.direct+=/echoing_reprimand,if=(!talent.exsanguinate|!talent.resounding_clarity)&variable.use_filler&cooldown.deathmark.remains>10|fight_remains<20
+  -- actions.direct+=/echoing_reprimand,if=(!talent.exsanguinate|!talent.resounding_clarity|variable.exsang_sync_remains>40)&variable.use_filler&cooldown.deathmark.remains>10|fight_remains<20
   if CDsON() and S.EchoingReprimand:IsReady() and ((not S.Exsanguinate:IsAvailable() or not S.ResoundingClarity:IsAvailable() or ExsanguinateSyncRemains > 40)
     and (not S.Deathmark:IsAvailable() or S.Deathmark:CooldownRemains() > 10) or HL.BossFilteredFightRemains("<=", 20)) then
     if Cast(S.EchoingReprimand, nil, Settings.Commons.CovenantDisplayStyle, not TargetInMeleeRange) then return "Cast Echoing Reprimand" end
@@ -734,9 +733,17 @@ local function Direct ()
       end
     end
   end
-  -- actions.direct+=/ambush,if=variable.use_filler
-  if S.Ambush:IsCastable() and (Player:StealthUp(true, true) or Player:BuffUp(S.BlindsideBuff)) then
-    if CastPooling(S.Ambush, nil, not TargetInMeleeRange) then return "Cast Ambush" end
+  -- actions.direct+=/ambush,if=variable.use_filler&(buff.blindside.up|buff.sepsis_buff.remains<=1|stealthed.rogue)
+  if S.Ambush:IsCastable() then
+    if Player:StealthUp(true, true) then
+      if CastPooling(S.Ambush, nil, not TargetInMeleeRange) then return "Cast Ambush" end
+    end
+    if Player:BuffUp(S.BlindsideBuff) then
+      if CastPooling(S.Ambush, nil, not TargetInMeleeRange) then return "Cast Ambush (Blindside)" end
+    end
+    if (Player:BuffUp(S.SepsisBuff) and Player:BuffRemains(S.SepsisBuff) <= 1) then
+      if CastPooling(S.Ambush, nil, not TargetInMeleeRange) then return "Cast Ambush (Sepsis)" end
+    end
   end
   -- actions.direct+=/mutilate,target_if=!dot.deadly_poison_dot.ticking&!debuff.amplifying_poison.up,if=variable.use_filler&spell_targets.fan_of_knives=2
   if S.Mutilate:IsCastable() and MeleeEnemies10yCount == 2 and Target:DebuffDown(S.DeadlyPoisonDebuff, true)
@@ -843,11 +850,12 @@ local function APL ()
     -- actions+=/variable,name=regen_saturated,value=energy.regen_combined>35
     EnergyRegenSaturated = EnergyRegenCombined > 35
     ExsanguinateSyncRemains = ExsangSyncRemains()
+    SepsisSyncRemains = SepSyncRemains()
     -- actions+=/variable,name=single_target,value=spell_targets.fan_of_knives<2
     SingleTarget = MeleeEnemies10yCount < 2
 
     -- actions+=/call_action_list,name=stealthed,if=stealthed.rogue|stealthed.improved_garrote
-    if Player:StealthUp(true, false) or ImprovedGarroteRemains() > 0 then
+    if Player:StealthUp(true, false) or ImprovedGarroteRemains() > 0 or Player:BuffUp(S.SepsisBuff) then
       ShouldReturn = Stealthed()
       if ShouldReturn then return ShouldReturn .. " (Stealthed)" end
     end
@@ -875,11 +883,6 @@ local function APL ()
         and MeleeEnemies10yCount == 0 and Player:EnergyTimeToMax() <= Player:GCD() * 1.5 then
         if Cast(S.PoisonedKnife) then return "Cast Poisoned Knife" end
       end
-    end
-    -- test Indiscriminate Carnage logic
-    if AoEON() and MeleeEnemies10yCount >= 2 then
-      ShouldReturn = IndiscriminateCarnageLogic()
-      if ShouldReturn then return ShouldReturn end
     end
     -- actions+=/call_action_list,name=dot
     ShouldReturn = Dot()
@@ -1067,4 +1070,3 @@ HR.SetAPL(259, APL, Init)
 -- actions.vanish+=/shadow_dance,if=talent.improved_garrote&cooldown.garrote.up&!exsanguinated.garrote&(dot.garrote.pmultiplier<=1|dot.garrote.refreshable)&(debuff.deathmark.up|cooldown.deathmark.remains<12|cooldown.deathmark.remains>60)&combo_points.deficit>=(spell_targets.fan_of_knives>?4)
 -- # Shadow Dance with Master Assassin: Rupture+Garrote not in refresh range, during Deathmark+Shiv. Sync with Sepsis final hit if possible.
 -- actions.vanish+=/shadow_dance,if=!talent.improved_garrote&talent.master_assassin&!dot.rupture.refreshable&dot.garrote.remains>3&(debuff.deathmark.up|cooldown.deathmark.remains>60)&(debuff.shiv.up|debuff.deathmark.remains<4|dot.sepsis.ticking)&dot.sepsis.remains<3
-
