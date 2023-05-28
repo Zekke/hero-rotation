@@ -103,7 +103,8 @@ Spell.DeathKnight.Blood = MergeTableByKey(Spell.DeathKnight.Commons, {
   HemostasisBuff                        = Spell(273947),
   IceboundFortitudeBuff                 = Spell(48792),
   RuneTapBuff                           = Spell(194679),
-  VampiricBloodBuff                     = Spell(55233)
+  VampiricBloodBuff                     = Spell(55233),
+  VampiricStrengthBuff                  = Spell(408356), -- Tier 30 4pc
 })
 
 Spell.DeathKnight.Frost = MergeTableByKey(Spell.DeathKnight.Commons, {
@@ -117,6 +118,7 @@ Spell.DeathKnight.Frost = MergeTableByKey(Spell.DeathKnight.Commons, {
   ChillStreak                           = Spell(305392),
   ColdHeart                             = Spell(281208),
   Everfrost                             = Spell(376938),
+  FatalFixation                         = Spell(405166),
   Frostscythe                           = Spell(207230),
   FrostwyrmsFury                        = Spell(279302),
   GatheringStorm                        = Spell(194912),
@@ -186,6 +188,7 @@ Spell.DeathKnight.Unholy = MergeTableByKey(Spell.DeathKnight.Commons, {
   -- Debuffs
   DeathRotDebuff                        = Spell(377540),
   FesteringWoundDebuff                  = Spell(194310),
+  RottenTouchDebuff                     = Spell(390276),
   UnholyBlightDebuff                    = Spell(115994),
 })
 
@@ -194,6 +197,7 @@ if not Item.DeathKnight then Item.DeathKnight = {} end
 Item.DeathKnight.Commons = {
   -- Trinkets
   AlgetharPuzzleBox                     = Item(193701, {13, 14}),
+  IrideusFragment                       = Item(193743, {13, 14}),
 }
 
 Item.DeathKnight.Blood = MergeTableByKey(Item.DeathKnight.Commons, {

@@ -43,6 +43,7 @@ Spell.Warrior.Commons = {
   Avatar                                = Spell(107574),
   AvatarBuff                            = Spell(107574),
   BerserkerRage                         = Spell(18499),
+  BerserkersTorment                     = Spell(390123),
   BloodandThunder                       = Spell(384277),
   DoubleTime                            = Spell(103827),
   CrushingForce                         = Spell(382764),
@@ -109,6 +110,7 @@ Spell.Warrior.Fury = MergeTableByKey(Spell.Warrior.Commons, {
   -- Buffs
   BloodcrazeBuff                        = Spell(393951),
   EnrageBuff                            = Spell(184362),
+  MercilessAssaultBuff                  = Spell(409983),
 })
 
 Spell.Warrior.Arms = MergeTableByKey(Spell.Warrior.Commons, {

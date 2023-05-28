@@ -42,7 +42,7 @@ local S = Spell.Warlock.Destruction
 
 -- Items
 local I = Item.Warlock.Destruction
-local TrinketsOnUseExcludes = {
+local OnUseExcludes = {
   I.ConjuredChillglobe:ID(),
   I.DesperateInvokersCodex:ID(),
   I.EruptingSpearFragment:ID(),
@@ -93,6 +93,10 @@ end
 
 local function BlasphemyTime()
   return HL.GuardiansTable.BlasphemyDuration or 0
+end
+
+local function ChannelDemonfireExecuteTime()
+  return 3 * Player:SpellHaste()
 end
 
 -- CastTargetIf/CastCycle functions
@@ -240,7 +244,7 @@ local function Havoc()
     if Cast(S.SoulFire, nil, nil, not Target:IsSpellInRange(S.SoulFire)) then return "soul_fire havoc 4"; end
   end
   -- channel_demonfire,if=soul_shard<4.5&talent.raging_demonfire.rank=2&active_enemies>2
-  if S.ChannelDemonfire:IsCastable() and (Player:SoulShardsP() < 4.5 and S.RagingDemonfire:TalentRank() == 2 and EnemiesCount8ySplash > 2) then
+  if S.ChannelDemonfire:IsReady() and (Player:SoulShardsP() < 4.5 and S.RagingDemonfire:TalentRank() == 2 and EnemiesCount8ySplash > 2) then
     if Cast(S.ChannelDemonfire, nil, nil, not Target:IsInRange(40)) then return "channel_demonfire havoc 6"; end
   end
   -- immolate,target_if=min:dot.immolate.remains+100*debuff.havoc.remains,if=(((dot.immolate.refreshable&variable.havoc_immo_time<5.4)&target.time_to_die>5)|((dot.immolate.remains<2&dot.immolate.remains<havoc_remains)|!dot.immolate.ticking|variable.havoc_immo_time<2)&target.time_to_die>11)&soul_shard<4.5
@@ -298,14 +302,14 @@ local function Cleave()
   end
   -- dimensional_rift,if=soul_shard<4.7&(charges>2|time_to_die<cooldown.dimensional_rift.duration)
   if CDsON() and S.DimensionalRift:IsCastable() and (Player:SoulShardsP() < 4.7 and (S.DimensionalRift:Charges() > 2 or FightRemains < S.DimensionalRift:Cooldown())) then
-    if Cast(S.DimensionalRift, nil, nil, not Target:IsSpellInRange(S.DimensionalRift)) then return "dimensional_rift cleave 4"; end
+    if Cast(S.DimensionalRift, Settings.Destruction.GCDasOffGCD.DimensionalRift, nil, not Target:IsSpellInRange(S.DimensionalRift)) then return "dimensional_rift cleave 4"; end
   end
   -- cataclysm,if=raid_event.adds.in>15
   if CDsON() and S.Cataclysm:IsCastable() then
     if Cast(S.Cataclysm, Settings.Destruction.GCDasOffGCD.Cataclysm, nil, not Target:IsSpellInRange(S.Cataclysm)) then return "cataclysm cleave 6"; end
   end
   -- channel_demonfire,if=talent.raging_demonfire
-  if S.ChannelDemonfire:IsCastable() and (S.RagingDemonfire:IsAvailable()) then
+  if S.ChannelDemonfire:IsReady() and (S.RagingDemonfire:IsAvailable()) then
     if Cast(S.ChannelDemonfire, nil, nil, not Target:IsInRange(40)) then return "channel_demonfire cleave 8"; end
   end
   -- soul_fire,if=soul_shard<=3.5&(debuff.conflagrate.remains>cast_time+travel_time|!talent.roaring_blaze&buff.backdraft.up)&!variable.pool_soul_shards
@@ -319,7 +323,7 @@ local function Cleave()
   -- havoc,target_if=min:((-target.time_to_die)<?-15)+dot.immolate.remains+99*(self.target=target),if=(!cooldown.summon_infernal.up|!talent.summon_infernal)&target.time_to_die>8
   if S.Havoc:IsCastable() and (S.SummonInfernal:CooldownDown() or not S.SummonInfernal:IsAvailable()) then
     --if Everyone.CastTargetIf(S.Havoc, Enemies40y, "min", EvaluateTargetIfFilterHavoc, EvaluateTargetIfHavoc, not Target:IsSpellInRange(S.Havoc)) then return "havoc cleave 14"; end
-    local BestUnit, BestConditionValue, CUCV = nil, nil
+    local BestUnit, BestConditionValue, CUCV = nil, nil, nil
     for _, CycleUnit in pairs(Enemies40y) do
       if CycleUnit:GUID() ~= Target:GUID() then
         if BestConditionValue then
@@ -344,7 +348,7 @@ local function Cleave()
     if Cast(S.SummonInfernal, Settings.Destruction.GCDasOffGCD.SummonInfernal) then return "summon_infernal cleave 18"; end
   end
   -- channel_demonfire,if=talent.ruin.rank>1&!(talent.diabolic_embers&talent.avatar_of_destruction&(talent.burn_to_ashes|talent.chaos_incarnate))
-  if S.ChannelDemonfire:IsCastable() and (S.Ruin:TalentRank() > 1 and (not (S.DiabolicEmbers:IsAvailable() and S.AvatarofDestruction:IsAvailable() and (S.BurntoAshes:IsAvailable() or S.ChaosIncarnate:IsAvailable())))) then
+  if S.ChannelDemonfire:IsReady() and (S.Ruin:TalentRank() > 1 and (not (S.DiabolicEmbers:IsAvailable() and S.AvatarofDestruction:IsAvailable() and (S.BurntoAshes:IsAvailable() or S.ChaosIncarnate:IsAvailable())))) then
     if Cast(S.ChannelDemonfire, nil, nil, not Target:IsInRange(40)) then return "channel_demonfire cleave 20"; end
   end
   -- conflagrate,if=buff.backdraft.down&soul_shard>=1.5&!variable.pool_soul_shards
@@ -376,12 +380,12 @@ local function Cleave()
     if Cast(S.SoulFire, nil, nil, not Target:IsSpellInRange(S.SoulFire)) then return "soul_fire cleave 34"; end
   end
   -- channel_demonfire,if=!(talent.diabolic_embers&talent.avatar_of_destruction&(talent.burn_to_ashes|talent.chaos_incarnate))
-  if S.ChannelDemonfire:IsCastable() and (not (S.DiabolicEmbers:IsAvailable() and S.AvatarofDestruction:IsAvailable() and (S.BurntoAshes:IsAvailable() or S.ChaosIncarnate:IsAvailable()))) then
+  if S.ChannelDemonfire:IsReady() and (not (S.DiabolicEmbers:IsAvailable() and S.AvatarofDestruction:IsAvailable() and (S.BurntoAshes:IsAvailable() or S.ChaosIncarnate:IsAvailable()))) then
     if Cast(S.ChannelDemonfire, nil, nil, not Target:IsInRange(40)) then return "channel_demonfire cleave 36"; end
   end
   -- dimensional_rift
   if CDsON() and S.DimensionalRift:IsCastable() then
-    if Cast(S.DimensionalRift, nil, nil, not Target:IsSpellInRange(S.DimensionalRift)) then return "dimensional_rift cleave 38"; end
+    if Cast(S.DimensionalRift, Settings.Destruction.GCDasOffGCD.DimensionalRift, nil, not Target:IsSpellInRange(S.DimensionalRift)) then return "dimensional_rift cleave 38"; end
   end
   -- chaos_bolt,if=soul_shard>3.5&!variable.pool_soul_shards
   if S.ChaosBolt:IsReady() and (Player:SoulShardsP() > 3.5 and not VarPoolSoulShards) then
@@ -448,7 +452,7 @@ local function Aoe()
     if Cast(S.Cataclysm, Settings.Destruction.GCDasOffGCD.Cataclysm, nil, not Target:IsSpellInRange(S.Cataclysm)) then return "cataclysm aoe 12"; end
   end
   -- channel_demonfire,if=dot.immolate.remains>cast_time&talent.raging_demonfire
-  if S.ChannelDemonfire:IsCastable() and (Target:DebuffRemains(S.ImmolateDebuff) > S.ChannelDemonfire:CastTime() and S.RagingDemonfire:IsAvailable()) then
+  if S.ChannelDemonfire:IsReady() and (Target:DebuffRemains(S.ImmolateDebuff) > ChannelDemonfireExecuteTime() and S.RagingDemonfire:IsAvailable()) then
     if Cast(S.ChannelDemonfire, nil, nil, not Target:IsInRange(40)) then return "channel_demonfire aoe 14"; end
   end
   -- havoc,target_if=min:((-target.time_to_die)<?-15)+dot.immolate.remains+99*(self.target=target),if=(!cooldown.summon_infernal.up|!talent.summon_infernal|(talent.inferno&active_enemies>4))&target.time_to_die>8
@@ -476,7 +480,7 @@ local function Aoe()
     if Cast(S.RainofFire, nil, nil, not Target:IsSpellInRange(S.Conflagrate)) then return "rain_of_fire aoe 22"; end
   end
   -- channel_demonfire,if=dot.immolate.remains>cast_time
-  if S.ChannelDemonfire:IsReady() and (Target:DebuffRemains(S.ImmolateDebuff) > S.ChannelDemonfire:CastTime()) then
+  if S.ChannelDemonfire:IsReady() and (Target:DebuffRemains(S.ImmolateDebuff) > ChannelDemonfireExecuteTime()) then
     if Cast(S.ChannelDemonfire, nil, nil, not Target:IsSpellInRange(S.ChannelDemonfire)) then return "channel_demonfire aoe 24"; end
   end
   -- immolate,target_if=min:dot.immolate.remains+99*debuff.havoc.remains,if=((dot.immolate.refreshable&(!talent.cataclysm.enabled|cooldown.cataclysm.remains>dot.immolate.remains))|active_enemies>active_dot.immolate)&target.time_to_die>10&!havoc_active
@@ -501,7 +505,7 @@ local function Aoe()
   end
   -- dimensional_rift
   if CDsON() and S.DimensionalRift:IsCastable() then
-    if Cast(S.DimensionalRift, nil, nil, not Target:IsSpellInRange(S.DimensionalRift)) then return "dimensional_rift aoe 36"; end
+    if Cast(S.DimensionalRift, Settings.Destruction.GCDasOffGCD.DimensionalRift, nil, not Target:IsSpellInRange(S.DimensionalRift)) then return "dimensional_rift aoe 36"; end
   end
   -- incinerate
   if S.Incinerate:IsCastable() then
@@ -570,14 +574,14 @@ local function APL()
     end
     -- dimensional_rift,if=soul_shard<4.7&(charges>2|time_to_die<cooldown.dimensional_rift.duration)
     if CDsON() and S.DimensionalRift:IsCastable() and (Player:SoulShardsP() < 4.7 and (S.DimensionalRift:Charges() > 2 or FightRemains < S.DimensionalRift:Cooldown())) then
-      if Cast(S.DimensionalRift, nil, nil, not Target:IsSpellInRange(S.DimensionalRift)) then return "dimensional_rift main 4"; end
+      if Cast(S.DimensionalRift, Settings.Destruction.GCDasOffGCD.DimensionalRift, nil, not Target:IsSpellInRange(S.DimensionalRift)) then return "dimensional_rift main 4"; end
     end
     -- cataclysm,if=raid_event.adds.in>15
     if CDsON() and S.Cataclysm:IsReady() then
       if Cast(S.Cataclysm, Settings.Destruction.GCDasOffGCD.Cataclysm, nil, not Target:IsInRange(40)) then return "cataclysm main 6"; end
     end
     -- channel_demonfire,if=talent.raging_demonfire&(dot.immolate.remains-5*(action.chaos_bolt.in_flight&talent.internal_combustion))>cast_time&(debuff.conflagrate.remains>execute_time|!talent.roaring_blaze)
-    if S.ChannelDemonfire:IsReady() and (S.RagingDemonfire:IsAvailable() and (Target:DebuffRemains(S.ImmolateDebuff) - 5 * num(S.ChaosBolt:InFlight() and S.InternalCombustion:IsAvailable())) > S.ChannelDemonfire:CastTime() and (Target:DebuffRemains(S.Conflagrate) > S.ChannelDemonfire:ExecuteTime() or not S.RoaringBlaze:IsAvailable())) then
+    if S.ChannelDemonfire:IsReady() and (S.RagingDemonfire:IsAvailable() and (Target:DebuffRemains(S.ImmolateDebuff) - 5 * num(S.ChaosBolt:InFlight() and S.InternalCombustion:IsAvailable())) > ChannelDemonfireExecuteTime() and (Target:DebuffRemains(S.ConflagrateDebuff) > ChannelDemonfireExecuteTime() or not S.RoaringBlaze:IsAvailable())) then
       if Cast(S.ChannelDemonfire, nil, nil, not Target:IsInRange(40)) then return "channel_demonfire main 8"; end
     end
     -- soul_fire,if=soul_shard<=3.5&(debuff.conflagrate.remains>cast_time+travel_time|!talent.roaring_blaze&buff.backdraft.up)
@@ -593,7 +597,7 @@ local function APL()
       if Cast(S.Havoc, nil, nil, not Target:IsSpellInRange(S.Havoc)) then return "havoc (st) main 14"; end
     end
     -- channel_demonfire,if=dot.immolate.remains>cast_time&set_bonus.tier30_4pc
-    if S.ChannelDemonfire:IsCastable() and (Target:DebuffRemains(S.ImmolateDebuff) > S.ChannelDemonfire:CastTime() and Player:HasTier(30, 4)) then
+    if S.ChannelDemonfire:IsReady() and (Target:DebuffRemains(S.ImmolateDebuff) > ChannelDemonfireExecuteTime() and Player:HasTier(30, 4)) then
       if Cast(S.ChannelDemonfire, nil, nil, not Target:IsInRange(40)) then return "channel_demonfire main 16"; end
     end
     -- chaos_bolt,if=pet.infernal.active|pet.blasphemy.active|soul_shard>=4
@@ -605,7 +609,7 @@ local function APL()
       if Cast(S.SummonInfernal, Settings.Destruction.GCDasOffGCD.SummonInfernal) then return "summon_infernal main 20"; end
     end
     -- channel_demonfire,if=talent.ruin.rank>1&!(talent.diabolic_embers&talent.avatar_of_destruction&(talent.burn_to_ashes|talent.chaos_incarnate))&dot.immolate.remains>cast_time
-    if S.ChannelDemonfire:IsCastable() and (S.Ruin:TalentRank() > 1 and not (S.DiabolicEmbers:IsAvailable() and S.AvatarofDestruction:IsAvailable() and (S.BurntoAshes:IsAvailable() or S.ChaosIncarnate:IsAvailable())) and Target:DebuffRemains(S.ImmolateDebuff) > S.ChannelDemonfire:CastTime()) then
+    if S.ChannelDemonfire:IsReady() and (S.Ruin:TalentRank() > 1 and not (S.DiabolicEmbers:IsAvailable() and S.AvatarofDestruction:IsAvailable() and (S.BurntoAshes:IsAvailable() or S.ChaosIncarnate:IsAvailable())) and Target:DebuffRemains(S.ImmolateDebuff) > ChannelDemonfireExecuteTime()) then
       if Cast(S.ChannelDemonfire, nil, nil, not Target:IsInRange(40)) then return "channel_demonfire main 22"; end
     end
     -- conflagrate,if=buff.backdraft.down&soul_shard>=1.5&!talent.roaring_blaze
@@ -629,12 +633,12 @@ local function APL()
       if Cast(S.ChaosBolt, nil, nil, not Target:IsSpellInRange(S.ChaosBolt)) then return "chaos_bolt main 32"; end
     end
     -- channel_demonfire,if=!(talent.diabolic_embers&talent.avatar_of_destruction&(talent.burn_to_ashes|talent.chaos_incarnate))&dot.immolate.remains>cast_time
-    if S.ChannelDemonfire:IsCastable() and (not (S.DiabolicEmbers:IsAvailable() and S.AvatarofDestruction:IsAvailable() and (S.BurntoAshes:IsAvailable() or S.ChaosIncarnate:IsAvailable())) and Target:DebuffRemains(S.ImmolateDebuff) > S.ChannelDemonfire:CastTime()) then
+    if S.ChannelDemonfire:IsReady() and (not (S.DiabolicEmbers:IsAvailable() and S.AvatarofDestruction:IsAvailable() and (S.BurntoAshes:IsAvailable() or S.ChaosIncarnate:IsAvailable())) and Target:DebuffRemains(S.ImmolateDebuff) > ChannelDemonfireExecuteTime()) then
       if Cast(S.ChannelDemonfire, nil, nil, not Target:IsInRange(40)) then return "channel_demonfire main 34"; end
     end
     -- dimensional_rift
     if CDsON() and S.DimensionalRift:IsCastable() then
-      if Cast(S.DimensionalRift, nil, nil, not Target:IsSpellInRange(S.DimensionalRift)) then return "dimensional_rift main 36"; end
+      if Cast(S.DimensionalRift, Settings.Destruction.GCDasOffGCD.DimensionalRift, nil, not Target:IsSpellInRange(S.DimensionalRift)) then return "dimensional_rift main 36"; end
     end
     -- chaos_bolt,if=soul_shard>3.5
     if S.ChaosBolt:IsReady() and (Player:SoulShardsP() >= 3.5) then

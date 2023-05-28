@@ -300,11 +300,6 @@ local function St()
   if S.AimedShot:IsReady() then
     if Everyone.CastTargetIf(S.AimedShot, Enemies40y, "max", EvaluateTargetIfFilterLatentPoison, EvaluateTargetIfAimedShot2, not TargetInRange40y) then return "aimed_shot st 32"; end
   end
-  -- steady_shot,if=talent.steady_focus&buff.steady_focus.remains<execute_time*2
-  -- Note: Added SteadyShotTracker.Count ~= 2 so we don't suggest this during the cast that will grant us SteadyFocusBuff
-  if S.SteadyShot:IsCastable() and (S.SteadyFocus:IsAvailable() and Player:BuffRemains(S.SteadyFocusBuff) < S.SteadyShot:ExecuteTime() * 2) and SteadyShotTracker.Count ~= 2 then
-    if Cast(S.SteadyShot, nil, nil, not TargetInRange40y) then return "steady_shot st 34"; end
-  end
   -- volley
   if S.Volley:IsReady() then
     if Cast(S.Volley, Settings.Marksmanship.GCDasOffGCD.Volley)  then return "volley trickshots 36"; end
@@ -445,12 +440,12 @@ local function Trinkets()
   end
   -- use_items,slots=trinket1,if=!trinket.1.has_use_buff|buff.trueshot.up
   local Trinket1ToUse, _, Trinket1Range = Player:GetUseableItems(OnUseExcludes)
-  if Trinket1ToUse and ((not Trinket1ToUse:TrinketHasUseBuff()) or Player:BuffUp(S.TrueshotBuff)) then
+  if Trinket1ToUse and ((not Trinket1ToUse:HasUseBuff()) or Player:BuffUp(S.TrueshotBuff)) then
     if Cast(Trinket1ToUse, nil, Settings.Commons.DisplayStyle.Trinkets, not Target:IsInRange(Trinket1Range)) then return "Generic use_items for " .. Trinket1ToUse:Name(); end
   end
   -- use_items,slots=trinket2,if=!trinket.2.has_use_buff|buff.trueshot.up
   local Trinket2ToUse, _, Trinket2Range = Player:GetUseableItems(OnUseExcludes)
-  if Trinket2ToUse and ((not Trinket2ToUse:TrinketHasUseBuff()) or Player:BuffUp(S.TrueshotBuff)) then
+  if Trinket2ToUse and ((not Trinket2ToUse:HasUseBuff()) or Player:BuffUp(S.TrueshotBuff)) then
     if Cast(Trinket2ToUse, nil, Settings.Commons.DisplayStyle.Trinkets, not Target:IsInRange(Trinket2Range)) then return "Generic use_items for " .. Trinket2ToUse:Name(); end
   end
 end
