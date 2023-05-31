@@ -77,7 +77,8 @@ HR.GUISettings.APL.Warrior = {
       Selected = "Power",
     },
     DisplayStyle = {
-      Defensive = "Suggested"
+      Defensive = "Suggested",
+      LastStand = "Suggested"
     },
     -- {Display OffGCD as OffGCD, ForceReturn}
     OffGCDasOffGCD = {
