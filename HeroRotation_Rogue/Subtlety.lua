@@ -668,7 +668,7 @@ local function CDs ()
       or (not Player:BuffUp(S.ThistleTea) and HL.BossFilteredFightRemains("<=", 6 * S.ThistleTea:Charges()))
       -- Then cast Thistle Tea
     then
-      if HR.Cast(S.ThistleTea, nil, Settings.Commons.TrinketDisplayStyle) then return "Thistle Tea"; end
+      if HR.Cast(S.ThistleTea, nil, Settings.Commons.OffGCDasOffGCD.ThistleTea) then return "Thistle Tea"; end
     end
 
     -- TODO: Add Potion Suggestion
