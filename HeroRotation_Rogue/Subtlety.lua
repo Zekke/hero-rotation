@@ -656,7 +656,7 @@ local function CDs ()
           or S.ThistleTea:ChargesFractional() >= 2.75 and Player:BuffUp(S.ShadowDanceBuff))
         or Player:BuffRemains(S.ShadowDanceBuff) >= 4 and not Player:BuffUp(S.ThistleTea) and MeleeEnemies10yCount >= 3
         or not Player:BuffUp(S.ThistleTea) and HL.BossFilteredFightRemains("<=", 6 * S.ThistleTea:Charges()) then
-        if HR.Cast(S.ThistleTea, nil, Settings.Commons.TrinketDisplayStyle) then return "Thistle Tea"; end
+        if HR.Cast(S.ThistleTea, nil, Settings.Commons.OffGCDasOffGCD.ThistleTea) then return "Thistle Tea"; end
       end
     end
 
