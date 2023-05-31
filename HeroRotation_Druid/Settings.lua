@@ -97,13 +97,11 @@ HR.GUISettings.APL.Druid = {
       Defensives = "Suggested"
     },
     GCDasOffGCD = {
-      FrenziedRegeneration = true,
       HeartOfTheWild = true,
     },
     OffGCDasOffGCD = {
       Berserk = true,
       Incarnation = true,
-      Ironfur = true,
       SkullBash = true,
     }
   },

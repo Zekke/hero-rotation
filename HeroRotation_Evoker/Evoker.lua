@@ -31,6 +31,7 @@ Spell.Evoker.Commons = {
   BlessingoftheBronze                   = Spell(364342),
   DeepBreath                            = Spell(357210),
   Disintegrate                          = Spell(356995),
+  EmeraldBlossom                        = Spell(355913),
   FireBreath                            = MultiSpell(357208,382266), -- with and without Font of Magic
   LivingFlame                           = Spell(361469),
   -- Talents
@@ -73,6 +74,7 @@ Spell.Evoker.Devastation = MergeTableByKey(Spell.Evoker.Commons, {
   EssenceAttunement                     = Spell(375722),
   EternitySurge                         = MultiSpell(359073,382411), -- with and without Font of Magic
   EternitysSpan                         = Spell(375757),
+  EventHorizon                          = Spell(411164),
   EverburningFlame                      = Spell(370819),
   EyeofInfinity                         = Spell(369375),
   FeedtheFlames                         = Spell(369846),

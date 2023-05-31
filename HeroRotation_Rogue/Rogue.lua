@@ -221,6 +221,8 @@ Spell.Rogue.Subtlety = MergeTableByKey(Spell.Rogue.Commons, {
   -- Talents
   DanseMacabre            = Spell(382528),
   DanseMacabreBuff        = Spell(393969),
+  DeeperDaggers           = Spell(382517),
+  DeeperDaggersBuff       = Spell(383405),
   DarkBrew                = Spell(382504),
   DarkShadow              = Spell(245687),
   EnvelopingShadows       = Spell(238104),
@@ -268,6 +270,8 @@ Item.Rogue.Outlaw = {
 Item.Rogue.Subtlety = {
   -- Trinkets
   ManicGrieftorch         = Item(194308, {13, 14}),
+  StormEatersBoon         = Item(194302, {13, 14}),
+  BeaconToTheBeyond       = Item(203963, {13, 14})
 }
 
 function Commons.StealthSpell()
@@ -323,7 +327,7 @@ do
 
   local PoisonRemains = 0
   local UsingWoundPoison = false
-  
+
   local function CastPoison(Poison)
     PoisonRemains = Player:BuffRemains(Poison)
     if PoisonRemains < (Player:AffectingCombat() and Settings.Commons.PoisonRefreshCombat * 60 or Settings.Commons.PoisonRefresh * 60) then
@@ -407,7 +411,7 @@ do
   local SecretStratagem = Spell(394320)
 
   function Commons.CPMaxSpend()
-    return 5 + (DeeperStratagem:IsAvailable() and 1 or 0) + (DeviousStratagem:IsAvailable() and 1 or 0) + (SecretStratagem:IsAvailable() and 1 or 0) 
+    return 5 + (DeeperStratagem:IsAvailable() and 1 or 0) + (DeviousStratagem:IsAvailable() and 1 or 0) + (SecretStratagem:IsAvailable() and 1 or 0)
   end
 end
 
