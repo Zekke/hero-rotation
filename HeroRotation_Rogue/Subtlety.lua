@@ -368,17 +368,18 @@ end
 local function Stealthed (ReturnSpellOnly, StealthSpell)
   local ShadowDanceBuff = Player:BuffUp(S.ShadowDanceBuff)
   local ShadowDanceBuffRemains = Player:BuffRemains(S.ShadowDanceBuff)
-  local PremeditationBuff = StealthSpell or Player:BuffUp(S.PremeditationBuff)
   local TheRottenBuff = Player:BuffUp(S.TheRottenBuff)
   local StealthComboPoints, StealthComboPointsDeficit = ComboPoints, ComboPointsDeficit
   
   -- State changes based on predicted Stealth casts
+  local PremeditationBuff = Player:BuffUp(S.PremeditationBuff) or (StealthSpell and S.Premeditation:IsAvailable())
+  local SilentStormBuff = Player:BuffUp(S.SilentStormBuff) or (StealthSpell and S.SilentStorm:IsAvailable())
   local StealthBuff = Player:BuffUp(Rogue.StealthSpell()) or (StealthSpell and StealthSpell:ID() == Rogue.StealthSpell():ID())
   local VanishBuffCheck = Player:BuffUp(Rogue.VanishBuffSpell()) or (StealthSpell and StealthSpell:ID() == S.Vanish:ID())
   if StealthSpell and StealthSpell:ID() == S.ShadowDance:ID() then
     ShadowDanceBuff = true
     ShadowDanceBuffRemains = 8 + S.ImprovedShadowDance:TalentRank()
-    if Player:HasTier(30, 2) then
+    if S.TheRotten:IsAvailable() and Player:HasTier(30, 2) then
       TheRottenBuff = true
     end
     if S.TheFirstDance:IsAvailable() then
@@ -410,7 +411,7 @@ local function Stealthed (ReturnSpellOnly, StealthSpell)
     and (PremeditationBuff or StealthEffectiveComboPoints < 7) and (MeleeEnemies10yCount <= 8 or S.LingeringShadow:IsAvailable()))
 
   -- actions.stealthed+=/shuriken_storm,if=variable.gloomblade_condition&buff.silent_storm.up&!debuff.find_weakness.remains&talent.improved_shuriken_storm.enabled|combo_points<=1&!used_for_danse&spell_targets.shuriken_storm=2&talent.danse_macabre
-  if (GloombladeCondition and Player:BuffUp(S.SilentStormBuff) and Target:DebuffDown(S.FindWeaknessDebuff) and S.ImprovedShurikenStorm:IsAvailable())
+  if (GloombladeCondition and SilentStormBuff and Target:DebuffDown(S.FindWeaknessDebuff) and S.ImprovedShurikenStorm:IsAvailable())
     or (S.DanseMacabre:IsAvailable() and StealthComboPoints <= 1 and MeleeEnemies10yCount == 2 and not Used_For_Danse(S.ShurikenStorm)) then
     if ReturnSpellOnly then
       return S.ShurikenStorm
@@ -424,12 +425,12 @@ local function Stealthed (ReturnSpellOnly, StealthSpell)
     if ReturnSpellOnly then
       -- If calling from a Stealth macro, we don't need the PV suggestion since it's already a macro cast
       if StealthSpell then
-          return S.Gloomblade
+        return S.Gloomblade
       else
-          return { S.Gloomblade, S.Stealth }
+        return { S.Gloomblade, S.Stealth }
       end
     else
-        if HR.CastQueue(S.Gloomblade, S.Stealth) then return "Cast Gloomblade (Stealth)" end
+      if HR.CastQueue(S.Gloomblade, S.Stealth) then return "Cast Gloomblade (Stealth)" end
     end
   end
   -- actions.stealthed+=/backstab,if=variable.gloomblade_condition&talent.danse_macabre&buff.danse_macabre.stack<=2&spell_targets.shuriken_storm<=2
@@ -838,7 +839,7 @@ local function APL ()
   else
     Enemies30y = {}
     MeleeEnemies10y = {}
-    MeleeEnemies10yCount = 0
+    MeleeEnemies10yCount = 1
     MeleeEnemies5y = {}
   end
 
