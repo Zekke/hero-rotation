@@ -758,7 +758,7 @@ local function Stealth_CDs (EnergyThreshold)
       if ShouldReturn then return "Shadowmeld Macro " .. ShouldReturn end
     end
   end
-  if TargetInMeleeRange and S.ShadowDance:IsCastable() and S.ShadowDance:Charges() >= 1
+  if CDsON() and TargetInMeleeRange and S.ShadowDance:IsCastable() and S.ShadowDance:Charges() >= 1
     and S.Vanish:TimeSinceLastDisplay() > 0.3 and S.Shadowmeld:TimeSinceLastDisplay() > 0.3
     and (HR.CDsON() or (S.ShadowDance:ChargesFractional() >= Settings.Subtlety.ShDEcoCharge - (not S.ShadowDanceTalent:IsAvailable() and 0.75 or 0))) then
     -- actions.stealth_cds+=/shadow_dance,if=(variable.shd_combo_points&(!talent.shadow_dance&buff.symbols_of_death.remains>=(2.2-talent.flagellation.enabled)|variable.shd_threshold)|talent.shadow_dance&cooldown.secret_technique.remains<=9&(spell_targets.shuriken_storm<=3|talent.danse_macabre)|buff.flagellation.up|buff.flagellation_persist.remains>=6|spell_targets.shuriken_storm>=4&cooldown.symbols_of_death.remains>10)&variable.rotten_threshold
@@ -948,9 +948,10 @@ local function APL ()
 
     -- # Check CDs at first
     -- actions=call_action_list,name=cds
-    ShouldReturn = CDs()
-    if ShouldReturn then return "CDs: " .. ShouldReturn end
-
+    if CDsON() then
+      ShouldReturn = CDs()
+      if ShouldReturn then return "CDs: " .. ShouldReturn end
+    end
     -- # Apply Slice and Dice at 4+ CP if it expires within the next GCD or is not up
     -- actions+=/slice_and_dice,if=spell_targets.shuriken_storm<cp_max_spend&buff.slice_and_dice.remains<gcd.max&fight_remains>6&combo_points>=4
     if S.SliceandDice:IsCastable() and MeleeEnemies10yCount < Rogue.CPMaxSpend() and HL.FilteredFightRemains(MeleeEnemies10y, ">", 6)
@@ -981,7 +982,7 @@ local function APL ()
     end
 
     -- actions+=/call_action_list,name=stealth_cds,if=energy.deficit<=variable.stealth_threshold
-    if Player:EnergyPredicted() >= StealthEnergyRequired then
+    if CDsON() and Player:EnergyPredicted() >= StealthEnergyRequired then
       ShouldReturn = Stealth_CDs()
       if ShouldReturn then return "Stealth CDs: " .. ShouldReturn end
     end
