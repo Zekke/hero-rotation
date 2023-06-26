@@ -25,6 +25,7 @@ HR.GUISettings.APL.Rogue = {
     UseTrinkets = true,
     UseItems = true,
     TrinketDisplayStyle = "Suggested",
+    BeaconTrinketDisplayStyle = "Suggested",
     ItemDisplayStyle = "Suggested",
     CovenantDisplayStyle = "Suggested",
     SerratedBoneSpikeDumpDisplayStyle = "Suggested",
@@ -138,6 +139,7 @@ CreatePanelOption("Dropdown", CP_Rogue, "APL.Rogue.Commons.UsePriorityRotation",
 CreatePanelOption("CheckButton", CP_Rogue, "APL.Rogue.Commons.UseTrinkets", "Use Trinkets", "Use Trinkets as part of the rotation")
 CreatePanelOption("CheckButton", CP_Rogue, "APL.Rogue.Commons.UseItems", "Use Items", "Use Items as part of the rotation")
 CreatePanelOption("Dropdown", CP_Rogue, "APL.Rogue.Commons.TrinketDisplayStyle", {"Main Icon", "Suggested", "SuggestedRight", "Cooldown"}, "Trinket Display Style", "Define which icon display style to use for Trinkets.")
+CreatePanelOption("Dropdown", CP_Rogue, "APL.Rogue.Commons.BeaconTrinketDisplayStyle", {"Main Icon", "Suggested", "SuggestedRight", "Cooldown"}, "Beacon to the Beyond Trinket Display Style", "Define which icon display style to use for Beacon to the Beyond.")
 CreatePanelOption("Dropdown", CP_Rogue, "APL.Rogue.Commons.ItemDisplayStyle", {"Main Icon", "Suggested", "SuggestedRight", "Cooldown"}, "Item Display Style", "Define which icon display style to use for Items.")
 CreatePanelOption("Dropdown", CP_Rogue, "APL.Rogue.Commons.CovenantDisplayStyle", {"Main Icon", "Suggested", "SuggestedRight", "Cooldown"}, "Covenant Display Style", "Define which icon display style to use for Covenants.")
 CreatePanelOption("Dropdown", CP_Rogue, "APL.Rogue.Commons.SerratedBoneSpikeDumpDisplayStyle", {"Main Icon", "Suggested", "SuggestedRight", "Cooldown"}, "Serrated Bone Spike Burn Display Style", "Define which icon display style to use for Serrated Bone Spike charge burning.")

@@ -83,17 +83,17 @@ local function Precombat()
     if Cast(I.AlgetharPuzzleBox, nil, Settings.Commons.DisplayStyle.Trinkets) then return "algethar_puzzle_box precombat 4"; end
   end
   -- avatar,if=!talent.titans_torment
-  if CDsON() and S.Avatar:IsCastable() and (not S.TitansTorment:IsAvailable()) then
-    if Cast(S.Avatar, Settings.Fury.GCDasOffGCD.Avatar) then return "avatar precombat 6"; end
-  end
+  --if CDsON() and S.Avatar:IsCastable() and (not S.TitansTorment:IsAvailable()) then
+  --  if Cast(S.Avatar, Settings.Fury.GCDasOffGCD.Avatar) then return "avatar precombat 6"; end
+  --end
   -- recklessness,if=!talent.reckless_abandon
-  if CDsON() and S.Recklessness:IsCastable() and (not S.RecklessAbandon:IsAvailable()) then
-    if Cast(S.Recklessness, Settings.Fury.GCDasOffGCD.Recklessness) then return "recklessness precombat 8"; end
-  end
+  --if CDsON() and S.Recklessness:IsCastable() and (not S.RecklessAbandon:IsAvailable()) then
+  --  if Cast(S.Recklessness, Settings.Fury.GCDasOffGCD.Recklessness) then return "recklessness precombat 8"; end
+  --end
   -- Manually Added: Charge if not in melee range. Bloodthirst if in melee range
-  if S.Bloodthirst:IsCastable() and TargetInMeleeRange then
-    if Cast(S.Bloodthirst, nil, nil, not TargetInMeleeRange) then return "bloodthirst precombat 10"; end
-  end
+  --if S.Bloodthirst:IsCastable() and TargetInMeleeRange then
+  --  if Cast(S.Bloodthirst, nil, nil, not TargetInMeleeRange) then return "bloodthirst precombat 10"; end
+  --end
   if S.Charge:IsReady() and not TargetInMeleeRange then
     if Cast(S.Charge) then return "charge precombat 12"; end
   end
@@ -386,7 +386,7 @@ local function APL()
       if Cast(S.HeroicLeap, nil, Settings.Commons.DisplayStyle.HeroicLeap) then return "heroic_leap main 4"; end
     end
     -- potion
-    if CDsON() and Settings.Commons.Enabled.Potions then
+    if CDsON() and Settings.Commons.Enabled.Potions and TargetInMeleeRange then
       local PotionSelected = Everyone.PotionSelected()
       if PotionSelected and PotionSelected:IsReady() then
         if Cast(PotionSelected, nil, Settings.Commons.DisplayStyle.Potions) then return "potion main 6"; end
@@ -403,7 +403,7 @@ local function APL()
         if Cast(S.ImpendingVictory, nil, nil, not TargetInMeleeRange) then return "impending_victory heal"; end
       end
     end
-    if CDsON() then
+    if CDsON() and TargetInMeleeRange then
       if Settings.Commons.Enabled.Trinkets then
         -- use_item,name=algethar_puzzle_box,if=cooldown.recklessness.remains<3|(talent.anger_management&cooldown.avatar.remains<3)
         if I.AlgetharPuzzleBox:IsEquippedAndReady() and (S.Recklessness:CooldownRemains() < 3 or (S.AngerManagement:IsAvailable() and S.Avatar:CooldownRemains() < 3)) then

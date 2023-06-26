@@ -148,8 +148,12 @@ end
 -- Improved Garrote Remains Check
 local function ImprovedGarroteRemains ()
   -- Currently stealthed (i.e. Aura)
-  if Player:BuffUp(S.ImprovedGarroteAura) then
+  if Player:BuffUp(S.ImprovedGarroteAura) or Player:BuffUp(S.SepsisBuff) then
     return Player:GCDRemains() + 3
+  end
+  -- Sepsis Buff
+  if Player:BuffUp(S.SepsisBuff) and Player:BuffRemains(S.SepsisBuff) > Player:BuffRemains(S.ImprovedGarroteBuff) then
+    return Player:BuffRemains(S.SepsisBuff)
   end
   -- Broke stealth recently (i.e. Buff)
   return Player:BuffRemains(S.ImprovedGarroteBuff)
@@ -419,16 +423,20 @@ local function CDs ()
     -- actions.cds+=/use_items,slots=trinket1,if=(variable.trinket_sync_slot=1&(debuff.deathmark.up|fight_remains<=20)|(variable.trinket_sync_slot=2&(!trinket.2.cooldown.ready|!debuff.deathmark.up&cooldown.deathmark.remains>20))|!variable.trinket_sync_slot)
     -- actions.cds+=/use_items,slots=trinket2,if=(variable.trinket_sync_slot=2&(debuff.deathmark.up|fight_remains<=20)|(variable.trinket_sync_slot=1&(!trinket.1.cooldown.ready|!debuff.deathmark.up&cooldown.deathmark.remains>20))|!variable.trinket_sync_slot)
     if Settings.Commons.UseTrinkets then
+      --HR.Print("TrinketSync = ".. TrinketSyncSlot);
       if I.AlgetharPuzzleBox:IsEquippedAndReady() and (((not S.Exsanguinate:IsAvailable() or S.Exsanguinate:CooldownRemains() > 15
         or Rogue.Exsanguinated(Target, S.Rupture) or Rogue.Exsanguinated(Target, S.Garrote)) and Target:DebuffUp(S.Rupture)
         and S.Deathmark:CooldownRemains() <= 2) or HL.BossFilteredFightRemains("<", 22)) then
         if HR.Cast(I.AlgetharPuzzleBox, nil, Settings.Commons.TrinketDisplayStyle) then return "Algethar Puzzle Box"; end
       end
-      if TrinketItem1:IsReady() and not Player:IsItemBlacklisted(TrinketItem1) and not ValueIsInArray(OnUseExcludeTrinkets, TrinketItem1:ID())
+
+      if I.BeaconToTheBeyond:IsEquippedAndReady() then
+        if HR.Cast(I.BeaconToTheBeyond, nil, Settings.Commons.BeaconTrinketDisplayStyle) then return "Beacon To The Beyond"; end
+      elseif TrinketItem1:IsReady() and not ValueIsInArray(OnUseExcludeTrinkets, TrinketItem1:ID())
         and (TrinketSyncSlot == 1 and (S.Deathmark:AnyDebuffUp() or HL.BossFilteredFightRemains("<", 20))
           or (TrinketSyncSlot == 2 and (not TrinketItem2:IsReady() or not S.Deathmark:AnyDebuffUp() and S.Deathmark:CooldownRemains() > 20)) or TrinketSyncSlot == 0) then
         if Cast(TrinketItem1, nil, Settings.Commons.TrinketDisplayStyle) then return "Trinket 1"; end
-      elseif TrinketItem2:IsReady() and not Player:IsItemBlacklisted(TrinketItem2) and not ValueIsInArray(OnUseExcludeTrinkets, TrinketItem2:ID())
+      elseif TrinketItem2:IsReady() and not ValueIsInArray(OnUseExcludeTrinkets, TrinketItem2:ID())
         and (TrinketSyncSlot == 2 and (S.Deathmark:AnyDebuffUp() or HL.BossFilteredFightRemains("<", 20))
           or (TrinketSyncSlot == 1 and (not TrinketItem1:IsReady() or not S.Deathmark:AnyDebuffUp() and S.Deathmark:CooldownRemains() > 20)) or TrinketSyncSlot == 0) then
         if Cast(TrinketItem2, nil, Settings.Commons.TrinketDisplayStyle) then return "Trinket 2"; end
@@ -715,7 +723,7 @@ local function Direct ()
   end
   -- actions.direct+=/echoing_reprimand,if=(!talent.exsanguinate|!talent.resounding_clarity|variable.exsang_sync_remains>40)&variable.use_filler&cooldown.deathmark.remains>10|fight_remains<20
   if CDsON() and S.EchoingReprimand:IsReady() and ((not S.Exsanguinate:IsAvailable() or not S.ResoundingClarity:IsAvailable() or ExsanguinateSyncRemains > 40)
-    and (not S.Deathmark:IsAvailable() or S.Deathmark:CooldownRemains() > 10) or HL.BossFilteredFightRemains("<=", 20)) then
+    or HL.BossFilteredFightRemains("<=", 20)) then
     if Cast(S.EchoingReprimand, nil, Settings.Commons.CovenantDisplayStyle, not TargetInMeleeRange) then return "Cast Echoing Reprimand" end
   end
   if S.FanofKnives:IsCastable() then

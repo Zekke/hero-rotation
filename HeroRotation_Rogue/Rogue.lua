@@ -262,6 +262,7 @@ if not Item.Rogue then Item.Rogue = {} end
 Item.Rogue.Assassination = {
   -- Trinkets
   AlgetharPuzzleBox       = Item(193701, {13, 14}),
+  BeaconToTheBeyond       = Item(203963, {13, 14}),
 }
 
 Item.Rogue.Outlaw = {
