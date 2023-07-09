@@ -263,6 +263,7 @@ Item.Rogue.Assassination = {
   -- Trinkets
   AlgetharPuzzleBox       = Item(193701, {13, 14}),
   BeaconToTheBeyond       = Item(203963, {13, 14}),
+  OminousChromaticEssence = Item(203729, {13, 14}),
 }
 
 Item.Rogue.Outlaw = {

@@ -50,8 +50,12 @@ local S = Spell.Rogue.Assassination
 
 -- Items
 local I = Item.Rogue.Assassination
-local OnUseExcludeTrinkets = {
-  I.AlgetharPuzzleBox,
+
+-- Create table to exclude above trinkets from On Use function
+local OnUseExcludes = {
+  I.AlgetharPuzzleBox:ID(),
+  I.OminousChromaticEssence:ID(),
+  I.BeaconToTheBeyond:ID(),
 }
 
 -- Enemies
@@ -422,24 +426,20 @@ local function CDs ()
     -- actions.cds+=/use_item,name=algethar_puzzle_box,use_off_gcd=1,if=(!talent.exsanguinate|cooldown.exsanguinate.remains>15|exsanguinated.rupture|exsanguinated.garrote)&dot.rupture.ticking&cooldown.deathmark.remains<2|fight_remains<=22
     -- actions.cds+=/use_items,slots=trinket1,if=(variable.trinket_sync_slot=1&(debuff.deathmark.up|fight_remains<=20)|(variable.trinket_sync_slot=2&(!trinket.2.cooldown.ready|!debuff.deathmark.up&cooldown.deathmark.remains>20))|!variable.trinket_sync_slot)
     -- actions.cds+=/use_items,slots=trinket2,if=(variable.trinket_sync_slot=2&(debuff.deathmark.up|fight_remains<=20)|(variable.trinket_sync_slot=1&(!trinket.1.cooldown.ready|!debuff.deathmark.up&cooldown.deathmark.remains>20))|!variable.trinket_sync_slot)
+    -- Trinkets
     if Settings.Commons.UseTrinkets then
-      --HR.Print("TrinketSync = ".. TrinketSyncSlot);
+      local TrinketToUse = Player:GetUseableItems(OnUseExcludes) 
       if I.AlgetharPuzzleBox:IsEquippedAndReady() and (((not S.Exsanguinate:IsAvailable() or S.Exsanguinate:CooldownRemains() > 15
         or Rogue.Exsanguinated(Target, S.Rupture) or Rogue.Exsanguinated(Target, S.Garrote)) and Target:DebuffUp(S.Rupture)
         and S.Deathmark:CooldownRemains() <= 2) or HL.BossFilteredFightRemains("<", 22)) then
         if HR.Cast(I.AlgetharPuzzleBox, nil, Settings.Commons.TrinketDisplayStyle) then return "Algethar Puzzle Box"; end
       end
-
       if I.BeaconToTheBeyond:IsEquippedAndReady() then
         if HR.Cast(I.BeaconToTheBeyond, nil, Settings.Commons.BeaconTrinketDisplayStyle) then return "Beacon To The Beyond"; end
-      elseif TrinketItem1:IsReady() and not ValueIsInArray(OnUseExcludeTrinkets, TrinketItem1:ID())
-        and (TrinketSyncSlot == 1 and (S.Deathmark:AnyDebuffUp() or HL.BossFilteredFightRemains("<", 20))
-          or (TrinketSyncSlot == 2 and (not TrinketItem2:IsReady() or not S.Deathmark:AnyDebuffUp() and S.Deathmark:CooldownRemains() > 20)) or TrinketSyncSlot == 0) then
-        if Cast(TrinketItem1, nil, Settings.Commons.TrinketDisplayStyle) then return "Trinket 1"; end
-      elseif TrinketItem2:IsReady() and not ValueIsInArray(OnUseExcludeTrinkets, TrinketItem2:ID())
-        and (TrinketSyncSlot == 2 and (S.Deathmark:AnyDebuffUp() or HL.BossFilteredFightRemains("<", 20))
-          or (TrinketSyncSlot == 1 and (not TrinketItem1:IsReady() or not S.Deathmark:AnyDebuffUp() and S.Deathmark:CooldownRemains() > 20)) or TrinketSyncSlot == 0) then
-        if Cast(TrinketItem2, nil, Settings.Commons.TrinketDisplayStyle) then return "Trinket 2"; end
+      elseif TrinketToUse then
+        if HR.Cast(TrinketToUse, nil, Settings.Commons.TrinketDisplayStyle) then
+          return "Generic use_items for " .. TrinketToUse:Name()
+        end
       end
     end
 
