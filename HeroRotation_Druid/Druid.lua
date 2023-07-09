@@ -217,10 +217,12 @@ Spell.Druid.Guardian = MergeTableByKey(Spell.Druid.Commons, {
   -- Talents
   Berserk                               = Spell(50334),
   BristlingFur                          = Spell(155835),
-  Maul                                  = Spell(6807),
+  FlashingClaws                         = Spell(393427),
+  FuryofNature                          = Spell(370695),
   Incarnation                           = Spell(102558),
   LayeredMane                           = Spell(384721),
   LunarBeam                             = Spell(204066),
+  Maul                                  = Spell(6807),
   Pulverize                             = Spell(80313),
   RageoftheSleeper                      = Spell(200851),
   Raze                                  = Spell(400254),
@@ -264,6 +266,7 @@ Item.Druid.Commons = {
   -- Trinkets
   AlgetharPuzzleBox                     = Item(193701, {13, 14}),
   ManicGrieftorch                       = Item(194308, {13, 14}),
+  SpoilsofNeltharus                     = Item(193773, {13, 14}),
   -- Other On-Use Items
   Djaruun                               = Item(202569),
   Jotungeirr                            = Item(186404),
