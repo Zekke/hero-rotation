@@ -264,8 +264,8 @@ local function Cleave()
   if I.Djaruun:IsEquippedAndReady() then
     if Cast(I.Djaruun, nil, Settings.Commons.DisplayStyle.Items, not Target:IsInRange(100)) then return "djaruun_pillar_of_the_elder_flame cleave 16"; end
   end
-  -- fury_of_the_eagle,if=cooldown.butchery.full_recharge_time>cast_time&raid_event.adds.exists
-  if S.FuryoftheEagle:IsCastable() and (S.Butchery:FullRechargeTime() > S.FuryoftheEagle:CastTime()) then
+  -- fury_of_the_eagle,if=raid_event.adds.exists&(!talent.butchery|cooldown.butchery.full_recharge_time>cast_time)
+  if S.FuryoftheEagle:IsCastable() and ((not S.Butchery:IsAvailable()) or S.Butchery:FullRechargeTime() > S.FuryoftheEagle:CastTime()) then
     if Cast(S.FuryoftheEagle, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsInMeleeRange(MeleeRange)) then return "fury_of_the_eagle cleave 18"; end
   end
   -- butchery,if=raid_event.adds.exists
@@ -403,7 +403,7 @@ local function ST()
   if S.SerpentSting:IsReady() and (not S.VipersVenom:IsAvailable()) then
     if Everyone.CastTargetIf(S.SerpentSting, EnemyList, "min", EvaluateTargetIfFilterSerpentStingRemains, EvaluateTargetIfSerpentStingST, not Target:IsSpellInRange(S.SerpentSting)) then return "serpent_sting st 28"; end
   end
-  -- fury_of_the_eagle,if=buff.seething_rage.up&buff.seething_rage.remains<3*gcd&(!raid_event.adds.exists|active_enemies>1)|raid_event.adds.exists&raid_event.adds.in>40&buff.seething_rage.up&buff.seething_rage.remains<3*gcd
+  -- fury_of_the_eagle,if=buff.seething_rage.up&buff.seething_rage.remains<3*gcd&(!raid_event.adds.exists|active_enemies>1|raid_event.adds.exists&raid_event.adds.in>40)
   if S.FuryoftheEagle:IsCastable() and (Player:BuffUp(S.SeethingRageBuff) and Player:BuffRemains(S.SeethingRageBuff) < 3 * Player:GCD()) then
     if Cast(S.FuryoftheEagle, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsInMeleeRange(MeleeRange)) then return "fury_of_the_eagle st 30"; end
   end
