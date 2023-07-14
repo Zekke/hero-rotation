@@ -487,7 +487,7 @@ local function APL()
     local ShouldReturn = Everyone.Interrupt(25, S.Quell, Settings.Commons.OffGCDasOffGCD.Quell, StunInterrupts); if ShouldReturn then return ShouldReturn; end
     -- Manually added: Unravel if enemy has an absorb shield
     if S.Unravel:IsReady() and Target:EnemyAbsorb() then
-      if Cast(S.Unravel, Settings.Devastation.GCDasOffGCD.Unravel, nil, not Target:IsSpellInRange(S.Unravel)) then return "unravel main 4"; end
+      if Cast(S.Unravel, Settings.Commons.GCDasOffGCD.Unravel, nil, not Target:IsSpellInRange(S.Unravel)) then return "unravel main 4"; end
     end
     -- call_action_list,name=trinkets
     if Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items then
@@ -588,7 +588,7 @@ local function APL()
 end
 
 local function Init()
-  HR.Print("Devastation Evoker rotation is currently a work in progress, but has been updated for patch 10.1.0.")
+  HR.Print("Devastation Evoker rotation is currently a work in progress, but has been updated for patch 10.1.5.")
 end
 
 HR.SetAPL(1467, APL, Init);
