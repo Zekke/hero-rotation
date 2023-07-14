@@ -195,13 +195,13 @@ local function RtB_Reroll ()
     else
       -- actions+=/variable,name=rtb_reroll,if=!talent.hidden_opportunity,value=rtb_buffs<2&(!buff.broadside.up&(!talent.fan_the_hammer|!buff.skull_and_crossbones.up)&!buff.true_bearing.up|buff.loaded_dice.up)|rtb_buffs=2&(buff.buried_treasure.up&buff.grand_melee.up|!buff.broadside.up&!buff.true_bearing.up&buff.loaded_dice.up)
       -- actions+=/variable,name=rtb_reroll,if=!talent.hidden_opportunity&(talent.keep_it_rolling|talent.count_the_odds),value=variable.rtb_reroll|((rtb_buffs.normal=0&rtb_buffs.longer>=1)&!(buff.broadside.up&buff.true_bearing.up&buff.skull_and_crossbones.up)&!(buff.broadside.remains>39|buff.true_bearing.remains>39|buff.ruthless_precision.remains>39|buff.skull_and_crossbones.remains>39))
-      -- actions+=/variable,name=rtb_reroll,if=talent.hidden_opportunity,value=!rtb_buffs.will_lose.skull_and_crossbones&(rtb_buffs.will_lose-rtb_buffs.will_lose.grand_melee)<2&buff.shadow_dance.down&buff.subterfuge.down
+      -- actions+=/variable,name=rtb_reroll,if=talent.hidden_opportunity,value=!rtb_buffs.will_lose.skull_and_crossbones&   (rtb_buffs.will_lose-rtb_buffs.will_lose.grand_melee)<2&buff.shadow_dance.down&buff.subterfuge.down
+      --           variable,name=rtb_reroll,if=talent.hidden_opportunity,value=!rtb_buffs.will_lose.skull_and_crossbones&   rtb_buffs.will_lose                                  <2&buff.shadow_dance.down&buff.subterfuge.down
       if S.HiddenOpportunity:IsAvailable() then
         RtB_Buffs() -- Update cache
         if (Player:BuffDown(S.SkullandCrossbones) or Player:BuffRemains(S.SkullandCrossbones) > Rogue.RtBRemains())
           and Player:BuffDown(S.SubterfugeBuff) and Player:BuffDown(S.ShadowDanceBuff)
-          and ((Cache.APLVar.RtB_Buffs.Normal + Cache.APLVar.RtB_Buffs.Shorter) -
-            num(Player:BuffUp(S.GrandMelee) and Player:BuffRemains(S.GrandMelee) <= Rogue.RtBRemains())) < 2 then
+          and Rogue.RtBRemains() < 2 then
           Cache.APLVar.RtB_Reroll = true
         else
           Cache.APLVar.RtB_Reroll = false
@@ -345,7 +345,7 @@ local function CDs ()
     if HR.Cast(S.AdrenalineRush, Settings.Outlaw.OffGCDasOffGCD.AdrenalineRush) then return "Cast Adrenaline Rush" end
   end
   -- actions.cds+=/blade_flurry,if=spell_targets>=2&buff.blade_flurry.remains<gcd
-  if S.BladeFlurry:IsReady() and AoEON() and EnemiesBFCount >= 2
+  if S.BladeFlurry:IsReady() and ((AoEON() and EnemiesBFCount >= 2) or Player:BuffUp(S.GrandMelee))
     and Player:BuffRemains(S.BladeFlurry) < (Player:BuffUp(S.AdrenalineRush) and 0.8 or 1) then
     if Settings.Outlaw.GCDasOffGCD.BladeFlurry then
       HR.CastSuggested(S.BladeFlurry)
@@ -471,9 +471,10 @@ local function Finish ()
     if HR.CastPooling(S.BetweentheEyes) then return "Cast Between the Eyes" end
   end
   -- actions.finish+=/slice_and_dice,if=buff.slice_and_dice.remains<fight_remains&refreshable&buff.grand_melee.down&(!talent.swift_slasher|combo_points>=cp_max_spend)
+  -- actions.finish+=/slice_and_dice,if=buff.slice_and_dice.remains<fight_remains&refreshable&(!talent.swift_slasher|combo_points>=cp_max_spend)
   -- Note: Added Player:BuffRemains(S.SliceandDice) == 0 to maintain the buff while TTD is invalid (it's mainly for Solo, not an issue in raids)
   if S.SliceandDice:IsCastable() and (HL.FilteredFightRemains(EnemiesBF, ">", Player:BuffRemains(S.SliceandDice), true) or Player:BuffRemains(S.SliceandDice) == 0)
-    and Player:BuffRemains(S.SliceandDice) < (1 + ComboPoints) * 1.8 and (not S.SwiftSlasher:IsAvailable() or ComboPointsDeficit == 0) and Player:BuffDown(S.GrandMelee) then
+    and Player:BuffRemains(S.SliceandDice) < (1 + ComboPoints) * 1.8 and (not S.SwiftSlasher:IsAvailable() or ComboPointsDeficit == 0) then
     if HR.CastPooling(S.SliceandDice) then return "Cast Slice and Dice" end
   end
   
