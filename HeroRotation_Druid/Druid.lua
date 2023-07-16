@@ -34,6 +34,7 @@ Spell.Druid.Commons = {
   MarkoftheWild                         = Spell(1126),
   Moonfire                              = Spell(8921),
   Prowl                                 = Spell(5215),
+  Regrowth                              = Spell(8936),
   Shred                                 = Spell(5221),
   -- Talents
   ConvoketheSpirits                     = Spell(391528),
@@ -203,6 +204,8 @@ Spell.Druid.Feral = MergeTableByKey(Spell.Druid.Commons, {
   ApexPredatorsCravingBuff              = Spell(391882),
   BloodtalonsBuff                       = Spell(145152),
   Clearcasting                          = Spell(135700),
+  OverflowingPower                      = MultiSpell(405069,405189,405191),
+  PredatorySwiftness                    = Spell(69369),
   SabertoothBuff                        = Spell(391722),
   -- Debuffs
   AdaptiveSwarmDebuff                   = Spell(391889),

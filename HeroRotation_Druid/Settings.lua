@@ -71,11 +71,13 @@ HR.GUISettings.APL.Druid = {
     FillerSpell = "Rake Non-Snapshot",
     ShowCatFormOOC = false,
     UseOwlweave = false,
+    UseBiteweave = false,
     PotionType = {
       Selected = "Power",
     },
     GCDasOffGCD = {
       BsInc = true,
+      Regrowth = false,
     },
     OffGCDasOffGCD = {
       NaturesVigil = true,
@@ -137,7 +139,8 @@ CreateARPanelOptions(CP_Balance, "APL.Druid.Balance")
 -- Feral
 CreatePanelOption("Dropdown", CP_Feral, "APL.Druid.Feral.FillerSpell", {"Shred", "Rake Non-Snapshot", "Rake Snapshot", "Moonfire", "Swipe"}, "Preferred Filler Spell", "Select which spell to use as your filler spell. The SimC APL default is Rake Non-Snapshot.")
 CreatePanelOption("CheckButton", CP_Feral, "APL.Druid.Feral.ShowCatFormOOC", "Show Cat Form Out of Combat", "Enable this if you want the addon to show you the Cat Form reminder out of combat.")
-CreatePanelOption("CheckButton", CP_Feral, "APL.Druid.Feral.UseOwlweave", "Utilize Owleaving", "Enable this if you want Owlweaving spell suggestions when talented into Balance Affinity.")
+CreatePanelOption("CheckButton", CP_Feral, "APL.Druid.Feral.UseOwlweave", "Utilize Owlweaving", "Enable this if you want Owlweaving spell suggestions when talented into Balance Affinity.")
+CreatePanelOption("CheckButton", CP_Feral, "APL.Druid.Feral.UseBiteweave", "Utilize Biteweaving", "Enable this if you want to biteweave during berserk.")
 CreatePanelOption("Slider", CP_Feral, "APL.Druid.Feral.FeralRegrowthHP", {0, 100, 1}, "Regrowth HP", "Set the Regrowth HP threshold.")
 CreatePanelOption("Slider", CP_Feral, "APL.Druid.Feral.FeralFrenziedRegenHP", {0, 100, 1}, "Frenzied Regen HP", "Set the Frenzied Regen HP threshold.")
 CreateARPanelOptions(CP_Feral, "APL.Druid.Feral")
