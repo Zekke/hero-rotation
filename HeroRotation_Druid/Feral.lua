@@ -185,6 +185,20 @@ local function TicksGainedOnRefresh(Spell, Tar)
   return TicksAdded
 end
 
+local function HighestTTD(enemies)
+  if not enemies then return 0 end
+  local HighTTD = 0
+  local HighTTDTar = nil
+  for _, enemy in pairs(enemies) do
+    local TTD = enemy:TimeToDie()
+    if TTD > HighTTD then
+      HighTTD = TTD
+      HighTTDTar = enemy
+    end
+  end
+  return HighTTD, HighTTDTar
+end
+
 -- CastCycle/CastTargetIf Functions
 -- CastTargetIf Filters
 local function EvaluateTargetIfFilterRakeTicks(TargetUnit)
@@ -206,6 +220,11 @@ end
 local function EvaluateTargetIfBrutalSlashBT(TargetUnit)
   -- if=(cooldown.brutal_slash.full_recharge_time<4|target.time_to_die<5)&(buff.bt_brutal_slash.down&(buff.bs_inc.up|variable.need_bt))
   return ((S.BrutalSlash:FullRechargeTime() < 4 or TargetUnit:TimeToDie() < 5) and (BTBuffDown(S.BrutalSlash) and (Player:BuffUp(BsInc) or VarNeedBT)))
+end
+
+local function EvaluateTargetIfConvokeCD(TargetUnit)
+  -- if=((target.time_to_die<fight_remains&target.time_to_die>5)|target.time_to_die=fight_remains)&(fight_remains<5|(dot.rip.remains>5&buff.tigers_fury.up&(combo_points<2|(buff.bs_inc.up&combo_points=2))&(!variable.lastConvoke|!variable.lastZerk|buff.bs_inc.up)))
+  return (((TargetUnit:TimeToDie() < FightRemains and TargetUnit:TimeToDie() > 5) or TargetUnit:TimeToDie() == FightRemains) and (FightRemains < 5 or (TargetUnit:DebuffRemains(S.RipDebuff) > 5 and Player:BuffUp(S.TigersFury) and (ComboPoints < 2 or (Player:BuffUp(BsInc) and ComboPoints == 2)) and ((not VarLastConvoke) or (not VarLastZerk) or Player:BuffUp(BsInc)))))
 end
 
 local function EvaluateTargetIfLIMoonfireBT(TargetUnit)
@@ -393,7 +412,7 @@ local function AoeBuilder()
   -- brutal_slash,target_if=min:target.time_to_die,if=cooldown.brutal_slash.full_recharge_time<4|target.time_to_die<5
   if S.BrutalSlash:IsReady() then
     if Everyone.CastTargetIf(S.BrutalSlash, Enemies11y, "min", EvaluateTargetIfFilterTTD, EvaluateTargetIfBrutalSlashAoeBuilder, not Target:IsInMeleeRange(11)) then return "brutal_slash aoe_builder 2"; end
-    -- TEST : check pourquoi ça évalue tous les ennemis
+    -- TEST : check pourquoi �a �value tous les ennemis
   end
   -- thrash_cat,target_if=refreshable,if=buff.clearcasting.react|(spell_targets.thrash_cat>10|(spell_targets.thrash_cat>5&!talent.double_clawed_rake.enabled))&!talent.thrashing_claws
   if S.Thrash:IsReady() and (Player:BuffUp(S.Clearcasting) or (EnemiesCount11y > 10 or (EnemiesCount11y > 5 and not S.DoubleClawedRake:IsAvailable())) and not S.ThrashingClaws:IsAvailable()) then
@@ -565,15 +584,16 @@ local function Berserk()
     local ShouldReturn = Bloodtalons(); if ShouldReturn then return ShouldReturn; end
   end
   -- prowl,if=!(buff.bt_rake.up&active_bt_triggers=2)&(action.rake.ready&gcd.remains=0&!buff.sudden_ambush.up&(dot.rake.refreshable|dot.rake.pmultiplier<1.4)&!buff.shadowmeld.up&cooldown.feral_frenzy.remains<44&!buff.apex_predators_craving.up)
-  if S.Prowl:IsReady() and not (BTBuffUp(S.Rake) and CountActiveBtTriggers() == 2) and (S.Rake:IsReady() and Player:BuffDown(S.SuddenAmbushBuff) and (Target:DebuffRefreshable(S.RakeDebuff) or Target:PMultiplier(S.Rake) < 1.4) and Player:BuffDown(S.Shadowmeld) and S.FeralFrenzy:CooldownRemains() < 44 and Player:BuffDown(S.ApexPredatorsCravingBuff)) then
+  if S.Prowl:IsReady() and ((not (BTBuffUp(S.Rake) and CountActiveBtTriggers() == 2)) and (S.Rake:IsReady() and Player:BuffDown(S.SuddenAmbushBuff) and (Target:DebuffRefreshable(S.RakeDebuff) or Target:PMultiplier(S.Rake) < 1.4) and Player:BuffDown(S.Shadowmeld) and S.FeralFrenzy:CooldownRemains() < 44 and Player:BuffDown(S.ApexPredatorsCravingBuff))) then
     if Cast(S.Prowl) then return "prowl berserk 4"; end
   end
   -- shadowmeld,if=!(buff.bt_rake.up&active_bt_triggers=2)&action.rake.ready&!buff.sudden_ambush.up&(dot.rake.refreshable|dot.rake.pmultiplier<1.4)&!buff.prowl.up&!buff.apex_predators_craving.up
-  if S.Shadowmeld:IsCastable() and not (BTBuffUp(S.Rake) and CountActiveBtTriggers() == 2) and (S.Rake:IsReady() and Player:BuffDown(S.SuddenAmbushBuff) and (Target:DebuffRefreshable(S.RakeDebuff) or Target:PMultiplier(S.Rake) < 1.4) and Player:BuffDown(S.Prowl) and Player:BuffDown(S.ApexPredatorsCravingBuff)) then
+  if S.Shadowmeld:IsCastable() and ((not (BTBuffUp(S.Rake) and CountActiveBtTriggers() == 2)) and S.Rake:IsReady() and Player:BuffDown(S.SuddenAmbushBuff) and (Target:DebuffRefreshable(S.RakeDebuff) or Target:PMultiplier(S.Rake) < 1.4) and Player:BuffDown(S.Prowl) and Player:BuffDown(S.ApexPredatorsCravingBuff)) then
     if Cast(S.Shadowmeld, Settings.Commons.OffGCDasOffGCD.Racials) then return "shadowmeld berserk 6"; end
   end
   -- rake,if=!(buff.bt_rake.up&active_bt_triggers=2)&(refreshable|(buff.sudden_ambush.up&persistent_multiplier>dot.rake.pmultiplier&!dot.rake.refreshable))
-  if S.Rake:IsReady() and not (BTBuffUp(S.Rake) and CountActiveBtTriggers() == 2) and (Target:DebuffRefreshable(S.RakeDebuff) or (Player:BuffUp(S.SuddenAmbushBuff) and Player:PMultiplier(S.Rake) > Target:PMultiplier(S.Rake) and not Target:DebuffRefreshable(S.RakeDebuff))) then
+  -- rake,if=refreshable|(buff.sudden_ambush.up&persistent_multiplier>dot.rake.pmultiplier&!dot.rake.refreshable)
+  if S.Rake:IsReady() and ((not (BTBuffUp(S.Rake) and CountActiveBtTriggers() == 2)) and (Target:DebuffRefreshable(S.RakeDebuff) or (Player:BuffUp(S.SuddenAmbushBuff) and Player:PMultiplier(S.Rake) > Target:PMultiplier(S.Rake) and not Target:DebuffRefreshable(S.RakeDebuff)))) then
     if Cast(S.Rake, nil, nil, not Target:IsInMeleeRange(8)) then return "rake berserk 8"; end
   end
   -- shred,if=active_bt_triggers=2&buff.bt_shred.down
@@ -617,19 +637,14 @@ local function Cooldown()
       if Cast(I.AlgetharPuzzleBox, nil, Settings.Commons.DisplayStyle.Trinkets) then return "algethar_puzzle_box cooldown 4"; end
     end
   end
-  -- TODO : incarnation,target_if=max:target.time_to_die,if=(target.time_to_die<fight_remains&target.time_to_die>25)|target.time_to_die=fight_remains
-  if S.Incarnation:IsReady() then
+  -- incarnation,target_if=max:target.time_to_die,if=(target.time_to_die<fight_remains&target.time_to_die>25)|target.time_to_die=fight_remains
+  local HighTTD, _ = HighestTTD(Enemies11y)
+  if S.Incarnation:IsReady() and ((HighTTD < FightRemains and HighTTD > 25) or HighTTD == FightRemains) then
     if Cast(S.Incarnation, Settings.Feral.GCDasOffGCD.BsInc) then return "incarnation cooldown 6"; end
   end
-  -- TODO : berserk,target_if=max:target.time_to_die,if=((target.time_to_die<fight_remains&target.time_to_die>18)|target.time_to_die=fight_remains)&((!variable.lastZerk)|(fight_remains<23)|(variable.lastZerk&!variable.lastConvoke)|(variable.lastConvoke&cooldown.convoke_the_spirits.remains<10))
-  -- berserk,if=(!variable.lastZerk)|(fight_remains<23)|(variable.lastZerk&!variable.lastConvoke)
-  if S.Berserk:IsReady() and ((not VarLastZerk) or (FightRemains < 23) or (VarLastZerk and not VarLastConvoke)) then
+  -- berserk,target_if=max:target.time_to_die,if=((target.time_to_die<fight_remains&target.time_to_die>18)|target.time_to_die=fight_remains)&((!variable.lastZerk)|(fight_remains<23)|(variable.lastZerk&!variable.lastConvoke)|(variable.lastConvoke&cooldown.convoke_the_spirits.remains<10))
+  if S.Berserk:IsReady() and (((HighTTD < FightRemains and HighTTD > 18) or HighTTD == FightRemains) and ((not VarLastZerk) or FightRemains < 23 or (VarLastZerk and not VarLastConvoke) or (VarLastConvoke and S.ConvoketheSpirits:CooldownRemains() < 10))) then
     if Cast(S.Berserk, Settings.Feral.GCDasOffGCD.BsInc) then return "berserk cooldown 8"; end
-  end
-  -- TODO : check if this line mandatory
-  -- berserk,if=(variable.lastConvoke&cooldown.convoke_the_spirits.remains<10)
-  if S.Berserk:IsReady() and (VarLastConvoke and S.ConvoketheSpirits:CooldownRemains() < 10) then
-    if Cast(S.Berserk, Settings.Feral.GCDasOffGCD.BsInc) then return "berserk cooldown 10"; end
   end
   -- berserking,if=!variable.align_3minutes|buff.bs_inc.up
   if S.Berserking:IsCastable() and ((not VarAlign3Mins) or Player:BuffUp(BsInc)) then
@@ -642,10 +657,9 @@ local function Cooldown()
       if Cast(PotionSelected, nil, Settings.Commons.DisplayStyle.Potions) then return "potion cooldown 14"; end
     end
   end
-  -- TODO : convoke_the_spirits,target_if=max:target.time_to_die,if=((target.time_to_die<fight_remains&target.time_to_die>5)|target.time_to_die=fight_remains)&(fight_remains<5|(dot.rip.remains>5&buff.tigers_fury.up&(combo_points<2|(buff.bs_inc.up&combo_points=2))&(!variable.lastConvoke|!variable.lastZerk|buff.bs_inc.up)))
-  -- convoke_the_spirits,if=fight_remains<5|(dot.rip.remains>5&buff.tigers_fury.up&(combo_points<2|(buff.bs_inc.up&combo_points=2))&(!variable.lastConvoke|!variable.lastZerk|buff.bs_inc.up))
-  if S.ConvoketheSpirits:IsReady() and (FightRemains < 5 or (Target:DebuffRemains(S.RipDebuff) > 5 and Player:BuffUp(S.TigersFury) and (ComboPoints < 2 or (Player:BuffUp(BsInc) and ComboPoints == 2)) and ((not VarLastConvoke) or (not VarLastZerk) or Player:BuffUp(BsInc)))) then
-    if Cast(S.ConvoketheSpirits, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsInMeleeRange(8)) then return "convoke_the_spirits cooldown 16"; end
+  -- convoke_the_spirits,target_if=max:target.time_to_die,if=((target.time_to_die<fight_remains&target.time_to_die>5)|target.time_to_die=fight_remains)&(fight_remains<5|(dot.rip.remains>5&buff.tigers_fury.up&(combo_points<2|(buff.bs_inc.up&combo_points=2))&(!variable.lastConvoke|!variable.lastZerk|buff.bs_inc.up)))
+  if S.ConvoketheSpirits:IsReady() then
+    if Everyone.CastTargetIf(S.ConvoketheSpirits, Enemies11y, "max", EvaluateTargetIfFilterTTD, EvaluateTargetIfConvokeCD, not Target:IsInMeleeRange(8)) then return "convoke_the_spirits cooldown 16"; end
   end
   -- use_item,name=manic_grieftorch,target_if=max:target.time_to_die,if=energy.deficit>40
   if Settings.Commons.Enabled.Trinkets and I.ManicGrieftorch:IsEquippedAndReady() and (Player:EnergyDeficit() > 40) then
@@ -772,8 +786,12 @@ local function APL()
     if Player:BuffUp(BsInc) then
       local ShouldReturn = Berserk(); if ShouldReturn then return ShouldReturn; end
     end
+    -- wait,sec=combo_points=5,if=combo_points=4&buff.predator_revealed.react&energy.deficit>40&spell_targets.swipe_cat=1
+    if ComboPoints == 4 and Player:BuffUp(S.PredatorRevealedBuff) and Player:EnergyDeficit() > 40 and EnemiesCount11y == 1 then
+      if HR.CastAnnotated(S.Pool, false, "WAIT") then return "Wait for Finisher()"; end
+    end
     -- call_action_list,name=finisher,if=combo_points>=4&!(combo_points=4&buff.bloodtalons.stack<=1&active_bt_triggers=2&spell_targets.swipe_cat=1)
-    if ComboPoints >= 4 and not (ComboPoints == 4 and Player:BuffStack(S.BloodtalonsBuff) <= 1 and CountActiveBtTriggers() == 2 and EnemiesCount11y == 1) then
+    if ComboPoints >= 4 and (not (ComboPoints == 4 and Player:BuffStack(S.BloodtalonsBuff) <= 1 and CountActiveBtTriggers() == 2 and EnemiesCount11y == 1)) then
       local ShouldReturn = Finisher(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=bloodtalons,if=variable.need_bt&!buff.bs_inc.up&combo_points<5
