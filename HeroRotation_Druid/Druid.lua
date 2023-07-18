@@ -206,7 +206,7 @@ Spell.Druid.Feral = MergeTableByKey(Spell.Druid.Commons, {
   BloodtalonsBuff                       = Spell(145152),
   Clearcasting                          = Spell(135700),
   OverflowingPowerBuff                  = MultiSpell(405069,405189,405191),
-  PredatorRevealedBuff					= Spell(408468), -- T30 P4
+  PredatorRevealedBuff                  = Spell(408468), -- T30 P4
   PredatorySwiftnessBuff                = Spell(69369),
   SabertoothBuff                        = Spell(391722),
   -- Debuffs
