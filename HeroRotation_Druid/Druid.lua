@@ -181,8 +181,8 @@ Spell.Druid.Feral = MergeTableByKey(Spell.Druid.Commons, {
   Berserk                               = Spell(106951),
   BerserkHeartoftheLion                 = Spell(391174),
   Bloodtalons                           = Spell(319439),
-  CircleofLifeandDeath                  = Spell(400320),
   BrutalSlash                           = Spell(202028),
+  CircleofLifeandDeath                  = Spell(400320),
   DireFixation                          = Spell(417710),
   DoubleClawedRake                      = Spell(391700),
   FeralFrenzy                           = Spell(274837),
@@ -193,6 +193,7 @@ Spell.Druid.Feral = MergeTableByKey(Spell.Druid.Commons, {
   MomentofClarity                       = Spell(236068),
   Predator                              = Spell(202021),
   PrimalWrath                           = Spell(285381),
+  RampantFerocity                       = Spell(391709),
   RipandTear                            = Spell(391347),
   Sabertooth                            = Spell(202031),
   SouloftheForest                       = Spell(158476),
@@ -200,6 +201,7 @@ Spell.Druid.Feral = MergeTableByKey(Spell.Druid.Commons, {
   TearOpenWounds                        = Spell(391785),
   ThrashingClaws                        = Spell(405300),
   TigersFury                            = Spell(5217),
+  UnbridledSwarm                        = Spell(391951),
   WildSlashes                           = Spell(390864),
   -- Buffs
   ApexPredatorsCravingBuff              = Spell(391882),
@@ -271,7 +273,9 @@ if not Item.Druid then Item.Druid = {} end
 Item.Druid.Commons = {
   -- Trinkets
   AlgetharPuzzleBox                     = Item(193701, {13, 14}),
+  IrideusFragment                       = Item(193743, {13, 14}),
   ManicGrieftorch                       = Item(194308, {13, 14}),
+  MirrorofFracturedTomorrows            = Item(207581, {13, 14}),
   SpoilsofNeltharus                     = Item(193773, {13, 14}),
   -- Other On-Use Items
   Djaruun                               = Item(202569),
