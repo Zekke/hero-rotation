@@ -183,6 +183,7 @@ Spell.Druid.Feral = MergeTableByKey(Spell.Druid.Commons, {
   Bloodtalons                           = Spell(319439),
   CircleofLifeandDeath                  = Spell(400320),
   BrutalSlash                           = Spell(202028),
+  DireFixation                          = Spell(417710),
   DoubleClawedRake                      = Spell(391700),
   FeralFrenzy                           = Spell(274837),
   Incarnation                           = Spell(102543),
@@ -204,12 +205,13 @@ Spell.Druid.Feral = MergeTableByKey(Spell.Druid.Commons, {
   ApexPredatorsCravingBuff              = Spell(391882),
   BloodtalonsBuff                       = Spell(145152),
   Clearcasting                          = Spell(135700),
-  OverflowingPower                      = MultiSpell(405069,405189,405191),
-  PredatorySwiftness                    = Spell(69369),
+  OverflowingPowerBuff                  = MultiSpell(405069,405189,405191),
+  PredatorySwiftnessBuff                = Spell(69369),
   SabertoothBuff                        = Spell(391722),
   -- Debuffs
   AdaptiveSwarmDebuff                   = Spell(391889),
   AdaptiveSwarmHeal                     = Spell(391891),
+  DireFixationDebuff                    = Spell(417713),
   LIMoonfireDebuff                      = Spell(155625),
   ThrashDebuff                          = Spell(405233),
 })

@@ -336,6 +336,10 @@ local function Builder()
     local ShouldReturn = Clearcasting(); if ShouldReturn then return ShouldReturn; end
     if HR.CastAnnotated(S.Pool, false, "WAIT") then return "Pool for Clearcasting"; end
   end
+  -- TEST Shred for dire fixation
+  if S.Shred:IsReady() and S.DireFixation:IsAvailable() and Target:DebuffDown(S.DireFixationDebuff) then
+    if Cast(S.Shred, nil, nil, not Target:IsInMeleeRange(8)) then return "shred builder DiFi"; end
+  end
   -- brutal_slash,if=cooldown.brutal_slash.full_recharge_time<4
   if S.BrutalSlash:IsReady() and (S.BrutalSlash:FullRechargeTime() < 4) then
     if Cast(S.BrutalSlash, nil, nil, not Target:IsInMeleeRange(11)) then return "brutal_slash builder 2"; end
@@ -382,6 +386,10 @@ local function Builder()
 end
 
 local function AoeBuilder()
+  -- TEST Shred for dire fixation
+  if S.Shred:IsReady() and S.DireFixation:IsAvailable() and Target:DebuffDown(S.DireFixationDebuff) then
+    if Cast(S.Shred, nil, nil, not Target:IsInMeleeRange(8)) then return "shred aoe_builder DiFi"; end
+  end
   -- brutal_slash,target_if=min:target.time_to_die,if=cooldown.brutal_slash.full_recharge_time<4|target.time_to_die<5
   if S.BrutalSlash:IsReady() then
     if Everyone.CastTargetIf(S.BrutalSlash, Enemies11y, "min", EvaluateTargetIfFilterTTD, EvaluateTargetIfBrutalSlashAoeBuilder, not Target:IsInMeleeRange(11)) then return "brutal_slash aoe_builder 2"; end
@@ -439,6 +447,10 @@ local function AoeBuilder()
 end
 
 local function Bloodtalons()
+  -- TEST Shred for dire fixation
+  if S.Shred:IsReady() and S.DireFixation:IsAvailable() and Target:DebuffDown(S.DireFixationDebuff) and BTBuffDown(S.Shred) then
+    if Cast(S.Shred, nil, nil, not Target:IsInMeleeRange(8)) then return "shred bloodtalons DiFi"; end
+  end
   -- brutal_slash,target_if=min:target.time_to_die,if=(cooldown.brutal_slash.full_recharge_time<4|target.time_to_die<5)&(buff.bt_brutal_slash.down&(buff.bs_inc.up|variable.need_bt))
   if S.BrutalSlash:IsReady() then
     if Everyone.CastTargetIf(S.BrutalSlash, Enemies11y, "min", EvaluateTargetIfFilterTTD, EvaluateTargetIfBrutalSlashBT, not Target:IsInMeleeRange(11)) then return "brutal_slash bloodtalons 2"; end
@@ -545,7 +557,7 @@ local function Berserk()
     if Cast(S.FerociousBite, nil, nil, not Target:IsInMeleeRange(8)) then return "ferocious_bite berserk 2"; end
   end
   -- call_action_list,name=finisher,if=combo_points=5&!(buff.overflowing_power.stack<=1&active_bt_triggers=2&buff.bloodtalons.stack<=1)
-  if ComboPoints == 5 and not (Player:BuffStack(S.OverflowingPower) <= 1 and CountActiveBtTriggers() == 2 and Player:BuffStack(S.BloodtalonsBuff) <= 1) then
+  if ComboPoints == 5 and not (Player:BuffStack(S.OverflowingPowerBuff) <= 1 and CountActiveBtTriggers() == 2 and Player:BuffStack(S.BloodtalonsBuff) <= 1) then
     local ShouldReturn = Finisher(); if ShouldReturn then return ShouldReturn; end
   end
   -- call_action_list,name=bloodtalons,if=spell_targets.swipe_cat>1
@@ -684,7 +696,7 @@ local function APL()
 
   -- Defensives
   -- Regrowth
-  if S.Regrowth:IsCastable() and Player:BuffUp(S.PredatorySwiftness) and Player:HealthPercentage() <= Settings.Feral.FeralRegrowthHP then
+  if S.Regrowth:IsCastable() and Player:BuffUp(S.PredatorySwiftnessBuff) and Player:HealthPercentage() <= Settings.Feral.FeralRegrowthHP then
     if Cast(S.Regrowth, Settings.Feral.GCDasOffGCD.Regrowth) then return "Cast Regrowth (Defensives)" end
   end
 
