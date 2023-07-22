@@ -335,7 +335,7 @@
       --[63]    = "HeroRotation_Mage",          -- Fire
       [64]    = "HeroRotation_Mage",          -- Frost
     -- Monk
-      --[268]   = "HeroRotation_Monk",          -- Brewmaster
+      [268]   = "HeroRotation_Monk",          -- Brewmaster
       [269]   = "HeroRotation_Monk",          -- Windwalker
       --[270]   = "HeroRotation_Monk",          -- Mistweaver
     -- Paladin
