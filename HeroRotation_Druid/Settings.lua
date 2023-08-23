@@ -66,6 +66,8 @@ HR.GUISettings.APL.Druid = {
     }
   },
   Feral = {
+    FeralRegrowthHP = 50,
+    FeralFrenziedRegenHP = 70,
     ShowCatFormOOC = false,
     ShowHealSpells = false,
     UseLazySwipe = true,
@@ -141,6 +143,8 @@ CreateARPanelOptions(CP_Balance, "APL.Druid.Balance")
 -- Feral
 CreatePanelOption("CheckButton", CP_Feral, "APL.Druid.Feral.ShowCatFormOOC", "Show Cat Form Out of Combat", "Enable this if you want the addon to show you the Cat Form reminder out of combat.")
 CreatePanelOption("CheckButton", CP_Feral, "APL.Druid.Feral.ShowHealSpells", "Show Healing Abilities", "Enable this if you want the addon to show you healing abilities (as suggested by the APL) during your rotation.")
+CreatePanelOption("Slider", CP_Feral, "APL.Druid.Feral.FeralRegrowthHP", {0, 100, 1}, "Regrowth HP", "Set the Regrowth HP threshold.")
+CreatePanelOption("Slider", CP_Feral, "APL.Druid.Feral.FeralFrenziedRegenHP", {0, 100, 1}, "Frenzied Regen HP", "Set the Frenzied Regen HP threshold.")
 CreatePanelOption("CheckButton", CP_Feral, "APL.Druid.Feral.UseLazySwipe", "Use Feral's 'Lazy Swipe' Rotation", "Enable this option to enable a slightly inferior, but simpler AoE rotation, where Shred is not suggested, instead opting to proc BT via Swipe, Rake, or Thrash.")
 CreatePanelOption("CheckButton", CP_Feral, "APL.Druid.Feral.UseZerkBiteweave", "Use 'Zerk Biteweave'", "Enable this option to suggest Ferocious Bite during Incarnation/Berserk in AoE situations.")
 CreateARPanelOptions(CP_Feral, "APL.Druid.Feral")

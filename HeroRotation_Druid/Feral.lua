@@ -751,6 +751,17 @@ local function APL()
   ComboPoints = Player:ComboPoints()
   ComboPointsDeficit = Player:ComboPointsDeficit()
 
+  -- PvP
+  -- if S.FerociousWound:IsAvailable() then
+    -- HR.Print("Ferocious Wound")
+  -- end
+
+  -- Defensives
+  -- Regrowth
+  if S.Regrowth:IsCastable() and Player:BuffUp(S.PredatorySwiftnessBuff) and Player:HealthPercentage() <= Settings.Feral.FeralRegrowthHP then
+    if Cast(S.Regrowth, Settings.Feral.GCDasOffGCD.Regrowth) then return "Cast Regrowth (Defensives)" end
+  end
+
   if Everyone.TargetIsValid() or Player:AffectingCombat() then
     -- Calculate fight_remains
     BossFightRemains = HL.BossFightRemains(nil, true)
