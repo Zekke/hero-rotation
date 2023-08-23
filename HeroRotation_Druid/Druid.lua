@@ -68,41 +68,7 @@ Spell.Druid.Commons = {
   RakeDebuff                            = Spell(155722),
   RipDebuff                             = Spell(1079),
   SunfireDebuff                         = Spell(164815),
-  -- ThrashDebuff                          = MultiSpell(106830,192090,405233),
-  ThrashDebuff                          = Spell(405233),
-  -- Covenant Abilities
-  AdaptiveSwarmCov                      = Spell(325727),
-  AdaptiveSwarmCovDebuff                = Spell(325733),
-  AdaptiveSwarmCovHeal                  = Spell(325748),
-  AstralCommunion                       = Spell(202359),
-  ConvoketheSpiritsCov                  = Spell(323764),
-  EmpowerBond                           = Spell(326647),
-  Fleshcraft                            = Spell(324631),
-  KindredSpirits                        = Spell(326434),
-  KindredEmpowermentEnergizeBuff        = Spell(327022),
-  RavenousFrenzy                        = Spell(323546),
-  RavenousFrenzyBuff                    = Spell(323546),
-  RavenousFrenzySHBuff                  = Spell(355315),
-  -- Soulbind Abilities
-  ThrillSeeker                          = Spell(331586),
-  ThrillSeekerBuff                      = Spell(331939),
-  -- Conduit Effects
-  DeepAllegiance                        = Spell(341378),
-  PreciseAlignment                      = Spell(340706),
-  PustuleEruption                       = Spell(351094),
-  SavageCombatant                       = Spell(340609),
-  SavageCombatantBuff                   = Spell(340613),
-  SuddenAmbushBuff                      = Spell(340698),
-  TasteForBlood                         = Spell(340682),
-  VolatileSolvent                       = Spell(323074),
-  -- Legendary Effects
-  OathoftheElderDruidBuff               = Spell(338643),
-  -- Trinket Effects (SL)
-  AcquiredAxeBuff                       = Spell(368656),
-  AcquiredSwordBuff                     = Spell(368657),
-  AcquiredWandBuff                      = Spell(368654),
-  ScarsofFraternalStrifeBuff4           = Spell(368638),
-  TormentedInsightBuff                  = Spell(355321),
+  ThrashDebuff                          = MultiSpell(106830,192090),
   -- Other
   Pool                                  = Spell(999910)
 }
@@ -114,6 +80,7 @@ Spell.Druid.Balance = MergeTableByKey(Spell.Druid.Commons, {
   Wrath                                 = Spell(190984),
   -- Talents
   AetherialKindling                     = Spell(327541),
+  AstralCommunion                       = Spell(400636),
   AstralSmolder                         = Spell(394058),
   BalanceofAllThings                    = Spell(394048),
   CelestialAlignment                    = MultiSpell(194223,383410), -- 194223 without Orbital Strike, 383410 with Orbital Strike
@@ -214,6 +181,7 @@ Spell.Druid.Feral = MergeTableByKey(Spell.Druid.Commons, {
   PredatorRevealedBuff                  = Spell(408468), -- T30 P4
   PredatorySwiftnessBuff                = Spell(69369),
   SabertoothBuff                        = Spell(391722),
+  SuddenAmbushBuff                      = Spell(391974),
   -- Debuffs
   AdaptiveSwarmDebuff                   = Spell(391889),
   AdaptiveSwarmHeal                     = Spell(391891),
@@ -278,6 +246,7 @@ if not Item.Druid then Item.Druid = {} end
 Item.Druid.Commons = {
   -- Trinkets
   AlgetharPuzzleBox                     = Item(193701, {13, 14}),
+  BeacontotheBeyond                     = Item(203963, {13, 14}),
   IrideusFragment                       = Item(193743, {13, 14}),
   ManicGrieftorch                       = Item(194308, {13, 14}),
   MirrorofFracturedTomorrows            = Item(207581, {13, 14}),
