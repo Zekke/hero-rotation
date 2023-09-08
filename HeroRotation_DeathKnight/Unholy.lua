@@ -38,6 +38,7 @@ local I = Item.DeathKnight.Unholy
 local OnUseExcludes = {
   I.AlgetharPuzzleBox:ID(),
   I.IrideusFragment:ID(),
+  I.MirrorOfFracturedTomorrows:ID(),
   I.VialofAnimatedBlood:ID(),
 }
 
@@ -499,7 +500,7 @@ local function HighPrioActions()
     end
   end
   -- army_of_the_dead,if=talent.summon_gargoyle&cooldown.summon_gargoyle.remains<2|!talent.summon_gargoyle|fight_remains<35
-  if S.ArmyoftheDead:IsReady() and (S.SummonGargoyle:IsAvailable() and S.SummonGargoyle:CooldownRemains() < 2 or (not S.SummonGargoyle:IsAvailable()) or FightRemains < 35) then
+  if CDsON() and S.ArmyoftheDead:IsReady() and (S.SummonGargoyle:IsAvailable() and S.SummonGargoyle:CooldownRemains() < 2 or (not S.SummonGargoyle:IsAvailable()) or FightRemains < 35) then
     if Cast(S.ArmyoftheDead, nil, Settings.Unholy.DisplayStyle.ArmyOfTheDead) then return "army_of_the_dead high_prio_actions 4"; end
   end
   -- death_coil,if=(active_enemies<=3|!talent.epidemic)&(pet.gargoyle.active&talent.commander_of_the_dead&buff.commander_of_the_dead.up&cooldown.apocalypse.remains<5&buff.commander_of_the_dead.remains>27|debuff.death_rot.up&debuff.death_rot.remains<gcd)
@@ -561,6 +562,10 @@ end
 
 local function Trinkets()
   if Settings.Commons.Enabled.Trinkets then
+    -- custom mirror usage 20s before summon gargoyle ends
+    if I.MirrorOfFracturedTomorrows:IsEquippedAndReady() and S.SummonGargoyle:IsAvailable() and VarGargActive and VarGargRemains <= 20 then
+      if Cast(I.MirrorOfFracturedTomorrows, nil, Settings.Commons.DisplayStyle.Trinkets) then return "mirror_if_fractured_tomorrows trinkets"; end
+    end
     -- use_item,use_off_gcd=1,name=algethar_puzzle_box,if=cooldown.summon_gargoyle.remains<5&rune<=4|!talent.summon_gargoyle&pet.army_ghoul.active|active_enemies>3&variable.adds_remain&(buff.dark_transformation.up|talent.bursting_sores&cooldown.any_dnd.remains<10&!death_and_decay.ticking)
     if I.AlgetharPuzzleBox:IsEquippedAndReady() and (S.SummonGargoyle:CooldownRemains() < 5 and Player:Rune() <= 4 or (not S.SummonGargoyle:IsAvailable()) and VarArmyGhoulActive or EnemiesMeleeCount > 3 and VarAddsRemain and (Pet:BuffUp(S.DarkTransformation) or S.BurstingSores:IsAvailable() and AnyDnD:CooldownRemains() < 10 and Player:BuffDown(S.DeathAndDecayBuff))) then
       if Cast(I.AlgetharPuzzleBox, nil, Settings.Commons.DisplayStyle.Trinkets) then return "algethar_puzzle_box trinkets 2"; end
