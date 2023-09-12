@@ -14,6 +14,10 @@ local HR      = HeroRotation
 local SpellBM = Spell.Hunter.BeastMastery
 local SpellMM = Spell.Hunter.Marksmanship
 local SpellSV = Spell.Hunter.Survival
+-- Settings
+local Settings = HR.GUISettings.APL.Hunter
+-- Hunter Local
+local Hunter  = HR.Commons.Hunter
 -- Lua
 local mathmax = math.max
 -- WoW API
@@ -26,11 +30,11 @@ OldBMIsCastable = HL.AddCoreOverride("Spell.IsCastable",
 function (self, BypassRecovery, Range, AoESpell, ThisUnit, Offset)
   local BaseCheck = OldBMIsCastable(self, BypassRecovery, Range, AoESpell, ThisUnit, Offset)
   if self == SpellBM.SummonPet then
-    return (not Pet:IsActive()) and (not Pet:IsDeadOrGhost()) and BaseCheck
+    return Hunter.Pet.Status == 0 and BaseCheck
   elseif self == SpellBM.RevivePet then
-    return Pet:IsDeadOrGhost() and BaseCheck
+    return (Pet:IsDeadOrGhost() or Hunter.Pet.Status == 2) and BaseCheck
   elseif self == SpellBM.MendPet then
-    return (not Pet:IsDeadOrGhost()) and Pet:HealthPercentage() > 0 and Pet:HealthPercentage() <= HR.GUISettings.APL.Hunter.Commons2.MendPetHighHP and BaseCheck
+    return Pet:HealthPercentage() > 0 and Pet:HealthPercentage() <= Settings.Commons2.MendPetHP and BaseCheck
   else
     return BaseCheck
   end
@@ -64,7 +68,7 @@ OldMMIsCastable = HL.AddCoreOverride("Spell.IsCastable",
 function (self, BypassRecovery, Range, AoESpell, ThisUnit, Offset)
   local BaseCheck = OldMMIsCastable(self, BypassRecovery, Range, AoESpell, ThisUnit, Offset)
   if self == SpellMM.SummonPet then
-    return (not Pet:IsActive()) and (not Pet:IsDeadOrGhost()) and BaseCheck
+    return Hunter.Pet.Status == 0 and BaseCheck
   else
     return BaseCheck
   end
@@ -76,14 +80,14 @@ OldMMIsReady = HL.AddCoreOverride("Spell.IsReady",
 function (self, Range, AoESpell, ThisUnit, BypassRecovery, Offset)
   local BaseCheck = OldMMIsReady(self, Range, AoESpell, ThisUnit, BypassRecovery, Offset)
   if self == SpellMM.AimedShot then
-    local ShouldCastAS = ((not Player:IsCasting(SpellMM.AimedShot)) and SpellMM.AimedShot:Charges() == 1 or SpellMM.AimedShot:Charges() > 1)
-    if HR.GUISettings.APL.Hunter.Marksmanship.HideAimedWhileMoving then
-      return BaseCheck and ShouldCastAS and ((not Player:IsMoving()) or Player:BuffUp(SpellMM.LockandLoadBuff))
+    local ShouldCastAS = (not Player:IsCasting(SpellMM.AimedShot) and SpellMM.AimedShot:Charges() == 1 or SpellMM.AimedShot:Charges() > 1)
+    if Settings.Marksmanship.HideAimedWhileMoving then
+      return BaseCheck and ShouldCastAS and (not Player:IsMoving() or Player:BuffUp(SpellMM.LockandLoadBuff))
     else
       return BaseCheck and ShouldCastAS
     end
   elseif self == SpellMM.WailingArrow then
-    return BaseCheck and (not Player:IsCasting(self))
+    return BaseCheck and not Player:IsCasting(self)
   else
     return BaseCheck
   end
@@ -137,15 +141,15 @@ OldSVIsCastable = HL.AddCoreOverride("Spell.IsCastable",
 function (self, BypassRecovery, Range, AoESpell, ThisUnit, Offset)
   local BaseCheck = OldSVIsCastable(self, BypassRecovery, Range, AoESpell, ThisUnit, Offset)
   if self == SpellSV.SummonPet then
-    return (not Pet:IsActive()) and (not Pet:IsDeadOrGhost()) and BaseCheck
+    return Hunter.Pet.Status == 0 and BaseCheck
   elseif self == SpellSV.RevivePet then
-    return Pet:IsDeadOrGhost() and BaseCheck
+    return (Pet:IsDeadOrGhost() or Hunter.Pet.Status == 2) and BaseCheck
   elseif self == SpellSV.MendPet then
-    return (not Pet:IsDeadOrGhost()) and Pet:HealthPercentage() > 0 and Pet:HealthPercentage() <= HR.GUISettings.APL.Hunter.Commons2.MendPetHighHP and BaseCheck
+    return Pet:HealthPercentage() > 0 and Pet:HealthPercentage() <= Settings.Commons2.MendPetHP and BaseCheck
   elseif self == SpellSV.AspectoftheEagle then
-    return HR.GUISettings.APL.Hunter.Survival.AspectOfTheEagle and BaseCheck
+    return Settings.Survival.AspectOfTheEagle and BaseCheck
   elseif self == SpellSV.Harpoon then
-    return (not Target:IsInRange(8)) and BaseCheck
+    return BaseCheck and not Target:IsInRange(8)
   else
     return BaseCheck
   end

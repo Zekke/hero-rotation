@@ -47,7 +47,7 @@ local OnUseExcludes = {
 
 -- Enemies
 local Enemies40y, Enemies10ySplash, EnemiesCount10ySplash
-local VarPSUp, VarVTUp, VarSRUp, VarCDDoTsUp, VarHasCDs, VarCDsActive
+local VarPSUp, VarVTUp, VarVTPSUp VarSRUp, VarCDDoTsUp, VarHasCDs, VarCDsActive
 local BossFightRemains = 11111
 local FightRemains = 11111
 
@@ -123,6 +123,8 @@ local function Variables()
   VarPSUp = (Target:DebuffUp(S.PhantomSingularityDebuff) or not S.PhantomSingularity:IsAvailable())
   -- variable,name=vt_up,op=set,value=dot.vile_taint_dot.ticking|!talent.vile_taint
   VarVTUp = (Target:DebuffUp(S.VileTaintDebuff) or not S.VileTaint:IsAvailable())
+  -- variable,name=vt_ps_up,op=set,value=dot.vile_taint_dot.ticking|dot.phantom_singularity.ticking|(!talent.vile_taint&!talent.phantom_singularity)
+  VarVTPSUp = (Target:DebuffUp(S.VileTaintDebuff) or Target:DebuffUp(S.PhantomSingularityDebuff) or (not S.VileTaint:IsAvailable() and not S.PhantomSingularity:IsAvailable()))
   -- variable,name=sr_up,op=set,value=dot.soul_rot.ticking|!talent.soul_rot
   VarSRUp = (Target:DebuffUp(S.SoulRotDebuff) or not S.SoulRot:IsAvailable())
   -- variable,name=cd_dots_up,op=set,value=variable.ps_up&variable.vt_up&variable.sr_up
@@ -130,7 +132,7 @@ local function Variables()
   -- variable,name=has_cds,op=set,value=talent.phantom_singularity|talent.vile_taint|talent.soul_rot|talent.summon_darkglare
   VarHasCDs = (S.PhantomSingularity:IsAvailable() or S.VileTaint:IsAvailable() or S.SoulRot:IsAvailable() or S.SummonDarkglare:IsAvailable())
   -- variable,name=cds_active,op=set,value=!variable.has_cds|(pet.darkglare.active|variable.cd_dots_up|buff.power_infusion.react)
-  VarCDsActive = ((not VarHasCDs) or (HL.GuardiansTable.DarkglareDuration > 0 or VarCDDoTsUp or Player:BuffUp(S.PowerInfusionBuff)))
+  VarCDsActive = (not VarHasCDs or (HL.GuardiansTable.DarkglareDuration > 0 or VarCDDoTsUp or Player:BuffUp(S.PowerInfusionBuff)))
 end
 
 local function Items()
@@ -201,7 +203,7 @@ local function AoE()
     if Cast(S.Haunt, nil, nil, not Target:IsSpellInRange(S.Haunt)) then return "haunt aoe 2"; end
   end
   -- vile_taint,if=!talent.soul_rot|cooldown.soul_rot.remains<=execute_time|talent.souleaters_gluttony.rank<2&cooldown.soul_rot.remains>=12
-  if CDsON() and S.VileTaint:IsReady() and ((not S.SoulRot:IsAvailable()) or S.SoulRot:CooldownRemains() <= S.VileTaint:ExecuteTime() or S.SouleatersGluttony:TalentRank() < 2 and S.SoulRot:CooldownRemains() >= 12) then
+  if CDsON() and S.VileTaint:IsReady() and (not S.SoulRot:IsAvailable() or S.SoulRot:CooldownRemains() <= S.VileTaint:ExecuteTime() or S.SouleatersGluttony:TalentRank() < 2 and S.SoulRot:CooldownRemains() >= 12) then
     if Cast(S.VileTaint, nil, nil, not Target:IsInRange(40)) then return "vile_taint aoe 4"; end
   end
   -- phantom_singularity
@@ -316,10 +318,6 @@ local function Cleave()
   if CDsON() and S.SummonDarkglare:IsCastable() then
     if Cast(S.SummonDarkglare, Settings.Affliction.GCDasOffGCD.SummonDarkglare) then return "summon_darkglare cleave 26"; end
   end
-  -- malefic_rapture,if=talent.malefic_affliction&buff.malefic_affliction.stack<3
-  if S.MaleficRapture:IsReady() and S.MaleficAffliction:IsAvailable() and Player:BuffStack(S.MaleficAfflictionBuff) < 3 then
-    if Cast(S.MaleficRapture, nil, nil, not Target:IsInRange(100)) then return "malefic_rapture cleave 28"; end
-  end
   -- malefic_rapture,if=talent.dread_touch&debuff.dread_touch.remains<gcd
   if S.MaleficRapture:IsReady() and S.DreadTouch:IsAvailable() and Target:DebuffRemains(S.DreadTouchDebuff) < Player:GCD() then
     if Cast(S.MaleficRapture, nil, nil, not Target:IsInRange(100)) then return "malefic_rapture cleave 30"; end
@@ -393,7 +391,7 @@ local function APL()
 
   if Everyone.TargetIsValid() then
     -- Precombat
-    if (not Player:AffectingCombat()) then
+    if not Player:AffectingCombat() then
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=variables
@@ -415,7 +413,7 @@ local function APL()
       local ShouldReturn = Items(); if ShouldReturn then return ShouldReturn; end
     end
     -- malefic_rapture,if=talent.dread_touch&debuff.dread_touch.remains<2&(dot.agony.ticking&dot.corruption.ticking&(!talent.siphon_life|dot.siphon_life.ticking))&(!talent.phantom_singularity|!cooldown.phantom_singularity.ready)&(!talent.vile_taint|!cooldown.vile_taint.ready)&(!talent.soul_rot|!cooldown.soul_rot.ready)
-    if S.MaleficRapture:IsReady() and (S.DreadTouch:IsAvailable() and Target:DebuffRemains(S.DreadTouchDebuff) < 2 and (Target:DebuffUp(S.AgonyDebuff) and Target:DebuffUp(S.CorruptionDebuff) and ((not S.SiphonLife:IsAvailable()) or Target:DebuffUp(S.SiphonLifeDebuff))) and ((not S.PhantomSingularity:IsAvailable()) or S.PhantomSingularity:CooldownDown()) and ((not S.VileTaint:IsAvailable()) or S.VileTaint:CooldownDown()) and ((not S.SoulRot:IsAvailable()) or S.SoulRot:CooldownDown())) then
+    if S.MaleficRapture:IsReady() and (S.DreadTouch:IsAvailable() and Target:DebuffRemains(S.DreadTouchDebuff) < 2 and (Target:DebuffUp(S.AgonyDebuff) and Target:DebuffUp(S.CorruptionDebuff) and (not S.SiphonLife:IsAvailable() or Target:DebuffUp(S.SiphonLifeDebuff))) and (not S.PhantomSingularity:IsAvailable() or S.PhantomSingularity:CooldownDown()) and (not S.VileTaint:IsAvailable() or S.VileTaint:CooldownDown()) and (not S.SoulRot:IsAvailable() or S.SoulRot:CooldownDown())) then
       if Cast(S.MaleficRapture, nil, nil, not Target:IsInRange(100)) then return "malefic_rapture main 2"; end
     end
     -- unstable_affliction,if=remains<5
@@ -447,11 +445,11 @@ local function APL()
       if Cast(S.ShadowBolt, nil, nil, not Target:IsSpellInRange(S.ShadowBolt)) then return "shadow_bolt main 16"; end
     end
     -- phantom_singularity,if=!talent.soul_rot|cooldown.soul_rot.remains<=execute_time|cooldown.soul_rot.remains>=25
-    if CDsON() and S.PhantomSingularity:IsCastable() and ((not S.SoulRot:IsAvailable()) or S.SoulRot:CooldownRemains() <= S.PhantomSingularity:ExecuteTime() or S.SoulRot:CooldownRemains() >= 25) then
+    if CDsON() and S.PhantomSingularity:IsCastable() and (not S.SoulRot:IsAvailable() or S.SoulRot:CooldownRemains() <= S.PhantomSingularity:ExecuteTime() or S.SoulRot:CooldownRemains() >= 25) then
       if Cast(S.PhantomSingularity, Settings.Affliction.GCDasOffGCD.PhantomSingularity, nil, not Target:IsSpellInRange(S.PhantomSingularity)) then return "phantom_singularity main 18"; end
     end
     -- vile_taint,if=!talent.soul_rot|cooldown.soul_rot.remains<=execute_time|talent.souleaters_gluttony.rank<2&cooldown.soul_rot.remains>=12
-    if CDsON() and S.VileTaint:IsReady() and ((not S.SoulRot:IsAvailable()) or S.SoulRot:CooldownRemains() <= S.VileTaint:ExecuteTime() or S.SouleatersGluttony:TalentRank() < 2 and S.SoulRot:CooldownRemains() >= 12) then
+    if CDsON() and S.VileTaint:IsReady() and (not S.SoulRot:IsAvailable() or S.SoulRot:CooldownRemains() <= S.VileTaint:ExecuteTime() or S.SouleatersGluttony:TalentRank() < 2 and S.SoulRot:CooldownRemains() >= 12) then
       if Cast(S.VileTaint, nil, nil, not Target:IsInRange(40)) then return "vile_taint main 20"; end
     end
     -- soul_rot,if=variable.vt_up&variable.ps_up
@@ -470,8 +468,8 @@ local function APL()
       (S.TormentedCrescendo:IsAvailable() and Player:BuffUp(S.TormentedCrescendoBuff) and Target:DebuffDown(S.DreadTouchDebuff)) or
       -- malefic_rapture,if=talent.tormented_crescendo&buff.tormented_crescendo.stack=2
       (S.TormentedCrescendo:IsAvailable() and Player:BuffStack(S.TormentedCrescendoBuff) == 2) or
-      -- malefic_rapture,if=variable.cd_dots_up|variable.vt_up&soul_shard>1
-      (VarCDDoTsUp or VarVTUp and Player:SoulShardsP() > 1) or
+      -- malefic_rapture,if=variable.cd_dots_up|variable.vt_ps_up&soul_shard>1
+      (VarCDDoTsUp or VarVTPSUp and Player:SoulShardsP() > 1) or
       -- malefic_rapture,if=talent.tormented_crescendo&talent.nightfall&buff.tormented_crescendo.react&buff.nightfall.react
       (S.TormentedCrescendo:IsAvailable() and S.Nightfall:IsAvailable() and Player:BuffUp(S.TormentedCrescendoBuff) and Player:BuffUp(S.NightfallBuff))
     ) then
