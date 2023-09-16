@@ -60,6 +60,9 @@ HL:RegisterForCombatEvent(
     if DestGUID == Hunter.Pet.GUID then
       Hunter.Pet.Status = 2
       Hunter.Pet.GUID = 0
+    elseif DestGUID == Player:GUID() and Hunter.Pet.Status ~= 2 then
+      Hunter.Pet.Status = 0
+      Hunter.Pet.GUID = 0
     end
   end
   , "UNIT_DIED"
@@ -79,4 +82,14 @@ HL:RegisterForEvent(
     end
   end
   , "UNIT_SPELLCAST_SUCCEEDED"
+)
+
+HL:RegisterForEvent(
+  function(...)
+    -- CHALLENGE_MODE_START is called at the start of a Mythic+ dungeon, which despawns the pet
+    Hunter.Pet.GUID = 0
+    Hunter.Pet.FeignGUID = 0
+    Hunter.Pet.Status = 0
+  end
+  , "CHALLENGE_MODE_START"
 )
