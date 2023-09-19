@@ -169,6 +169,7 @@ if not Item.Paladin then Item.Paladin = {} end
 Item.Paladin.Commons = {
   -- Trinkets
   AlgetharPuzzleBox                     = Item(193701, {13, 14}),
+  BeaconToTheBeyond                     = Item(203963, {13, 14}),
 }
 
 Item.Paladin.Protection = MergeTableByKey(Item.Paladin.Commons, {

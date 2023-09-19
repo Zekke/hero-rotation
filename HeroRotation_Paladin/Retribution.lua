@@ -45,6 +45,7 @@ local I = Item.Paladin.Retribution
 local OnUseExcludes = {
   I.AlgetharPuzzleBox:ID(),
   I.ShadowedRazingAnnihilator:ID(),
+  I.BeaconToTheBeyond:ID(),
 }
 
 -- Enemies
