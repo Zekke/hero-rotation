@@ -143,9 +143,11 @@ Spell.Paladin.Retribution = MergeTableByKey(Spell.Paladin.Commons, {
   CrusadeBuff                           = Spell(231895),
   DivineArbiterBuff                     = Spell(406975),
   DivineResonanceBuff                   = Spell(384029),
+  EchoesofWrathBuff                     = Spell(423590), -- T31, 4pc
   EmpyreanLegacyBuff                    = Spell(387178),
   EmpyreanPowerBuff                     = Spell(326733),
   -- Debuffs
+  ExpurgationDebuff                     = Spell(383346),
 })
 
 Spell.Paladin.Holy = MergeTableByKey(Spell.Paladin.Commons, {
@@ -179,7 +181,7 @@ Item.Paladin.Protection = MergeTableByKey(Item.Paladin.Commons, {
 
 Item.Paladin.Retribution = MergeTableByKey(Item.Paladin.Commons, {
   -- Other On-Use Items
-  ShadowedRazingAnnihilator             = Item(205046),
+  ShadowedRazingAnnihilator             = Item(205046, {16}),
 })
 
 Item.Paladin.Holy = MergeTableByKey(Item.Paladin.Commons, {
