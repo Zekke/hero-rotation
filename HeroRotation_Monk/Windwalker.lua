@@ -362,7 +362,7 @@ local function Opener()
   end
   -- faeline_stomp,if=debuff.fae_exposure_damage.remains<2&!debuff.skyreach_exhaustion.remains<2&!debuff.skyreach_exhaustion.remains
   if S.FaelineStomp:IsCastable() and (Target:DebuffRemains(S.FaeExposureDebuff) < 2 and Target:DebuffDown(S.SkyreachExhaustionDebuff)) then
-    if Cast(S.FaelineStomp, nil, nil, not Target:IsInMeleeRange(5)) then return "tiger_palm opener 6"; end
+    if Cast(S.FaelineStomp, nil, nil, not Target:IsInMeleeRange(5)) then return "faeline_stomp opener 6"; end
   end
   -- expel_harm,if=talent.chi_burst.enabled&chi=3
   if S.ExpelHarm:IsReady() and (S.ChiBurst:IsAvailable() and Player:Chi() == 3) then
