@@ -182,6 +182,7 @@ function HR.Cast(Object, OffGCD, DisplayStyle, OutofRange, CustomTime)
 
     local OutofRange = OutofRange or false
     HR.MainIconFrame:ChangeIcon(ObjectTexture, Keybind, Usable, OutofRange, Object:ID())
+    HR.PixelFrame:ChangeColor(Object, Usable, OutofRange, Object:ID())
     DisplayCooldown(Object, ShowPooling, CustomTime)
     Object.LastDisplayTime = GetTime()
     return true

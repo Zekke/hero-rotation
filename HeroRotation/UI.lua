@@ -31,6 +31,7 @@
   HR.SuggestedIconFrame = CreateFrame("Frame", "HeroRotation_SuggestedIconFrame", UIParent);
   HR.RightSuggestedIconFrame = CreateFrame("Frame", "HeroRotation_RightSuggestedIconFrame", UIParent);
   HR.ToggleIconFrame = CreateFrame("Frame", "HeroRotation_ToggleIconFrame", UIParent);
+  HR.PixelFrame = CreateFrame("Frame", "pixelFrame", UIParent);
 
 --- ======= MISC =======
   -- Reset Textures
@@ -41,6 +42,7 @@
     if HR.GUISettings.General.BlackBorderIcon then HR.MainIconFrame.Backdrop:Hide(); end
     HR.MainIconPartOverlayFrame:Hide();
     HR.MainIconFrame:HideParts();
+    HR.PixelFrame:Hide();
 
     -- Small Icons
     HR.SmallIconFrame:HideIcons();
@@ -898,4 +900,55 @@
     end
   end
 
+  
+--- ======= External debugger Pixel =======
+  -- Init
+  function HR.PixelFrame:Init ()
+    -- Frame Init
+    self:SetFrameStrata(HR.MainFrame:GetFrameStrata());
+    self:SetFrameLevel(HR.MainFrame:GetFrameLevel() - 1);
+    self:SetWidth(1);
+    self:SetHeight(1);
+    self:SetPoint("TOPLEFT", 0, 0);
+    -- Texture
+    self.Texture = self:CreateTexture();
+    self.Texture:SetAllPoints();
+    -- Display
+    self:Show();
+  end
 
+  function HR.PixelFrame:ChangeColor (Object, Usable, OutofRange, ID)
+    self.ID = ID
+    local SpellName = Object:Name()
+
+    if SpellName == nil or SpellName == "" then
+      SpellName = GetItemInfo(ID)
+    end
+    if SpellName and SpellName ~= "" then
+      local R = SpellName:byte(1)
+      local G = SpellName:byte(math.ceil(#SpellName / 2))
+      local B = SpellName:byte(#SpellName)
+      --HR.Print(SpellName .. " #" .. string.format("%02X%02X%02X", R, G, B))
+      R = R / 255
+      G = G / 255
+      B = B / 255
+      -- Texture
+      self.Texture:SetColorTexture(R,G,B,1)
+      self.background = self.Texture
+      if HR.GUISettings.General.NotEnoughManaEnabled and not Usable then
+        self.Texture:SetVertexColor(0.5, 0.5, 1.0)
+      elseif OutofRange then
+        self.Texture:SetVertexColor(1.0, 0.5, 0.5)
+      else
+        self.Texture:SetVertexColor(1.0, 1.0, 1.0)
+      end
+      self.Texture:SetAllPoints(self);
+
+      -- Alpha
+      self:SetAlpha(HR.GUISettings.General.SetAlpha);
+      -- Display
+      if not self:IsVisible() then
+        self:Show();
+      end
+    end
+  end

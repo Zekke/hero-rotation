@@ -232,6 +232,7 @@
           HR.SuggestedIconFrame:Init();
           HR.RightSuggestedIconFrame:Init();
           HR.ToggleIconFrame:Init();
+          HR.PixelFrame:Init();
           if HeroRotationDB.GUISettings["Scaling.ScaleUI"] then
             HR.MainFrame:ResizeUI(HeroRotationDB.GUISettings["Scaling.ScaleUI"]);
           end
