@@ -907,8 +907,8 @@
     -- Frame Init
     self:SetFrameStrata(HR.MainFrame:GetFrameStrata());
     self:SetFrameLevel(HR.MainFrame:GetFrameLevel() - 1);
-    self:SetWidth(1);
-    self:SetHeight(1);
+    self:SetWidth(10);
+    self:SetHeight(10);
     self:SetPoint("TOPLEFT", 0, 0);
     -- Texture
     self.Texture = self:CreateTexture();
@@ -945,7 +945,7 @@
       self.Texture:SetAllPoints(self);
 
       -- Alpha
-      self:SetAlpha(HR.GUISettings.General.SetAlpha);
+      self:SetAlpha(1);
       -- Display
       if not self:IsVisible() then
         self:Show();
