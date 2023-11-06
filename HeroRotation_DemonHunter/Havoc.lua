@@ -208,7 +208,7 @@ local function Cooldown()
       if Cast(I.AlgetharPuzzleBox, nil, Settings.Commons.DisplayStyle.Trinkets) then return "algethar_puzzle_box cooldown 12"; end
     end
     -- use_item,name=irideus_fragment,use_off_gcd=1,if=cooldown.metamorphosis.remains<=gcd.max&time>2|fight_remains%%180>10&fight_remains%%180<22|fight_remains<22
-    if I.IrideusFragment:IsEquippedAndReady() and (S.Metamorphosis:CooldownRemains() <= GCDMax and CombatTime > 2 and FightRemains % 180 > 10 and FightRemains % 180 < 22 or FightRemains < 22) then
+    if I.IrideusFragment:IsEquippedAndReady() and (S.Metamorphosis:CooldownRemains() <= GCDMax and CombatTime > 2 or FightRemains % 180 > 10 and FightRemains % 180 < 22 or FightRemains < 22) then
       if Cast(I.IrideusFragment, nil, Settings.Commons.DisplayStyle.Trinkets) then return "irideus_fragment cooldown 14"; end
     end
     -- use_item,name=stormeaters_boon,use_off_gcd=1,if=cooldown.metamorphosis.remains&(!talent.momentum|buff.momentum.remains>5)&(active_enemies>1|raid_event.adds.in>140)
@@ -224,7 +224,7 @@ local function Cooldown()
       -- Note: Keeping the two below variables in case a later APL change wants DBDCharges
       -- local DBDSpell = I.DragonfireBombDispenser:OnUseSpell()
       -- local DBDCharges = DBDSpell and DBDSpell:Charges() or 0
-      if (Target:TimeToDie() < 30 or I.BeacontotheBeyond:IsEquipped() or I.IrideusFragment:IsEquipped()) and (trinket1:CooldownRemains() > 10 or trinket2:CooldownRemains() > 10 or trinket1:Cooldown() == 0 or trinket2:Cooldown() == 0 or I.ElementiumPocketAnvil:IsEquipped() or I.ScreamingBlackDragonscale:IsEquipped() or I.MarkofDargrul:IsEquipped()) or (trinket1:Cooldown() > 0 and trinket2:Cooldown() > 0) and (trinket1:CooldownDown() or trinket2:CooldownDown()) and not I.ElementiumPocketAnvil:IsEquipped() and CombatTime < 25 then
+      if (Target:TimeToDie() < 30 or S.VengefulRetreat:CooldownRemains() < 5 or I.BeacontotheBeyond:IsEquipped() or I.IrideusFragment:IsEquipped()) and (trinket1:CooldownRemains() > 10 or trinket2:CooldownRemains() > 10 or trinket1:Cooldown() == 0 or trinket2:Cooldown() == 0 or I.ElementiumPocketAnvil:IsEquipped() or I.ScreamingBlackDragonscale:IsEquipped() or I.MarkofDargrul:IsEquipped()) or (trinket1:Cooldown() > 0 or trinket2:Cooldown() > 0) and (trinket1:CooldownDown() or trinket2:CooldownDown()) and not I.ElementiumPocketAnvil:IsEquipped() and CombatTime < 25 then
         if Cast(I.DragonfireBombDispenser, nil, Settings.Commons.DisplayStyle.Trinkets, not Target:IsInRange(46)) then return "dragonfire_bomb_dispenser cooldown 20"; end
       end
     end
