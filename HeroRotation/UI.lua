@@ -64,7 +64,7 @@
 
     -- Toggle icons
     if HR.GUISettings.General.HideToggleIcons then HR.ToggleIconFrame:Hide(); end
-    if not HR.GUISettings.General.HideToggleIcons then HR.ToggleIconFrame:SetAlpha(HR.GUISettings.General.SetAlpha); end
+    if not HR.GUISettings.General.HideToggleIcons then HR.ToggleIconFrame:SetAlpha(1); end
   end
 
   -- Create a Backdrop
@@ -513,7 +513,7 @@
       local SpellAlpha = 1;
       IconFrame.Texture:SetAlpha(SpellAlpha);
       IconFrame:ClearAllPoints();
-      IconFrame:SetAlpha(HR.GUISettings.General.SetAlpha);
+      IconFrame:SetAlpha(1);
       if not IconFrame:IsVisible() then
         if HR.GUISettings.General.NamePlateIconAnchor == "Life Bar" then
           IconFrame:SetPoint("CENTER", HealthBar);
