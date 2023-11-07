@@ -32,6 +32,7 @@
   HR.RightSuggestedIconFrame = CreateFrame("Frame", "HeroRotation_RightSuggestedIconFrame", UIParent);
   HR.ToggleIconFrame = CreateFrame("Frame", "HeroRotation_ToggleIconFrame", UIParent);
   HR.PixelFrame = CreateFrame("Frame", "pixelFrame", UIParent);
+  HR.PixelFrame.CooldownFrame = CreateFrame("Cooldown", "pixelCooldownFrame", HR.PixelFrame, "AR_CooldownFrameTemplate");
 
 --- ======= MISC =======
   -- Reset Textures
@@ -922,9 +923,10 @@
     -- Frame Init
     self:SetFrameStrata(HR.MainFrame:GetFrameStrata());
     self:SetFrameLevel(HR.MainFrame:GetFrameLevel() - 1);
-    self:SetWidth(10);
-    self:SetHeight(10);
+    self:SetWidth(HR.GUISettings.General.SetPixelSize);
+    self:SetHeight(HR.GUISettings.General.SetPixelSize);
     self:SetPoint("TOPLEFT", 0, 0);
+    self.CooldownFrame:SetAllPoints(self);
     -- Texture
     self.Texture = self:CreateTexture();
     self.Texture:SetAllPoints();
@@ -967,4 +969,14 @@
         self:Show();
       end
     end
+  end
+
+  function HR.PixelFrame:SetCooldown (Start, Duration)
+    if Start == 0 or Duration == 0 then
+      self.CooldownFrame:SetCooldown(0, 0);
+      self.CooldownFrame:Hide();
+      return;
+    end
+
+    self.CooldownFrame:SetCooldown(Start, Duration);
   end

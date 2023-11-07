@@ -284,6 +284,7 @@
           local CP_General = GUI.GetPanelByName("HeroRotation_PanelFrame_ChildPanel_General")
           if CP_General then
             CreatePanelOption("Slider", CP_General, "General.SetAlpha", {0, 1, 0.05}, "Addon Alpha", "Change the addon's alpha setting.");
+            CreatePanelOption("Slider", CP_General, "General.SetPixelSize", {1, 20, 1}, "Pixel Size", "Change the custom pixel size.");
             CreatePanelOption("Button", CP_General, "ButtonMove", "Lock/Unlock", "Enable the moving of the frames.", function() HR.MainFrame:ToggleLock(); end);
             CreatePanelOption("Button", CP_General, "ButtonReset", "Reset Buttons", "Resets the anchor of buttons.", function() HR.ToggleIconFrame:ResetAnchor(); end);
           end

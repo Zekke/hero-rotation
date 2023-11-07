@@ -136,7 +136,7 @@ local function DisplayCooldown(Object, DisplayPoolingSwirl, CustomTime)
     CastDuration = 0
     CooldownSpell = nil
   end
-
+  HR.PixelFrame:SetCooldown(StartTime, CastDuration)
   HR.MainIconFrame:SetCooldown(StartTime, CastDuration)
 end
 
