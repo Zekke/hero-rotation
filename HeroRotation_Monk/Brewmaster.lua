@@ -248,7 +248,7 @@ local function RotationPTA()
     if Cast(S.RushingJadeWind, nil, nil, not Target:IsInMeleeRange(8)) then return "rushing_jade_wind rotation_pta 28"; end
   end
   -- spinning_crane_kick,if=active_enemies>2
-  -- spinning_crane_kick,if=(1.1>(time-action.melee_main_hand.last_used)*(1+spell_haste))-main_hand.2h
+  -- spinning_crane_kick,if=(1.1>(time-action.melee_main_hand.last_used)*(1+spell_haste)-main_hand.2h)
   -- Note: Combining both lines.
   if S.SpinningCraneKick:IsReady() and (
     (EnemiesCount8 > 2) or
@@ -459,7 +459,7 @@ local function APL()
 end
 
 local function Init()
-  HR.Print("Brewmaster Monk rotation is currently a work in progress, but has been updated for patch 10.2.0.")
+  HR.Print("Brewmaster Monk rotation has been updated for patch 10.2.0.")
 end
 
 HR.SetAPL(268, APL, Init)
