@@ -150,12 +150,8 @@ end
 -- Improved Garrote Remains Check
 local function ImprovedGarroteRemains ()
   -- Currently stealthed (i.e. Aura)
-  if Player:BuffUp(S.ImprovedGarroteAura) or Player:BuffUp(S.SepsisBuff) then
+  if Player:BuffUp(S.ImprovedGarroteAura) then
     return Player:GCDRemains() + 3
-  end
-  -- Sepsis Buff
-  if Player:BuffUp(S.SepsisBuff) and Player:BuffRemains(S.SepsisBuff) > Player:BuffRemains(S.ImprovedGarroteBuff) then
-    return Player:BuffRemains(S.SepsisBuff)
   end
   -- Broke stealth recently (i.e. Buff)
   return Player:BuffRemains(S.ImprovedGarroteBuff)
@@ -224,15 +220,6 @@ end
 
 -- actions+=/variable,name=sepsis_sync_remains,op=setif,condition=cooldown.deathmark.remains>cooldown.sepsis.remains&cooldown.deathmark.remains<fight_remains,value=cooldown.deathmark.remains,value_else=cooldown.sepsis.remains
 local function SepsisSyncRemainsVar()
-  if S.Deathmark:CooldownRemains() > S.Sepsis:CooldownRemains()
-    and (HL.BossFightRemainsIsNotValid() or HL.BossFilteredFightRemains(">", S.Deathmark:CooldownRemains())) then
-    return S.Deathmark:CooldownRemains()
-  end
-  return S.Sepsis:CooldownRemains()
-end
-
--- actions+=/variable,name=sepsis_sync_remains,op=setif,condition=cooldown.deathmark.remains>cooldown.sepsis.remains&cooldown.deathmark.remains<fight_remains,value=cooldown.deathmark.remains,value_else=cooldown.sepsis.remains
-local function SepSyncRemains()
   if S.Deathmark:CooldownRemains() > S.Sepsis:CooldownRemains()
     and (HL.BossFightRemainsIsNotValid() or HL.BossFilteredFightRemains(">", S.Deathmark:CooldownRemains())) then
     return S.Deathmark:CooldownRemains()
@@ -452,7 +439,6 @@ local function CDs ()
     -- actions.cds+=/use_item,name=algethar_puzzle_box,use_off_gcd=1,if=dot.rupture.ticking&cooldown.deathmark.remains<2|fight_remains<=22
     -- actions.cds+=/use_items,slots=trinket1,if=(variable.trinket_sync_slot=1&(debuff.deathmark.up|fight_remains<=20)|(variable.trinket_sync_slot=2&(!trinket.2.cooldown.ready|!debuff.deathmark.up&cooldown.deathmark.remains>20))|!variable.trinket_sync_slot)
     -- actions.cds+=/use_items,slots=trinket2,if=(variable.trinket_sync_slot=2&(debuff.deathmark.up|fight_remains<=20)|(variable.trinket_sync_slot=1&(!trinket.1.cooldown.ready|!debuff.deathmark.up&cooldown.deathmark.remains>20))|!variable.trinket_sync_slot)
-    -- Trinkets
     if Settings.Commons.UseTrinkets then
       if I.AshesoftheEmbersoul:IsEquippedAndReady() and (Target:DebuffUp(S.Kingsbane) and Target:DebuffRemains(S.Kingsbane) <= 11 or HL.BossFilteredFightRemains("<", 22)) then
         if HR.Cast(I.AshesoftheEmbersoul, nil, Settings.Commons.TrinketDisplayStyle) then return "Ashes of the 1Embersoul"; end
@@ -463,12 +449,14 @@ local function CDs ()
       if I.AlgetharPuzzleBox:IsEquippedAndReady() and (Target:DebuffUp(S.Rupture) and S.Deathmark:CooldownRemains() <= 2 or HL.BossFilteredFightRemains("<", 22)) then
         if HR.Cast(I.AlgetharPuzzleBox, nil, Settings.Commons.TrinketDisplayStyle) then return "Algethar Puzzle Box"; end
       end
-      if I.BeaconToTheBeyond:IsEquippedAndReady() then
-        if HR.Cast(I.BeaconToTheBeyond, nil, Settings.Commons.BeaconTrinketDisplayStyle) then return "Beacon To The Beyond"; end
-      elseif TrinketToUse then
-        if HR.Cast(TrinketToUse, nil, Settings.Commons.TrinketDisplayStyle) then
-          return "Generic use_items for " .. TrinketToUse:Name()
-        end
+      if TrinketItem1:IsReady() and not Player:IsItemBlacklisted(TrinketItem1) and not ValueIsInArray(OnUseExcludeTrinkets, TrinketItem1:ID())
+        and (TrinketSyncSlot == 1 and (S.Deathmark:AnyDebuffUp() or HL.BossFilteredFightRemains("<", 20))
+          or (TrinketSyncSlot == 2 and (not TrinketItem2:IsReady() or not S.Deathmark:AnyDebuffUp() and S.Deathmark:CooldownRemains() > 20)) or TrinketSyncSlot == 0) then
+        if Cast(TrinketItem1, nil, Settings.Commons.TrinketDisplayStyle) then return "Trinket 1"; end
+      elseif TrinketItem2:IsReady() and not Player:IsItemBlacklisted(TrinketItem2) and not ValueIsInArray(OnUseExcludeTrinkets, TrinketItem2:ID())
+        and (TrinketSyncSlot == 2 and (S.Deathmark:AnyDebuffUp() or HL.BossFilteredFightRemains("<", 20))
+          or (TrinketSyncSlot == 1 and (not TrinketItem1:IsReady() or not S.Deathmark:AnyDebuffUp() and S.Deathmark:CooldownRemains() > 20)) or TrinketSyncSlot == 0) then
+        if Cast(TrinketItem2, nil, Settings.Commons.TrinketDisplayStyle) then return "Trinket 2"; end
       end
     end
 
@@ -546,7 +534,7 @@ local function CDs ()
   end
 
   -- actions.cds+=/call_action_list,name=vanish,if=!stealthed.all&master_assassin_remains=0
-  if not Player:StealthUp(true, true) and ImprovedGarroteRemains() <= 0 and MasterAssassinRemains() <= 0 and not Player:BuffUp(S.SepsisBuff) then
+  if not Player:StealthUp(true, true) and ImprovedGarroteRemains() <= 0 and MasterAssassinRemains() <= 0 then
     if ShouldReturn then
       Vanish()
     else
@@ -1068,4 +1056,3 @@ HR.SetAPL(259, APL, Init)
 -- actions.vanish+=/vanish,if=talent.master_assassin&talent.kingsbane&dot.kingsbane.remains<=3&dot.kingsbane.ticking&debuff.deathmark.remains<=3&dot.deathmark.ticking
 -- # Vanish fallback for Master Assassin
 -- actions.vanish+=/vanish,if=!talent.improved_garrote&talent.master_assassin&!dot.rupture.refreshable&dot.garrote.remains>3&debuff.deathmark.up&(debuff.shiv.up|debuff.deathmark.remains<4|dot.sepsis.ticking)&dot.sepsis.remains<3
-
