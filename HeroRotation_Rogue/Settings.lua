@@ -25,7 +25,7 @@ HR.GUISettings.APL.Rogue = {
     UseTrinkets = true,
     UseItems = true,
     TrinketDisplayStyle = "Suggested",
-    ShowPooling = false,
+    ShowPooling = true,
 
     GCDasOffGCD = {
       EchoingReprimand = true,
