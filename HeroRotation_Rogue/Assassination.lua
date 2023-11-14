@@ -66,7 +66,7 @@ local BleedTickTime, ExsanguinatedBleedTickTime = 2 * Player:SpellHaste(), 1 * P
 local ComboPoints, ComboPointsDeficit
 local RuptureThreshold, CrimsonTempestThreshold, RuptureDMGThreshold, GarroteDMGThreshold, RuptureDurationThreshold, RuptureTickTime, GarroteTickTime
 local PriorityRotation
-local NotPooling, SepsisSyncRemains, PoisonedBleeds, EnergyRegenCombined, EnergyTimeToMaxCombined, EnergyRegenSaturated, SingleTarget
+local NotPooling, SepsisSyncRemains, PoisonedBleeds, EnergyRegenCombined, EnergyTimeToMaxCombined, EnergyRegenSaturated, SingleTarget, ScentSaturated
 local TrinketSyncSlot = 0
 
 -- Covenant and Legendaries
@@ -167,28 +167,6 @@ local function IndiscriminateCarnageRemains ()
   return Player:BuffRemains(S.IndiscriminateCarnageBuff)
 end
 
-local function ComputeRupturePMultiplier ()
-  local multiplier = 1
-  if S.Nightstalker:IsAvailable() and Player:StealthUp(true, false) then
-    multiplier = multiplier * (1 + (0.05 * S.Nightstalker:TalentRank()))
-  end
-  return multiplier
-end
-S.Rupture:RegisterPMultiplier(ComputeRupturePMultiplier)
-
-local function ComputeImprovedGarrotePMultiplier ()
-  local multiplier = 1
-  if S.ImprovedGarrote:IsAvailable() and (Player:BuffUp(S.ImprovedGarroteAura, nil, true)
-    or Player:BuffUp(S.ImprovedGarroteBuff, nil, true) or Player:BuffUp(S.SepsisBuff, nil, true)) then
-    multiplier = multiplier * 1.5
-  end
-  if S.Nightstalker:IsAvailable() and Player:StealthUp(true, false) then
-    multiplier = multiplier * (1 + (0.05 * S.Nightstalker:TalentRank()))
-  end
-  return multiplier
-end
-S.Garrote:RegisterPMultiplier(ComputeImprovedGarrotePMultiplier)
-
 --- ======= HELPERS =======
 -- Check if the Priority Rotation variable should be set
 local function UsePriorityRotation()
@@ -225,6 +203,15 @@ local function SepsisSyncRemainsVar()
     return S.Deathmark:CooldownRemains()
   end
   return S.Sepsis:CooldownRemains()
+end
+
+-- actions.dot=variable,name=scent_effective_max_stacks,value=(spell_targets.fan_of_knives*talent.scent_of_blood.rank*2)>?20
+-- actions.dot+=/variable,name=scent_saturation,value=buff.scent_of_blood.stack>=variable.scent_effective_max_stacks
+local function ScentSaturatedVar()
+  if not S.ScentOfBlood:IsAvailable() then
+    return true
+  end
+  return Player:BuffStack(S.ScentOfBloodBuff) >= mathmin(20, S.ScentOfBlood:TalentRank() * 2 * MeleeEnemies10yCount)
 end
 
 -- Custom Override for Handling 4pc Pandemics
@@ -608,15 +595,12 @@ end
 
 -- # Damage over time abilities
 local function Dot ()
-  -- actions.dot=variable,name=scent_effective_max_stacks,value=(spell_targets.fan_of_knives*talent.scent_of_blood.rank*2)>?20
-  -- actions.dot+=/variable,name=scent_saturation,value=buff.scent_of_blood.stack>=variable.scent_effective_max_stacks
-  local ScentSaturated = S.ScentOfBlood:IsAvailable() and (Player:BuffStack(S.ScentOfBloodBuff) >= mathmin(20, S.ScentOfBlood:TalentRank() * 2 * MeleeEnemies10yCount)) or false
-
   -- actions.dot+=/crimson_tempest,target_if=min:remains,if=spell_targets>=2&refreshable&effective_combo_points>=4&energy.regen_combined>25&!cooldown.deathmark.ready&target.time_to_die-remains>6
   if HR.AoEON() and S.CrimsonTempest:IsReady() and MeleeEnemies10yCount >= 2 and ComboPoints >= 4
     and EnergyRegenCombined > 25 and not S.Deathmark:IsReady() then
     for _, CycleUnit in pairs(MeleeEnemies10y) do
-      if Target:FilteredTimeToDie(">", 6, -Target:DebuffRemains(S.CrimsonTempest)) then
+      if IsDebuffRefreshable(CycleUnit, S.CrimsonTempest, CrimsonTempestThreshold) and 
+        CycleUnit:FilteredTimeToDie(">", 6, -CycleUnit:DebuffRemains(S.CrimsonTempest)) then
         if Cast(S.CrimsonTempest) then return "Cast Crimson Tempest (AoE High Energy)" end
       end
     end
@@ -646,7 +630,7 @@ local function Dot ()
         and (TargetUnit:FilteredTimeToDie(">", RuptureDurationThreshold, -TargetUnit:DebuffRemains(S.Rupture)) or TargetUnit:TimeToDieIsNotValid())
     end
     if Evaluate_Rupture_Target(Target) and Rogue.CanDoTUnit(Target, RuptureDMGThreshold) then
-      if Cast(S.Rupture, nil, nil, not TargetInMeleeRange) then return "Cast Rupture (Refresh)" end
+      if Cast(S.Rupture, nil, nil, not TargetInMeleeRange) then return "Cast Rupture" end
     end
     if HR.AoEON() and (not EnergyRegenSaturated or not ScentSaturated) then
       SuggestCycleDoT(S.Rupture, Evaluate_Rupture_Target, RuptureDurationThreshold, MeleeEnemies5y)
@@ -781,7 +765,7 @@ local function APL ()
   ComboPoints = Rogue.EffectiveComboPoints(Player:ComboPoints())
   ComboPointsDeficit = Player:ComboPointsMax() - ComboPoints
   RuptureThreshold = (4 + ComboPoints * 4) * 0.3
-  CrimsonTempestThreshold = (2 + ComboPoints * 2) * 0.3
+  CrimsonTempestThreshold = (4 + ComboPoints * 2) * 0.3
   RuptureDMGThreshold = S.Envenom:Damage() * Settings.Assassination.EnvenomDMGOffset; -- Used to check if Rupture is worth to be casted since it's a finisher.
   GarroteDMGThreshold = S.Mutilate:Damage() * Settings.Assassination.MutilateDMGOffset; -- Used as TTD Not Valid fallback since it's a generator.
   PriorityRotation = UsePriorityRotation()
@@ -829,6 +813,7 @@ local function APL ()
     EnergyRegenSaturated = EnergyRegenCombined > 35
     NotPooling = NotPoolingVar()
     SepsisSyncRemains = SepsisSyncRemainsVar()
+    ScentSaturated = ScentSaturatedVar()
     -- actions+=/variable,name=single_target,value=spell_targets.fan_of_knives<2
     SingleTarget = MeleeEnemies10yCount < 2
 
