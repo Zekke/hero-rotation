@@ -415,9 +415,9 @@ local function UsableItems ()
     return
   end
 
-  if not Player:StealthUp(true, false) then
-    return
-  end
+  -- if not Player:StealthUp(true, false) then
+  --  return
+  -- end
 
   -- actions.items+=/use_item,name=ashes_of_the_embersoul,use_off_gcd=1,if=(dot.kingsbane.ticking&dot.kingsbane.remains<=11)|fight_remains<=22
   -- actions.items+=/use_item,name=witherbarks_branch,use_off_gcd=1,if=(dot.deathmark.ticking)|fight_remains<=22

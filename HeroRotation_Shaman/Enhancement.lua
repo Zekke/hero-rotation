@@ -604,7 +604,7 @@ local function APL()
     -- wind_shear
     local ShouldReturn = Everyone.Interrupt(30, S.WindShear, Settings.Commons.OffGCDasOffGCD.WindShear, false); if ShouldReturn then return ShouldReturn; end
     -- auto_attack
-    if Settings.Commons.Enabled.Trinkets then
+    if Settings.Commons.Enabled.Trinkets and CDsON() then
       -- use_item,name=elementium_pocket_anvil,use_off_gcd=1
       if I.ElementiumPocketAnvil:IsEquippedAndReady() then
         if Cast(I.ElementiumPocketAnvil, nil, Settings.Commons.DisplayStyle.Trinkets, not Target:IsInRange(8)) then return "elementium_pocket_anvil main 6"; end
@@ -665,7 +665,7 @@ local function APL()
       if Cast(S.Windstrike, nil, nil, not Target:IsSpellInRange(S.Windstrike)) then return "windstrike main 22"; end
     end
     -- primordial_wave,if=set_bonus.tier31_2pc&(raid_event.adds.in>(action.primordial_wave.cooldown%(1+set_bonus.tier31_4pc))|raid_event.adds.in<6)
-    if S.PrimordialWave:IsReady() and (Player:HasTier(31, 2)) then
+    if S.PrimordialWave:IsReady() and CDsON() and (Player:HasTier(31, 2)) then
       if Cast(S.PrimordialWave, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsSpellInRange(S.PrimordialWave)) then return "primordial_wave main 24"; end
     end
     -- feral_spirit
