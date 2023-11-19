@@ -115,7 +115,7 @@ local function Precombat()
   end
   -- Manually added opener
   if S.KegSmash:IsCastable() then 
-    if Cast(S.KegSmash, nil, nil, not Target:IsInRange(40)) then return "keg_smash precombat 6"; end
+    if Cast(S.KegSmash, nil, nil, not Target:IsSpellInRange(S.KegSmash)) then return "keg_smash precombat 6"; end
   end
 end
 
@@ -392,7 +392,7 @@ end
 --- ======= ACTION LISTS =======
 local function APL()
   -- Unit Update
-  Enemies5y = Player:GetEnemiesInMeleeRange(5, S.TigerPalm) -- Multiple Abilities
+  Enemies5y = Player:GetEnemiesInMeleeRange(5) -- Multiple Abilities
   --Enemies8y = Player:GetEnemiesInMeleeRange(8) -- Multiple Abilities
   EnemiesCount5 = #Enemies5y -- AOE Toogle
   

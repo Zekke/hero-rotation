@@ -667,7 +667,7 @@ local function Cooldown()
   -- use_item,name=mydas_talisman,if=!equipped.ashes_of_the_embersoul&!equipped.witherbarks_branch|((trinket.2.is.witherbarks_branch|trinket.2.is.ashes_of_the_embersoul)&trinket.2.cooldown.remains>20)|((trinket.1.is.witherbarks_branch|trinket.1.is.ashes_of_the_embersoul)&trinket.1.cooldown.remains>20)
   -- use_item,name=bandolier_of_twisted_blades,if=!equipped.ashes_of_the_embersoul&!equipped.witherbarks_branch|((trinket.2.is.witherbarks_branch|trinket.2.is.ashes_of_the_embersoul)&trinket.2.cooldown.remains>20)|((trinket.1.is.witherbarks_branch|trinket.1.is.ashes_of_the_embersoul)&trinket.1.cooldown.remains>20)
   -- use_item,name=fyrakks_tainted_rageheart,if=!equipped.ashes_of_the_embersoul&!equipped.witherbarks_branch|((trinket.2.is.witherbarks_branch|trinket.2.is.ashes_of_the_embersoul)&trinket.2.cooldown.remains>20)|((trinket.1.is.witherbarks_branch|trinket.1.is.ashes_of_the_embersoul)&trinket.1.cooldown.remains>20)
-  if (not I.AshesoftheEmbersoul:IsEquipped() and not I.WitherbarksBranch:IsEquipped() or ((trinket2:ID() == I.WitherbarksBranch:ID() or trinket2:ID() == I.AshesoftheEmbersoul:ID()) and trinket2:CooldownRemains() > 20) or ((trinket1:ID() == WitherbarksBranch:ID() or trinket1:ID() == I.AshesoftheEmbersoul:ID()) and trinket1:CooldownRemains() > 20)) then
+  if (not I.AshesoftheEmbersoul:IsEquipped() and not I.WitherbarksBranch:IsEquipped() or ((trinket2:ID() == I.WitherbarksBranch:ID() or trinket2:ID() == I.AshesoftheEmbersoul:ID()) and trinket2:CooldownRemains() > 20) or ((trinket1:ID() == I.WitherbarksBranch:ID() or trinket1:ID() == I.AshesoftheEmbersoul:ID()) and trinket1:CooldownRemains() > 20)) then
     if I.MydasTalisman:IsEquippedAndReady() then
       if Cast(I.MydasTalisman, nil, Settings.Commons.DisplayStyle.Trinkets) then return "mydas_talisman cooldown 30"; end
     end
@@ -701,9 +701,8 @@ end
 local function APL()
   -- Update Enemies
   if AoEON() then
-    EnemiesMelee = Player:GetEnemiesInMeleeRange(8, S.Shred)
-    local RangeSpell = (S.BrutalSlash:IsAvailable()) and S.BrutalSlash or S.Swipe
-    Enemies11y = Player:GetEnemiesInMeleeRange(11, RangeSpell)
+    EnemiesMelee = Player:GetEnemiesInMeleeRange(5)
+    Enemies11y = Player:GetEnemiesInMeleeRange(13)
     EnemiesCountMelee = #EnemiesMelee
     EnemiesCount11y = #Enemies11y
   else
@@ -713,21 +712,6 @@ local function APL()
     EnemiesCount11y = 1
   end
 
-  -- Combo Points
-  ComboPoints = Player:ComboPoints()
-  ComboPointsDeficit = Player:ComboPointsDeficit()
-
-  -- PvP
-  -- if S.FerociousWound:IsAvailable() then
-    -- HR.Print("Ferocious Wound")
-  -- end
-
-  -- Defensives
-  -- Regrowth
-  if S.Regrowth:IsCastable() and Player:BuffUp(S.PredatorySwiftnessBuff) and Player:HealthPercentage() <= Settings.Feral.FeralRegrowthHP then
-    if Cast(S.Regrowth, Settings.Feral.GCDasOffGCD.Regrowth) then return "Cast Regrowth (Defensives)" end
-  end
-
   if Everyone.TargetIsValid() or Player:AffectingCombat() then
     -- Calculate fight_remains
     BossFightRemains = HL.BossFightRemains()
@@ -735,6 +719,10 @@ local function APL()
     if FightRemains == 11111 then
       FightRemains = HL.FightRemains(Enemies11y, false)
     end
+
+    -- Combo Points
+    ComboPoints = Player:ComboPoints()
+    ComboPointsDeficit = Player:ComboPointsDeficit()
   end
 
   -- cat_form OOC, if setting is true
