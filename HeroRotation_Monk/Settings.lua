@@ -86,6 +86,7 @@ HR.GUISettings.APL.Monk = {
       StormEarthAndFireFixate = false,
       TouchOfDeath            = true,
       TouchOfKarma            = true,
+      SummonWhiteTigerStatue  = true,
     },
     -- {Display OffGCD as OffGCD, ForceReturn}
     OffGCDasOffGCD = {
