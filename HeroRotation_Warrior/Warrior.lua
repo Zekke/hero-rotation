@@ -66,6 +66,7 @@ Spell.Warrior.Commons = {
   -- Buffs
   AvatarBuff                            = Spell(107574),
   BattleShoutBuff                       = Spell(6673),
+  ElysianMightBuff                      = Spell(386286),
   WarMachineBuff                        = Spell(262232),
   -- Pool
   Pool                                  = Spell(999910),
@@ -113,6 +114,8 @@ Spell.Warrior.Fury = MergeTableByKey(Spell.Warrior.Commons, {
   MercilessAssaultBuff                  = Spell(409983),
   RecklessnessBuff                      = Spell(1719),
   SuddenDeathBuff                       = Spell(280776),
+  -- Debuffs
+  GushingWoundDebuff                    = Spell(385042),
 })
 
 Spell.Warrior.Arms = MergeTableByKey(Spell.Warrior.Commons, {
@@ -134,12 +137,14 @@ Spell.Warrior.Arms = MergeTableByKey(Spell.Warrior.Commons, {
   Hurricane                             = Spell(390563),
   IgnorePain                            = Spell(190456),
   ImprovedSlam                          = Spell(400205),
+  ImprovedSweepingStrikes               = Spell(383155),
   Juggernaut                            = Spell(383292),
   Massacre                              = Spell(281001),
   MercilessBonegrinder                  = Spell(383317),
   MortalStrike                          = Spell(12294),
   Overpower                             = Spell(7384),
   Rend                                  = Spell(772),
+  SharpenedBlades                       = Spell(383341),
   Skullsplitter                         = Spell(260643),
   StormofSwords                         = Spell(385512),
   SuddenDeath                           = Spell(29725),
