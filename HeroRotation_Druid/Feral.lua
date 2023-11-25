@@ -457,10 +457,6 @@ local function Builder()
 end
 
 local function AoeBuilder()
-  -- TEST Shred for dire fixation
-  if S.Shred:IsReady() and S.DireFixation:IsAvailable() and Target:DebuffDown(S.DireFixationDebuff) then
-    if Cast(S.Shred, nil, nil, not Target:IsInMeleeRange(8)) then return "shred aoe_builder DiFi"; end
-  end
   -- brutal_slash,target_if=min:target.time_to_die,if=cooldown.brutal_slash.full_recharge_time<4|target.time_to_die<5
   if S.BrutalSlash:IsReady() then
     if Everyone.CastTargetIf(S.BrutalSlash, Enemies11y, "min", EvaluateTargetIfFilterTTD, EvaluateTargetIfBrutalSlashAoeBuilder, not IsInAoERange) then return "brutal_slash aoe_builder 2"; end
@@ -531,19 +527,19 @@ local function Finisher()
     if not S.TigersFury:IsReady() and Player:BuffDown(S.ApexPredatorsCravingBuff) then
       if CastPooling(S.FerociousBite, Player:EnergyTimeToX(50)) then return "ferocious_bite finisher 6"; end
     elseif Player:Energy() >= 50 then
-      if Everyone.CastTargetIf(S.FerociousBite, EnemiesMelee, "max", EvaluateTargetIfFilterTTD, nil, not IsInMeleeRange) then return "ferocious_bite finisher 8"; end
+      if Cast(S.FerociousBite, nil, nil, not IsInMeleeRange) then return "ferocious_bite finisher 8"; end
     end
   end
   -- ferocious_bite,target_if=max:target.time_to_die,if=(buff.bs_inc.up&talent.soul_of_the_forest.enabled)|buff.apex_predators_craving.up
   if S.FerociousBite:IsReady() and ((Player:BuffUp(BsInc) and S.SouloftheForest:IsAvailable()) or Player:BuffUp(S.ApexPredatorsCravingBuff)) then
-    if Everyone.CastTargetIf(S.FerociousBite, EnemiesMelee, "max", EvaluateTargetIfFilterTTD, nil, not IsInMeleeRange) then return "ferocious_bite finisher 10"; end
+    if Cast(S.FerociousBite, nil, nil, not IsInMeleeRange) then return "ferocious_bite finisher 10"; end
   end
 end
 
 local function Berserk()
   -- ferocious_bite,target_if=max:target.time_to_die,if=combo_points=5&dot.rip.remains>8&variable.zerk_biteweave&spell_targets.swipe_cat>1
   if S.FerociousBite:IsReady() and (ComboPoints == 5 and VarZerkBiteweave and EnemiesCount11y > 1) then
-    if Everyone.CastTargetIf(S.FerociousBite, EnemiesMelee, "max", EvaluateTargetIfFilterTTD, EvaluateTargetIfFerociousBiteBerserk, not IsInMeleeRange) then return "ferocious_bite berserk 2"; end
+    if Cast(S.FerociousBite, nil, nil, not IsInMeleeRange) then return "ferocious_bite berserk 2"; end
   end
   -- call_action_list,name=finisher,if=combo_points=5&!(buff.overflowing_power.stack<=1&active_bt_triggers=2&buff.bloodtalons.stack<=1&set_bonus.tier30_4pc)
   if ComboPoints == 5 and not (Player:BuffStack(S.OverflowingPowerBuff) <= 1 and CountActiveBtTriggers() == 2 and Player:BuffStack(S.BloodtalonsBuff) <= 1 and Player:HasTier(30, 4)) then
