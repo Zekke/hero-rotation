@@ -51,6 +51,7 @@ Spell.Shaman.Commons = {
   SpiritwalkersGrace                    = Spell(79206),
   TotemicRecall                         = Spell(108285),
   WindShear                             = Spell(57994),
+  WindRushTotem                         = Spell(192077),
   -- Buffs
   LightningShieldBuff                   = Spell(192106),
   PrimordialWaveBuff                    = Spell(375986),

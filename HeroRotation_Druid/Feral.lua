@@ -762,6 +762,9 @@ local function APL()
     if S.NaturesVigil:IsCastable() then
       if Cast(S.NaturesVigil, Settings.Feral.OffGCDasOffGCD.NaturesVigil) then return "natures_vigil main 10"; end
     end
+    if S.Regrowth:IsReady() and Player:BuffUp(S.PredatorySwiftnessBuff) and Player:HealthPercentage() <= Settings.Feral.FeralRegrowthHP then
+      if Cast(S.Regrowth, Settings.Feral.GCDasOffGCD.Regrowth) then return "regrowth (defensive)"; end
+    end
     -- renewal,if=variable.regrowth
     if S.Renewal:IsCastable() and (VarRegrowth) then
       if Cast(S.Renewal, Settings.Feral.GCDasOffGCD.Renewal) then return "renewal main 12"; end

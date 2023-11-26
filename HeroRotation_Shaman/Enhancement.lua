@@ -604,6 +604,9 @@ local function APL()
     -- wind_shear
     local ShouldReturn = Everyone.Interrupt(30, S.WindShear, Settings.Commons.OffGCDasOffGCD.WindShear, false); if ShouldReturn then return ShouldReturn; end
     -- auto_attack
+    if S.TotemicRecall:IsAvailable() and (S.WindRushTotem:IsAvailable() and not S.WindRushTotem:IsReady()) then
+      if Cast(S.TotemicRecall) then return "Totemic Recall reset WRT"; end
+    end
     if Settings.Commons.Enabled.Trinkets and CDsON() then
       -- use_item,name=elementium_pocket_anvil,use_off_gcd=1
       if I.ElementiumPocketAnvil:IsEquippedAndReady() then
