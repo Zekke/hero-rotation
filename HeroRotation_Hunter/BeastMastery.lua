@@ -486,7 +486,7 @@ local function APL()
       local ShouldReturn = CDs(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=trinkets
-    if Settings.Commons.Enabled.Trinkets then
+    if Settings.Commons.Enabled.Trinkets and CDsON() then
       local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=st,if=active_enemies<2|!talent.beast_cleave&active_enemies<3
