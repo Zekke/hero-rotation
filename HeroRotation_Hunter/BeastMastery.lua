@@ -208,7 +208,7 @@ local function Cleave()
     if Cast(S.MultiShot, nil, nil, not Target:IsSpellInRange(S.MultiShot)) then return "multishot cleave 6"; end
   end
   -- bestial_wrath
-  if S.BestialWrath:IsCastable() and CDsON() then
+  if S.BestialWrath:IsCastable() then
     if Cast(S.BestialWrath, Settings.BeastMastery.GCDasOffGCD.BestialWrath) then return "bestial_wrath cleave 8"; end
   end
   -- call_of_the_wild
@@ -315,7 +315,7 @@ local function ST()
     if Cast(S.KillCommand, nil, nil, not Target:IsSpellInRange(S.KillCommand)) then return "kill_command st 6"; end
   end
   -- bestial_wrath
-  if S.BestialWrath:IsCastable() and CDsON() then
+  if S.BestialWrath:IsCastable() then
     if Cast(S.BestialWrath, Settings.BeastMastery.GCDasOffGCD.BestialWrath) then return "bestial_wrath st 8"; end
   end
   -- bloodshed
