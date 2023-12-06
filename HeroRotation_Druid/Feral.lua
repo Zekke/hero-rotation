@@ -790,11 +790,11 @@ local function APL()
       local ShouldReturn = Cooldown(); if ShouldReturn then return ShouldReturn; end
     end
     -- feral_frenzy,target_if=max:target.time_to_die,if=((combo_points<3|time<10&combo_points<4)&(!talent.dire_fixation.enabled|debuff.dire_fixation.up|spell_targets.swipe_cat>1)&(target.time_to_die<fight_remains&target.time_to_die>6|target.time_to_die=fight_remains))&!(spell_targets=1&talent.convoke_the_spirits.enabled)
-    if S.FeralFrenzy:IsReady() then
+    if S.FeralFrenzy:IsReady() and CDsON() then
       if Everyone.CastTargetIf(S.FeralFrenzy, EnemiesMelee, "max", EvaluateTargetIfFilterTTD, EvaluateTargetIfFeralFrenzy, not IsInMeleeRange) then return "feral_frenzy main 20"; end
     end
     -- feral_frenzy,if=combo_points<3&debuff.dire_fixation.up&dot.rip.ticking&(spell_targets=1&talent.convoke_the_spirits.enabled)
-    if S.FeralFrenzy:IsReady() and (ComboPoints < 3 and Target:DebuffUp(S.DireFixationDebuff) and Target:DebuffUp(S.RipDebuff) and (EnemiesCount11y == 1 and S.ConvoketheSpirits:IsAvailable())) then
+    if S.FeralFrenzy:IsReady() and CDsON() and (ComboPoints < 3 and Target:DebuffUp(S.DireFixationDebuff) and Target:DebuffUp(S.RipDebuff) and (EnemiesCount11y == 1 and S.ConvoketheSpirits:IsAvailable())) then
       if Cast(S.FeralFrenzy, nil, nil, not IsInAoERange) then return "feral_frenzy main 21"; end
     end
     -- ferocious_bite,target_if=max:target.time_to_die,if=buff.apex_predators_craving.up&(spell_targets.swipe_cat=1|!talent.primal_wrath.enabled|!buff.sabertooth.up)&!(variable.need_bt&active_bt_triggers=2)
