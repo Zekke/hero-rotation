@@ -677,7 +677,7 @@ local function APL()
     -- call_action_list,name=high_prio_actions
     local ShouldReturn = HighPrioActions(); if ShouldReturn then return ShouldReturn; end
     -- call_action_list,name=trinkets
-    if Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items then
+    if (Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items) and CDsON() then
       local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=cooldowns
