@@ -788,16 +788,21 @@ local function APL()
       local ShouldReturn = Cooldown(); if ShouldReturn then return ShouldReturn; end
     end
     -- feral_frenzy,target_if=max:target.time_to_die,if=((combo_points<3|time<10&combo_points<4)&(!talent.dire_fixation.enabled|debuff.dire_fixation.up|spell_targets.swipe_cat>1)&(target.time_to_die<fight_remains&target.time_to_die>6|target.time_to_die=fight_remains))&!(spell_targets=1&talent.convoke_the_spirits.enabled)
-    if S.FeralFrenzy:IsReady() and CDsON() then
-      if Everyone.CastTargetIf(S.FeralFrenzy, EnemiesMelee, "max", EvaluateTargetIfFilterTTD, EvaluateTargetIfFeralFrenzy, not IsInMeleeRange) then return "feral_frenzy main 20"; end
+    if S.FeralFrenzy:IsReady() and CDsON() and ((ComboPoints < 3 or (Target:TimeToDie() and ComboPoints < 4)) and (not S.DireFixation:IsAvailable() or Target:DebuffUp(S.DireFixationDebuff) or EnemiesCount11y > 1) and (Target:TimeToDie() < FightRemains and Target:TimeToDie() > 6 or Target:TimeToDie() == FightRemains)) and not (EnemiesCount11y == 1 and S.ConvoketheSpirits:IsAvailable()) then
+      if Cast(S.FeralFrenzy, nil, nil, not IsInAoERange) then return "feral_frenzy main 20"; end
     end
+    --if S.FeralFrenzy:IsReady() and CDsON() then
+    --  if Everyone.CastTargetIf(S.FeralFrenzy, EnemiesMelee, "max", EvaluateTargetIfFilterTTD, EvaluateTargetIfFeralFrenzy, not IsInMeleeRange) then return "feral_frenzy main 20"; end
+    --end
     -- feral_frenzy,if=combo_points<3&debuff.dire_fixation.up&dot.rip.ticking&(spell_targets=1&talent.convoke_the_spirits.enabled)
     if S.FeralFrenzy:IsReady() and CDsON() and (ComboPoints < 3 and Target:DebuffUp(S.DireFixationDebuff) and Target:DebuffUp(S.RipDebuff) and (EnemiesCount11y == 1 and S.ConvoketheSpirits:IsAvailable())) then
       if Cast(S.FeralFrenzy, nil, nil, not IsInAoERange) then return "feral_frenzy main 21"; end
     end
     -- ferocious_bite,target_if=max:target.time_to_die,if=buff.apex_predators_craving.up&(spell_targets.swipe_cat=1|!talent.primal_wrath.enabled|!buff.sabertooth.up)&!(variable.need_bt&active_bt_triggers=2)
     if S.FerociousBite:IsReady() and (Player:BuffUp(S.ApexPredatorsCravingBuff) and (EnemiesCount11y == 1 or not S.PrimalWrath:IsAvailable() or Player:BuffDown(S.SabertoothBuff)) and not (VarNeedBT and CountActiveBtTriggers() == 2)) then
-      if Everyone.CastTargetIf(S.FerociousBite, EnemiesMelee, "max", EvaluateTargetIfFilterTTD, nil, not IsInMeleeRange) then return "ferocious_bite main 22"; end
+      -- if Everyone.CastTargetIf(S.FerociousBite, EnemiesMelee, "max", EvaluateTargetIfFilterTTD, nil, not IsInMeleeRange) then return "ferocious_bite main 22"; end
+      -- TEST
+      if Cast(S.FerociousBite, nil, nil, not IsInMeleeRange) then return "ferocious_bite main 22"; end
     end
     -- run_action_list,name=berserk,if=buff.bs_inc.up
     if Player:BuffUp(BsInc) then
