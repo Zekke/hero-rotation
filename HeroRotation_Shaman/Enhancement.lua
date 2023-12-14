@@ -76,6 +76,24 @@ local Settings = {
   Enhancement = HR.GUISettings.APL.Shaman.Enhancement
 }
 
+local CustomNPC = {
+  189632, --Animated Duelist
+  198594, --Cleave Training Dummy
+  209333, --Gnarlroot
+  208445, --Larodar
+  209090, --Tindral
+}
+
+local function isCustomNPC()
+  local npc_id = Target:NPCID()
+  for _, value in ipairs(CustomNPC) do
+    if npc_id == value then
+      return true
+    end
+  end
+  return false
+end
+
 local function TotemFinder()
   for i = 1, 6, 1 do
     if strmatch(Player:TotemName(i), 'Totem') then
@@ -540,6 +558,140 @@ local function Funnel()
   end
 end
 
+local function CustomAPL()
+    if Player:BuffUp(S.SplinteredElementsBuff) then
+      HR.CmdHandler("funnel") end
+
+  if EnemiesMeleeCount > 1 then
+    -- primordial_wave,if=set_bonus.tier31_2pc&(raid_event.adds.in>(action.primordial_wave.cooldown%(1+set_bonus.tier31_4pc))|raid_event.adds.in<6)
+    if S.PrimordialWave:IsReady() and (Player:HasTier(31, 2)) then
+      if Cast(S.PrimordialWave, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsSpellInRange(S.PrimordialWave)) then return "primordial_wave custom 2"; end
+    end
+    -- feral_spirit
+    if S.FeralSpirit:IsCastable() then
+      if Cast(S.FeralSpirit, Settings.Enhancement.GCDasOffGCD.FeralSpirit) then return "feral_spirit custom 4"; end
+    end
+    -- lava_lash,if=talent.molten_assault.enabled&(talent.primordial_wave.enabled|talent.fire_nova.enabled)&dot.flame_shock.ticking&(active_dot.flame_shock<active_enemies)&active_dot.flame_shock<6
+    if S.LavaLash:IsReady() and (S.MoltenAssault:IsAvailable() and (S.PrimordialWave:IsAvailable() or S.FireNova:IsAvailable()) and Target:DebuffUp(S.FlameShockDebuff) and (S.FlameShockDebuff:AuraActiveCount() < EnemiesMeleeCount) and S.FlameShockDebuff:AuraActiveCount() < 6) then
+      if Cast(S.LavaLash, nil, nil, not Target:IsSpellInRange(S.LavaLash)) then return "lava_lash custom 6"; end
+    end
+
+    if S.LightningBolt:IsCastable() and (Player:BuffUp(S.PrimordialWaveBuff) and MaelstromStacks == MaxMaelstromStacks) then
+      if Cast(S.LightningBolt, nil, nil, not Target:IsSpellInRange(S.LightningBolt)) then return "lightning_bolt custom 8"; end
+    end
+
+    if S.CrashLightning:IsReady() and (S.CrashingStorms:IsAvailable() and ((S.UnrulyWinds:IsAvailable() and EnemiesMeleeCount >= 10) or EnemiesMeleeCount >= 15)) then
+      if Cast(S.CrashLightning, Settings.Enhancement.GCDasOffGCD.CrashLightning, nil, not Target:IsInMeleeRange(8)) then return "crash_lightning custom 10"; end
+    end
+
+    if S.IceStrike:IsReady() and (S.Hailstorm:IsAvailable() and Player:BuffDown(S.IceStrikeBuff)) then
+      if Cast(S.IceStrike, nil, nil, not Target:IsSpellInRange(S.IceStrike)) then return "ice_strike custom 12"; end
+    end
+
+    if S.FrostShock:IsReady() and (S.Hailstorm:IsAvailable() and Player:BuffUp(S.HailstormBuff)) then
+      if Cast(S.FrostShock, nil, nil, not Target:IsSpellInRange(S.FrostShock)) then return "frost_shock custom 14"; end
+    end
+
+    if S.FlameShock:IsReady() and (S.MoltenAssault:IsAvailable() and Target:DebuffDown(S.FlameShockDebuff)) then
+      if Cast(S.FlameShock, nil, nil, not Target:IsSpellInRange(S.FlameShock)) then return "flame_shock custom 16"; end
+    end
+
+    if S.CrashLightning:IsReady() and (S.CrashingStorms:IsAvailable() and Player:BuffUp(S.CLCrashLightningBuff) and EnemiesMeleeCount >= 4) then
+      if Cast(S.CrashLightning, Settings.Enhancement.GCDasOffGCD.CrashLightning, nil, not Target:IsInMeleeRange(8)) then return "crash_lightning custom 18"; end
+    end
+
+    if S.Stormstrike:IsReady() then
+      if Cast(S.Stormstrike, nil, nil, not Target:IsSpellInRange(S.Stormstrike)) then return "stormstrike custom 20"; end
+    end
+
+    if S.IceStrike:IsReady() then
+      if Cast(S.IceStrike, nil, nil, not Target:IsSpellInRange(S.IceStrike)) then return "ice_strike custom 22"; end
+    end
+
+    if S.LavaLash:IsReady() then
+      if Cast(S.LavaLash, nil, nil, not Target:IsSpellInRange(S.LavaLash)) then return "lava_lash custom 24"; end
+    end
+
+    if S.CrashLightning:IsReady() then
+      if Cast(S.CrashLightning, Settings.Enhancement.GCDasOffGCD.CrashLightning, nil, not Target:IsInMeleeRange(8)) then return "crash_lightning custom 26"; end
+    end
+
+    if S.WindfuryTotem:IsReady() and (Player:BuffDown(S.WindfuryTotemBuff, true) or S.WindfuryTotem:TimeSinceLastCast() > 90) then
+      if Cast(S.WindfuryTotem, Settings.Enhancement.GCDasOffGCD.WindfuryTotem) then return "windfury_totem custom 28"; end
+    end
+
+    if S.FlameShock:IsReady() and (Target:DebuffDown(S.FlameShockDebuff)) then
+      if Cast(S.FlameShock, nil, nil, not Target:IsSpellInRange(S.FlameShock)) then return "flame_shock custom 30"; end
+    end
+
+    if S.FrostShock:IsReady() and (not S.Hailstorm:IsAvailable()) then
+      if Cast(S.FrostShock, nil, nil, not Target:IsSpellInRange(S.FrostShock)) then return "frost_shock custom 32"; end
+    end
+  end
+
+  if EnemiesMeleeCount == 1 then
+    if S.FlameShock:IsReady() and (Target:DebuffDown(S.FlameShockDebuff) and S.LashingFlames:IsAvailable()) then
+      if Cast(S.FlameShock, nil, nil, not Target:IsSpellInRange(S.FlameShock)) then return "flame_shock custom 34"; end
+    end
+  
+    if S.LavaLash:IsReady() and (Player:BuffUp(S.HotHandBuff)) then
+      if Cast(S.LavaLash, nil, nil, not Target:IsSpellInRange(S.LavaLash)) then return "lava_lash custom 36"; end
+    end
+
+    if S.WindfuryTotem:IsReady() and (Player:BuffDown(S.WindfuryTotemBuff, true)) then
+      if Cast(S.WindfuryTotem, Settings.Enhancement.GCDasOffGCD.WindfuryTotem) then return "windfury_totem custom 38"; end
+    end
+
+    if S.CrashLightning:IsReady() and (S.AlphaWolf:IsAvailable() and Player:BuffUp(S.FeralSpiritBuff) and AlphaWolfMinRemains() == 0) then
+      if Cast(S.CrashLightning, Settings.Enhancement.GCDasOffGCD.CrashLightning, nil, not Target:IsInMeleeRange(8)) then return "crash_lightning custom 40"; end
+    end
+
+    if S.FlameShock:IsReady() and (Target:DebuffDown(S.FlameShockDebuff)) then
+      if Cast(S.FlameShock, nil, nil, not Target:IsSpellInRange(S.FlameShock)) then return "flame_shock custom 42"; end
+    end
+  
+    if S.IceStrike:IsReady() and (S.ElementalAssault:IsAvailable() and S.SwirlingMaelstrom:IsAvailable()) then
+      if Cast(S.IceStrike, nil, nil, not Target:IsSpellInRange(S.IceStrike)) then return "ice_strike custom 44"; end
+    end
+
+    if S.IceStrike:IsReady() and (Player:BuffDown(S.IceStrikeBuff)) then
+      if Cast(S.IceStrike, nil, nil, not Target:IsSpellInRange(S.IceStrike)) then return "ice_strike custom 46"; end
+    end
+
+    if S.FrostShock:IsReady() and (Player:BuffUp(S.HailstormBuff)) then
+      if Cast(S.FrostShock, nil, nil, not Target:IsSpellInRange(S.FrostShock)) then return "frost_shock custom 48"; end
+    end
+
+    if S.IceStrike:IsReady() then
+      if Cast(S.IceStrike, nil, nil, not Target:IsSpellInRange(S.IceStrike)) then return "ice_strike custom 50"; end
+    end
+  
+    if S.Windstrike:IsCastable() then
+      if Cast(S.Windstrike, nil, nil, not Target:IsSpellInRange(S.Windstrike)) then return "windstrike custom 52"; end
+    end
+
+    if S.Stormstrike:IsReady() then
+      if Cast(S.Stormstrike, nil, nil, not Target:IsSpellInRange(S.Stormstrike)) then return "stormstrike custom 54"; end
+    end
+
+    if S.FrostShock:IsReady() then
+      if Cast(S.FrostShock, nil, nil, not Target:IsSpellInRange(S.FrostShock)) then return "frost_shock custom 56"; end
+    end
+
+    if S.CrashLightning:IsReady() then
+      if Cast(S.CrashLightning, Settings.Enhancement.GCDasOffGCD.CrashLightning, nil, not Target:IsInMeleeRange(8)) then return "crash_lightning custom 58"; end
+    end
+
+    if S.FlameShock:IsReady() then
+      if Cast(S.FlameShock, nil, nil, not Target:IsSpellInRange(S.FlameShock)) then return "flame_shock custom 60"; end
+    end
+
+    if S.WindfuryTotem:IsReady() and (Player:BuffDown(S.WindfuryTotemBuff, true) or S.WindfuryTotem:TimeSinceLastCast() > 90) then
+      if Cast(S.WindfuryTotem, Settings.Enhancement.GCDasOffGCD.WindfuryTotem) then return "windfury_totem custom 62"; end
+    end
+  end
+end
+
 --- ======= MAIN =======
 local function APL()
   -- Unit Update
@@ -685,13 +837,15 @@ local function APL()
     if S.DoomWinds:IsCastable() and CDsON() then
       if Cast(S.DoomWinds, Settings.Enhancement.GCDasOffGCD.DoomWinds, nil, not Target:IsSpellInRange(S.DoomWinds)) then return "doom_winds main 30"; end
     end
+    -- custom APL
+    if FunnelON() and isCustomNPC() then
+      local ShouldReturn = CustomAPL(); if ShouldReturn then return ShouldReturn; end
     -- call_action_list,name=single,if=active_enemies=1
-    if EnemiesMeleeCount == 1 then
+    elseif EnemiesMeleeCount == 1 then
       local ShouldReturn = Single(); if ShouldReturn then return ShouldReturn; end
-    end
     -- call_action_list,name=aoe,if=active_enemies>1&(rotation.standard|rotation.simple)
     -- call_action_list,name=funnel,if=active_enemies>1&rotation.funnel
-    if AoEON() and EnemiesMeleeCount > 1 then
+    elseif AoEON() and EnemiesMeleeCount > 1 then
       if Settings.Enhancement.Rotation == "Standard" then
         local ShouldReturn = Aoe(); if ShouldReturn then return ShouldReturn; end
       else
