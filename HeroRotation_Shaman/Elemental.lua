@@ -652,7 +652,7 @@ local function APL()
       end
     end
     -- natures_swiftness
-    if S.NaturesSwiftness:IsCastable() then
+    if S.NaturesSwiftness:IsCastable() and Player:BuffDown(S.NaturesSwiftness) then
       if Cast(S.NaturesSwiftness, Settings.Commons.GCDasOffGCD.NaturesSwiftness) then return "natures_swiftness main 12"; end
     end
     -- invoke_external_buff,name=power_infusion,if=talent.ascendance.enabled&buff.ascendance.up|!talent.ascendance.enabled

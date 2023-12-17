@@ -429,7 +429,7 @@ end
 
 local function Funnel()
   -- lightning_bolt,if=(active_dot.flame_shock=active_enemies|active_dot.flame_shock=6)&buff.primordial_wave.up&buff.maelstrom_weapon.stack=buff.maelstrom_weapon.max_stack&(!buff.splintered_elements.up|fight_remains<=12|raid_event.adds.remains<=gcd)
-  if S.LightningBolt:IsCastable() and ((S.FlameShockDebuff:AuraActiveCount() >= EnemiesMeleeCount or S.FlameShockDebuff:AuraActiveCount() >= 6) and Player:BuffUp(S.PrimordialWaveBuff) and MaelstromStacks == MaxMaelstromStacks and (Player:BuffDown(S.SplinteredElementsBuff) or FightRemains <= 12)) then
+  if S.LightningBolt:IsCastable() and ((S.FlameShockDebuff:AuraActiveCount() >= EnemiesMeleeCount or S.FlameShockDebuff:AuraActiveCount() >= 6 or (isCustomNPC() and S.FlameShockDebuff:AuraActiveCount() > 1)) and Player:BuffUp(S.PrimordialWaveBuff) and MaelstromStacks == MaxMaelstromStacks and (Player:BuffDown(S.SplinteredElementsBuff) or FightRemains <= 12)) then
     if Cast(S.LightningBolt, nil, nil, not Target:IsSpellInRange(S.LightningBolt)) then return "lightning_bolt funnel 2"; end
   end
   -- lava_lash,if=(talent.molten_assault.enabled&dot.flame_shock.ticking&(active_dot.flame_shock<active_enemies)&active_dot.flame_shock<6)|(talent.ashen_catalyst.enabled&buff.ashen_catalyst.stack=buff.ashen_catalyst.max_stack)
@@ -441,7 +441,7 @@ local function Funnel()
     if Everyone.CastTargetIf(S.PrimordialWave, EnemiesMelee, "min", EvaluateTargetIfFilterPrimordialWave, nil, not Target:IsSpellInRange(S.PrimordialWave), nil, Settings.Commons.DisplayStyle.PrimordialWave) then return "primordial_wave funnel 6"; end
   end
   -- elemental_blast,if=(!talent.elemental_spirits.enabled|(talent.elemental_spirits.enabled&(charges=max_charges|buff.feral_spirit.up)))&buff.maelstrom_weapon.stack=buff.maelstrom_weapon.max_stack
-  if S.ElementalBlast:IsReady() and ((not S.ElementalSpirits:IsAvailable() or (S.ElementalSpirits:IsAvailable() and (S.ElementalBlast:Charges() == S.ElementalBlast:MaxCharges() or Player:BuffUp(S.FeralSpiritBuff)))) and MaelstromStacks == MaxMaelstromStacks) then
+  if S.ElementalBlast:IsReady() and ((not S.ElementalSpirits:IsAvailable() or (S.ElementalSpirits:IsAvailable() and (S.ElementalBlast:Charges() == S.ElementalBlast:MaxCharges() or Player:BuffUp(S.FeralSpiritBuff)))) and MaelstromStacks == MaxMaelstromStacks) and not (isCustomNPC() and Player:BuffUp(S.PrimordialWaveBuff)) then
     if Cast(S.ElementalBlast, nil, nil, not Target:IsSpellInRange(S.ElementalBlast)) then return "elemental_blast funnel 8"; end
   end
   -- windstrike,if=(talent.thorims_invocation.enabled&buff.maelstrom_weapon.stack>1)|buff.converging_storms.stack=buff.converging_storms.max_stack
@@ -559,10 +559,13 @@ local function Funnel()
 end
 
 local function CustomAPL()
-    if Player:BuffUp(S.SplinteredElementsBuff) then
-      HR.CmdHandler("funnel") end
+  if Player:BuffUp(S.SplinteredElementsBuff) then
+    HR.CmdHandler("funnel");
+    HR.CmdHandler("cds");
+    return "CustomAPL loop ended.";
+  end
 
-  if EnemiesMeleeCount > 1 then
+  if EnemiesMeleeCount > 1 or Player:BuffUp(S.PrimordialWaveBuff) then
     -- primordial_wave,if=set_bonus.tier31_2pc&(raid_event.adds.in>(action.primordial_wave.cooldown%(1+set_bonus.tier31_4pc))|raid_event.adds.in<6)
     if S.PrimordialWave:IsReady() and (Player:HasTier(31, 2)) then
       if Cast(S.PrimordialWave, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsSpellInRange(S.PrimordialWave)) then return "primordial_wave custom 2"; end
@@ -634,9 +637,9 @@ local function CustomAPL()
       if Cast(S.FlameShock, nil, nil, not Target:IsSpellInRange(S.FlameShock)) then return "flame_shock custom 34"; end
     end
   
-    if S.LavaLash:IsReady() and (Player:BuffUp(S.HotHandBuff)) then
-      if Cast(S.LavaLash, nil, nil, not Target:IsSpellInRange(S.LavaLash)) then return "lava_lash custom 36"; end
-    end
+    --if S.LavaLash:IsReady() and (Player:BuffUp(S.HotHandBuff)) then
+    --  if Cast(S.LavaLash, nil, nil, not Target:IsSpellInRange(S.LavaLash)) then return "lava_lash custom 36"; end
+    --end
 
     if S.WindfuryTotem:IsReady() and (Player:BuffDown(S.WindfuryTotemBuff, true)) then
       if Cast(S.WindfuryTotem, Settings.Enhancement.GCDasOffGCD.WindfuryTotem) then return "windfury_totem custom 38"; end
@@ -838,15 +841,16 @@ local function APL()
       if Cast(S.DoomWinds, Settings.Enhancement.GCDasOffGCD.DoomWinds, nil, not Target:IsSpellInRange(S.DoomWinds)) then return "doom_winds main 30"; end
     end
     -- custom APL
-    if FunnelON() and isCustomNPC() then
-      local ShouldReturn = CustomAPL(); if ShouldReturn then return ShouldReturn; end
+    --if FunnelON() and isCustomNPC() then
+    --  local ShouldReturn = CustomAPL(); if ShouldReturn then return ShouldReturn; end
     -- call_action_list,name=single,if=active_enemies=1
-    elseif EnemiesMeleeCount == 1 then
+    if EnemiesMeleeCount == 1 then
       local ShouldReturn = Single(); if ShouldReturn then return ShouldReturn; end
+    end
     -- call_action_list,name=aoe,if=active_enemies>1&(rotation.standard|rotation.simple)
     -- call_action_list,name=funnel,if=active_enemies>1&rotation.funnel
-    elseif AoEON() and EnemiesMeleeCount > 1 then
-      if Settings.Enhancement.Rotation == "Standard" then
+    if AoEON() and EnemiesMeleeCount > 1 then
+      if Settings.Enhancement.Rotation == "Standard" and not FunnelON() then
         local ShouldReturn = Aoe(); if ShouldReturn then return ShouldReturn; end
       else
         local ShouldReturn = Funnel(); if ShouldReturn then return ShouldReturn; end
