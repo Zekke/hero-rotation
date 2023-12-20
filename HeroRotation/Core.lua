@@ -221,6 +221,7 @@ local function DisplayQueue(...)
   -- Call ChangeIcon so that the main icon exists to be able to display a cooldown sweep, even though it gets overlapped
   FlashIcon(QueueSpellTable[1])
   HR.MainIconFrame:ChangeIcon(QueueTextureTable[1], QueueKeybindTable[1], QueueSpellTable[1]:IsUsable(), false, QueueSpellTable[1]:ID())
+  HR.PixelFrame:ChangeColor(QueueSpellTable[1], QueueSpellTable[1]:IsUsable(), false, QueueSpellTable[1]:ID())
   HR.MainIconFrame:SetupParts(QueueTextureTable, QueueKeybindTable)
 end
 
