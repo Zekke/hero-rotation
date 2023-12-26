@@ -763,7 +763,7 @@ local function APL()
       end
     end
     -- wind_shear
-    local ShouldReturn = Everyone.Interrupt(30, S.WindShear, Settings.Commons.OffGCDasOffGCD.WindShear, false); if ShouldReturn then return ShouldReturn; end
+    local ShouldReturn = Everyone.Interrupt(S.WindShear, Settings.Commons.OffGCDasOffGCD.WindShear, false); if ShouldReturn then return ShouldReturn; end
     -- auto_attack
     if S.TotemicRecall:IsReady() and (S.WindRushTotem:IsAvailable() and not S.WindRushTotem:IsReady()) then
       if Cast(S.TotemicRecall) then return "Totemic Recall reset WRT"; end
