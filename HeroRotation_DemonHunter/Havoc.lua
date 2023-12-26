@@ -115,7 +115,7 @@ local function IsInMeleeRange(range)
 end
 
 local function UseFelRush()
-  return (Settings.Havoc.ConserveFelRush and S.FelRush:Charges() == 2) or not Settings.Havoc.ConserveFelRush
+  return ((Settings.Havoc.ConserveFelRush and S.FelRush:Charges() == 2) or not Settings.Havoc.ConserveFelRush) and not S.VengefulRetreat:IsReady() and S.VengefulRetreat:CooldownRemains() > 8
 end
 
 local function EvalutateTargetIfFilterDemonsBite(TargetUnit)
