@@ -143,6 +143,7 @@ local function Precombat()
   -- variable,name=trinket_1_buffs,value=trinket.1.has_use_buff|(trinket.1.has_buff.strength|trinket.1.has_buff.mastery|trinket.1.has_buff.versatility|trinket.1.has_buff.haste|trinket.1.has_buff.crit&!variable.trinket_1_exclude)
   -- variable,name=trinket_2_buffs,value=trinket.2.has_use_buff|(trinket.2.has_buff.strength|trinket.2.has_buff.mastery|trinket.2.has_buff.versatility|trinket.2.has_buff.haste|trinket.2.has_buff.crit&!variable.trinket_2_exclude)
   -- variable,name=trinket_priority,op=setif,value=2,value_else=1,condition=!variable.trinket_1_buffs&variable.trinket_2_buffs|variable.trinket_2_buffs&((trinket.2.cooldown.duration%trinket.2.proc.any_dps.duration)*(1.5+trinket.2.has_buff.strength)*(variable.trinket_2_sync))>((trinket.1.cooldown.duration%trinket.1.proc.any_dps.duration)*(1.5+trinket.1.has_buff.strength)*(variable.trinket_1_sync))
+  -- variable,name=damage_trinket_priority,op=setif,value=2,value_else=1,condition=!variable.trinket_1_buffs&!variable.trinket_2_buffs&trinket.2.ilvl>=trinket.1.ilvl
   -- variable,name=trinket_1_manual,value=trinket.1.is.algethar_puzzle_box
   -- variable,name=trinket_2_manual,value=trinket.2.is.algethar_puzzle_box
   -- TODO: Trinket sync/priority stuff. Currently unable to pull trinket CD durations because WoW's API is bad.
@@ -447,8 +448,8 @@ local function Obliteration()
   if S.GlacialAdvance:IsReady() and (Player:BuffStack(S.KillingMachineBuff) < 2 and Player:BuffRemains(S.PillarofFrostBuff) < Player:GCD() and Player:BuffDown(S.DeathAndDecayBuff)) then
     if Cast(S.GlacialAdvance, nil, nil, not Target:IsInRange(100)) then return "glacial_advance obliteration 8"; end
   end
-  -- frostscythe,if=buff.killing_machine.react&(variable.frostscythe_priority|!death_and_decay.ticking&equipped.fyralath_the_dreamrender&(cooldown.fyralath_the_dreamrender.remains<3|!dot.mark_of_fyralath.ticking))
-  if S.Frostscythe:IsReady() and (Player:BuffUp(S.KillingMachineBuff) and (VarFrostscythePriority or Player:BuffDown(S.DeathAndDecayBuff) and I.Fyralath:IsEquipped() and (I.Fyralath:CooldownRemains() < 3 or Target:DebuffDown(S.MarkofFyralathDebuff)))) then
+  -- frostscythe,if=buff.killing_machine.react&(variable.frostscythe_priority|active_enemies>3&!death_and_decay.ticking&equipped.fyralath_the_dreamrender&(cooldown.fyralath_the_dreamrender.remains<3|!dot.mark_of_fyralath.ticking))
+  if S.Frostscythe:IsReady() and (Player:BuffUp(S.KillingMachineBuff) and (VarFrostscythePriority or EnemiesMeleeCount > 3 and Player:BuffDown(S.DeathAndDecayBuff) and I.Fyralath:IsEquipped() and (I.Fyralath:CooldownRemains() < 3 or Target:DebuffDown(S.MarkofFyralathDebuff)))) then
     if Cast(S.Frostscythe, nil, nil, not Target:IsInMeleeRange(8)) then return "frostscythe obliteration 12"; end
   end
   -- obliterate,target_if=max:(debuff.razorice.stack+1)%(debuff.razorice.remains+1)*death_knight.runeforge.razorice,target_if=min:dot.mark_of_fyralath.remains,if=buff.killing_machine.react&!variable.frostscythe_priority
