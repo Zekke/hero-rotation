@@ -880,7 +880,7 @@ local function APL()
     -- call_action_list,name=aoe,if=active_enemies>1&(rotation.standard|rotation.simple)
     -- call_action_list,name=funnel,if=active_enemies>1&rotation.funnel
     if AoEON() and (EnemiesMeleeCount > 1 or Enemies40yCount > 1) then
-      if Settings.Enhancement.Rotation == "Standard" and not FunnelOn () then
+      if Settings.Enhancement.Rotation == "Standard" and not FunnelON() then
         local ShouldReturn = Aoe(); if ShouldReturn then return ShouldReturn; end
       else
         local ShouldReturn = Funnel(); if ShouldReturn then return ShouldReturn; end

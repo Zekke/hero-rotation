@@ -124,7 +124,7 @@ local function Precombat()
   else
     VerdictRange = 5
   end
-  if S.ShieldofVengeance:IsCastable() then
+  if S.ShieldofVengeance:IsCastable() and CDsON() then
     if Cast(S.ShieldofVengeance, Settings.Retribution.GCDasOffGCD.ShieldOfVengeance) then return "shield_of_vengeance precombat 6"; end
   end
   -- variable,name=trinket_1_buffs,value=trinket.1.has_buff.strength|trinket.1.has_buff.mastery|trinket.1.has_buff.versatility|trinket.1.has_buff.haste|trinket.1.has_buff.crit
