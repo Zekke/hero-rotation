@@ -571,7 +571,7 @@ local function Trinkets()
   end
   if Settings.Commons.Enabled.Trinkets then
     -- custom mirror usage 20s before summon gargoyle ends
-    if I.MirrorOfFracturedTomorrows:IsEquippedAndReady() and S.SummonGargoyle:IsAvailable() and VarGargActive and VarGargRemains <= 20 then
+    if I.MirrorOfFracturedTomorrows:IsEquippedAndReady() and ((S.SummonGargoyle:IsAvailable() and VarGargActive and VarGargRemains <= 20) or (not S.SummonGargoyle:IsAvailable() and S.Apocalypse:CooldownDown() or Pet:BuffUp(S.DarkTransformation))) then
       if Cast(I.MirrorOfFracturedTomorrows, nil, Settings.Commons.DisplayStyle.Trinkets) then return "mirror_if_fractured_tomorrows trinkets"; end
     end
     -- use_item,use_off_gcd=1,name=algethar_puzzle_box,if=cooldown.summon_gargoyle.remains<5&rune<=4|!talent.summon_gargoyle&pet.army_ghoul.active|active_enemies>3&variable.adds_remain&(buff.dark_transformation.up|talent.bursting_sores&cooldown.any_dnd.remains<10&!death_and_decay.ticking)
@@ -748,6 +748,7 @@ end
 local function Init()
   S.VirulentPlagueDebuff:RegisterAuraTracking()
   S.FesteringWoundDebuff:RegisterAuraTracking()
+  S.MarkofFyralathDebuff:RegisterAuraTracking()
 
   HR.Print("Unholy DK rotation has been updated for patch 10.2.0.")
 end
