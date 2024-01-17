@@ -480,12 +480,12 @@ local function HighPrioActions()
   if S.Epidemic:IsReady() and (ActiveEnemies >= 4 and (S.CommanderoftheDead:IsAvailable() and Player:BuffUp(S.CommanderoftheDeadBuff) and S.Apocalypse:CooldownRemains() < 5 or Target:DebuffUp(S.DeathRotDebuff) and Target:DebuffRemains(S.DeathRotDebuff) < Player:GCD())) then
     if Cast(S.Epidemic, Settings.Unholy.GCDasOffGCD.Epidemic, nil, not Target:IsInRange(40)) then return "epidemic high_prio_actions 8"; end
   end
-  -- wound_spender,if=(cooldown.apocalypse.remains>variable.apoc_timing+3|active_enemies>=3)&talent.plaguebringer&(talent.superstrain|talent.unholy_blight)&buff.plaguebringer.remains<gcd
-  if WoundSpender:IsReady() and ((S.Apocalypse:CooldownRemains() > VarApocTiming + 3 or ActiveEnemies >= 3) and S.Plaguebringer:IsAvailable() and (S.Superstrain:IsAvailable() or S.UnholyBlight:IsAvailable()) and Player:BuffRemains(S.PlaguebringerBuff) < Player:GCD()) then
+  -- wound_spender,if=(cooldown.apocalypse.remains>variable.apoc_timing+3|cooldown.unholy_assault.ready|active_enemies>=3)&talent.plaguebringer&(talent.superstrain|talent.unholy_blight)&buff.plaguebringer.remains<gcd
+  if WoundSpender:IsReady() and ((S.Apocalypse:CooldownRemains() > VarApocTiming + 3 or S.UnholyAssault:CooldownUp() or ActiveEnemies >= 3) and S.Plaguebringer:IsAvailable() and (S.Superstrain:IsAvailable() or S.UnholyBlight:IsAvailable()) and Player:BuffRemains(S.PlaguebringerBuff) < Player:GCD()) then
     if Cast(WoundSpender, nil, nil, not Target:IsSpellInRange(WoundSpender)) then return "wound_spender high_prio_actions 10"; end
   end
-  -- unholy_blight,if=variable.st_planning&((!talent.apocalypse|cooldown.apocalypse.remains)&talent.morbidity|!talent.morbidity)|variable.adds_remain|fight_remains<21
-  if S.UnholyBlight:IsReady() and (VarSTPlanning and ((not S.Apocalypse:IsAvailable() or S.Apocalypse:CooldownDown()) and S.Morbidity:IsAvailable() or not S.Morbidity:IsAvailable()) or VarAddsRemain or FightRemains < 21) then
+  -- unholy_blight,if=variable.st_planning&((!talent.apocalypse|cooldown.apocalypse.remains|!talent.summon_gargoyle)&talent.morbidity|!talent.morbidity)|variable.adds_remain|fight_remains<21
+  if S.UnholyBlight:IsReady() and (VarSTPlanning and ((not S.Apocalypse:IsAvailable() or S.Apocalypse:CooldownDown() or not S.SummonGargoyle:IsAvailable()) and S.Morbidity:IsAvailable() or not S.Morbidity:IsAvailable()) or VarAddsRemain or FightRemains < 21) then
     if Cast(S.UnholyBlight, Settings.Unholy.GCDasOffGCD.UnholyBlight, nil, not Target:IsInRange(8)) then return "unholy_blight high_prio_actions 12"; end
   end
   -- outbreak,target_if=target.time_to_die>dot.virulent_plague.remains&(dot.virulent_plague.refreshable|talent.superstrain&(dot.frost_fever_superstrain.refreshable|dot.blood_plague_superstrain.refreshable))&(!talent.unholy_blight|talent.unholy_blight&cooldown.unholy_blight.remains>15%((talent.superstrain*3)+(talent.plaguebringer*2)+(talent.ebon_fever*2)))
@@ -565,8 +565,9 @@ local function ST()
 end
 
 local function Trinkets()
-  -- use_item,name=fyralath_the_dreamrender,if=dot.mark_of_fyralath.ticking&(active_enemies<5|active_enemies>21|fight_remains<4)
-  if Settings.Commons.Enabled.Items and I.Fyralath:IsEquippedAndReady() and (S.MarkofFyralathDebuff:AuraActiveCount() > 0 and (ActiveEnemies < 5 or ActiveEnemies > 21 or FightRemains < 4)) then
+  -- use_item,name=fyralath_the_dreamrender,if=active_dot.mark_of_fyralath=active_enemies&(active_enemies<5|active_enemies>21|fight_remains<4)
+  -- Note: Using >= for mark_of_fyralath debuff count, just to be safe.
+  if Settings.Commons.Enabled.Items and I.Fyralath:IsEquippedAndReady() and (S.MarkofFyralathDebuff:AuraActiveCount() >= ActiveEnemies and (ActiveEnemies < 5 or ActiveEnemies > 21 or FightRemains < 4)) then
     if Cast(I.Fyralath, nil, Settings.Commons.DisplayStyle.Items, not Target:IsInRange(25)) then return "fyralath_the_dreamrender trinkets 1"; end
   end
   if Settings.Commons.Enabled.Trinkets then
@@ -705,6 +706,10 @@ local function APL()
     if Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items then
       local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
     end
+    -- call_action_list,name=racials
+    if (CDsON()) then
+      local ShouldReturn = Racials(); if ShouldReturn then return ShouldReturn; end
+    end
     -- run_action_list,name=garg_setup,if=variable.garg_setup_complete=0
     if CDsON() and not VarGargSetupComplete then
       local ShouldReturn = GargSetup(); if ShouldReturn then return ShouldReturn; end
@@ -717,10 +722,6 @@ local function APL()
     -- call_action_list,name=aoe_cooldowns,if=variable.adds_remain
     if (AoEON() and CDsON() and VarAddsRemain) then
       local ShouldReturn = AoECDs(); if ShouldReturn then return ShouldReturn; end
-    end
-    -- call_action_list,name=racials
-    if (CDsON()) then
-      local ShouldReturn = Racials(); if ShouldReturn then return ShouldReturn; end
     end
     if (AoEON()) then
       -- call_action_list,name=aoe_setup,if=variable.adds_remain&cooldown.any_dnd.remains<10&!death_and_decay.ticking
@@ -750,7 +751,7 @@ local function Init()
   S.FesteringWoundDebuff:RegisterAuraTracking()
   S.MarkofFyralathDebuff:RegisterAuraTracking()
 
-  HR.Print("Unholy DK rotation has been updated for patch 10.2.0.")
+  HR.Print("Unholy DK rotation has been updated for patch 10.2.5.")
 end
 
 HR.SetAPL(252, APL, Init)
