@@ -333,7 +333,7 @@ end
 
 local function AoESetup()
   -- any_dnd,if=(!talent.bursting_sores|death_knight.fwounded_targets=active_enemies|death_knight.fwounded_targets>=8|raid_event.adds.exists&raid_event.adds.remains<=11&raid_event.adds.remains>5)
-  if AnyDnD:IsReady() and (not S.BurstingSores:IsAvailable() or S.FesteringWoundDebuff:AuraActiveCount() == ActiveEnemies or S.FesteringWoundDebuff:AuraActiveCount() >= 8) then
+  if AnyDnD:IsReady() and Target:IsInMeleeRange(5) and (not S.BurstingSores:IsAvailable() or S.FesteringWoundDebuff:AuraActiveCount() == ActiveEnemies or S.FesteringWoundDebuff:AuraActiveCount() >= 8) then
     if Cast(AnyDnD, Settings.Commons2.GCDasOffGCD.DeathAndDecay) then return "any_dnd aoe_setup 2"; end
   end
   -- festering_strike,target_if=min:debuff.festering_wound.stack,if=death_knight.fwounded_targets<active_enemies&talent.bursting_sores
@@ -411,7 +411,7 @@ local function GargSetup()
     if Cast(S.SoulReaper, nil, nil, not Target:IsInMeleeRange(5)) then return "soul_reaper garg_setup 4"; end
   end
   -- any_dnd,if=!death_and_decay.ticking&debuff.festering_wound.stack>1
-  if AnyDnD:IsReady() and (Player:BuffDown(S.DeathAndDecayBuff) and FesterStacks > 1) then
+  if AnyDnD:IsReady() and Target:IsInMeleeRange(5) and (Player:BuffDown(S.DeathAndDecayBuff) and FesterStacks > 1) then
     if Cast(AnyDnD, Settings.Commons2.GCDasOffGCD.DeathAndDecay) then return "any_dnd garg_setup 6"; end
   end
   -- summon_gargoyle,use_off_gcd=1,if=buff.commander_of_the_dead.up|!talent.commander_of_the_dead&runic_power>=40
@@ -485,7 +485,7 @@ local function HighPrioActions()
     if Cast(WoundSpender, nil, nil, not Target:IsSpellInRange(WoundSpender)) then return "wound_spender high_prio_actions 10"; end
   end
   -- unholy_blight,if=variable.st_planning&((!talent.apocalypse|cooldown.apocalypse.remains|!talent.summon_gargoyle)&talent.morbidity|!talent.morbidity)|variable.adds_remain|fight_remains<21
-  if S.UnholyBlight:IsReady() and (VarSTPlanning and ((not S.Apocalypse:IsAvailable() or S.Apocalypse:CooldownDown() or not S.SummonGargoyle:IsAvailable()) and S.Morbidity:IsAvailable() or not S.Morbidity:IsAvailable()) or VarAddsRemain or FightRemains < 21) then
+  if CDsON() and S.UnholyBlight:IsReady() and (VarSTPlanning and ((not S.Apocalypse:IsAvailable() or S.Apocalypse:CooldownDown() or not S.SummonGargoyle:IsAvailable()) and S.Morbidity:IsAvailable() or not S.Morbidity:IsAvailable()) or VarAddsRemain or FightRemains < 21) then
     if Cast(S.UnholyBlight, Settings.Unholy.GCDasOffGCD.UnholyBlight, nil, not Target:IsInRange(8)) then return "unholy_blight high_prio_actions 12"; end
   end
   -- outbreak,target_if=target.time_to_die>dot.virulent_plague.remains&(dot.virulent_plague.refreshable|talent.superstrain&(dot.frost_fever_superstrain.refreshable|dot.blood_plague_superstrain.refreshable))&(!talent.unholy_blight|talent.unholy_blight&cooldown.unholy_blight.remains>15%((talent.superstrain*3)+(talent.plaguebringer*2)+(talent.ebon_fever*2)))
@@ -493,7 +493,7 @@ local function HighPrioActions()
     if Everyone.CastCycle(S.Outbreak, EnemiesMelee, EvaluateCycleOutbreak, not Target:IsSpellInRange(S.Outbreak)) then return "outbreak high_prio_actions 14"; end
   end
   -- army_of_the_dead,if=equipped.fyralath_the_dreamrender&(talent.summon_gargoyle&cooldown.summon_gargoyle.remains<2|!talent.summon_gargoyle|fight_remains<35)
-  if S.ArmyoftheDead:IsReady() and (I.Fyralath:IsEquipped() and (S.SummonGargoyle:IsAvailable() and S.SummonGargoyle:CooldownRemains() < 2 or not S.SummonGargoyle:IsAvailable() or FightRemains < 35)) then
+  if CDsON() and S.ArmyoftheDead:IsReady() and (I.Fyralath:IsEquipped() and (S.SummonGargoyle:IsAvailable() and S.SummonGargoyle:CooldownRemains() < 2 or not S.SummonGargoyle:IsAvailable() or FightRemains < 35)) then
     if Cast(S.ArmyoftheDead, nil, Settings.Unholy.DisplayStyle.ArmyOfTheDead) then return "army_of_the_dead high_prio_actions 16"; end
   end
 end
@@ -543,7 +543,7 @@ local function ST()
     if Cast(S.Epidemic, Settings.Unholy.GCDasOffGCD.Epidemic, nil, not Target:IsInRange(40)) then return "epidemic st 4"; end
   end
   -- any_dnd,if=!death_and_decay.ticking&(active_enemies>=2|talent.unholy_ground&(pet.apoc_ghoul.active&pet.apoc_ghoul.remains>=13|pet.gargoyle.active&pet.gargoyle.remains>8|pet.army_ghoul.active&pet.army_ghoul.remains>8|!variable.pop_wounds&debuff.festering_wound.stack>=4)|talent.defile&(pet.gargoyle.active|pet.apoc_ghoul.active|pet.army_ghoul.active|buff.dark_transformation.up))&(death_knight.fwounded_targets=active_enemies|active_enemies=1)
-  if AnyDnD:IsReady() and (Player:BuffDown(S.DeathAndDecayBuff) and (ActiveEnemies >= 2 or S.UnholyGround:IsAvailable() and (VarApocGhoulActive and VarApocGhoulRemains >= 13 or VarGargActive and VarGargRemains > 8 or VarArmyGhoulActive and VarArmyGhoulRemains > 8 or not VarPopWounds and FesterStacks >= 4) or S.Defile:IsAvailable() and (VarGargActive or VarApocGhoulActive or VarArmyGhoulActive or Pet:BuffUp(S.DarkTransformation))) and (S.FesteringWoundDebuff:AuraActiveCount() == ActiveEnemies or ActiveEnemies == 1)) then
+  if AnyDnD:IsReady() and Target:IsInMeleeRange(5) and (Player:BuffDown(S.DeathAndDecayBuff) and (ActiveEnemies >= 2 or S.UnholyGround:IsAvailable() and (VarApocGhoulActive and VarApocGhoulRemains >= 13 or VarGargActive and VarGargRemains > 8 or VarArmyGhoulActive and VarArmyGhoulRemains > 8 or not VarPopWounds and FesterStacks >= 4) or S.Defile:IsAvailable() and (VarGargActive or VarApocGhoulActive or VarArmyGhoulActive or Pet:BuffUp(S.DarkTransformation))) and (S.FesteringWoundDebuff:AuraActiveCount() == ActiveEnemies or ActiveEnemies == 1)) then
     if Cast(AnyDnD, Settings.Commons2.GCDasOffGCD.DeathAndDecay) then return "any_dnd st 6"; end
   end
   -- wound_spender,target_if=max:debuff.festering_wound.stack,if=variable.pop_wounds|active_enemies>=2&death_and_decay.ticking
@@ -572,8 +572,8 @@ local function Trinkets()
   end
   if Settings.Commons.Enabled.Trinkets then
     -- custom mirror usage 20s before summon gargoyle ends
-    if I.MirrorOfFracturedTomorrows:IsEquippedAndReady() and ((S.SummonGargoyle:IsAvailable() and VarGargActive and VarGargRemains <= 20) or (not S.SummonGargoyle:IsAvailable() and S.Apocalypse:CooldownDown() or Pet:BuffUp(S.DarkTransformation))) then
-      if Cast(I.MirrorOfFracturedTomorrows, nil, Settings.Commons.DisplayStyle.Trinkets) then return "mirror_if_fractured_tomorrows trinkets"; end
+    if I.MirrorOfFracturedTomorrows:IsEquippedAndReady() and ((S.SummonGargoyle:IsAvailable() and VarGargActive and VarGargRemains <= 20) or (not S.SummonGargoyle:IsAvailable() and (S.Apocalypse:CooldownDown() or Pet:BuffUp(S.DarkTransformation)))) then
+      if Cast(I.MirrorOfFracturedTomorrows, nil, Settings.Commons.DisplayStyle.Trinkets) then return "mirror_of_fractured_tomorrows trinkets"; end
     end
     -- use_item,use_off_gcd=1,name=algethar_puzzle_box,if=cooldown.summon_gargoyle.remains<5&rune<=4|!talent.summon_gargoyle&pet.army_ghoul.active|active_enemies>3&variable.adds_remain&(buff.dark_transformation.up|talent.bursting_sores&cooldown.any_dnd.remains<10&!death_and_decay.ticking)
     if I.AlgetharPuzzleBox:IsEquippedAndReady() and (S.SummonGargoyle:CooldownRemains() < 5 and Player:Rune() <= 4 or not S.SummonGargoyle:IsAvailable() and VarArmyGhoulActive or ActiveEnemies > 3 and VarAddsRemain and (Pet:BuffUp(S.DarkTransformation) or S.BurstingSores:IsAvailable() and AnyDnD:CooldownRemains() < 10 and Player:BuffDown(S.DeathAndDecayBuff))) then
@@ -703,7 +703,7 @@ local function APL()
     -- call_action_list,name=high_prio_actions
     local ShouldReturn = HighPrioActions(); if ShouldReturn then return ShouldReturn; end
     -- call_action_list,name=trinkets
-    if Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items then
+    if CDsON() and (Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items) then
       local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=racials

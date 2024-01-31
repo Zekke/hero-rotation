@@ -228,7 +228,7 @@ local function Breath()
     if Everyone.CastTargetIf(S.Obliterate, EnemiesMelee, "max", EvaluateTargetIfRazoriceStacks, nil, not Target:IsInMeleeRange(5)) then return "obliterate breath 10"; end
   end
   -- death_and_decay,if=runic_power<36&rune.time_to_2>runic_power%18
-  if S.DeathAndDecay:IsReady() and (Player:RunicPower() < 36 and Player:RuneTimeToX(2) > Player:RunicPower() / 18) then
+  if S.DeathAndDecay:IsReady() and Target:IsInMeleeRange(5) and (Player:RunicPower() < 36 and Player:RuneTimeToX(2) > Player:RunicPower() / 18) then
     if Cast(S.DeathAndDecay, Settings.Commons2.GCDasOffGCD.DeathAndDecay, nil, not Target:IsSpellInRange(S.DeathAndDecay)) then return "death_and_decay breath 12"; end
   end
   -- remorseless_winter,if=runic_power<36&rune.time_to_2>runic_power%18
@@ -380,7 +380,7 @@ local function Cooldowns()
     if Cast(S.SoulReaper, nil, nil, not Target:IsInMeleeRange(5)) then return "soul_reaper cooldowns 36"; end
   end
   -- any_dnd,if=!death_and_decay.ticking&variable.adds_remain&(buff.pillar_of_frost.up&buff.pillar_of_frost.remains>5&buff.pillar_of_frost.remains<11|!buff.pillar_of_frost.up&cooldown.pillar_of_frost.remains>10|fight_remains<11)&(active_enemies>5|talent.cleaving_strikes&active_enemies>=2)
-  if S.DeathAndDecay:IsReady() and (Player:BuffDown(S.DeathAndDecayBuff) and VarAddsRemain and (Player:BuffUp(S.PillarofFrostBuff) and Player:BuffRemains(S.PillarofFrostBuff) > 5 and Player:BuffRemains(S.PillarofFrostBuff) < 11 or Player:BuffDown(S.PillarofFrostBuff) and S.PillarofFrost:CooldownRemains() > 10 or FightRemains < 11) and (EnemiesMeleeCount > 5 or S.CleavingStrikes:IsAvailable() and EnemiesMeleeCount >= 2)) then
+  if S.DeathAndDecay:IsReady() and Target:IsInMeleeRange(5) and (Player:BuffDown(S.DeathAndDecayBuff) and VarAddsRemain and (Player:BuffUp(S.PillarofFrostBuff) and Player:BuffRemains(S.PillarofFrostBuff) > 5 and Player:BuffRemains(S.PillarofFrostBuff) < 11 or Player:BuffDown(S.PillarofFrostBuff) and S.PillarofFrost:CooldownRemains() > 10 or FightRemains < 11) and (EnemiesMeleeCount > 5 or S.CleavingStrikes:IsAvailable() and EnemiesMeleeCount >= 2)) then
     if Cast(S.DeathAndDecay, Settings.Commons2.GCDasOffGCD.DeathAndDecay) then return "death_and_decay cooldowns 38"; end
   end
 end
