@@ -262,8 +262,8 @@ local function AoE()
 end
 
 local function AoEBurst()
-  -- epidemic,if=(rune<1|talent.bursting_sores&death_knight.fwounded_targets=0)&!variable.pooling_runic_power&(active_enemies>=6|runic_power.deficit<30|buff.festermight.stack=20)
-  if S.Epidemic:IsReady() and ((Player:Rune() < 1 or S.BurstingSores:IsAvailable() and S.FesteringWoundDebuff:AuraActiveCount() == 0) and not VarPoolingRunicPower and (ActiveEnemies >= 6 or Player:RunicPowerDeficit() < 30 or Player:BuffStack(S.FestermightBuff) == 20)) then
+  -- epidemic,if=(rune<1|talent.bursting_sores&death_knight.fwounded_targets=0|!talent.bursting_sores)&!variable.pooling_runic_power&(active_enemies>=6|runic_power.deficit<30|buff.festermight.stack=20)
+  if S.Epidemic:IsReady() and ((Player:Rune() < 1 or S.BurstingSores:IsAvailable() and S.FesteringWoundDebuff:AuraActiveCount() == 0 or not S.BurstingSores:IsAvailable()) and not VarPoolingRunicPower and (ActiveEnemies >= 6 or Player:RunicPowerDeficit() < 30 or Player:BuffStack(S.FestermightBuff) == 20)) then
     if Cast(S.Epidemic, Settings.Unholy.GCDasOffGCD.Epidemic, nil, not Target:IsInRange(40)) then return "epidemic aoe_burst 2"; end
   end
   -- wound_spender,target_if=max:debuff.festering_wound.stack,if=debuff.festering_wound.stack>=1
@@ -457,7 +457,7 @@ local function HighPrioActions()
     -- antimagic_zone,if=death_knight.amz_specified&buff.amz_timing.up
     -- This is for Simc manually specified AMZ timing, so we're ignoring it.
   end
-  -- invoke_external_buff,name=power_infusion,if=variable.st_planning&(pet.gargoyle.active&pet.gargoyle.remains<=22|!talent.summon_gargoyle&talent.army_of_the_dead&pet.army_ghoul.active&pet.army_ghoul.remains<=18|!talent.summon_gargoyle&!talent.army_of_the_dead&buff.dark_transformation.up|!talent.summon_gargoyle&buff.dark_transformation.up|!pet.gargoyle.active&cooldown.summon_gargoyle.remains+10>cooldown.invoke_external_buff.duration|active_enemies>=3&(buff.dark_transformation.up|death_and_decay.ticking))
+  -- invoke_external_buff,name=power_infusion,if=variable.st_planning&(pet.gargoyle.active&pet.gargoyle.remains<=22|!talent.summon_gargoyle&talent.army_of_the_dead&pet.army_ghoul.active&pet.army_ghoul.remains<=18|!talent.summon_gargoyle&!talent.army_of_the_dead&buff.dark_transformation.up|!talent.summon_gargoyle&buff.dark_transformation.up|!pet.gargoyle.active&cooldown.summon_gargoyle.remains+10>cooldown.invoke_external_buff_power_infusion.duration|active_enemies>=3&(buff.dark_transformation.up|death_and_decay.ticking))
   -- Note: Not handling external buffs.
   -- potion,if=(!talent.summon_gargoyle|cooldown.summon_gargoyle.remains>60)&(buff.dark_transformation.up&30>=buff.dark_transformation.remains|pet.army_ghoul.active&pet.army_ghoul.remains<=30|pet.apoc_ghoul.active&pet.apoc_ghoul.remains<=30)|fight_remains<=30
   if Settings.Commons.Enabled.Potions then
