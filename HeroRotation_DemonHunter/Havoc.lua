@@ -251,6 +251,8 @@ local function Cooldown()
       if Cast(PotionSelected, nil, Settings.Commons.DisplayStyle.Potions) then return "potion cooldown 4"; end
     end
   end
+  -- invoke_external_buff,name=power_infusion,if=buff.metamorphosis.up|fight_remains<=20
+  -- Note: Not handling external buffs.
   if Settings.Commons.Enabled.Trinkets then
     local Trinket1ToUse, _, Trinket1Range = Player:GetUseableItems(OnUseExcludes, 13)
     -- use_item,slot=trinket1,use_off_gcd=1,if=((cooldown.eye_beam.remains<gcd.max&active_enemies>1|buff.metamorphosis.up)&(raid_event.adds.in>trinket.1.cooldown.duration-15|raid_event.adds.remains>8)|!trinket.1.has_buff.any|fight_remains<25)&(!equipped.witherbarks_branch|trinket.2.cooldown.remains>20)&time>0
@@ -491,7 +493,7 @@ local function APL()
     -- pick_up_fragment,mode=nearest,type=lesser,if=fury.deficit>=45&(!cooldown.eye_beam.ready|fury<30)
     -- TODO: Can't detect when orbs actually spawn, we could possibly show a suggested icon when we DON'T want to pick up souls so people can avoid moving?
     -- run_action_list,name=opener,if=(cooldown.eye_beam.up|cooldown.metamorphosis.up)&time<15&(raid_event.adds.in>40)
-    if (S.EyeBeam:CooldownUp() and S.Metamorphosis:CooldownUp()) and CombatTime < 15 then
+    if (S.EyeBeam:CooldownUp() or S.Metamorphosis:CooldownUp()) and CombatTime < 15 then
       local ShouldReturn = Opener(); if ShouldReturn then return ShouldReturn; end
       if HR.CastAnnotated(S.Pool, false, "WAIT") then return "Wait for Opener()"; end
     end

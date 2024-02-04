@@ -236,7 +236,7 @@ local function Precombat()
 end
 
 local function EbonLogic()
-  -- ebon_might,if=raid_event.adds.remains>10|raid_event.adds.in>20
+  -- ebon_might
   if S.EbonMight:IsReady() then
     if Cast(S.EbonMight, Settings.Augmentation.GCDasOffGCD.EbonMight) then return "ebon_might ebon_logic 2"; end
   end
@@ -257,10 +257,6 @@ local function OpenerFiller()
   -- variable,name=opener_delay,value=variable.opener_delay-2,if=equipped.nymues_unraveling_spindle&trinket.nymues_unraveling_spindle.cooldown.up
   if I.NymuesUnravelingSpindle:IsEquippedAndReady() then
     VarOpenerDelay = VarOpenerDelay - 2
-  end
-  -- use_item,name=nymues_unraveling_spindle,if=cooldown.breath_of_eons.remains<=3
-  if Settings.Commons.Enabled.Trinkets and I.NymuesUnravelingSpindle:IsEquippedAndReady() and (S.BreathofEons:CooldownRemains() <= 3) then
-    if Cast(I.NymuesUnravelingSpindle, nil, Settings.Commons.DisplayStyle.Trinkets, not Target:IsInRange(45)) then return "nymues_unraveling_spindle opener_filler 2"; end
   end
   -- living_flame,if=active_enemies=1|talent.pupil_of_alexstrasza
   if S.LivingFlame:IsReady() and (EnemiesCount8ySplash == 1 or S.PupilofAlexstrasza:IsAvailable()) then
@@ -332,31 +328,38 @@ local function FB()
     if Cast(S.TipTheScales, Settings.Commons.GCDasOffGCD.TipTheScales) then return "tip_the_scales fb 2"; end
   end
   local FBEmpower = 0
+  -- Note: Using Player:EmpowerCastTime() in place of duration in the below lines. Intention seems to be whether we can get the spell off before Ebom Might ends.
   if S.FireBreath:IsCastable() then
-    -- fire_breath,empower_to=1,target_if=target.time_to_die>16,if=buff.ebon_might_self.remains>duration&equipped.neltharions_call_to_chaos
-    if Player:BuffRemains(S.EbonMightSelfBuff) > S.FireBreath:ExecuteTime() and I.NeltharionsCalltoChaos:IsEquipped() and Target:TimeToDie() > 16 then
-      FBEmpower = 1
-    -- fire_breath,empower_to=2,target_if=target.time_to_die>12,if=buff.ebon_might_self.remains>duration&equipped.neltharions_call_to_chaos
-    elseif Player:BuffRemains(S.EbonMightSelfBuff) > S.FireBreath:ExecuteTime() and I.NeltharionsCalltoChaos:IsEquipped() and Target:TimeToDie() > 12 then
-      FBEmpower = 2
-    -- fire_breath,empower_to=3,target_if=target.time_to_die>8,if=buff.ebon_might_self.remains>duration&equipped.neltharions_call_to_chaos
-    elseif Player:BuffRemains(S.EbonMightSelfBuff) > S.FireBreath:ExecuteTime() and I.NeltharionsCalltoChaos:IsEquipped() and Target:TimeToDie() > 8 then
-      FBEmpower = 3
+    if I.NeltharionsCalltoChaos:IsEquipped() then
+      -- fire_breath,empower_to=1,target_if=target.time_to_die>16,if=buff.ebon_might_self.remains>duration&equipped.neltharions_call_to_chaos
+      if Player:BuffRemains(S.EbonMightSelfBuff) > Player:EmpowerCastTime(1) and Target:TimeToDie() > 16 then
+        FBEmpower = 1
+      -- fire_breath,empower_to=2,target_if=target.time_to_die>12,if=buff.ebon_might_self.remains>duration&equipped.neltharions_call_to_chaos
+      elseif Player:BuffRemains(S.EbonMightSelfBuff) > Player:EmpowerCastTime(2) and Target:TimeToDie() > 12 then
+        FBEmpower = 2
+      -- fire_breath,empower_to=3,target_if=target.time_to_die>8,if=buff.ebon_might_self.remains>duration&equipped.neltharions_call_to_chaos
+      elseif (Player:BuffRemains(S.EbonMightSelfBuff) > Player:EmpowerCastTime(3) or Player:BuffUp(S.TipTheScales) and not S.FontofMagic:IsAvailable()) and Target:TimeToDie() > 8 then
+        FBEmpower = 3
+      end
+    end
     -- fire_breath,empower_to=4,target_if=target.time_to_die>4,if=talent.font_of_magic&(buff.ebon_might_self.remains>duration|buff.tip_the_scales.up)
-    elseif Player:BuffRemains(S.EbonMightSelfBuff) > S.FireBreath:ExecuteTime() and I.NeltharionsCalltoChaos:IsEquipped() and Target:TimeToDie() > 4 then
+    -- Note: Moved max empower to the bottom so it doesn't get overwritten.
+    if not I.NeltharionsCalltoChaos:IsEquipped() then
+      -- fire_breath,empower_to=3,target_if=target.time_to_die>8,if=(buff.ebon_might_self.remains>duration|buff.tip_the_scales.up)&!equipped.neltharions_call_to_chaos
+      -- fire_breath,empower_to=2,target_if=target.time_to_die>12,if=buff.ebon_might_self.remains>duration&!equipped.neltharions_call_to_chaos
+      -- fire_breath,empower_to=1,target_if=target.time_to_die>16,if=buff.ebon_might_self.remains>duration&!equipped.neltharions_call_to_chaos
+      -- Note: Re-ordered below so a lower empower can't overwrite a higher empower.
+      if Player:BuffRemains(S.EbonMightSelfBuff) > Player:EmpowerCastTime(1) and Target:TimeToDie() > 16 then
+        FBEmpower = 1
+      elseif Player:BuffRemains(S.EbonMightSelfBuff) > Player:EmpowerCastTime(2) and Target:TimeToDie() > 12 then
+        FBEmpower = 2
+      elseif (Player:BuffRemains(S.EbonMightSelfBuff) > Player:EmpowerCastTime(3) or Player:BuffUp(S.TipTheScales) and not S.FontofMagic:IsAvailable()) and Target:TimeToDie() > 8 then
+        FBEmpower = 3
+      end
+    end
+    -- Max empower moved from above.
+    if S.FontofMagic:IsAvailable() and (Player:BuffRemains(S.EbonMightSelfBuff) > Player:EmpowerCastTime(4) or Player:BuffUp(S.TipTheScales)) and Target:TimeToDie() > 4 then
       FBEmpower = 4
-    -- fire_breath,empower_to=3,target_if=target.time_to_die>8,if=(buff.ebon_might_self.remains>duration|buff.tip_the_scales.up)&!equipped.neltharions_call_to_chaos
-    elseif Player:BuffUp(S.TipTheScales) and not I.NeltharionsCalltoChaos:IsEquipped() and Target:TimeToDie() > 8 then
-      FBEmpower = 3
-    -- fire_breath,empower_to=2,target_if=target.time_to_die>12,if=buff.ebon_might_self.remains>duration&!equipped.neltharions_call_to_chaos
-    -- Note: Moved below the following APL line to allow our if statement to flow properly.
-    -- fire_breath,empower_to=1,target_if=target.time_to_die>16,if=buff.ebon_might_self.remains>duration&!equipped.neltharions_call_to_chaos
-    elseif Player:BuffRemains(S.EbonMightSelfBuff) > S.FireBreath:ExecuteTime() and not I.NeltharionsCalltoChaos:IsEquipped() and Target:TimeToDie() > 16 then
-      FBEmpower = 1
-    elseif Player:BuffRemains(S.EbonMightSelfBuff) > S.FireBreath:ExecuteTime() and not I.NeltharionsCalltoChaos:IsEquipped() and Target:TimeToDie() > 12 then
-      FBEmpower = 2
-    elseif Player:BuffRemains(S.EbonMightSelfBuff) > S.FireBreath:ExecuteTime() and not I.NeltharionsCalltoChaos:IsEquipped() and Target:TimeToDie() > 8 then
-      FBEmpower = 3
     end
     if FBEmpower > 0 then
       if CastAnnotated(S.FireBreath, false, FBEmpower, not Target:IsInRange(25), Settings.Commons.EmpoweredFontSize) then return "fire_breath empower_to=" .. FBEmpower .. " fb 4"; end
@@ -395,6 +398,9 @@ local function APL()
 
     -- Calculate GCDMax
     GCDMax = Player:GCD() + 0.25
+
+    -- Are we running a dungeon (non-raid)
+    local InDungeon = Player:IsInParty() and not Player:IsInRaid()
   end
 
   if Everyone.TargetIsValid() then
@@ -415,12 +421,12 @@ local function APL()
     if S.Prescience:IsCastable() and ((S.Prescience:FullRechargeTime() <= GCDMax * 3 or S.EbonMight:CooldownRemains() <= GCDMax * 3 and (Player:BuffRemains(S.EbonMightSelfBuff) - GCDMax * 3) <= EMSelfBuffDuration() * 0.4 or VarTempWound >= (GCDMax + S.Eruption:CastTime()) or FightRemains <= 30) and (Player:BuffStack(S.TremblingEarthBuff) + S.PrescienceBuff:AuraActiveCount()) <= (5 + num(S.Prescience:FullRechargeTime() <= GCDMax * 3))) then
       if Cast(S.Prescience, nil, Settings.Augmentation.DisplayStyle.AugBuffs) then return "prescience main 4"; end
     end
-    -- call_action_list,name=ebon_logic,if=(buff.ebon_might_self.remains-cast_time)<=buff.ebon_might_self.duration*0.4&(active_enemies>0|raid_event.adds.in<=3)&(evoker.prescience_buffs>=2&time<=10|evoker.prescience_buffs>=3|buff.ebon_might_self.remains>=action.ebon_might.cast_time|active_allies<=2)
-    if (Player:BuffRemains(S.EbonMightSelfBuff) - S.EbonMight:CastTime()) <= EMSelfBuffDuration() * 0.4 and (S.PrescienceBuff:AuraActiveCount() >= 2 and HL.CombatTime() <= 10 or S.PrescienceBuff:AuraActiveCount() >= 3 or Player:BuffRemains(S.EbonMightSelfBuff) >= S.EbonMight:CastTime() or AllyCount() <= 2) then
+    -- call_action_list,name=ebon_logic,if=(buff.ebon_might_self.remains-cast_time)<=buff.ebon_might_self.duration*0.4&(active_enemies>0|raid_event.adds.in<=3)&(evoker.prescience_buffs>=2&time<=10|evoker.prescience_buffs>=3|fight_style.dungeonroute|fight_style.dungeonslice|buff.ebon_might_self.remains>=action.ebon_might.cast_time|active_allies<=2)
+    if (Player:BuffRemains(S.EbonMightSelfBuff) - S.EbonMight:CastTime()) <= EMSelfBuffDuration() * 0.4 and (S.PrescienceBuff:AuraActiveCount() >= 2 and HL.CombatTime() <= 10 or S.PrescienceBuff:AuraActiveCount() >= 3 or InDungeon or Player:BuffRemains(S.EbonMightSelfBuff) >= S.EbonMight:CastTime() or AllyCount() <= 2) then
       local ShouldReturn = EbonLogic(); if ShouldReturn then return ShouldReturn; end
     end
-    -- run_action_list,name=opener_filler,if=variable.opener_delay>0
-    if VarOpenerDelay > 0 and HL.CombatTime() < VarOpenerDelay then
+    -- run_action_list,name=opener_filler,if=variable.opener_delay>0&!fight_style.dungeonroute
+    if VarOpenerDelay > 0 and HL.CombatTime() < VarOpenerDelay and not InDungeon then
       local ShouldReturn = OpenerFiller(); if ShouldReturn then return ShouldReturn; end
       if CastAnnotated(S.Pool, false, "WAIT") then return "Wait for OpenerFiller()"; end
     end
@@ -447,17 +453,23 @@ local function APL()
     if S.Upheaval:IsCastable() and (Player:BuffRemains(S.EbonMightSelfBuff) > Player:EmpowerCastTime(1) and S.TimeSkip:IsAvailable() and S.TimeSkip:CooldownUp() and not S.InterwovenThreads:IsAvailable()) then
       if CastAnnotated(S.Upheaval, false, "1", not Target:IsInRange(25), Settings.Commons.EmpoweredFontSize) then return "upheaval empower_to=1 main 10"; end
     end
-    -- breath_of_eons,if=(cooldown.ebon_might.remains<=4|buff.ebon_might_self.up)&target.time_to_die>15&raid_event.adds.in>15&(!equipped.nymues_unraveling_spindle|trinket.nymues_unraveling_spindle.cooldown.remains>=10|fight_remains<30)|fight_remains<30,line_cd=117
-    if CDsON() and S.BreathofEons:IsCastable() and S.BreathofEons:TimeSinceLastCast() >= 117 and ((S.EbonMight:CooldownRemains() <= 4 or Player:BuffUp(S.EbonMightSelfBuff)) and Target:TimeToDie() > 15 and (not I.NymuesUnravelingSpindle:IsEquipped() or I.NymuesUnravelingSpindle:CooldownRemains() >= 10 or FightRemains < 30) or FightRemains < 30) then
+    -- breath_of_eons,if=((cooldown.ebon_might.remains<=4|buff.ebon_might_self.up)&target.time_to_die>15&raid_event.adds.in>15&(!equipped.nymues_unraveling_spindle|trinket.nymues_unraveling_spindle.cooldown.remains>=10|fight_remains<30)|fight_remains<30)&!fight_style.dungeonroute,line_cd=117
+    -- breath_of_eons,if=evoker.allied_cds_up>0&((cooldown.ebon_might.remains<=4|buff.ebon_might_self.up)&target.time_to_die>15&(!equipped.nymues_unraveling_spindle|trinket.nymues_unraveling_spindle.cooldown.remains>=10|fight_remains<30)|fight_remains<30)&fight_style.dungeonroute
+    -- Note: Combined both lines. Only difference seems to be a line_cd if not in a dungeon.
+    if CDsON() and S.BreathofEons:IsCastable() and (S.BreathofEons:TimeSinceLastCast() >= 117 or InDungeon) and ((S.EbonMight:CooldownRemains() <= 4 or Player:BuffUp(S.EbonMightSelfBuff)) and Target:TimeToDie() > 15 and (not I.NymuesUnravelingSpindle:IsEquipped() or I.NymuesUnravelingSpindle:CooldownRemains() >= 10 or FightRemains < 30) or FightRemains < 30) then
       if Cast(S.BreathofEons, Settings.Augmentation.GCDasOffGCD.BreathOfEons, nil, not Target:IsInRange(50)) then return "breath_of_eons main 12"; end
     end
-    -- living_flame,if=buff.leaping_flames.up&cooldown.fire_breath.up
-    if S.LivingFlame:IsReady() and (Player:BuffUp(S.LeapingFlamesBuff) and S.FireBreathDebuff:CooldownUp()) then
+    -- living_flame,if=buff.leaping_flames.up&cooldown.fire_breath.up&fight_style.dungeonroute
+    if S.LivingFlame:IsReady() and (Player:BuffUp(S.LeapingFlamesBuff) and S.FireBreathDebuff:CooldownUp() and InDungeon) then
       if Cast(S.LivingFlame, nil, nil, not Target:IsSpellInRange(S.LivingFlame)) then return "living_flame main 14"; end
     end
-    -- call_action_list,name=fb,if=(raid_event.adds.remains>13|evoker.allied_cds_up>0|!raid_event.adds.exists)
+    -- living_flame,if=cooldown.breath_of_eons.up&evoker.allied_cds_up=0&target.time_to_die>15&fight_style.dungeonroute
+    if S.LivingFlame:IsReady() and (S.BreathofEons:CooldownUp() and Target:TimeToDie() > 15 and InDungeon) then
+      if Cast(S.LivingFlame, nil, nil, not Target:IsSpellInRange(S.LivingFlame)) then return "living_flame main 15"; end
+    end
+    -- call_action_list,name=fb,if=(raid_event.adds.remains>13|raid_event.adds.in>20|evoker.allied_cds_up>0|!raid_event.adds.exists)
     local ShouldReturn = FB(); if ShouldReturn then return ShouldReturn; end
-    -- upheaval,target_if=target.time_to_die>duration+0.2,empower_to=1,if=buff.ebon_might_self.remains>duration&(raid_event.adds.remains>13|!raid_event.adds.exists)
+    -- upheaval,target_if=target.time_to_die>duration+0.2,empower_to=1,if=buff.ebon_might_self.remains>duration&(raid_event.adds.remains>13|!raid_event.adds.exists|raid_event.adds.in>20)
     if S.Upheaval:IsCastable() and (Player:BuffRemains(S.EbonMightSelfBuff) > Player:EmpowerCastTime(1)) then
       if CastAnnotated(S.Upheaval, false, "1", not Target:IsInRange(25), Settings.Commons.EmpoweredFontSize) then return "upheaval empower_to=1 main 16"; end
     end
