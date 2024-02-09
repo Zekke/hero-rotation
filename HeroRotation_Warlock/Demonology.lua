@@ -338,7 +338,7 @@ local function Tyrant()
   if S.HandofGuldan:IsReady() and SoulShards > 0 and (VarPetExpire > GCDMax + S.SummonDemonicTyrant:CastTime() and VarPetExpire < GCDMax * 4) then
     if Cast(S.HandofGuldan, nil, nil, not Target:IsSpellInRange(S.HandofGuldan)) then return "hand_of_guldan tyrant 2"; end
   end
-  if VarPetExpire > 0 and VarPetExpire < S.SummonDemonicTyrant:ExecuteTime() + (num(Player:BuffDown(S.DemonicCoreBuff)) * S.ShadowBolt:ExecuteTime() + num(Player:BuffUp(S.DemonicCoreBuff)) * GCDMax) + GCDMax then
+  if CDsON() and VarPetExpire > 0 and VarPetExpire < S.SummonDemonicTyrant:ExecuteTime() + (num(Player:BuffDown(S.DemonicCoreBuff)) * S.ShadowBolt:ExecuteTime() + num(Player:BuffUp(S.DemonicCoreBuff)) * GCDMax) + GCDMax then
     -- call_action_list,name=items,if=variable.pet_expire>0&variable.pet_expire<action.summon_demonic_tyrant.execute_time+(buff.demonic_core.down*action.shadow_bolt.execute_time+buff.demonic_core.up*gcd.max)+gcd.max,use_off_gcd=1
     if Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items then
       local ShouldReturn = Items(); if ShouldReturn then return ShouldReturn; end
@@ -518,11 +518,11 @@ local function APL()
       if Cast(S.HandofGuldan, nil, nil, not Target:IsSpellInRange(S.HandofGuldan)) then return "hand_of_guldan main 2"; end
     end
     -- call_action_list,name=tyrant,if=cooldown.summon_demonic_tyrant.remains<15&cooldown.summon_vilefiend.remains<gcd.max*5&cooldown.call_dreadstalkers.remains<gcd.max*5&(cooldown.grimoire_felguard.remains<10|!set_bonus.tier30_2pc)&(variable.tyrant_cd<15|fight_remains<40|buff.power_infusion.up)&(!raid_event.adds.in<15-raid_event.add.duration)|talent.summon_vilefiend.enabled&cooldown.summon_demonic_tyrant.remains<15&cooldown.summon_vilefiend.remains<gcd.max*5&cooldown.call_dreadstalkers.remains<gcd.max*5&(cooldown.grimoire_felguard.remains<10|!set_bonus.tier30_2pc)&(variable.tyrant_cd<15|fight_remains<40|buff.power_infusion.up)
-    if (S.SummonDemonicTyrant:CooldownRemains() < 15 and S.SummonVilefiend:CooldownRemains() < GCDMax * 5 and S.CallDreadstalkers:CooldownRemains() < GCDMax * 5 and (S.GrimoireFelguard:CooldownRemains() < 10 or not Player:HasTier(30, 2)) and (VarTyrantCD < 15 or FightRemains < 40 or Player:PowerInfusionUp()) or S.SummonVilefiend:IsAvailable() and S.SummonDemonicTyrant:CooldownRemains() < 15 and S.SummonVilefiend:CooldownRemains() < GCDMax * 5 and S.CallDreadstalkers:CooldownRemains() < GCDMax * 5 and (S.GrimoireFelguard:CooldownRemains() < 10 or not Player:HasTier(30, 2)) and (VarTyrantCD < 15 or FightRemains < 40 or Player:PowerInfusionUp())) then
+    if CDsON() and (S.SummonDemonicTyrant:CooldownRemains() < 15 and S.SummonVilefiend:CooldownRemains() < GCDMax * 5 and S.CallDreadstalkers:CooldownRemains() < GCDMax * 5 and (S.GrimoireFelguard:CooldownRemains() < 10 or not Player:HasTier(30, 2)) and (VarTyrantCD < 15 or FightRemains < 40 or Player:PowerInfusionUp()) or S.SummonVilefiend:IsAvailable() and S.SummonDemonicTyrant:CooldownRemains() < 15 and S.SummonVilefiend:CooldownRemains() < GCDMax * 5 and S.CallDreadstalkers:CooldownRemains() < GCDMax * 5 and (S.GrimoireFelguard:CooldownRemains() < 10 or not Player:HasTier(30, 2)) and (VarTyrantCD < 15 or FightRemains < 40 or Player:PowerInfusionUp())) then
       local ShouldReturn = Tyrant(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=tyrant,if=cooldown.summon_demonic_tyrant.remains<15&(buff.vilefiend.up|!talent.summon_vilefiend&(buff.grimoire_felguard.up|cooldown.grimoire_felguard.up|!set_bonus.tier30_2pc))&(variable.tyrant_cd<15|buff.grimoire_felguard.up|fight_remains<40|buff.power_infusion.up)
-    if (S.SummonDemonicTyrant:CooldownRemains() < 15 and (VilefiendActive() or not S.SummonVilefiend:IsAvailable() and (GrimoireFelguardActive() or S.GrimoireFelguard:CooldownUp() or not Player:HasTier(30, 2))) and (VarTyrantCD < 15 or GrimoireFelguardActive() or FightRemains < 40 or Player:PowerInfusionUp())) then
+    if CDsON() and (S.SummonDemonicTyrant:CooldownRemains() < 15 and (VilefiendActive() or not S.SummonVilefiend:IsAvailable() and (GrimoireFelguardActive() or S.GrimoireFelguard:CooldownUp() or not Player:HasTier(30, 2))) and (VarTyrantCD < 15 or GrimoireFelguardActive() or FightRemains < 40 or Player:PowerInfusionUp())) then
       local ShouldReturn = Tyrant(); if ShouldReturn then return ShouldReturn; end
     end
     -- summon_demonic_tyrant,if=buff.vilefiend.up|buff.grimoire_felguard.up|cooldown.grimoire_felguard.remains>90
