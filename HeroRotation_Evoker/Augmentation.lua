@@ -196,14 +196,29 @@ local function PrescienceCheck()
   -- Always return true in a raid, as the odds of running out of dps to buff is low.
   if UnitInRaid("player") then
     return true
-  -- In a 5-man, only suggest Prescience on a dps without the Prescience buff.
+  -- In a 5-man, suggest Prescience on a dps without the Prescience buff or on the tank if neither dps will lose uptime.
   elseif UnitInParty("player") then
+    local DPSBuffOne = nil
+    local DPSBuffTwo = nil
+    local TankBuff = nil
+    local PrescienceCD = S.Prescience:Cooldown()
     for unitID, Char in pairs(Unit.Party) do
-      if Char:Exists() and UnitGroupRolesAssigned(unitID) == "DAMAGER" then
-        if Char:BuffRemains(S.PrescienceBuff) <= Player:GCDRemains() then
-          return true
+      if Char:Exists() then
+        local CharRole = UnitGroupRolesAssigned(unitID)
+        if CharRole == "DAMAGER" then
+          if DPSBuffOne == nil then
+            DPSBuffOne = Char:BuffRemains(S.PrescienceBuff)
+          else
+            DPSBuffTwo = Char:BuffRemains(S.PrescienceBuff)
+          end
+        end
+        if CharRole == "TANK" then
+          TankBuff = Char:BuffRemains(S.PrescienceBuff)
         end
       end
+    end
+    if DPSBuffOne == 0 or DPSBuffTwo == 0 or Player:HasTier(31, 2) and DPSBuffOne > PrescienceCD and DPSBuffTwo > PrescienceCD and TankBuff == 0 then
+      return true
     end
     return false
   -- Always return false when playing solo.
@@ -325,7 +340,7 @@ local function OpenerFiller()
     VarOpenerCDs = true
   end
   -- variable,name=opener_delay,value=variable.opener_delay-2,if=equipped.nymues_unraveling_spindle&trinket.nymues_unraveling_spindle.cooldown.up
-  if I.NymuesUnravelingSpindle:IsEquipped() and I.NymuesUnravelingSpindle:CooldownRemains() <= Player:GCD() then
+  if I.NymuesUnravelingSpindle:IsEquippedAndReady() then
     VarOpenerDelay = VarOpenerDelay - 2
   end
   -- living_flame,if=active_enemies=1|talent.pupil_of_alexstrasza
@@ -341,7 +356,7 @@ end
 local function Items()
   if Settings.Commons.Enabled.Trinkets then
     -- use_item,name=nymues_unraveling_spindle,if=cooldown.breath_of_eons.remains<=3&(trinket.1.is.nymues_unraveling_spindle&variable.trinket_priority=1|trinket.2.is.nymues_unraveling_spindle&variable.trinket_priority=2)|(cooldown.fire_breath.remains<=4|cooldown.upheaval.remains<=4)&cooldown.breath_of_eons.remains>10&!debuff.temporal_wound.up&(trinket.1.is.nymues_unraveling_spindle&variable.trinket_priority=2|trinket.2.is.nymues_unraveling_spindle&variable.trinket_priority=1)
-    if I.NymuesUnravelingSpindle:IsEquipped() and I.NymuesUnravelingSpindle:CooldownRemains() <= Player:GCD() and (S.BreathofEons:CooldownRemains() <= 3 and (T1ID == I.NymuesUnravelingSpindle:ID() and VarTrinketPriority == 1 or T2ID == I.NymuesUnravelingSpindle:ID() and VarTrinketPriority == 2) or (S.FireBreath:CooldownRemains() <= 4 or S.Upheaval:CooldownRemains() <= 4) and S.BreathofEons:CooldownRemains() > 10 and Target:DebuffDown(S.TemporalWoundDebuff) and (T1ID == I.NymuesUnravelingSpindle:ID() and VarTrinketPriority == 2 or T2ID == I.NymuesUnravelingSpindle:ID() and VarTrinketPriority == 1)) then
+    if I.NymuesUnravelingSpindle:IsEquippedAndReady() and (S.BreathofEons:CooldownRemains() <= 3 and (T1ID == I.NymuesUnravelingSpindle:ID() and VarTrinketPriority == 1 or T2ID == I.NymuesUnravelingSpindle:ID() and VarTrinketPriority == 2) or (S.FireBreath:CooldownRemains() <= 4 or S.Upheaval:CooldownRemains() <= 4) and S.BreathofEons:CooldownRemains() > 10 and Target:DebuffDown(S.TemporalWoundDebuff) and (T1ID == I.NymuesUnravelingSpindle:ID() and VarTrinketPriority == 2 or T2ID == I.NymuesUnravelingSpindle:ID() and VarTrinketPriority == 1)) then
       if Cast(I.NymuesUnravelingSpindle, nil, Settings.Commons.DisplayStyle.Trinkets, not Target:IsInRange(45)) then return "nymues_unraveling_spindle items 2"; end
     end
     -- use_item,slot=trinket1,if=variable.trinket_1_buffs&!variable.trinket_1_manual&(debuff.temporal_wound.up|variable.trinket_2_buffs&!trinket.2.cooldown.up&(prev_gcd.1.fire_breath|prev_gcd.1.upheaval)&buff.ebon_might_self.up)&(variable.trinket_2_exclude|!trinket.2.has_cooldown|trinket.2.cooldown.remains|variable.trinket_priority=1)|trinket.1.proc.any_dps.duration>=fight_remains
