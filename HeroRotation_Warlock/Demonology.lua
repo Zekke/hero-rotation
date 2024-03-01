@@ -24,7 +24,7 @@ local num        = HR.Commons.Everyone.num
 local bool       = HR.Commons.Everyone.bool
 -- lua
 local mathmax    = math.max
-
+local mathmin    = math.min
 
 --- ============================ CONTENT ===========================
 --- ======= APL LOCALS =======
@@ -53,7 +53,6 @@ local VarPetExpire = 0
 local VarNP = false
 local VarImpl = false
 local VarPoolCoresForTyrant = false
-local VarShadowTimings = 0
 local VarTyrantTimings = 0
 local VarTyrantSync = 0
 local VarTyrantCD = 120
@@ -81,7 +80,7 @@ local Settings = {
 
 -- Stuns
 local StunInterrupts = {
-  {S.AxeToss, "Cast Axe Toss (Interrupt)", function () return true; end},
+  {S.Shadowfury, "Cast Shadowfury (Interrupt)", function () return true; end},
 }
 
 HL:RegisterForEvent(function()
@@ -191,13 +190,11 @@ local function Precombat()
   -- variable,name=next_tyrant,op=set,value=14+talent.grimoire_felguard+talent.summon_vilefiend
   VarNextTyrant = 14 + num(S.GrimoireFelguard:IsAvailable()) + num(S.SummonVilefiend:IsAvailable())
   -- variable,name=shadow_timings,default=0,op=reset
-  VarShadowTimings = 0
+  -- Note: variable.shadow_timings is never used in the APL.
   -- variable,name=tyrant_timings,value=0
   VarTyrantTimings = 0
   -- variable,name=shadow_timings,op=set,value=0,if=cooldown.invoke_power_infusion_0.duration!=120
-  if Settings.Demonology.PISource == "Shadow" then
-    VarShadowTimings = 1
-  end
+  -- Note: variable.shadow_timings is never used in the APL.
   -- variable,name=trinket_1_buffs,value=trinket.1.has_use_buff
   -- variable,name=trinket_2_buffs,value=trinket.2.has_use_buff
   -- variable,name=trinket_1_exclude,value=trinket.1.is.ruby_whelp_shell|trinket.1.is.whispering_incarnate_icon|trinket.1.is.timethiefs_gambit
@@ -240,11 +237,11 @@ local function Variables()
   end
   -- variable,name=pet_expire,op=set,value=(buff.dreadstalkers.remains>?buff.vilefiend.remains)-gcd*0.5,if=buff.vilefiend.up&buff.dreadstalkers.up
   if VilefiendActive() and DreadstalkerActive() then
-    VarPetExpire = mathmax(VilefiendTime(), DreadstalkerTime()) - Player:GCD() * 0.5
+    VarPetExpire = mathmin(VilefiendTime(), DreadstalkerTime()) - Player:GCD() * 0.5
   end
   -- variable,name=pet_expire,op=set,value=(buff.dreadstalkers.remains>?buff.grimoire_felguard.remains)-gcd*0.5,if=!talent.summon_vilefiend&talent.grimoire_felguard&buff.dreadstalkers.up
   if not S.SummonVilefiend:IsAvailable() and S.GrimoireFelguard:IsAvailable() and DreadstalkerActive() then
-    VarPetExpire = mathmax(DreadstalkerTime(), GrimoireFelguardTime()) - Player:GCD() * 0.5
+    VarPetExpire = mathmin(DreadstalkerTime(), GrimoireFelguardTime()) - Player:GCD() * 0.5
   end
   -- variable,name=pet_expire,op=set,value=(buff.dreadstalkers.remains)-gcd*0.5,if=!talent.summon_vilefiend&(!talent.grimoire_felguard|!set_bonus.tier30_2pc)&buff.dreadstalkers.up
   if not S.SummonVilefiend:IsAvailable() and (not S.GrimoireFelguard:IsAvailable() or not Player:HasTier(30, 2)) and DreadstalkerActive() then
@@ -354,7 +351,7 @@ local function Tyrant()
     end
   end
   -- summon_demonic_tyrant,if=variable.pet_expire>0&variable.pet_expire<action.summon_demonic_tyrant.execute_time+(buff.demonic_core.down*action.shadow_bolt.execute_time+buff.demonic_core.up*gcd.max)+gcd.max
-  if S.SummonDemonicTyrant:IsCastable() and (VarPetExpire > 0 and VarPetExpire < S.SummonDemonicTyrant:ExecuteTime() + (num(Player:BuffDown(S.DemonicCoreBuff)) * S.ShadowBolt:ExecuteTime() + num(Player:BuffUp(S.DemonicCoreBuff)) * GCDMax) + GCDMax) then
+  if CDsON() and S.SummonDemonicTyrant:IsCastable() and (VarPetExpire > 0 and VarPetExpire < S.SummonDemonicTyrant:ExecuteTime() + (num(Player:BuffDown(S.DemonicCoreBuff)) * S.ShadowBolt:ExecuteTime() + num(Player:BuffUp(S.DemonicCoreBuff)) * GCDMax) + GCDMax) then
     if Cast(S.SummonDemonicTyrant, Settings.Demonology.GCDasOffGCD.SummonDemonicTyrant) then return "summon_demonic_tyrant tyrant 6"; end
   end
   -- implosion,if=pet_count>2&(buff.dreadstalkers.down&buff.grimoire_felguard.down&buff.vilefiend.down)&(active_enemies>3|active_enemies>2&talent.grand_warlocks_design)&!prev_gcd.1.implosion
@@ -374,7 +371,7 @@ local function Tyrant()
     if Cast(S.ShadowBolt, nil, nil, not Target:IsSpellInRange(S.ShadowBolt)) then return "shadow_bolt tyrant 14"; end
   end
   -- nether_portal,if=soul_shard=5
-  if S.NetherPortal:IsReady() and (SoulShards == 5) then
+  if CDsON() and S.NetherPortal:IsReady() and (SoulShards == 5) then
     if Cast(S.NetherPortal, Settings.Demonology.GCDasOffGCD.NetherPortal) then return "nether_portal tyrant 16"; end
   end
   -- summon_vilefiend,if=(soul_shard=5|buff.nether_portal.up)&cooldown.summon_demonic_tyrant.remains<13&variable.np
@@ -386,7 +383,7 @@ local function Tyrant()
     if Cast(S.CallDreadstalkers, nil, nil, not Target:IsSpellInRange(S.CallDreadstalkers)) then return "call_dreadstalkers tyrant 20"; end
   end
   -- grimoire_felguard,if=buff.vilefiend.up|!talent.summon_vilefiend&(!talent.nether_portal|buff.nether_portal.up|cooldown.nether_portal.remains>30)&(buff.nether_portal.up|buff.dreadstalkers.up|soul_shard=5)&variable.np
-  if S.GrimoireFelguard:IsReady() and (VilefiendActive() or not S.SummonVilefiend:IsAvailable() and (not S.NetherPortal:IsAvailable() or Player:BuffUp(S.NetherPortalBuff) or S.NetherPortal:CooldownRemains() > 30) and (Player:BuffUp(S.NetherPortalBuff) or DreadstalkerActive() or SoulShards == 5) and VarNP) then
+  if CDsON() and S.GrimoireFelguard:IsReady() and (VilefiendActive() or not S.SummonVilefiend:IsAvailable() and (not S.NetherPortal:IsAvailable() or Player:BuffUp(S.NetherPortalBuff) or S.NetherPortal:CooldownRemains() > 30) and (Player:BuffUp(S.NetherPortalBuff) or DreadstalkerActive() or SoulShards == 5) and VarNP) then
     if Cast(S.GrimoireFelguard, Settings.Demonology.GCDasOffGCD.GrimoireFelguard, nil, not Target:IsSpellInRange(S.GrimoireFelguard)) then return "grimoire_felguard tyrant 22"; end
   end
   -- hand_of_guldan,if=soul_shard>2&(buff.vilefiend.up|!talent.summon_vilefiend&buff.dreadstalkers.up)&(soul_shard>2|buff.vilefiend.remains<gcd.max*2+2%spell_haste)|(!buff.dreadstalkers.up&soul_shard=5)
@@ -408,9 +405,9 @@ local function Tyrant()
 end
 
 local function FightEnd()
-  if FightRemains < 20 then
+  if BossFightRemains < 20 then
     -- grimoire_felguard,if=fight_remains<20
-    if S.GrimoireFelguard:IsReady() then
+    if CDsON() and S.GrimoireFelguard:IsReady() then
       if Cast(S.GrimoireFelguard, Settings.Demonology.GCDasOffGCD.GrimoireFelguard) then return "grimoire_felguard fight_end 2"; end
     end
     -- call_dreadstalkers,if=fight_remains<20
@@ -423,19 +420,19 @@ local function FightEnd()
     end
   end
   -- nether_portal,if=fight_remains<30
-  if S.NetherPortal:IsReady() and (FightRemains < 30) then
+  if CDsON() and S.NetherPortal:IsReady() and (BossFightRemains < 30) then
     if Cast(S.NetherPortal, Settings.Demonology.GCDasOffGCD.NetherPortal) then return "nether_portal fight_end 8"; end
   end
   -- summon_demonic_tyrant,if=fight_remains<20
-  if S.SummonDemonicTyrant:IsCastable() and (FightRemains < 20) then
+  if CDsON() and S.SummonDemonicTyrant:IsCastable() and (BossFightRemains < 20) then
     if Cast(S.SummonDemonicTyrant, Settings.Demonology.GCDasOffGCD.SummonDemonicTyrant) then return "summon_demonic_tyrant fight_end 10"; end
   end
   -- demonic_strength,if=fight_remains<10
-  if S.DemonicStrength:IsCastable() and (FightRemains < 10) then
+  if CDsON() and S.DemonicStrength:IsCastable() and (BossFightRemains < 10) then
     if Cast(S.DemonicStrength, Settings.Demonology.GCDasOffGCD.DemonicStrength) then return "demonic_strength fight_end 12"; end
   end
   -- power_siphon,if=buff.demonic_core.stack<3&fight_remains<20
-  if S.PowerSiphon:IsReady() and (Player:BuffStack(S.DemonicCoreBuff) < 3 and FightRemains < 20) then
+  if S.PowerSiphon:IsReady() and (Player:BuffStack(S.DemonicCoreBuff) < 3 and BossFightRemains < 20) then
     if Cast(S.PowerSiphon, Settings.Demonology.GCDasOffGCD.PowerSiphon) then return "power_siphon fight_end 14"; end
   end
   -- implosion,if=fight_remains<2*gcd.max
@@ -491,7 +488,7 @@ local function APL()
     end
     -- Interrupts
     if S.SpellLock:IsAvailable() then
-      local ShouldReturn = Everyone.Interrupt(S.SpellLock, Settings.Commons.OffGCDasOffGCD.SpellLock, StunInterrupts); if ShouldReturn then return ShouldReturn; end
+      local ShouldReturn = Everyone.Interrupt(S.AxeToss, Settings.Commons.OffGCDasOffGCD.SpellLock, StunInterrupts); if ShouldReturn then return ShouldReturn; end
     end
     -- Manually added: unending_resolve
     if S.UnendingResolve:IsReady() and (Player:HealthPercentage() < Settings.Demonology.UnendingResolveHP) then
@@ -500,7 +497,7 @@ local function APL()
     -- call_action_list,name=variables
     Variables()
     -- call_action_list,name=racials,if=pet.demonic_tyrant.active|fight_remains<22,use_off_gcd=1
-    if DemonicTyrantActive() or FightRemains < 22 then
+    if CDsON() and (DemonicTyrantActive() or FightRemains < 22) then
       local ShouldReturn = Racials(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=items,use_off_gcd=1
@@ -526,7 +523,7 @@ local function APL()
       local ShouldReturn = Tyrant(); if ShouldReturn then return ShouldReturn; end
     end
     -- summon_demonic_tyrant,if=buff.vilefiend.up|buff.grimoire_felguard.up|cooldown.grimoire_felguard.remains>90
-    if S.SummonDemonicTyrant:IsCastable() and (VilefiendActive() or GrimoireFelguardActive() or S.GrimoireFelguard:CooldownRemains() > 90) then
+    if CDsON() and S.SummonDemonicTyrant:IsCastable() and (VilefiendActive() or GrimoireFelguardActive() or S.GrimoireFelguard:CooldownRemains() > 90) then
       if Cast(S.SummonDemonicTyrant, Settings.Demonology.GCDasOffGCD.SummonDemonicTyrant) then return "summon_demonic_tyrant main 4"; end
     end
     -- summon_vilefiend,if=cooldown.summon_demonic_tyrant.remains>45
@@ -542,7 +539,7 @@ local function APL()
       if Cast(S.PowerSiphon, Settings.Demonology.GCDasOffGCD.PowerSiphon) then return "power_siphon main 10"; end
     end
     -- demonic_strength,if=buff.nether_portal.remains<gcd.max&!(raid_event.adds.in<45-raid_event.add.duration)
-    if S.DemonicStrength:IsCastable() and (Player:BuffRemains(S.NetherPortalBuff) < GCDMax) then
+    if CDsON() and S.DemonicStrength:IsCastable() and (Player:BuffRemains(S.NetherPortalBuff) < GCDMax) then
       if Cast(S.DemonicStrength, Settings.Demonology.GCDasOffGCD.DemonicStrength) then return "demonic_strength main 12"; end
     end
     -- bilescourge_bombers
