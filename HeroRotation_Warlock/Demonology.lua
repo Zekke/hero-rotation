@@ -478,7 +478,7 @@ local function APL()
 
   -- summon_pet
   if S.SummonPet:IsCastable() and not (Player:IsMounted() or Player:IsInVehicle()) then
-    if Cast(S.SummonPet, Settings.Demonology.GCDasOffGCD.SummonPet) then return "summon_pet ooc"; end
+    if HR.CastAnnotated(S.SummonPet, Settings.Demonology.GCDasOffGCD.SummonPet, "NO PET", nil, Settings.Demonology.SummonPetFontSize) then return "summon_pet ooc"; end
   end
 
   if Everyone.TargetIsValid() then
@@ -487,9 +487,7 @@ local function APL()
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
     end
     -- Interrupts
-    if S.SpellLock:IsAvailable() then
-      local ShouldReturn = Everyone.Interrupt(S.AxeToss, Settings.Commons.OffGCDasOffGCD.SpellLock, StunInterrupts); if ShouldReturn then return ShouldReturn; end
-    end
+    local ShouldReturn = Everyone.Interrupt(S.AxeToss, Settings.Commons.OffGCDasOffGCD.SpellLock, StunInterrupts); if ShouldReturn then return ShouldReturn; end
     -- Manually added: unending_resolve
     if S.UnendingResolve:IsReady() and (Player:HealthPercentage() < Settings.Demonology.UnendingResolveHP) then
       if Cast(S.UnendingResolve, Settings.Demonology.OffGCDasOffGCD.UnendingResolve) then return "unending_resolve defensive"; end
@@ -548,7 +546,7 @@ local function APL()
     end
     -- guillotine,if=buff.nether_portal.remains<gcd.max&(cooldown.demonic_strength.remains|!talent.demonic_strength)&(!raid_event.adds.exists|raid_event.adds.exists&raid_event.adds.remains>6)
     if S.Guillotine:IsCastable() and (Player:BuffRemains(S.NetherPortalBuff) < GCDMax and (S.DemonicStrength:CooldownDown() or not S.DemonicStrength:IsAvailable())) then
-      if Cast(S.Guillotine, nil, nil, not Target:IsInRange(40)) then return "guillotine main 16"; end
+      if Cast(S.Guillotine, Settings.Demonology.GCDasOffGCD.Guillotine, nil, not Target:IsInRange(40)) then return "guillotine main 16"; end
     end
     -- call_dreadstalkers,if=cooldown.summon_demonic_tyrant.remains>25|variable.tyrant_cd>25|buff.nether_portal.up
     if S.CallDreadstalkers:IsReady() and (S.SummonDemonicTyrant:CooldownRemains() > 25 or VarTyrantCD > 25 or Player:BuffUp(S.NetherPortalBuff)) then
