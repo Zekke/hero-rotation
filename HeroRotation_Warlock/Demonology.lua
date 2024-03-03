@@ -38,6 +38,7 @@ local I = Item.Warlock.Demonology
 local OnUseExcludes = {
   I.NymuesUnravelingSpindle:ID(),
   I.TimeThiefsGambit:ID(),
+  I.MirrorofFracturedTomorrows:ID(),
 }
 
 -- Trinket Item Objects
@@ -303,6 +304,9 @@ local function Items()
   end
   -- use_item,name=nymues_unraveling_spindle,if=trinket.1.is.nymues_unraveling_spindle&((pet.demonic_tyrant.active&(!cooldown.demonic_strength.ready|!talent.demonic_strength)&!variable.trinket_2_buffs)|(variable.trinket_2_buffs))|trinket.2.is.nymues_unraveling_spindle&((pet.demonic_tyrant.active&(!cooldown.demonic_strength.ready|!talent.demonic_strength)&!variable.trinket_1_buffs)|(variable.trinket_1_buffs))|fight_remains<22
   -- use_item,name=mirror_of_fractured_tomorrows,if=trinket.1.is.mirror_of_fractured_tomorrows&variable.trinket_priority=2|trinket.2.is.mirror_of_fractured_tomorrows&variable.trinket_priority=1
+  if I.MirrorofFracturedTomorrows:IsEquippedAndReady() and (DemonicTyrantActive()) then
+    if Cast(I.MirrorofFracturedTomorrows, nil, Settings.Commons.DisplayStyle.Trinkets) then return "MirrorofFracturedTomorrows items 2"; end
+  end
   -- use_item,name=timethiefs_gambit,if=pet.demonic_tyrant.active
   if I.TimeThiefsGambit:IsEquippedAndReady() and (DemonicTyrantActive()) then
     if Cast(I.TimeThiefsGambit, nil, Settings.Commons.DisplayStyle.Trinkets) then return "timethiefs_gambit items 2"; end
