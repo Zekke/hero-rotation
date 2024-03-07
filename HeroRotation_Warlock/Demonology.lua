@@ -39,6 +39,7 @@ local OnUseExcludes = {
   I.NymuesUnravelingSpindle:ID(),
   I.TimeThiefsGambit:ID(),
   I.MirrorofFracturedTomorrows:ID(),
+  I.BalefireBranch:ID(),
 }
 
 -- Trinket Item Objects
@@ -304,7 +305,10 @@ local function Items()
   end
   -- use_item,name=nymues_unraveling_spindle,if=trinket.1.is.nymues_unraveling_spindle&((pet.demonic_tyrant.active&(!cooldown.demonic_strength.ready|!talent.demonic_strength)&!variable.trinket_2_buffs)|(variable.trinket_2_buffs))|trinket.2.is.nymues_unraveling_spindle&((pet.demonic_tyrant.active&(!cooldown.demonic_strength.ready|!talent.demonic_strength)&!variable.trinket_1_buffs)|(variable.trinket_1_buffs))|fight_remains<22
   -- use_item,name=mirror_of_fractured_tomorrows,if=trinket.1.is.mirror_of_fractured_tomorrows&variable.trinket_priority=2|trinket.2.is.mirror_of_fractured_tomorrows&variable.trinket_priority=1
-  if I.MirrorofFracturedTomorrows:IsEquippedAndReady() and (DemonicTyrantActive()) then
+  if I.BalefireBranch:IsEquippedAndReady() and (DemonicTyrantActive()) then
+    if Cast(I.BalefireBranch, nil, Settings.Commons.DisplayStyle.Trinkets) then return "BalefireBranch items 2"; end
+  end
+  if I.MirrorofFracturedTomorrows:IsEquippedAndReady() and ((DemonicTyrantActive() and not I.BalefireBranch:IsEquipped()) or (I.BalefireBranch:IsEquipped() and I.BalefireBranch:CooldownRemains() > 20)) then
     if Cast(I.MirrorofFracturedTomorrows, nil, Settings.Commons.DisplayStyle.Trinkets) then return "MirrorofFracturedTomorrows items 2"; end
   end
   -- use_item,name=timethiefs_gambit,if=pet.demonic_tyrant.active
@@ -503,7 +507,7 @@ local function APL()
       local ShouldReturn = Racials(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=items,use_off_gcd=1
-    if Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items then
+    if CDsON() and Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items then
       local ShouldReturn = Items(); if ShouldReturn then return ShouldReturn; end
     end
     -- invoke_external_buff,name=power_infusion,if=(buff.nether_portal.up&buff.nether_portal.remains<3&talent.nether_portal)|fight_remains<20|pet.demonic_tyrant.active&fight_remains<100|fight_remains<25|(pet.demonic_tyrant.active|!talent.summon_demonic_tyrant&buff.dreadstalkers.up)
@@ -557,7 +561,7 @@ local function APL()
       if Cast(S.CallDreadstalkers, nil, nil, not Target:IsSpellInRange(S.CallDreadstalkers)) then return "call_dreadstalkers main 18"; end
     end
     -- implosion,if=two_cast_imps>0&variable.impl&!prev_gcd.1.implosion&!raid_event.adds.exists|two_cast_imps>0&variable.impl&!prev_gcd.1.implosion&raid_event.adds.exists&(active_enemies>3|active_enemies<=3&last_cast_imps>0)
-    if S.Implosion:IsReady() and (CheckImpCasts(2) > 0 and VarImpl and not Player:PrevGCDP(1, S.Implosion) and (EnemiesCount8ySplash == 1 or (EnemiesCount8ySplash > 3 or EnemiesCount8ySplash <= 3 and CheckImpCasts(1) > 0))) then
+    if S.Implosion:IsReady() and (CheckImpCasts(2) > 0 and VarImpl and not Player:PrevGCDP(1, S.Implosion) and not Player:PrevGCD(1, S.SummonDemonicTyrant) and (EnemiesCount8ySplash == 1 or (EnemiesCount8ySplash > 3 or EnemiesCount8ySplash <= 3 and CheckImpCasts(1) > 0))) then
       if Cast(S.Implosion, Settings.Demonology.GCDasOffGCD.Implosion, nil, not Target:IsInRange(40)) then return "implosion main 20"; end
     end
     -- summon_soulkeeper,if=buff.tormented_soul.stack=10&active_enemies>1

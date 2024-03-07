@@ -194,6 +194,7 @@ if not Item.Warlock then Item.Warlock = {} end
 Item.Warlock.Commons = {
   -- Trinkets
   AshesoftheEmbersoul                   = Item(207167, {13, 14}),
+  BalefireBranch                        = Item(159630, {13, 14}),
   BeacontotheBeyond                     = Item(203963, {13, 14}),
   BelorrelostheSuncaller                = Item(207172, {13, 14}),
   ConjuredChillglobe                    = Item(194300, {13, 14}),
