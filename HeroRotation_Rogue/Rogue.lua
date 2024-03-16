@@ -102,6 +102,7 @@ Spell.Rogue.Commons = {
   VanishBuff              = Spell(11327),
   VanishBuff2             = Spell(115193),
   -- Trinkets
+  BlazingSoul             = Spell(426898),
   -- Misc
   PoolEnergy              = Spell(999910),
 }

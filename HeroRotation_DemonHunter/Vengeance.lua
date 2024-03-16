@@ -138,7 +138,7 @@ local function Defensives()
     end
   end
   -- Metamorphosis,if=!buff.metamorphosis.up|target.time_to_die<15
-  if S.Metamorphosis:IsCastable() and Player:HealthPercentage() <= Settings.Vengeance.MetamorphosisHealthThreshold and (Player:BuffDown(S.MetamorphosisBuff) or Target:TimeToDie() < 15) then
+  if CDsON() and S.Metamorphosis:IsCastable() and Player:HealthPercentage() <= Settings.Vengeance.MetamorphosisHealthThreshold and (Player:BuffDown(S.MetamorphosisBuff) or Target:TimeToDie() < 15) then
     if Cast(S.Metamorphosis, nil, Settings.Commons.DisplayStyle.Metamorphosis) then return "metamorphosis defensives"; end
   end
   -- Fiery Brand
@@ -219,11 +219,11 @@ local function FieryDemise()
     if Cast(S.SoulCarver, nil, nil, not IsInMeleeRange) then return "soul_carver fiery_demise 10"; end
   end
   -- the_hunt
-  if S.TheHunt:IsCastable() then
+  if CDsON() and S.TheHunt:IsCastable() then
     if Cast(S.TheHunt, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsInRange(50)) then return "the_hunt fiery_demise 12"; end
   end
   -- elysian_decree,line_cd=1.85,if=fury>=40
-  if S.ElysianDecree:IsCastable() and S.ElysianDecree:TimeSinceLastCast() >= 1.85 and (Player:Fury() >= 40) then
+  if CDsON() and S.ElysianDecree:IsCastable() and S.ElysianDecree:TimeSinceLastCast() >= 1.85 and (Player:Fury() >= 40) then
     if Cast(S.ElysianDecree, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsInRange(30)) then return "elysian_decree fiery_demise 14"; end
   end
   -- spirit_bomb,if=variable.can_spb
@@ -264,7 +264,7 @@ end
 
 local function SingleTarget()
   -- the_hunt
-  if S.TheHunt:IsCastable() then
+  if CDsON() and S.TheHunt:IsCastable() then
     if Cast(S.TheHunt, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsInRange(50)) then return "the_hunt single_target 2"; end
   end
   -- soul_carver
@@ -276,7 +276,7 @@ local function SingleTarget()
     if Cast(S.FelDevastation, Settings.Vengeance.GCDasOffGCD.FelDevastation, nil, not Target:IsInMeleeRange(20)) then return "fel_devastation single_target 6"; end
   end
   -- elysian_decree
-  if S.ElysianDecree:IsCastable() then
+  if CDsON() and S.ElysianDecree:IsCastable() then
     if Cast(S.ElysianDecree, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsInRange(30)) then return "elysian_decree single_target 8"; end
   end
   -- fel_devastation
@@ -297,7 +297,7 @@ end
 
 local function SmallAoE()
   -- the_hunt
-  if S.TheHunt:IsCastable() then
+  if CDsON() and S.TheHunt:IsCastable() then
     if Cast(S.TheHunt, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsInRange(50)) then return "the_hunt small_aoe 2"; end
   end
   -- fel_devastation,if=talent.collective_anguish.enabled|(talent.stoke_the_flames.enabled&talent.burning_blood.enabled)
@@ -305,7 +305,7 @@ local function SmallAoE()
     if Cast(S.FelDevastation, Settings.Vengeance.GCDasOffGCD.FelDevastation, nil, not Target:IsInMeleeRange(20)) then return "fel_devastation small_aoe 4"; end
   end
   -- elysian_decree,line_cd=1.85,if=fury>=40&(soul_fragments.total<=1|soul_fragments.total>=4)
-  if S.ElysianDecree:IsCastable() and S.ElysianDecree:TimeSinceLastCast() >= 1.85 and (Player:Fury() >= 40 and (TotalSoulFragments <= 1 or TotalSoulFragments >= 4)) then
+  if CDsON() and S.ElysianDecree:IsCastable() and S.ElysianDecree:TimeSinceLastCast() >= 1.85 and (Player:Fury() >= 40 and (TotalSoulFragments <= 1 or TotalSoulFragments >= 4)) then
     if Cast(S.ElysianDecree, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsInRange(30)) then return "elysian_decree small_aoe 6"; end
   end
   -- fel_devastation
@@ -334,11 +334,11 @@ local function BigAoE()
     if Cast(S.FelDevastation, Settings.Vengeance.GCDasOffGCD.FelDevastation, nil, not Target:IsInMeleeRange(20)) then return "fel_devastation big_aoe 2"; end
   end
   -- the_hunt
-  if S.TheHunt:IsCastable() then
+  if CDsON() and S.TheHunt:IsCastable() then
     if Cast(S.TheHunt, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsInRange(50)) then return "the_hunt big_aoe 4"; end
   end
   -- elysian_decree,line_cd=1.85,if=fury>=40&(soul_fragments.total<=1|soul_fragments.total>=4)
-  if S.ElysianDecree:IsCastable() and S.ElysianDecree:TimeSinceLastCast() >= 1.85 and (Player:Fury() >= 40 and (TotalSoulFragments <= 1 or TotalSoulFragments >= 4)) then
+  if CDsON() and S.ElysianDecree:IsCastable() and S.ElysianDecree:TimeSinceLastCast() >= 1.85 and (Player:Fury() >= 40 and (TotalSoulFragments <= 1 or TotalSoulFragments >= 4)) then
     if Cast(S.ElysianDecree, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsInRange(30)) then return "elysian_decree big_aoe 6"; end
   end
   -- fel_devastation
@@ -452,7 +452,7 @@ local function APL()
     -- demon_spikes,use_off_gcd=1,if=!buff.demon_spikes.up&!cooldown.pause_action.remains
     -- Note: Handled via Defensives()
     -- metamorphosis,use_off_gcd=1,if=!buff.metamorphosis.up&cooldown.fel_devastation.remains>12
-    if S.Metamorphosis:IsCastable() and (Player:BuffDown(S.MetamorphosisBuff) and S.FelDevastation:CooldownRemains() > 12) then
+    if CDsON() and S.Metamorphosis:IsCastable() and (Player:BuffDown(S.MetamorphosisBuff) and S.FelDevastation:CooldownRemains() > 12) then
       if Cast(S.Metamorphosis, nil, Settings.Commons.DisplayStyle.Metamorphosis) then return "metamorphosis main 4"; end
     end
     -- potion,use_off_gcd=1

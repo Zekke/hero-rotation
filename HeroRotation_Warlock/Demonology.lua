@@ -318,7 +318,7 @@ local function Items()
   -- use_item,slot=trinket1,if=!variable.trinket_1_buffs&(variable.damage_trinket_priority=1|trinket.2.cooldown.remains)
   -- use_item,slot=trinket2,if=!variable.trinket_2_buffs&(variable.damage_trinket_priority=2|trinket.1.cooldown.remains)
   -- Note: Can't handle some of the above conditions, so using a generic use_items to cover trinkets and other items.
-  if Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items then
+  if (Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items) and (not I.BalefireBranch:IsEquipped() or (I.BalefireBranch:IsEquipped() and I.BalefireBranch:CooldownRemains() > 20)) then
     local ItemToUse, ItemSlot, ItemRange = Player:GetUseableItems(OnUseExcludes)
     if ItemToUse then
       local DisplayStyle = Settings.Commons.DisplayStyle.Trinkets
@@ -343,7 +343,7 @@ local function Tyrant()
   if S.HandofGuldan:IsReady() and SoulShards > 0 and (VarPetExpire > GCDMax + S.SummonDemonicTyrant:CastTime() and VarPetExpire < GCDMax * 4) then
     if Cast(S.HandofGuldan, nil, nil, not Target:IsSpellInRange(S.HandofGuldan)) then return "hand_of_guldan tyrant 2"; end
   end
-  if CDsON() and VarPetExpire > 0 and VarPetExpire < S.SummonDemonicTyrant:ExecuteTime() + (num(Player:BuffDown(S.DemonicCoreBuff)) * S.ShadowBolt:ExecuteTime() + num(Player:BuffUp(S.DemonicCoreBuff)) * GCDMax) + GCDMax then
+  if CDsON() and (VarPetExpire > 0 and VarPetExpire < S.SummonDemonicTyrant:ExecuteTime() + (num(Player:BuffDown(S.DemonicCoreBuff)) * S.ShadowBolt:ExecuteTime() + num(Player:BuffUp(S.DemonicCoreBuff)) * GCDMax) + GCDMax) then
     -- call_action_list,name=items,if=variable.pet_expire>0&variable.pet_expire<action.summon_demonic_tyrant.execute_time+(buff.demonic_core.down*action.shadow_bolt.execute_time+buff.demonic_core.up*gcd.max)+gcd.max,use_off_gcd=1
     if Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items then
       local ShouldReturn = Items(); if ShouldReturn then return ShouldReturn; end
@@ -506,7 +506,7 @@ local function APL()
       local ShouldReturn = Racials(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=items,use_off_gcd=1
-    if CDsON() and Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items then
+    if CDsON() and (Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items) then
       local ShouldReturn = Items(); if ShouldReturn then return ShouldReturn; end
     end
     -- invoke_external_buff,name=power_infusion,if=(buff.nether_portal.up&buff.nether_portal.remains<3&talent.nether_portal)|fight_remains<20|pet.demonic_tyrant.active&fight_remains<100|fight_remains<25|(pet.demonic_tyrant.active|!talent.summon_demonic_tyrant&buff.dreadstalkers.up)
@@ -549,7 +549,7 @@ local function APL()
     end
     -- bilescourge_bombers
     if S.BilescourgeBombers:IsReady() then
-      if Cast(S.BilescourgeBombers, nil, nil, not Target:IsInRange(40)) then return "bilescourge_bombers main 14"; end
+      if Cast(S.BilescourgeBombers, Settings.Demonology.GCDasOffGCD.DemonicStrength, nil, not Target:IsInRange(40)) then return "bilescourge_bombers main 14"; end
     end
     -- guillotine,if=buff.nether_portal.remains<gcd.max&(cooldown.demonic_strength.remains|!talent.demonic_strength)&(!raid_event.adds.exists|raid_event.adds.exists&raid_event.adds.remains>6)
     if S.Guillotine:IsCastable() and (Player:BuffRemains(S.NetherPortalBuff) < GCDMax and (S.DemonicStrength:CooldownDown() or not S.DemonicStrength:IsAvailable())) then

@@ -101,6 +101,38 @@ local Settings = {
   Subtlety = HR.GUISettings.APL.Rogue.Subtlety
 }
 
+local AoeEncountersList = {
+  198594, --Cleave Training Dummy
+  209333, --Gnarlroot
+  209090, --Tindral
+}
+
+local DoubleTrinketSpecialEncountersList = {
+  209333, --Gnarlroot
+  200927, --Smolderon
+  209090, --Tindral
+}
+
+local function WaitForAoE()
+  local npc_id = Target:NPCID()
+  for _, value in ipairs(AoeEncountersList) do
+    if npc_id == value then
+      return true
+    end
+  end
+  return false
+end
+
+local function DoubleTrinketSpecialEncounter()
+  local npc_id = Target:NPCID()
+  for _, value in ipairs(DoubleTrinketSpecialEncountersList) do
+    if npc_id == value then
+      return true
+    end
+  end
+  return false
+end
+
 local function SetPoolingAbility(PoolingSpell, EnergyThreshold)
   if not PoolingAbility then
     PoolingAbility = PoolingSpell
@@ -311,7 +343,7 @@ local function Finish (ReturnSpellOnly, StealthSpell)
   end
 
   -- actions.finish+=/cold_blood,if=variable.secret_condition&cooldown.secret_technique.ready
-  if S.ColdBlood:IsReady() and Secret_Condition(ShadowDanceBuff, PremeditationBuff) and S.SecretTechnique:IsReady() then
+  if CDsON() and S.ColdBlood:IsReady() and Secret_Condition(ShadowDanceBuff, PremeditationBuff) and S.SecretTechnique:IsReady() then
     if Settings.Commons.OffGCDasOffGCD.ColdBlood then
       Cast(S.ColdBlood, Settings.Commons.OffGCDasOffGCD.ColdBlood)
     else
@@ -610,7 +642,7 @@ local function CDs ()
   -- Shuriken Tornado only outside of cooldowns
   if HR.CDsON() and S.ShurikenTornado:IsAvailable() and S.ShurikenTornado:IsReady() then
     if SnD_Condition() and not Player:BuffUp(S.ShadowDance) and not Player:BuffUp(S.Flagellation)
-      and not Player:BuffUp(S.FlagellationPersistBuff) and not Player:BuffUp(S.ShadowBlades) and MeleeEnemies10yCount <= 2 then
+      and not Player:BuffUp(S.FlagellationPersistBuff) and not Player:BuffUp(S.ShadowBlades) and ((MeleeEnemies10yCount <= 2 and not WaitForAoE()) or MeleeEnemies10yCount > 1) then
         if Cast(S.ShurikenTornado, Settings.Subtlety.GCDasOffGCD.ShurikenTornado) then return "Cast Shuriken Tornado" end
     end
   end
@@ -682,7 +714,8 @@ local function CDs ()
   -- Sync specific trinkets to Flagellation or Shadow Dance.
   if Settings.Commons.Enabled.Trinkets then
     if I.AshesoftheEmbersoul:IsEquippedAndReady() then
-      if Player:BuffUp(S.Flagellation) and (S.InvigoratingShadowdust:IsAvailable() or Player:BuffUp(S.ShadowDance)) and not I.WitherbarksBranch:IsEquippedAndReady() then
+      --if Player:BuffUp(S.Flagellation) and (S.InvigoratingShadowdust:IsAvailable() or Player:BuffUp(S.ShadowDance)) and ((not I.WitherbarksBranch:IsEquippedAndReady()) or DoubleTrinketSpecialEncounter()) and not Player:BuffUp(S.BlazingSoul) then
+      if Player:BuffUp(S.Flagellation) and (S.InvigoratingShadowdust:IsAvailable() or Player:BuffUp(S.ShadowDance)) and not Player:BuffUp(S.BlazingSoul) then
         if Cast(I.AshesoftheEmbersoul, nil, Settings.Commons.DisplayStyle.Trinkets) then return "Ashes of the Embersoul" end
       end
     end
@@ -772,7 +805,7 @@ local function Stealth_CDs (EnergyThreshold)
   -- &!talent.sepsis|buff.symbols_of_death.remains>=4&!set_bonus.tier30_2pc|!buff.symbols_of_death.remains&set_bonus.tier30_2pc)
   -- &cooldown.secret_technique.remains<10+12*(!talent.invigorating_shadowdust|set_bonus.tier30_2pc))
   -- Shadow dance when Rupture is up and syncronize depending on talent choice.
-  if TargetInMeleeRange and S.ShadowDance:IsCastable() then
+  if HR.CDsON() and TargetInMeleeRange and S.ShadowDance:IsCastable() then
     if (Target:DebuffUp(S.Rupture) or S.InvigoratingShadowdust:IsAvailable()) and Rotten_CB()
       and (not S.TheFirstDance:IsAvailable() or ComboPointsDeficit >= 4 or Player:BuffUp(S.ShadowBlades))
       and (ShD_Combo_Points() and ShD_Threshold() or (Player:BuffUp(S.ShadowBlades) or Player:BuffUp(S.SymbolsofDeath)
