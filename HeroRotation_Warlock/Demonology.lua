@@ -174,6 +174,11 @@ local function EvaluateCycleDoom(TargetUnit)
   return (TargetUnit:DebuffRefreshable(S.Doom))
 end
 
+local function EvaluateCycleDoomBrand(TargetUnit)
+  -- target_if=!debuff.doom_brand.up
+  return (TargetUnit:DebuffDown(S.DoomBrandDebuff))
+end
+
 local function EvaluateTargetIfDemonbolt(TargetUnit)
   -- if=set_bonus.tier31_2pc&(debuff.doom_brand.remains>10&buff.demonic_core.up&soul_shard<4)&!variable.pool_cores_for_tyrant
   -- Note: All but debuff.doom_brand.remains handled prior to CastTargetIf.
@@ -188,9 +193,11 @@ local function Precombat()
   -- Moved to APL()
   -- snapshot_stats
   -- variable,name=tyrant_prep_start,op=set,value=12
-  VarTyrantPrepStart = 12
+  -- Note: variable.tyrant_prep_start is never used in the APL.
+  --VarTyrantPrepStart = 12
   -- variable,name=next_tyrant,op=set,value=14+talent.grimoire_felguard+talent.summon_vilefiend
-  VarNextTyrant = 14 + num(S.GrimoireFelguard:IsAvailable()) + num(S.SummonVilefiend:IsAvailable())
+  -- Note: variable.next_tyrant is never used in the APL
+  --VarNextTyrant = 14 + num(S.GrimoireFelguard:IsAvailable()) + num(S.SummonVilefiend:IsAvailable())
   -- variable,name=shadow_timings,default=0,op=reset
   -- Note: variable.shadow_timings is never used in the APL.
   -- variable,name=tyrant_timings,value=0
@@ -215,7 +222,8 @@ local function Precombat()
     if Cast(S.PowerSiphon, Settings.Demonology.GCDasOffGCD.PowerSiphon) then return "power_siphon precombat 2"; end
   end
   -- demonbolt,if=!buff.power_siphon.up
-  if S.Demonbolt:IsReady() and Player:BuffDown(S.DemonicCoreBuff) then
+  -- Note: Manually added power_siphon check so this line is skipped when power_siphon is used in Precombat.
+  if S.Demonbolt:IsReady() and Player:BuffDown(S.DemonicCoreBuff) and not Player:PrevGCDP(1, S.PowerSiphon) then
     if Cast(S.Demonbolt, nil, nil, not Target:IsSpellInRange(S.Demonbolt)) then return "demonbolt precombat 4"; end
   end
   -- shadow_bolt
@@ -400,7 +408,11 @@ local function Tyrant()
   end
   -- demonbolt,cycle_targets=1,if=soul_shard<4&(buff.demonic_core.stack>1)&(buff.vilefiend.up|!talent.summon_vilefiend&buff.dreadstalkers.up)
   if S.Demonbolt:IsReady() and (SoulShards < 4 and (Player:BuffStack(S.DemonicCoreBuff) > 1) and (VilefiendActive() or not S.SummonVilefiend:IsAvailable() and DreadstalkerActive())) then
-    if Cast(S.Demonbolt, nil, nil, not Target:IsSpellInRange(S.Demonbolt)) then return "demonbolt tyrant 26"; end
+    if S.DoomBrandDebuff:AuraActiveCount() == EnemiesCount8ySplash or not Player:HasTier(31, 2) then
+      if Cast(S.Demonbolt, nil, nil, not Target:IsSpellInRange(S.Demonbolt)) then return "demonbolt tyrant 26"; end
+    else
+      if Everyone.CastCycle(S.Demonbolt, Enemies8ySplash, EvaluateCycleDoomBrand, not Target:IsSpellInRange(S.Demonbolt)) then return "demonbolt tyran 27"; end
+    end
   end
   -- power_siphon,if=buff.demonic_core.stack<3&variable.pet_expire>action.summon_demonic_tyrant.execute_time+gcd.max*3|variable.pet_expire=0
   if S.PowerSiphon:IsReady() and (Player:BuffStack(S.DemonicCoreBuff) < 3 and VarPetExpire > S.SummonDemonicTyrant:ExecuteTime() + GCDMax * 3 or VarPetExpire == 0) then
@@ -611,6 +623,8 @@ local function APL()
 end
 
 local function Init()
+  S.DoomBrandDebuff:RegisterAuraTracking()
+
   HR.Print("Demonology Warlock rotation has been updated for patch 10.2.5.")
 end
 
