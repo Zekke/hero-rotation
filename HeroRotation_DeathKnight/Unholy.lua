@@ -332,8 +332,9 @@ local function AoECDs()
 end
 
 local function AoESetup()
-  -- any_dnd,if=(!talent.bursting_sores|death_knight.fwounded_targets=active_enemies|death_knight.fwounded_targets>=8|raid_event.adds.exists&raid_event.adds.remains<=11&raid_event.adds.remains>5)
-  if AnyDnD:IsReady() and Target:IsInMeleeRange(5) and (not S.BurstingSores:IsAvailable() or S.FesteringWoundDebuff:AuraActiveCount() == ActiveEnemies or S.FesteringWoundDebuff:AuraActiveCount() >= 8) then
+  -- any_dnd,if=(!talent.bursting_sores|death_knight.fwounded_targets=active_enemies|death_knight.fwounded_targets>=8|raid_event.adds.exists&raid_event.adds.remains<=11&raid_event.adds.remains>5)&(!talent.defile|talent.defile&buff.defile.remains<gcd)
+  -- Note: Added 250ms buffer to the buff check to account for game/player latency.
+  if AnyDnD:IsReady() and Target:IsInMeleeRange(5) and ((not S.BurstingSores:IsAvailable() or S.FesteringWoundDebuff:AuraActiveCount() == ActiveEnemies or S.FesteringWoundDebuff:AuraActiveCount() >= 8) and (not S.Defile:IsAvailable() or S.Defile:IsAvailable() and Player:BuffRemains(S.DefileBuff) < Player:GCD() + 0.25)) then
     if Cast(AnyDnD, Settings.Commons2.GCDasOffGCD.DeathAndDecay) then return "any_dnd aoe_setup 2"; end
   end
   -- festering_strike,target_if=min:debuff.festering_wound.stack,if=death_knight.fwounded_targets<active_enemies&talent.bursting_sores
@@ -467,6 +468,10 @@ local function HighPrioActions()
         if Cast(PotionSelected, nil, Settings.Commons.DisplayStyle.Potions) then return "potion high_prio_actions 2"; end
       end
     end
+  end
+  -- any_dnd,if=variable.adds_remain&!death_and_decay.ticking&!talent.bursting_sores&talent.defile&buff.defile.remains<gcd
+  if AnyDnD:IsReady() and Target:IsInMeleeRange(5) and (VarAddsRemain and Player:BuffDown(S.DeathAndDecayBuff) and not S.BurstingSores:IsAvailable() and S.Defile:IsAvailable() and Player:BuffRemains(S.DefileBuff) < Player:GCD() + 0.25) then
+    if Cast(AnyDnD, Settings.Commons2.GCDasOffGCD.DeathAndDecay) then return "any_dnd high_prio_actions 3"; end
   end
   -- army_of_the_dead,if=talent.summon_gargoyle&cooldown.summon_gargoyle.remains<3*gcd|!talent.summon_gargoyle|fight_remains<35
   if CDsON() and S.ArmyoftheDead:IsReady() and (S.SummonGargoyle:IsAvailable() and S.SummonGargoyle:CooldownRemains() < 3 * Player:GCD() or not S.SummonGargoyle:IsAvailable() or FightRemains < 35) then
