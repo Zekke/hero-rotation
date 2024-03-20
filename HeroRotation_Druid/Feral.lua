@@ -810,7 +810,7 @@ local function APL()
       local ShouldReturn = Cooldown(); if ShouldReturn then return ShouldReturn; end
     end
     -- feral_frenzy,target_if=max:target.time_to_die,if=(combo_points<=2|combo_points<=3&buff.bs_inc.up)&(dot.rip.ticking|spell_targets.swipe_cat>1)&(!talent.dire_fixation.enabled|debuff.dire_fixation.up|spell_targets.swipe_cat>1)&(target.time_to_die>6|target.time_to_die=fight_remains)
-    if S.FeralFrenzy:IsReady() then
+    if CDsON() and S.FeralFrenzy:IsReady() then
       if Everyone.CastTargetIf(S.FeralFrenzy, EnemiesMelee, "max", EvaluateTargetIfFilterTTD, EvaluateTargetIfFeralFrenzy, not IsInMeleeRange, Settings.Feral.GCDasOffGCD.FeralFrenzy) then return "feral_frenzy main 20"; end
     end
     -- ferocious_bite,target_if=max:target.time_to_die,if=buff.apex_predators_craving.up&(spell_targets.swipe_cat=1|!talent.primal_wrath.enabled|!buff.sabertooth.up)&!(variable.need_bt&active_bt_triggers=2)
