@@ -466,7 +466,7 @@ local function APL()
     -- Note: Not handling externals
     -- local ShouldReturn = Externals(); if ShouldReturn then return ShouldReturn; end
     -- use_items,use_off_gcd=1
-    if Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items then
+    if CDsON() and Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items then
       local ItemToUse, ItemSlot, ItemRange = Player:GetUseableItems(OnUseExcludes)
       if ItemToUse then
         local DisplayStyle = Settings.Commons.DisplayStyle.Trinkets
