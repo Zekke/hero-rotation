@@ -39,7 +39,6 @@ local OnUseExcludes = {
   I.MirrorofFracturedTomorrows:ID(),
   I.NymuesUnravelingSpindle:ID(),
   I.TimeThiefsGambit:ID(),
-  I.MirrorofFracturedTomorrows:ID(),
   I.BalefireBranch:ID(),
 }
 
@@ -396,6 +395,9 @@ local function Items()
     -- use_item,name=timethiefs_gambit,if=pet.demonic_tyrant.active
     if I.TimeThiefsGambit:IsEquippedAndReady() and (DemonicTyrantActive()) then
       if Cast(I.TimeThiefsGambit, nil, Settings.Commons.DisplayStyle.Trinkets) then return "timethiefs_gambit items 16"; end
+    end
+    if I.BalefireBranch:IsEquippedAndReady() and (DemonicTyrantActive()) then
+      if Cast(I.BalefireBranch, nil, Settings.Commons.DisplayStyle.Trinkets) then return "balefire_branch items 16"; end
     end
     -- use_item,slot=trinket1,if=!variable.trinket_1_buffs&(variable.damage_trinket_priority=1|trinket.2.cooldown.remains)
     if Trinket1:IsReady() and (not VarTrinket1Buffs and (VarDmgTrinketPriority == 1 or Trinket2:CooldownDown())) then
