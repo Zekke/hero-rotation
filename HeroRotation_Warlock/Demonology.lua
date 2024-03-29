@@ -37,6 +37,7 @@ local I = Item.Warlock.Demonology
 -- Create table to exclude above trinkets from On Use function
 local OnUseExcludes = {
   I.MirrorofFracturedTomorrows:ID(),
+  I.MirrorofFracturedTomorrows:ID(),
   I.NymuesUnravelingSpindle:ID(),
   I.TimeThiefsGambit:ID(),
   I.BalefireBranch:ID(),
