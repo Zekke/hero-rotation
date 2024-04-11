@@ -38,7 +38,6 @@
       HideGcdSwirl = false,
       RotationDebugOutput = false,
       SetAlpha = 1,
-      SetPixelSize = 1,
     },
     Scaling = {
       ScaleUI = 1,

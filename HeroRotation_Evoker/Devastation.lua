@@ -543,7 +543,7 @@ local function APL()
       if Cast(S.TipTheScales, Settings.Devastation.GCDasOffGCD.TipTheScales) then return "tip_the_scales main 12"; end
     end
     -- eternity_surge,empower_to=1,if=buff.dragonrage.up&(buff.bloodlust.up|buff.power_infusion.up)&talent.feed_the_flames
-    if S.EternitySurge:IsCastable() and (Player:BuffUp(S.Dragonrage) and (Player:BloodlustUp() or Player:BuffUp(S.PowerInfusionBuff)) and S.FeedtheFlames:IsAvailable()) then
+    if S.EternitySurge:IsCastable() and (Player:BuffUp(S.Dragonrage) and (Player:BloodlustUp() or Player:PowerInfusionUp()) and S.FeedtheFlames:IsAvailable()) then
       if CastAnnotated(S.EternitySurge, false, "1") then return "eternity_surge empower 1 main 14"; end
     end
     -- tip_the_scales,if=buff.dragonrage.up&cooldown.fire_breath.up&talent.everburning_flame&talent.firestorm

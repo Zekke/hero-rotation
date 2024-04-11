@@ -240,7 +240,7 @@ local function Aoe()
     if Cast(S.ConeofCold, nil, nil, not Target:IsInRange(12)) then return "cone_of_cold aoe 2"; end
   end
   -- frozen_orb,if=!prev_gcd.1.glacial_spike|!freezable
-  if S.FrozenOrb:IsCastable() and (not Player:PrevGCDP(1, S.GlacialSpike) or not Freezable()) then
+  if CDsON() and S.FrozenOrb:IsCastable() and (not Player:PrevGCDP(1, S.GlacialSpike) or not Freezable()) then
     if Cast(S.FrozenOrb, Settings.Frost.GCDasOffGCD.FrozenOrb, nil, not Target:IsInRange(40)) then return "frozen_orb aoe 4"; end
   end
   -- blizzard,if=!prev_gcd.1.glacial_spike|!freezable
@@ -336,7 +336,7 @@ local function Cleave()
     if Cast(S.GlacialSpike, nil, nil, not Target:IsSpellInRange(S.GlacialSpike)) then return "glacial_spike cleave 10"; end
   end
   -- frozen_orb,if=buff.fingers_of_frost.react<2&(!talent.ray_of_frost|cooldown.ray_of_frost.remains)
-  if S.FrozenOrb:IsCastable() and (Player:BuffStackP(S.FingersofFrostBuff) < 2 and (not S.RayofFrost:IsAvailable() or S.RayofFrost:CooldownDown())) then
+  if CDsON() and S.FrozenOrb:IsCastable() and (Player:BuffStackP(S.FingersofFrostBuff) < 2 and (not S.RayofFrost:IsAvailable() or S.RayofFrost:CooldownDown())) then
     if Cast(S.FrozenOrb, Settings.Frost.GCDasOffGCD.FrozenOrb, nil, not Target:IsInRange(40)) then return "frozen_orb cleave 12"; end
   end
   -- cone_of_cold,if=talent.coldest_snap&cooldown.comet_storm.remains>10&cooldown.frozen_orb.remains>10&remaining_winters_chill=0&active_enemies>=3
@@ -396,7 +396,7 @@ local function ST()
     if Cast(S.GlacialSpike, nil, nil, not Target:IsSpellInRange(S.GlacialSpike)) then return "glacial_spike single 10"; end
   end
   -- frozen_orb,if=buff.fingers_of_frost.react<2&(!talent.ray_of_frost|cooldown.ray_of_frost.remains)
-  if S.FrozenOrb:IsCastable() and (Player:BuffStackP(S.FingersofFrostBuff) < 2 and (not S.RayofFrost:IsAvailable() or S.RayofFrost:CooldownDown())) then
+  if CDsON() and S.FrozenOrb:IsCastable() and (Player:BuffStackP(S.FingersofFrostBuff) < 2 and (not S.RayofFrost:IsAvailable() or S.RayofFrost:CooldownDown())) then
     if Cast(S.FrozenOrb, Settings.Frost.GCDasOffGCD.FrozenOrb, nil, not Target:IsInRange(40)) then return "frozen_orb single 12"; end
   end
   -- cone_of_cold,if=talent.coldest_snap&cooldown.comet_storm.remains>10&cooldown.frozen_orb.remains>10&remaining_winters_chill=0&active_enemies>=3

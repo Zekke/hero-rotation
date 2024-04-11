@@ -72,6 +72,8 @@ local VarTrinket1Sync = (VarTrinket1Buffs and (Trinket1:Cooldown() % 120 == 0)) 
 local VarTrinket2Sync = (VarTrinket2Buffs and (Trinket2:Cooldown() % 120 == 0)) and 1 or 0.5
 local VarTrinketPriority = 1
 local VarDamageTrinketPriority = 1
+local VarLastUpheavalEmpower = 0
+local VarLastFBEmpower = 0
 
 -- GUI Settings
 local Everyone = HR.Commons.Everyone
@@ -135,6 +137,41 @@ HL:RegisterForEvent(function()
   MaxEmpower = (S.FontofMagic:IsAvailable()) and 4 or 3
   FoMEmpowerMod = (S.FontofMagic:IsAvailable()) and 0.8 or 1
 end, "SPELLS_CHANGED", "LEARNED_SPELL_IN_TAB")
+
+local function TimeToStage(stage)
+  TimeTo = 0
+  local stagesData = {}
+  _, _, _, startTime, endTime, _, _, _, _, stageTotal = UnitChannelInfo("player")
+
+  if stageTotal and stageTotal > 0 and stage <= stageTotal then
+    local lastFinish = 0
+    for i = 0, stage - 1 do
+      TimeTo = TimeTo + GetUnitEmpowerStageDuration("player", i) / 1000
+    end
+  end
+  return TimeTo
+ end
+
+local function GetCurrentStage()
+  CurrentStage = 0
+  local stagesData = {}
+  _, _, _, startTime, endTime, _, _, _, _, stageTotal = UnitChannelInfo("player")
+
+  if stageTotal and stageTotal > 0 then
+    local lastFinish = 0
+    for i = 1, stageTotal do
+      stagesData[i] = {
+        start = lastFinish,
+        finish = lastFinish + GetUnitEmpowerStageDuration("player", i - 1) / 1000
+      }
+      lastFinish = stagesData[i].finish
+      if startTime / 1000 + lastFinish <= GetTime() then
+        CurrentStage = i
+      end
+    end
+  end
+  return CurrentStage
+end
 
 local function SoMCheck()
   local Group
@@ -427,7 +464,9 @@ local function FB()
       FBEmpower = 4
     end
     if FBEmpower > 0 then
-      if CastAnnotated(S.FireBreath, false, FBEmpower, not Target:IsInRange(25), Settings.Commons.EmpoweredFontSize) then return "fire_breath empower_to=" .. FBEmpower .. " fb 4"; end
+      if CastAnnotated(S.FireBreath, false, FBEmpower, not Target:IsInRange(25), Settings.Commons.EmpoweredFontSize) then
+        VarLastFBEmpower = FBEmpower;
+      return "fire_breath empower_to=" .. FBEmpower .. " fb 4"; end
     end
   end
 end
@@ -469,6 +508,14 @@ local function APL()
   end
 
   if Everyone.TargetIsValid() then
+    if Player:IsChanneling(S.Upheaval) or Player:IsCasting(S.Upheaval) then
+      if CastPooling(S.Upheaval, TimeToStage(VarLastUpheavalEmpower)) then return "Cancel Upheaval stage : " .. VarLastUpheavalEmpower .. "(" .. TimeToStage(VarLastUpheavalEmpower) ..  ")"; end
+    end
+
+    if Player:IsChanneling(S.FireBreath) or Player:IsCasting(S.FireBreath) then
+      if CastPooling(S.FireBreath, TimeToStage(VarLastFBEmpower)) then return "Cancel FireBreath stage : " .. VarLastFBEmpower .. "(" .. TimeToStage(VarLastFBEmpower) ..  ")"; end
+    end
+
     -- Precombat
     if not Player:AffectingCombat() and not Player:IsCasting() then
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
@@ -516,7 +563,9 @@ local function APL()
     end
     -- upheaval,target_if=target.time_to_die>duration+0.2,empower_to=1,if=buff.ebon_might_self.remains>duration&cooldown.time_skip.up&talent.time_skip&!talent.interwoven_threads
     if S.Upheaval:IsCastable() and (Player:BuffRemains(S.EbonMightSelfBuff) > Player:EmpowerCastTime(1) and S.TimeSkip:IsAvailable() and S.TimeSkip:CooldownUp() and not S.InterwovenThreads:IsAvailable()) then
-      if CastAnnotated(S.Upheaval, false, "1", not Target:IsInRange(25), Settings.Commons.EmpoweredFontSize) then return "upheaval empower_to=1 main 10"; end
+      if CastAnnotated(S.Upheaval, false, "1", not Target:IsInRange(25), Settings.Commons.EmpoweredFontSize) then
+        VarLastUpheavalEmpower = 1;
+      return "upheaval empower_to=1 main 10"; end
     end
     -- breath_of_eons,if=((cooldown.ebon_might.remains<=4|buff.ebon_might_self.up)&target.time_to_die>15&raid_event.adds.in>15&(!equipped.nymues_unraveling_spindle|trinket.nymues_unraveling_spindle.cooldown.remains>=10|fight_remains<30|trinket.1.is.nymues_unraveling_spindle&variable.trinket_priority=2|trinket.2.is.nymues_unraveling_spindle&variable.trinket_priority=1)|fight_remains<30)&!fight_style.dungeonroute,line_cd=117
     -- breath_of_eons,if=evoker.allied_cds_up>0&((cooldown.ebon_might.remains<=4|buff.ebon_might_self.up)&target.time_to_die>15&(!equipped.nymues_unraveling_spindle|trinket.nymues_unraveling_spindle.cooldown.remains>=10|fight_remains<30|trinket.1.is.nymues_unraveling_spindle&variable.trinket_priority=2|trinket.2.is.nymues_unraveling_spindle&variable.trinket_priority=1)|fight_remains<30)&fight_style.dungeonroute
@@ -536,7 +585,9 @@ local function APL()
     local ShouldReturn = FB(); if ShouldReturn then return ShouldReturn; end
     -- upheaval,target_if=target.time_to_die>duration+0.2,empower_to=1,if=buff.ebon_might_self.remains>duration&(raid_event.adds.remains>13|!raid_event.adds.exists|raid_event.adds.in>20)
     if S.Upheaval:IsCastable() and (Player:BuffRemains(S.EbonMightSelfBuff) > Player:EmpowerCastTime(1)) then
-      if CastAnnotated(S.Upheaval, false, "1", not Target:IsInRange(25), Settings.Commons.EmpoweredFontSize) then return "upheaval empower_to=1 main 16"; end
+      if CastAnnotated(S.Upheaval, false, "1", not Target:IsInRange(25), Settings.Commons.EmpoweredFontSize) then
+        VarLastUpheavalEmpower = 1;
+      return "upheaval empower_to=1 main 16"; end
     end
     -- time_skip,if=(cooldown.fire_breath.remains+cooldown.upheaval.remains+cooldown.prescience.full_recharge_time)>=35
     if CDsON() and S.TimeSkip:IsCastable() and (S.FireBreath:CooldownRemains() + S.Upheaval:CooldownRemains() + S.Prescience:FullRechargeTime() > 35) then

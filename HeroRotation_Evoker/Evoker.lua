@@ -91,6 +91,7 @@ Spell.Evoker.Augmentation = MergeTableByKey(Spell.Evoker.Commons, {
   TremblingEarthBuff                    = Spell(424368), -- T31 4pc
   -- Debuffs
   TemporalWoundDebuff                   = Spell(409560),
+  StopFireBreath                        = Spell(363653)
 })
 
 Spell.Evoker.Devastation = MergeTableByKey(Spell.Evoker.Commons, {

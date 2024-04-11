@@ -32,8 +32,6 @@
   HR.SuggestedIconFrame = CreateFrame("Frame", "HeroRotation_SuggestedIconFrame", UIParent);
   HR.RightSuggestedIconFrame = CreateFrame("Frame", "HeroRotation_RightSuggestedIconFrame", UIParent);
   HR.ToggleIconFrame = CreateFrame("Frame", "HeroRotation_ToggleIconFrame", UIParent);
-  HR.PixelFrame = CreateFrame("Frame", "pixelFrame", UIParent);
-  HR.PixelFrame.CooldownFrame = CreateFrame("Cooldown", "pixelCooldownFrame", HR.PixelFrame, "AR_CooldownFrameTemplate");
 
 --- ======= MISC =======
   -- Reset Textures
@@ -44,8 +42,9 @@
     if HR.GUISettings.General.BlackBorderIcon then HR.MainIconFrame.Backdrop:Hide(); end
     HR.MainIconPartOverlayFrame:Hide();
     HR.MainIconFrame:HideParts();
-    HR.PixelFrame:Hide();
-
+    if IsAddOnLoaded("ZTB") then
+      ZTB.PixelFrame:Hide();
+    end
     -- Small Icons
     HR.SmallIconFrame:HideIcons();
     HR.CastOffGCDOffset = 1;
@@ -928,66 +927,4 @@
         for i = 1, 6 do c = c + (x:sub(i,i) == '1' and 2^(6-i) or 0) end
         return b64chars:sub(c + 1, c + 1)
     end)..({ '', '==', '=' })[#data % 3 + 1])
-  end
-  -- Init
-  function HR.PixelFrame:Init ()
-    -- Frame Init
-    self:SetFrameStrata(HR.MainFrame:GetFrameStrata());
-    self:SetFrameLevel(HR.MainFrame:GetFrameLevel() - 1);
-    self:SetWidth(HR.GUISettings.General.SetPixelSize);
-    self:SetHeight(HR.GUISettings.General.SetPixelSize);
-    self:SetPoint("TOPLEFT", 0, 0);
-    self.CooldownFrame:SetAllPoints(self);
-    -- Texture
-    self.Texture = self:CreateTexture();
-    self.Texture:SetAllPoints();
-    -- Display
-    self:Show();
-  end
-
-  function HR.PixelFrame:ChangeColor (Object, Usable, OutofRange, ID)
-    self.ID = ID
-    local SpellName = Object:Name()
-
-    if SpellName == nil or SpellName == "" then
-      SpellName = GetItemInfo(ID)
-    end
-    if SpellName and SpellName ~= "" then
-      local SpellName = encodeBase64(SpellName)
-      local R = math.ceil(SpellName:byte(1) + SpellName:byte(#SpellName) + SpellName:byte(2)/20)
-      local G = SpellName:byte(math.ceil(#SpellName / 2)) + SpellName:byte(math.ceil(#SpellName / 2) + 1)
-      local B = math.ceil(SpellName:byte(2) + SpellName:byte(#SpellName - 1) + SpellName:byte(3)/20)
-      --HR.Print(SpellName .. " #" .. string.format("%02X%02X%02X", R, G, B))
-      R = R / 255
-      G = G / 255
-      B = B / 255
-      -- Texture
-      self.Texture:SetColorTexture(R,G,B,1)
-      self.background = self.Texture
-      if HR.GUISettings.General.NotEnoughManaEnabled and not Usable then
-        self.Texture:SetVertexColor(0.5, 0.5, 1.0)
-      elseif OutofRange then
-        self.Texture:SetVertexColor(1.0, 0.5, 0.5)
-      else
-        self.Texture:SetVertexColor(1.0, 1.0, 1.0)
-      end
-      self.Texture:SetAllPoints(self);
-
-      -- Alpha
-      self:SetAlpha(1);
-      -- Display
-      if not self:IsVisible() then
-        self:Show();
-      end
-    end
-  end
-
-  function HR.PixelFrame:SetCooldown (Start, Duration)
-    if Start == 0 or Duration == 0 then
-      self.CooldownFrame:SetCooldown(0, 0);
-      self.CooldownFrame:Hide();
-      return;
-    end
-
-    self.CooldownFrame:SetCooldown(Start, Duration);
   end

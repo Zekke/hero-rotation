@@ -138,7 +138,9 @@ local function DisplayCooldown(Object, DisplayPoolingSwirl, CustomTime)
     CastDuration = 0
     CooldownSpell = nil
   end
-  HR.PixelFrame:SetCooldown(StartTime, CastDuration)
+  if IsAddOnLoaded("ZTB") then
+    ZTB.PixelFrame:SetCooldown(StartTime, CastDuration)
+  end
   HR.MainIconFrame:SetCooldown(StartTime, CastDuration)
 end
 
@@ -184,7 +186,9 @@ function HR.Cast(Object, OffGCD, DisplayStyle, OutofRange, CustomTime)
 
     local OutofRange = OutofRange or false
     HR.MainIconFrame:ChangeIcon(ObjectTexture, Keybind, Usable, OutofRange, Object:ID())
-    HR.PixelFrame:ChangeColor(Object, Usable, OutofRange, Object:ID())
+    if IsAddOnLoaded("ZTB") then
+      ZTB.PixelFrame:ChangeColor(Object, Usable, OutofRange, Object:ID())
+    end
     DisplayCooldown(Object, ShowPooling, CustomTime)
     Object.LastDisplayTime = GetTime()
     return true
@@ -224,7 +228,9 @@ local function DisplayQueue(...)
   -- Call ChangeIcon so that the main icon exists to be able to display a cooldown sweep, even though it gets overlapped
   FlashIcon(QueueSpellTable[1])
   HR.MainIconFrame:ChangeIcon(QueueTextureTable[1], QueueKeybindTable[1], QueueSpellTable[1]:IsUsable(), false, QueueSpellTable[1]:ID())
-  HR.PixelFrame:ChangeColor(QueueSpellTable[1], QueueSpellTable[1]:IsUsable(), false, QueueSpellTable[1]:ID())
+  if IsAddOnLoaded("ZTB") then
+    ZTB.PixelFrame:ChangeColor(QueueSpellTable[1], QueueSpellTable[1]:IsUsable(), false, QueueSpellTable[1]:ID())
+  end
   HR.MainIconFrame:SetupParts(QueueTextureTable, QueueKeybindTable)
 end
 
