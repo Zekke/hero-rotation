@@ -508,13 +508,14 @@ local function APL()
   end
 
   if Everyone.TargetIsValid() then
-    if Player:IsChanneling(S.Upheaval) or Player:IsCasting(S.Upheaval) then
-      if CastPooling(S.Upheaval, TimeToStage(VarLastUpheavalEmpower)) then return "Cancel Upheaval stage : " .. VarLastUpheavalEmpower .. "(" .. TimeToStage(VarLastUpheavalEmpower) ..  ")"; end
-    end
 
-    if Player:IsChanneling(S.FireBreath) or Player:IsCasting(S.FireBreath) then
-      if CastPooling(S.FireBreath, TimeToStage(VarLastFBEmpower)) then return "Cancel FireBreath stage : " .. VarLastFBEmpower .. "(" .. TimeToStage(VarLastFBEmpower) ..  ")"; end
-    end
+    --if Player:IsChanneling(S.Upheaval) or Player:IsCasting(S.Upheaval) then
+    --  if CastPooling(S.Upheaval, TimeToStage(VarLastUpheavalEmpower)) then return "Cancel Upheaval stage : " .. VarLastUpheavalEmpower .. "(" .. TimeToStage(VarLastUpheavalEmpower) ..  ")"; end
+    --end
+
+    --if Player:IsChanneling(S.FireBreath) or Player:IsCasting(S.FireBreath) then
+    --  if CastPooling(S.FireBreath, TimeToStage(VarLastFBEmpower)) then return "Cancel FireBreath stage : " .. VarLastFBEmpower .. "(" .. TimeToStage(VarLastFBEmpower) ..  ")"; end
+    --end
 
     -- Precombat
     if not Player:AffectingCombat() and not Player:IsCasting() then
@@ -534,7 +535,7 @@ local function APL()
       if Cast(S.Prescience, nil, Settings.Augmentation.DisplayStyle.AugBuffs) then return "prescience main 4"; end
     end
     -- call_action_list,name=ebon_logic,if=(buff.ebon_might_self.remains-cast_time)<=buff.ebon_might_self.duration*0.4&(active_enemies>0|raid_event.adds.in<=3)&(evoker.prescience_buffs>=2&time<=10|evoker.prescience_buffs>=3|fight_style.dungeonroute|fight_style.dungeonslice|buff.ebon_might_self.remains>=action.ebon_might.cast_time|active_allies<=2)
-    if (Player:BuffRemains(S.EbonMightSelfBuff) - S.EbonMight:CastTime()) <= EMSelfBuffDuration() * 0.4 and (S.PrescienceBuff:AuraActiveCount() >= 2 and HL.CombatTime() <= 10 or S.PrescienceBuff:AuraActiveCount() >= 3 or InDungeon or Player:BuffRemains(S.EbonMightSelfBuff) >= S.EbonMight:CastTime() or AllyCount() <= 2) then
+    if (Player:BuffRemains(S.EbonMightSelfBuff) - S.EbonMight:CastTime()) <= EMSelfBuffDuration() * 0.4 and (S.PrescienceBuff:AuraActiveCount() >= 2 and HL.CombatTime() <= 10 or S.PrescienceBuff:AuraActiveCount() >= 3 or InDungeon or Player:BuffRemains(S.EbonMightSelfBuff) >= S.EbonMight:CastTime() or AllyCount() <= 2) and FightRemains > 8 then
       local ShouldReturn = EbonLogic(); if ShouldReturn then return ShouldReturn; end
     end
     -- run_action_list,name=opener_filler,if=variable.opener_delay>0&!fight_style.dungeonroute
@@ -550,7 +551,7 @@ local function APL()
       end
     end
     -- call_action_list,name=items
-    if Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items then
+    if CDsON() and (Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items) then
       local ShouldReturn = Items(); if ShouldReturn then return ShouldReturn; end
     end
     -- deep_breath

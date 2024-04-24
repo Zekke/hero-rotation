@@ -295,7 +295,7 @@ local function Aoe()
     if Everyone.CastTargetIf(S.ShatteringStar, Enemies8ySplash, "max", EvaluateTargetIfFilterHPPct, nil, not Target:IsSpellInRange(S.ShatteringStar)) then return "shattering_star aoe 2"; end
   end
   -- dragonrage,if=target.time_to_die>=32|fight_remains<30
-  if S.Dragonrage:IsCastable() and CDsON() and (Target:TimeToDie() >= 32 or FightRemains < 30) then
+  if CDsON() and S.Dragonrage:IsCastable() and CDsON() and (Target:TimeToDie() >= 32 or FightRemains < 30) then
     if Cast(S.Dragonrage, Settings.Devastation.GCDasOffGCD.Dragonrage) then return "dragonrage aoe 4"; end
   end
   -- tip_the_scales,if=buff.dragonrage.up&(active_enemies<=3+3*talent.eternitys_span|!cooldown.fire_breath.up)
@@ -371,7 +371,7 @@ local function ST()
     if Cast(S.Firestorm, nil, nil, not Target:IsInRange(25)) then return "firestorm st 4"; end
   end
   -- dragonrage,if=cooldown.fire_breath.remains<4&cooldown.eternity_surge.remains<10&target.time_to_die>=32|fight_remains<32
-  if S.Dragonrage:IsCastable() and CDsON() and (S.FireBreath:CooldownRemains() < GCDMax and S.EternitySurge:CooldownRemains() < 2 * GCDMax or FightRemains < 32) then
+  if CDsON() and S.Dragonrage:IsCastable() and CDsON() and (S.FireBreath:CooldownRemains() < GCDMax and S.EternitySurge:CooldownRemains() < 2 * GCDMax or FightRemains < 32) then
     if Cast(S.Dragonrage, Settings.Devastation.GCDasOffGCD.Dragonrage) then return "dragonrage st 6"; end
   end
   -- tip_the_scales,if=buff.dragonrage.up&(((!talent.font_of_magic|talent.everburning_flame)&cooldown.fire_breath.up&!cooldown.eternity_surge.up&buff.dragonrage.remains<14)|(cooldown.eternity_surge.up&!cooldown.fire_breath.up&!talent.everburning_flame&talent.font_of_magic))
@@ -526,7 +526,7 @@ local function APL()
       if Cast(S.Unravel, Settings.Commons.GCDasOffGCD.Unravel, nil, not Target:IsSpellInRange(S.Unravel)) then return "unravel main 4"; end
     end
     -- call_action_list,name=trinkets
-    if Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items then
+    if CDsON() and (Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items) then
       local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
     end
     -- run_action_list,name=aoe,if=active_enemies>=3
@@ -535,7 +535,7 @@ local function APL()
       if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for Aoe()"; end
     end
     -- dragonrage,if=cooldown.eternity_surge.remains<=(buff.dragonrage.duration+6)&(cooldown.fire_breath.remains<=2*gcd.max|!talent.feed_the_flames)
-    if S.Dragonrage:IsCastable() and (S.EternitySurge:CooldownRemains() <= (S.Dragonrage:BaseDuration() + 6) and (S.FireBreath:CooldownRemains() <= 2 * GCDMax or not S.FeedtheFlames:IsAvailable())) then
+    if CDsON() and S.Dragonrage:IsCastable() and (S.EternitySurge:CooldownRemains() <= (S.Dragonrage:BaseDuration() + 6) and (S.FireBreath:CooldownRemains() <= 2 * GCDMax or not S.FeedtheFlames:IsAvailable())) then
       if Cast(S.Dragonrage, Settings.Devastation.GCDasOffGCD.Dragonrage, nil, not Target:IsInRange(25)) then return "dragonrage main 10"; end
     end
     -- tip_the_scales,if=buff.dragonrage.up&(cooldown.eternity_surge.up|cooldown.fire_breath.up)&buff.dragonrage.remains<=gcd.max
