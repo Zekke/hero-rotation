@@ -135,10 +135,10 @@ local function Precombat()
     if S.Skullsplitter:IsCastable() then
       if Cast(S.Skullsplitter, nil, nil, not TargetInMeleeRange) then return "skullsplitter precombat 8"; end
     end
-    if S.ColossusSmash:IsCastable() then
+    if CDsON() and S.ColossusSmash:IsCastable() then
       if Cast(S.ColossusSmash, Settings.Arms.GCDasOffGCD.ColossusSmash, nil, not TargetInMeleeRange) then return "colossus_smash precombat 10"; end
     end
-    if S.Warbreaker:IsCastable() then
+    if CDsON() and S.Warbreaker:IsCastable() then
       if Cast(S.Warbreaker, Settings.Arms.GCDasOffGCD.Warbreaker, nil, not Target:IsInMeleeRange(8)) then return "warbreaker precombat 12"; end
     end
     if S.Overpower:IsCastable() then

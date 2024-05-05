@@ -574,7 +574,7 @@ local function Trinkets()
   if Settings.Commons.Enabled.Trinkets then
     -- custom mirror usage 20s before summon gargoyle ends
     if I.MirrorOfFracturedTomorrows:IsEquippedAndReady() and ((S.SummonGargoyle:IsAvailable() and VarGargActive and VarGargRemains <= 20) or (not S.SummonGargoyle:IsAvailable() and (S.Apocalypse:CooldownDown() or Pet:BuffUp(S.DarkTransformation)))) then
-      if Cast(I.MirrorOfFracturedTomorrows, nil, Settings.Commons.DisplayStyle.Trinkets) then return "mirror_of_fractured_tomorrows trinkets"; end
+      if Cast(I.MirrorOfFracturedTomorrows, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "mirror_of_fractured_tomorrows trinkets"; end
     end
     -- use_item,use_off_gcd=1,name=algethar_puzzle_box,if=cooldown.summon_gargoyle.remains<5&rune<=4|!talent.summon_gargoyle&pet.army_ghoul.active|active_enemies>3&variable.adds_remain&(buff.dark_transformation.up|talent.bursting_sores&cooldown.any_dnd.remains<10&!death_and_decay.ticking)
     if I.AlgetharPuzzleBox:IsEquippedAndReady() and (S.SummonGargoyle:CooldownRemains() < 5 and Player:Rune() <= 4 or not S.SummonGargoyle:IsAvailable() and VarArmyGhoulActive or ActiveEnemies > 3 and VarAddsRemain and (Pet:BuffUp(S.DarkTransformation) or S.BurstingSores:IsAvailable() and AnyDnD:CooldownRemains() < 10 and Player:BuffDown(S.DeathAndDecayBuff))) then
