@@ -280,7 +280,7 @@ local function AoE()
     if Cast(S.Whirlwind, nil, nil, not Target:IsInMeleeRange(8)) then return "whirlwind aoe 20"; end
   end
   -- bladestorm,if=talent.unhinged&buff.sweeping_strikes.up
-  if S.Bladestorm:IsReady() and (S.Unhinged:IsAvailable() and Player:BuffUp(S.SweepingStrikesBuff)) then
+  if CDsON() and S.Bladestorm:IsReady() and (S.Unhinged:IsAvailable() and Player:BuffUp(S.SweepingStrikesBuff)) then
     if Cast(S.Bladestorm, Settings.Arms.GCDasOffGCD.Bladestorm, nil, not TargetInMeleeRange) then return "bladestorm aoe 22"; end
   end
   -- execute,if=buff.sudden_death.react&set_bonus.tier31_4pc
@@ -371,7 +371,7 @@ local function SingleTarget()
     if Cast(S.ThunderousRoar, Settings.Arms.GCDasOffGCD.ThunderousRoar, nil, not Target:IsInMeleeRange(12)) then return "thunderous_roar single_target 8"; end
   end
   -- bladestorm,if=talent.hurricane&raid_event.add.in>22&talent.warlords_torment
-  if S.Bladestorm:IsReady() and (S.Hurricane:IsAvailable() and S.WarlordsTorment:IsAvailable()) then
+  if CDsON() and S.Bladestorm:IsReady() and (S.Hurricane:IsAvailable() and S.WarlordsTorment:IsAvailable()) then
     if Cast(S.Bladestorm, Settings.Arms.GCDasOffGCD.Bladestorm, nil, not TargetInMeleeRange) then return "bladestorm single_target 10"; end
   end
   -- avatar,if=raid_event.adds.in>15|target.time_to_die<20
@@ -435,7 +435,7 @@ local function SingleTarget()
     if Cast(S.Overpower, nil, nil, not TargetInMeleeRange) then return "overpower single_target 40"; end
   end
   -- whirlwind,if=talent.storm_of_swords&!talent.test_of_might
-  if S.Whirlwind:IsReady() and (S.StormofSwords:IsAvailable() and not S.TestofMight:IsAvailable().) then
+  if S.Whirlwind:IsReady() and (S.StormofSwords:IsAvailable() and not S.TestofMight:IsAvailable()) then
     if Cast(S.Whirlwind, nil, nil, not Target:IsInMeleeRange(8)) then return "whirlwind single_target 42"; end
   end
   -- slam,if=talent.crushing_force&dot.rend.remains>12
