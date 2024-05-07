@@ -117,7 +117,7 @@ local function Precombat()
   -- augmentation
   -- snapshot_stats
   -- shield_of_vengeance
-  if S.ShieldofVengeance:IsCastable() then
+  if CDsON() and S.ShieldofVengeance:IsCastable() then
     if Cast(S.ShieldofVengeance, Settings.Retribution.GCDasOffGCD.ShieldOfVengeance) then return "shield_of_vengeance precombat 6"; end
   end
   -- variable,name=trinket_1_buffs,value=trinket.1.has_buff.strength|trinket.1.has_buff.mastery|trinket.1.has_buff.versatility|trinket.1.has_buff.haste|trinket.1.has_buff.crit
@@ -145,6 +145,9 @@ local function Precombat()
 end
 
 local function Cooldowns()
+  if S.ShieldofVengeance:IsCastable() and Target:DebuffUp(S.ExecutionSentence) and Player:BuffUp(S.AvengingWrathBuff) then
+    if Cast(S.ShieldofVengeance) then return "shield_of_vengeance cooldowns test"; end
+  end
   -- potion,if=buff.avenging_wrath.up|buff.crusade.up|fight_remains<30
   if Settings.Commons.Enabled.Potions and (Player:BuffUp(S.AvengingWrathBuff) or Player:BuffUp(S.CrusadeBuff) or BossFightRemains < 30) then
     local PotionSelected = Everyone.PotionSelected()
