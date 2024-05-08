@@ -136,7 +136,7 @@
     self.Text = TextFrame;
     TextFrame:SetAllPoints(true);
     TextFrame:SetJustifyH("CENTER");
-    TextFrame:SetJustifyV("CENTER");
+    TextFrame:SetJustifyV("MIDDLE");
     TextFrame:SetPoint("CENTER");
     TextFrame:SetTextColor(1,1,1,1);
     TextFrame:SetText("");
