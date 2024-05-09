@@ -381,7 +381,7 @@ local function CDs ()
     end
   end
 
-  if Settings.Commons.Enabled.Trinkets then
+  if CDsON() and Settings.Commons.Enabled.Trinkets then
     -- actions.cds+=/	use_item,name=manic_grieftorch,if=!stealthed.all&buff.between_the_eyes.up|fight_remains<=5
     if I.ManicGrieftorch:IsEquippedAndReady() then
       if (not Player:StealthUp(true, true) and Player:BuffUp(S.BetweentheEyes) or
