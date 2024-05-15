@@ -279,7 +279,7 @@ local function SingleTarget()
     if Cast(S.FelDevastation, Settings.Vengeance.GCDasOffGCD.FelDevastation, nil, not Target:IsInMeleeRange(20)) then return "fel_devastation single_target 6"; end
   end
   -- elysian_decree,if=!prev_gcd.1.elysian_decree
-  if CDsON() S.ElysianDecree:IsCastable() and (not Player:PrevGCD(1, S.ElysianDecree)) then
+  if CDsON() and S.ElysianDecree:IsCastable() and (not Player:PrevGCD(1, S.ElysianDecree)) then
     if Cast(S.ElysianDecree, nil, Settings.CommonsDS.DisplayStyle.Signature, not Target:IsInRange(30)) then return "elysian_decree single_target 8"; end
   end
   -- fel_devastation
@@ -308,7 +308,7 @@ local function SmallAoE()
     if Cast(S.FelDevastation, Settings.Vengeance.GCDasOffGCD.FelDevastation, nil, not Target:IsInMeleeRange(20)) then return "fel_devastation small_aoe 4"; end
   end
   -- elysian_decree,if=fury>=40&(soul_fragments.total<=1|soul_fragments.total>=4)&!prev_gcd.1.elysian_decree
-  if CDsON() S.ElysianDecree:IsCastable() and (Player:Fury() >= 40 and (TotalSoulFragments <= 1 or TotalSoulFragments >= 4) and not Player:PrevGCD(1, S.ElysianDecree)) then
+  if CDsON() and S.ElysianDecree:IsCastable() and (Player:Fury() >= 40 and (TotalSoulFragments <= 1 or TotalSoulFragments >= 4) and not Player:PrevGCD(1, S.ElysianDecree)) then
     if Cast(S.ElysianDecree, nil, Settings.CommonsDS.DisplayStyle.Signature, not Target:IsInRange(30)) then return "elysian_decree small_aoe 6"; end
   end
   -- fel_devastation
@@ -341,7 +341,7 @@ local function BigAoE()
     if Cast(S.TheHunt, nil, Settings.CommonsDS.DisplayStyle.Signature, not Target:IsInRange(50)) then return "the_hunt big_aoe 4"; end
   end
   -- elysian_decree,if=fury>=40&(soul_fragments.total<=1|soul_fragments.total>=4)&!prev_gcd.1.elysian_decree
-  if CDsON() S.ElysianDecree:IsCastable() and (Player:Fury() >= 40 and (TotalSoulFragments <= 1 or TotalSoulFragments >= 4) and not Player:PrevGCD(1, S.ElysianDecree)) then
+  if CDsON() and S.ElysianDecree:IsCastable() and (Player:Fury() >= 40 and (TotalSoulFragments <= 1 or TotalSoulFragments >= 4) and not Player:PrevGCD(1, S.ElysianDecree)) then
     if Cast(S.ElysianDecree, nil, Settings.CommonsDS.DisplayStyle.Signature, not Target:IsInRange(30)) then return "elysian_decree big_aoe 6"; end
   end
   -- fel_devastation
