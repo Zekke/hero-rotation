@@ -226,7 +226,7 @@ local function FieryDemise()
     if Cast(S.TheHunt, nil, Settings.CommonsDS.DisplayStyle.Signature, not Target:IsInRange(50)) then return "the_hunt fiery_demise 12"; end
   end
   -- elysian_decree,if=fury>=40&!prev_gcd.1.elysian_decree
-  if CDsON() S.ElysianDecree:IsCastable() and (Player:Fury() >= 40 and not Player:PrevGCD(1, S.ElysianDecree)) then
+  if CDsON() and S.ElysianDecree:IsCastable() and (Player:Fury() >= 40 and not Player:PrevGCD(1, S.ElysianDecree)) then
     if Cast(S.ElysianDecree, nil, Settings.CommonsDS.DisplayStyle.Signature, not Target:IsInRange(30)) then return "elysian_decree fiery_demise 14"; end
   end
   -- spirit_bomb,if=variable.can_spb
