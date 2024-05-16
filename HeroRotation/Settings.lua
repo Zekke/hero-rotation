@@ -38,6 +38,8 @@
       HideGcdSwirl = false,
       RotationDebugOutput = false,
       SetAlpha = 1,
+      -- MoP Remix
+      EnableMoPRemix = false,
     },
     Scaling = {
       ScaleUI = 1,
@@ -67,5 +69,5 @@
     CreatePanelOption("CheckButton", CP_General, "General.HideToggleIcons", "Hide toggle icons", "Enable if you want to hide the toggle buttons on the icon frame.", {ReloadRequired = true});
     CreatePanelOption("CheckButton", CP_General, "General.NotEnoughManaEnabled", "Not enough mana/energy", "Enable if you want a faded icon when you have not enough mana or energy.");
     CreatePanelOption("CheckButton", CP_General, "General.HideGcdSwirl", "Hide GCD swirl", "Enable if you want to hide the GCD swirl animation.");
-    CreatePanelOption("CheckButton", CP_General, "General.RotationDebugOutput", "Debug Output", "DEBUG: Enable if you want output rotation selection as text for debugging purposes.");
+    CreatePanelOption("CheckButton", CP_General, "General.EnableMoPRemix", "Enable for MoP Remix", "Enable if you want the addon to work for MoP Remix. NOTE: We cannot guarantee the APL will be optimized for this game mode.", {ReloadRequired = true})
   end
