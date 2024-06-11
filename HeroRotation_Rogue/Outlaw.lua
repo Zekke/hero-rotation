@@ -315,7 +315,7 @@ local function StealthCDs ()
   end
 
   -- actions.stealth_cds+=/shadowmeld,if=talent.crackshot&variable.finish_condition|!talent.crackshot&(talent.count_the_odds&variable.finish_condition|talent.hidden_opportunity)
-  if S.Shadowmeld:IsAvailable() and S.Shadowmeld:IsReady() then
+  if S.Shadowmeld:IsAvailable() and S.Shadowmeld:IsReady() and Vanish_DPS_Condition() then
     if S.Crackshot:IsAvailable() and Finish_Condition() or not S.Crackshot:IsAvailable() and (S.CountTheOdds:IsAvailable() and Finish_Condition() or S.HiddenOpportunity:IsAvailable()) then
       if Cast(S.Shadowmeld, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "Cast Shadowmeld" end
     end
