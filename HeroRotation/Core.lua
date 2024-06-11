@@ -1,25 +1,26 @@
 --- ============================ HEADER ============================
 --- ======= LOCALIZE =======
 -- Addon
-local addonName, HR = ...
+local addonName, HR    = ...
 -- HeroLib
-local HL           = HeroLib
-local Cache, Utils = HeroCache, HL.Utils
-local Unit         = HL.Unit
-local Player       = Unit.Player
-local Target       = Unit.Target
-local Spell        = HL.Spell
-local Item         = HL.Item
+local HL               = HeroLib
+local Cache, Utils     = HeroCache, HL.Utils
+local Unit             = HL.Unit
+local Player           = Unit.Player
+local Target           = Unit.Target
+local Spell            = HL.Spell
+local Item             = HL.Item
 -- Lua
-local mathmin      = math.min
-local print        = print
-local select       = select
-local stringlower  = string.lower
-local strsplit     = strsplit
-local tostring     = tostring
-local GetTime      = GetTime
+local mathmin          = math.min
+local print            = print
+local select           = select
+local stringlower      = string.lower
+local strsplit         = strsplit
+local tostring         = tostring
+local GetTime          = GetTime
 -- API locals
-local GetItemInfo  = C_Item.GetItemInfo
+local GetItemInfo      = C_Item.GetItemInfo
+local GetAddOnMetadata = C_AddOns.GetAddOnMetadata
 -- File Locals
 
 --- ======= GLOBALIZE =======
@@ -332,84 +333,108 @@ function HR.CastRightSuggested(Object, OutofRange)
 end
 
 --- ======= COMMANDS =======
-  -- Command Handler
-  function HR.CmdHandler (Message)
-    local Argument1, Argument2, Argument3 = strsplit(" ", stringlower(Message));
-    if Argument1 == "cds" then
-      HeroRotationCharDB.Toggles[1] = not HeroRotationCharDB.Toggles[1];
-      HR.ToggleIconFrame:UpdateButtonText(1);
-      HR.Print("CDs are now "..(HeroRotationCharDB.Toggles[1] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."));
-    elseif Argument1 == "aoe" then
-      HeroRotationCharDB.Toggles[2] = not HeroRotationCharDB.Toggles[2];
-      HR.ToggleIconFrame:UpdateButtonText(2);
-      HR.Print("AoE is now "..(HeroRotationCharDB.Toggles[2] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."));
-    elseif Argument1 == "toggle" then
-      HeroRotationCharDB.Toggles[3] = not HeroRotationCharDB.Toggles[3];
-      HR.ToggleIconFrame:UpdateButtonText(3);
-      HR.Print("HeroRotation is now "..(HeroRotationCharDB.Toggles[3] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."));
-    elseif Argument1 == "funnel" then
-      HeroRotationCharDB.Toggles[6] = not HeroRotationCharDB.Toggles[6];
-      HR.ToggleIconFrame:UpdateButtonText(6);
+-- Command Handler
+function HR.CmdHandler(Message)
+  local Argument1, Argument2, Argument3 = strsplit(" ", stringlower(Message))
+  if Argument1 == "cds" then
+    HeroRotationCharDB.Toggles[1] = not HeroRotationCharDB.Toggles[1]
+    HR.ToggleIconFrame:UpdateButtonText(1)
+    if not HR.GUISettings.General.SilentMode then
+      HR.Print("CDs are now "..(HeroRotationCharDB.Toggles[1] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."))
+    end
+  elseif Argument1 == "aoe" then
+    HeroRotationCharDB.Toggles[2] = not HeroRotationCharDB.Toggles[2]
+    HR.ToggleIconFrame:UpdateButtonText(2)
+    if not HR.GUISettings.General.SilentMode then
+      HR.Print("AoE is now "..(HeroRotationCharDB.Toggles[2] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."))
+    end
+  elseif Argument1 == "toggle" then
+    HeroRotationCharDB.Toggles[3] = not HeroRotationCharDB.Toggles[3]
+    HR.ToggleIconFrame:UpdateButtonText(3)
+    if not HR.GUISettings.General.SilentMode then
+      HR.Print("HeroRotation is now "..(HeroRotationCharDB.Toggles[3] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."))
+    end
+  elseif Argument1 == "funnel" then
+    HeroRotationCharDB.Toggles[6] = not HeroRotationCharDB.Toggles[6];
+    HR.ToggleIconFrame:UpdateButtonText(6);
+    if not HR.GUISettings.General.SilentMode then
       HR.Print("Funnel is now "..(HeroRotationCharDB.Toggles[6] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."));
-    elseif Argument1 == "unlock" then
-      HR.MainFrame:Unlock();
-      HR.Print("HeroRotation UI is now |cff00ff00unlocked|r.");
-    elseif Argument1 == "lock" then
-      HR.MainFrame:Lock();
-      HR.Print("HeroRotation UI is now |cffff0000locked|r.");
-    elseif Argument1 == "scale" then
-      if Argument2 and Argument3 then
-        Argument3 = tonumber(Argument3);
-        if Argument3 and type(Argument3) == "number" and Argument3 > 0 and Argument3 <= 10 then
-          if Argument2 == "ui" then
-            HR.MainFrame:ResizeUI(Argument3);
-          elseif Argument2 == "buttons" then
-            HR.MainFrame:ResizeButtons(Argument3);
-          elseif Argument2 == "all" then
-            HR.MainFrame:ResizeUI(Argument3);
-            HR.MainFrame:ResizeButtons(Argument3);
-          else
-            HR.Print("Invalid |cff88ff88[Type]|r for Scale.");
-            HR.Print("Should be |cff8888ff/hr scale|r |cff88ff88[Type]|r |cffff8888[Size]|r.");
-            HR.Print("Type accepted are |cff88ff88ui|r, |cff88ff88buttons|r, |cff88ff88all|r.");
-          end
+    end
+  elseif Argument1 == "unlock" then
+    HR.MainFrame:Unlock()
+    if not HR.GUISettings.General.SilentMode then
+      HR.Print("HeroRotation UI is now |cff00ff00unlocked|r.")
+    end
+  elseif Argument1 == "lock" then
+    HR.MainFrame:Lock()
+    if not HR.GUISettings.General.SilentMode then
+      HR.Print("HeroRotation UI is now |cffff0000locked|r.")
+    end
+  elseif Argument1 == "scale" then
+    if Argument2 and Argument3 then
+      Argument3 = tonumber(Argument3)
+      if Argument3 and type(Argument3) == "number" and Argument3 > 0 and Argument3 <= 10 then
+        if Argument2 == "ui" then
+          HR.MainFrame:ResizeUI(Argument3)
+        elseif Argument2 == "buttons" then
+          HR.MainFrame:ResizeButtons(Argument3)
+        elseif Argument2 == "all" then
+          HR.MainFrame:ResizeUI(Argument3)
+          HR.MainFrame:ResizeButtons(Argument3)
         else
-          HR.Print("Invalid |cffff8888[Size]|r for Scale.");
-          HR.Print("Should be |cff8888ff/hr scale|r |cff88ff88[Type]|r |cffff8888[Size]|r.");
-          HR.Print("Size accepted are |cffff8888number > 0 and <= 10|r.");
+          HR.Print("Invalid |cff88ff88[Type]|r for Scale.")
+          HR.Print("Should be |cff8888ff/hr scale|r |cff88ff88[Type]|r |cffff8888[Size]|r.")
+          HR.Print("Type accepted are |cff88ff88ui|r, |cff88ff88buttons|r, |cff88ff88all|r.")
         end
       else
-        HR.Print("Invalid arguments for Scale.");
-        HR.Print("Should be |cff8888ff/hr scale|r |cff88ff88[Type]|r |cffff8888[Size]|r.");
-        HR.Print("Type accepted are |cff88ff88ui|r, |cff88ff88buttons|r, |cff88ff88all|r.");
-        HR.Print("Size accepted are |cffff8888number > 0 and <= 10|r.");
+        HR.Print("Invalid |cffff8888[Size]|r for Scale.")
+        HR.Print("Should be |cff8888ff/hr scale|r |cff88ff88[Type]|r |cffff8888[Size]|r.")
+        HR.Print("Size accepted are |cffff8888number > 0 and <= 10|r.")
       end
-    elseif Argument1 == "resetbuttons" then
-      HR.ToggleIconFrame:ResetAnchor();
-    elseif Argument1 == "debug" then
-      HeroRotationCharDB.Toggles[4] = not HeroRotationCharDB.Toggles[4]
-      HR.Print("Debug Output is now " .. (HeroRotationCharDB.Toggles[4] == true and "|cff00ff00enabled|r." or "|cffff0000disabled|r."))
-    elseif Argument1 == "help" then
-      HR.Print("|cffffff00--[Toggles]--|r");
-      HR.Print("  On/Off: |cff8888ff/hr toggle|r");
-      HR.Print("  CDs: |cff8888ff/hr cds|r");
-      HR.Print("  AoE: |cff8888ff/hr aoe|r");
-      HR.Print("  Debug: |cff8888ff/hr debug|r");
-      HR.Print("|cffffff00--[User Interface]--|r");
-      HR.Print("  UI Lock: |cff8888ff/hr lock|r");
-      HR.Print("  UI Unlock: |cff8888ff/hr unlock|r");
-      HR.Print("  UI Scale: |cff8888ff/hr scale|r |cff88ff88[Type]|r |cffff8888[Size]|r");
-      HR.Print("    [Type]: |cff88ff88ui|r, |cff88ff88buttons|r, |cff88ff88all|r");
-      HR.Print("    [Size]: |cffff8888number > 0 and <= 10|r");
-      HR.Print("  Button Anchor Reset : |cff8888ff/hr resetbuttons|r");
     else
-      HR.Print("Invalid arguments.");
-      HR.Print("Type |cff8888ff/hr help|r for more infos.");
+      HR.Print("Invalid arguments for Scale.")
+      HR.Print("Should be |cff8888ff/hr scale|r |cff88ff88[Type]|r |cffff8888[Size]|r.")
+      HR.Print("Type accepted are |cff88ff88ui|r, |cff88ff88buttons|r, |cff88ff88all|r.")
+      HR.Print("Size accepted are |cffff8888number > 0 and <= 10|r.")
     end
+  elseif Argument1 == "resetbuttons" then
+    HR.ToggleIconFrame:ResetAnchor()
+  elseif Argument1 == "debug" then
+    HeroRotationCharDB.Toggles[4] = not HeroRotationCharDB.Toggles[4]
+    HR.Print("Debug Output is now " .. (HeroRotationCharDB.Toggles[4] == true and "|cff00ff00enabled|r." or "|cffff0000disabled|r."))
+  elseif Argument1 == "flash" then
+    HeroRotationCharDB.Toggles[5] = not HeroRotationCharDB.Toggles[5]
+    if not HR.GUISettings.General.SilentMode then
+      HR.Print("Icon Flashing is now " .. (HeroRotationCharDB.Toggles[5] == true and "|cff00ff00enabled|r." or "|cffff0000disabled|r."))
+    end
+  elseif Argument1 == "version" then
+    local HRVer, HLVer, DBCVer = HR.Version()
+    HR.Print("HeroRotation Version: |cff8888ff" .. tostring(HRVer) .. "|r")
+    HR.Print("HeroLib Version: |cff8888ff" .. tostring(HLVer) .. "|r")
+    HR.Print("HeroDBC Version: |cff8888ff" .. tostring(DBCVer) .. "|r")
+  elseif Argument1 == "help" then
+    HR.Print("|cffffff00--[Toggles]--|r")
+    HR.Print("  On/Off: |cff8888ff/hr toggle|r")
+    HR.Print("  CDs: |cff8888ff/hr cds|r")
+    HR.Print("  AoE: |cff8888ff/hr aoe|r")
+    HR.Print("  Debug: |cff8888ff/hr debug|r")
+    HR.Print("  Flash: |cff8888ff/hr flash|r")
+    HR.Print("Version: |cff8888ff/hr version|r")
+    HR.Print("|cffffff00--[User Interface]--|r")
+    HR.Print("  UI Lock: |cff8888ff/hr lock|r")
+    HR.Print("  UI Unlock: |cff8888ff/hr unlock|r")
+    HR.Print("  UI Scale: |cff8888ff/hr scale|r |cff88ff88[Type]|r |cffff8888[Size]|r")
+    HR.Print("    [Type]: |cff88ff88ui|r, |cff88ff88buttons|r, |cff88ff88all|r")
+    HR.Print("    [Size]: |cffff8888number > 0 and <= 10|r")
+    HR.Print("  Button Anchor Reset : |cff8888ff/hr resetbuttons|r")
+  else
+    HR.Print("Invalid arguments.")
+    HR.Print("Type |cff8888ff/hr help|r for more infos.")
   end
-  SLASH_HEROROTATION1 = "/hr"
-  SLASH_HEROROTATION2 = "/ar"
-  SlashCmdList["HEROROTATION"] = HR.CmdHandler;
+end
+SLASH_HEROROTATION1 = "/hr"
+SLASH_HEROROTATION2 = "/ar"
+SlashCmdList["HEROROTATION"] = HR.CmdHandler
 
 -- Get if the CDs are enabled.
 function HR.CDsON()
@@ -451,7 +476,15 @@ end
     return HeroRotationCharDB.Toggles[6];
   end
 
-  -- Get if the UI is locked.
-  function HR.Locked ()
-    return HeroRotationDB.Locked;
-  end
+-- Get if the UI is locked.
+function HR.Locked()
+  return HeroRotationDB.Locked
+end
+
+-- Get the version of HR.
+function HR.Version()
+  local HRVer = GetAddOnMetadata("HeroRotation", "Version") or "not defined"
+  local HLVer = GetAddOnMetadata("HeroLib", "Version") or "not defined"
+  local DBCVer = GetAddOnMetadata("HeroDBC", "Version") or "not defined"
+  return HRVer, HLVer, DBCVer
+end

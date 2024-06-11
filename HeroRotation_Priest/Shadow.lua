@@ -202,11 +202,7 @@ end
 
 local function EvaluateTargetIfFilterVTRemains(TargetUnit)
   -- target_if=min:remains
-  if TargetUnit:MaxHealth() > Settings.Shadow.MinVTHP * 1000 then
-    return (TargetUnit:DebuffRemains(S.VampiricTouchDebuff))
-  else
-    return false
-  end
+  return (TargetUnit:DebuffRemains(S.VampiricTouchDebuff))
 end
 
 -- CastTargetIf Condition Functions
@@ -221,9 +217,15 @@ local function EvaluateTargetIfMSIFiller(TargetUnit)
   return (TargetUnit:DebuffRemains(S.DevouringPlagueDebuff) > S.MindSpikeInsanity:CastTime())
 end
 
+local function EvaluateTargetIfVTAoE(TargetUnit)
+  -- if=(!variable.holding_crash|raid_event.adds.count%(active_dot.vampiric_touch+raid_event.adds.count)<1.5)&(dot.devouring_plague.remains>=2.5|buff.voidform.up)
+  return (TargetUnit:DebuffRemains(S.DevouringPlagueDebuff) >= 2.5 or Player:BuffUp(S.VoidformBuff))
+end
+
 local function EvaluateTargetIfVTMain(TargetUnit)
   -- if=refreshable&target.time_to_die>=12&(cooldown.shadow_crash.remains>=dot.vampiric_touch.remains|variable.holding_crash|!talent.whispering_shadows)&(!action.shadow_crash.in_flight|!talent.whispering_shadows)
-  return (TargetUnit:DebuffRefreshable(S.VampiricTouchDebuff) and TargetUnit:TimeToDie() >= 12 and (S.ShadowCrash:CooldownRemains() >= TargetUnit:DebuffRemains(S.VampiricTouchDebuff) or not S.WhisperingShadows:IsAvailable()) and (not S.ShadowCrash:InFlight() or not S.WhisperingShadows:IsAvailable()))
+  -- Note: Added setting check for lowest max hp for us to cycle.
+  return TargetUnit:MaxHealth() > Settings.Shadow.VTMinHP * 1000000 and (TargetUnit:DebuffRefreshable(S.VampiricTouchDebuff) and TargetUnit:TimeToDie() >= 12 and (S.ShadowCrash:CooldownRemains() >= TargetUnit:DebuffRemains(S.VampiricTouchDebuff) or not S.WhisperingShadows:IsAvailable()) and (not S.ShadowCrash:InFlight() or not S.WhisperingShadows:IsAvailable()))
 end
 
 -- CastCycle Functions
@@ -270,12 +272,12 @@ end
 local function EvaluateCycleVTAoE(TargetUnit)
   -- target_if=refreshable&target.time_to_die>=18&(dot.vampiric_touch.ticking|!variable.dots_up)
   -- Note: Manually added variable check to avoid cycling on low hp adds.
-  return (TargetUnit:MaxHealth() > Settings.Shadow.MinVTHP * 1000 and (TargetUnit:DebuffRefreshable(S.VampiricTouchDebuff) and TargetUnit:TimeToDie() >= 18 and (TargetUnit:DebuffUp(S.VampiricTouchDebuff) or not VarDotsUp)))
+  return TargetUnit:MaxHealth() > Settings.Shadow.VTMinHP * 1000000 and (TargetUnit:DebuffRefreshable(S.VampiricTouchDebuff) and TargetUnit:TimeToDie() >= 18 and (TargetUnit:DebuffUp(S.VampiricTouchDebuff) or not VarDotsUp))
 end
 
 local function EvaluateCycleVTAoE2(TargetUnit)
   -- target_if=refreshable&target.time_to_die>=18&(dot.vampiric_touch.ticking|!variable.dots_up),if=variable.max_vts>0&(cooldown.shadow_crash.remains>=dot.vampiric_touch.remains|variable.holding_crash)&!action.shadow_crash.in_flight|!talent.whispering_shadows
-  if TargetUnit:MaxHealth() > Settings.Shadow.MinVTHP * 1000 and (VarMaxVTs > 0 and (S.ShadowCrash:CooldownRemains() >= TargetUnit:DebuffRemains(S.VampiricTouchDebuff) or VarHoldingCrash) and not S.ShadowCrash:InFlight() or not S.WhisperingShadows:IsAvailable()) then
+  if TargetUnit:MaxHealth() > Settings.Shadow.VTMinHP * 1000000 and (VarMaxVTs > 0 and (S.ShadowCrash:CooldownRemains() >= TargetUnit:DebuffRemains(S.VampiricTouchDebuff) or VarHoldingCrash) and not S.ShadowCrash:InFlight() or not S.WhisperingShadows:IsAvailable()) then
     return (TargetUnit:DebuffRefreshable(S.VampiricTouchDebuff) and TargetUnit:TimeToDie() >= 18 and (TargetUnit:DebuffUp(S.VampiricTouchDebuff) or not VarDotsUp))
   else
     return false
@@ -447,7 +449,7 @@ local function CDs()
   -- invoke_external_buff,name=power_infusion,if=(buff.voidform.up|buff.dark_ascension.up)&!buff.power_infusion.up
   -- Note: Not handling external buffs
   -- void_eruption,if=!cooldown.fiend.up&(pet.fiend.active&cooldown.fiend.remains>=4|!talent.mindbender|active_enemies>2&!talent.inescapable_torment.rank)&(cooldown.mind_blast.charges=0|time>15)
-  if S.VoidEruption:IsCastable() and (Fiend:CooldownDown() and (VarFiendUp and Fiend:CooldownRemains() >= 4 or not S.Mindbender:IsAvailable() or EnemiesCount10ySplash > 2 and not S.InescapableTorment:IsAvailable()) and (S.MindBlast:Charges() == 0 or HL.CombatTime() > 15)) then
+  if S.VoidEruption:IsCastable() and (Fiend:CooldownDown() and (VarFiendUp and Fiend:CooldownRemains() >= 4 or not S.Mindbender:IsAvailable() or EnemiesCount10ySplash > 2 and not S.InescapableTorment:IsAvailable()) and (S.MindBlast:Charges() == 0 or S.MindBlast:Charges() == 1 and Player:IsCasting(S.MindBlast) or HL.CombatTime() > 15)) then
     if Cast(S.VoidEruption, Settings.Shadow.GCDasOffGCD.VoidEruption) then return "void_eruption cds 20"; end
   end
   -- dark_ascension,if=pet.fiend.active&cooldown.fiend.remains>=4|!talent.mindbender&!cooldown.fiend.up|active_enemies>2&!talent.inescapable_torment
@@ -646,7 +648,7 @@ local function AoE()
   end
   -- void_torrent,target_if=max:dot.devouring_plague.remains,if=(!variable.holding_crash|raid_event.adds.count%(active_dot.vampiric_touch+raid_event.adds.count)<1.5)&(dot.devouring_plague.remains>=2.5|buff.voidform.up)
   if S.VoidTorrent:IsCastable() then
-    if Everyone.CastTargetIf(S.VoidTorrent, Enemies40y, "max", EvaluateTargetIfFilterDPRemains, EvaluateTargetIfVoidTorrentAoE, not Target:IsSpellInRange(S.VoidTorrent), Settings.Shadow.GCDasOffGCD.VoidTorrent) then return "void_torrent aoe 34"; end
+    if Everyone.CastTargetIf(S.VoidTorrent, Enemies40y, "max", EvaluateTargetIfFilterDPRemains, EvaluateTargetIfVTAoE, not Target:IsSpellInRange(S.VoidTorrent), Settings.Shadow.GCDasOffGCD.VoidTorrent) then return "void_torrent aoe 34"; end
   end
   -- mind_flay,target_if=max:dot.devouring_plague.remains,if=buff.mind_flay_insanity.up&talent.idol_of_cthun,interrupt_if=ticks>=2,interrupt_immediate=1
   if Flay:IsCastable() and (Player:BuffUp(S.MindFlayInsanityBuff) and S.IdolOfCthun:IsAvailable()) then
@@ -808,7 +810,7 @@ local function Init()
   S.DevouringPlagueDebuff:RegisterAuraTracking()
   S.VampiricTouchDebuff:RegisterAuraTracking()
 
-  HR.Print("Shadow Priest rotation has been updated for patch 10.2.5.")
+  HR.Print("Shadow Priest rotation has been updated for patch 10.2.7.")
 end
 
 HR.SetAPL(258, APL, Init)
