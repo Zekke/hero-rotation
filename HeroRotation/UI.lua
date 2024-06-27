@@ -35,15 +35,16 @@ HR.ToggleIconFrame = CreateFrame("Frame", "HeroRotation_ToggleIconFrame", UIPare
 --- ======= MISC =======
   -- Reset Textures
   local IdleSpellTexture = HR.GetTexture(Spell(999900))
+
   function HR.ResetIcons ()
     -- Main Icon
     HR.MainIconFrame:Hide()
     if HR.GUISettings.General.BlackBorderIcon then HR.MainIconFrame.Backdrop:Hide(); end
     HR.MainIconPartOverlayFrame:Hide()
     HR.MainIconFrame:HideParts()
-    if IsAddOnLoaded("ZTB") then
+    --if IsAddOnLoaded("ZTB") then
       ZTB.PixelFrame:Hide()
-    end
+    --end
     -- Small Icons
     HR.SmallIconFrame:HideIcons()
     HR.CastOffGCDOffset = 1
