@@ -33,7 +33,7 @@ Spell.DemonHunter.Commons = {
   ChaosNova                             = Spell(179057),
   CollectiveAnguish                     = Spell(390152),
   Demonic                               = Spell(213410),
-  ElysianDecree                         = Spell(390163),
+  SigilofSpite                          = Spell(390163),
   Felblade                              = Spell(232893),
   FirstoftheIllidari                    = Spell(235893),
   FoddertotheFlame                      = Spell(391429),
@@ -42,6 +42,9 @@ Spell.DemonHunter.Commons = {
   SigilofMisery                         = MultiSpell(207684, 389813), -- 207684: Base ID, 389813: Precise
   SoulSigils                            = Spell(395446),
   TheHunt                               = Spell(370965),
+  -- Hero Talents
+  ArtoftheGlaive                        = Spell(442290),
+  Demonsurge                            = Spell(454402),
   -- Utility
   Disrupt                               = Spell(183752),
   -- Buffs

@@ -71,7 +71,7 @@ Spell.Rogue.Commons = {
   Sprint                  = Spell(2983),
   TricksoftheTrade        = Spell(57934),
   -- Talents
-  AcrobaticStrikes        = Spell(196924),
+  AcrobaticStrikes        = Spell(455143),
   Alacrity                = Spell(193539),
   ColdBlood               = Spell(382245),
   DeeperStratagem         = Spell(193531),
@@ -95,6 +95,7 @@ Spell.Rogue.Commons = {
   Subterfuge              = Spell(108208),
   SubterfugeBuff          = Spell(115192),
   ThistleTea              = Spell(381623),
+  TricksterDistract       = Spell(441587),
   Vigor                   = Spell(14983),
   -- Stealth
   Stealth                 = Spell(1784),

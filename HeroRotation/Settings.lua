@@ -1,14 +1,20 @@
 --- ============================ HEADER ============================
 --- ======= LOCALIZE =======
 -- Addon
-local addonName, HR = ...;
+local addonName, HR     = ...
 -- HeroLib
-local HL = HeroLib;
+local HL                = HeroLib
 -- File Locals
-local GUI = HL.GUI;
-local CreatePanel = GUI.CreatePanel;
-local CreateChildPanel = GUI.CreateChildPanel;
-local CreatePanelOption = GUI.CreatePanelOption;
+local GUI               = HL.GUI
+local CreatePanel       = GUI.CreatePanel
+local CreateChildPanel  = GUI.CreateChildPanel
+local CreatePanelOption = GUI.CreatePanelOption
+local addonName, HR     = ...
+-- File Locals
+local GUI               = HL.GUI
+local CreatePanel       = GUI.CreatePanel
+local CreateChildPanel  = GUI.CreateChildPanel
+local CreatePanelOption = GUI.CreatePanelOption
 
 --- ============================ CONTENT ============================
 -- Default settings
@@ -38,8 +44,6 @@ HR.GUISettings = {
     HideGcdSwirl = false,
     RotationDebugOutput = false,
     SetAlpha = 1,
-    -- MoP Remix
-    EnableMoPRemix = false,
     -- Silence print messages
     SilentMode = false,
     -- Force primary target spell suggestions to Main Icon
@@ -76,5 +80,4 @@ function HR.GUI.CorePanelSettingsInit ()
   CreatePanelOption("CheckButton", CP_General, "General.SilentMode", "Enable Silent Mode", "Enable this option to no longer receive output messages from settings toggles. Debug output will still be printed, if enabled.")
   CreatePanelOption("CheckButton", CP_General, "General.HideGcdSwirl", "Hide GCD swirl", "Enable if you want to hide the GCD swirl animation.")
   CreatePanelOption("CheckButton", CP_General, "General.ForceMainIcon", "Force Main Icon", "Force all spell suggestions for your primary target to be shown in the Main Icon area, regardless of DisplayStyle or OffGCD settings.\n\nNOTE: Suggestions for spells that cycle through targets will still show in the Left Icon area when they are suggested for targets other than your primary target.\n\nNOTE: This should mostly be used for debugging purposes, as /hr debug output only captures output for Main Icon suggestions.")
-  CreatePanelOption("CheckButton", CP_General, "General.EnableMoPRemix", "Enable for MoP Remix", "Enable if you want the addon to work for MoP Remix. NOTE: We cannot guarantee the APL will be optimized for this game mode.", {ReloadRequired = true})
 end
