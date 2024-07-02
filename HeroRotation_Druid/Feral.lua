@@ -425,7 +425,7 @@ local function Builder()
     if HR.CastAnnotated(S.Pool, false, "WAIT") then return "Pool for Rake in Builder()"; end
   end
   -- shadowmeld,if=action.rake.ready&!buff.sudden_ambush.up&(dot.rake.refreshable|dot.rake.pmultiplier<1.4)&!(variable.need_bt&buff.bt_rake.up)&!buff.prowl.up
-  if S.Shadowmeld:IsCastable() and (S.Rake:IsReady() and Player:BuffDown(S.SuddenAmbushBuff) and (Target:DebuffRefreshable(S.RakeDebuff) or Target:PMultiplier(S.Rake) < 1.4) and not (VarNeedBT and BTBuffUp(S.Rake)) and Player:BuffDown(S.Prowl)) then
+  if CDsON() and S.Shadowmeld:IsCastable() and (S.Rake:IsReady() and Player:BuffDown(S.SuddenAmbushBuff) and (Target:DebuffRefreshable(S.RakeDebuff) or Target:PMultiplier(S.Rake) < 1.4) and not (VarNeedBT and BTBuffUp(S.Rake)) and Player:BuffDown(S.Prowl)) then
     if Cast(S.Shadowmeld, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "shadowmeld builder 8"; end
   end
   -- rake,if=(refreshable|buff.sudden_ambush.up&persistent_multiplier>dot.rake.pmultiplier)&!(variable.need_bt&buff.bt_rake.up)
@@ -486,7 +486,7 @@ local function AoeBuilder()
   end
   -- shadowmeld,target_if=max:dot.rake.pmultiplier<1.6+dot.rake.refreshable,if=(dot.rake.pmultiplier<1.6|dot.rake.refreshable)&!(variable.need_bt&buff.bt_rake.up)
   -- Note: Skipping target_if condition.
-  if S.Shadowmeld:IsReady() and not Player:StealthUp(false, true) and ((Target:PMultiplier(S.Rake) < 1.6 or Target:DebuffRefreshable(S.RakeDebuff)) and not (VarNeedBT and BTBuffUp(S.Rake))) then
+  if CDsON() and S.Shadowmeld:IsReady() and not Player:StealthUp(false, true) and ((Target:PMultiplier(S.Rake) < 1.6 or Target:DebuffRefreshable(S.RakeDebuff)) and not (VarNeedBT and BTBuffUp(S.Rake))) then
     if Cast(S.Shadowmeld, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "shadowmeld aoe_builder 8"; end
   end
   -- rake,target_if=max:(dot.rake.pmultiplier<1.6|dot.rake.refreshable)*druid.rake.ticks_gained_on_refresh,if=(buff.sudden_ambush.up&persistent_multiplier>dot.rake.pmultiplier|dot.rake.refreshable)&!(variable.need_bt&buff.bt_rake.up)
@@ -579,7 +579,7 @@ local function Berserk()
     if Cast(S.Prowl) then return "prowl berserk 4"; end
   end
   -- shadowmeld,if=!(buff.bt_rake.up&active_bt_triggers=2)&action.rake.ready&!buff.sudden_ambush.up&(dot.rake.refreshable|dot.rake.pmultiplier<1.4)&!buff.prowl.up
-  if S.Shadowmeld:IsCastable() and (not (BTBuffUp(S.Rake) and CountActiveBtTriggers() == 2) and S.Rake:IsReady() and Player:BuffDown(S.SuddenAmbushBuff) and (Target:DebuffRefreshable(S.RakeDebuff) or Target:PMultiplier(S.Rake) < 1.4) and Player:BuffDown(S.Prowl)) then
+  if CDsON() and S.Shadowmeld:IsCastable() and (not (BTBuffUp(S.Rake) and CountActiveBtTriggers() == 2) and S.Rake:IsReady() and Player:BuffDown(S.SuddenAmbushBuff) and (Target:DebuffRefreshable(S.RakeDebuff) or Target:PMultiplier(S.Rake) < 1.4) and Player:BuffDown(S.Prowl)) then
     if Cast(S.Shadowmeld, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "shadowmeld berserk 6"; end
   end
   -- rake,if=!(buff.bt_rake.up&active_bt_triggers=2)&(dot.rake.remains<3|buff.sudden_ambush.up&persistent_multiplier>dot.rake.pmultiplier)
