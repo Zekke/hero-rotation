@@ -151,6 +151,12 @@ local function Precombat()
 end
 
 local function Execute()
+  if CDsON() and S.ThunderousRoar:IsCastable() then
+    if Cast(S.ThunderousRoar, Settings.Arms.GCDasOffGCD.ThunderousRoar, nil, not Target:IsInMeleeRange(12)) then return "thunderous_roar execute"; end
+  end
+  if S.Skullsplitter:IsCastable() and Target:DebuffUp(S.ThunderousRoar) then
+    if Cast(S.Skullsplitter, nil, nil, not Target:IsInMeleeRange(8)) then return "skullspliter execute ThunderousRoar"; end
+  end
   -- whirlwind,if=buff.collateral_damage.up&cooldown.sweeping_strikes.remains<3
   if S.Whirlwind:IsReady() and (Player:BuffUp(S.CollateralDamageBuff) and S.SweepingStrikes:CooldownRemains() < 3) then
     if Cast(S.Whirlwind, nil, nil, not Target:IsInMeleeRange(8)) then return "whirlwind execute 1"; end
@@ -166,6 +172,9 @@ local function Execute()
   -- rend,if=remains<=gcd&!talent.bloodletting&(!talent.warbreaker&cooldown.colossus_smash.remains<4|talent.warbreaker&cooldown.warbreaker.remains<4)&target.time_to_die>12
   if S.Rend:IsReady() and (Target:DebuffRemains(S.RendDebuff) <= Player:GCD() and not S.Bloodletting:IsAvailable() and (not S.Warbreaker:IsAvailable() and S.ColossusSmash:CooldownRemains() < 4 or S.Warbreaker:IsAvailable() and S.Warbreaker:CooldownRemains() < 4) and Target:TimeToDie() > 12) then
     if Cast(S.Rend, nil, nil, not TargetInMeleeRange) then return "rend execute 6"; end
+  end
+  if CDsON() and S.Ravager:IsCastable() then
+    if Cast(S.Ravager, Settings.Arms.GCDasOffGCD.Ravager, nil, not Target:IsInMeleeRange(12)) then return "ravager execute"; end
   end
   -- avatar,if=cooldown.colossus_smash.ready|debuff.colossus_smash.up|target.time_to_die<20
   if CDsON() and S.Avatar:IsCastable() and (S.ColossusSmash:CooldownUp() or Target:DebuffUp(S.ColossusSmashDebuff) or FightRemains < 20) then
@@ -209,7 +218,7 @@ local function Execute()
   end
   -- skullsplitter,if=rage<40
   if S.Skullsplitter:IsCastable() and (Player:Rage() < 40) then
-    if Cast(S.Skullsplitter, nil, nil, not Target:IsInMeleeRange(8)) then return "sweeping_strikes execute 30"; end
+    if Cast(S.Skullsplitter, nil, nil, not Target:IsInMeleeRange(8)) then return "skullspliter execute 30"; end
   end
   -- execute,if=rage>=40
   if S.Execute:IsReady() and (Player:Rage() >= 40) then
@@ -258,6 +267,9 @@ local function AoE()
   -- Note: Cut this one short. The first '!talent.bladestorm' covers the rest of the conditions...
   if S.SweepingStrikes:IsCastable() and (S.Bladestorm:CooldownRemains() > 15 or S.ImprovedSweepingStrikes:IsAvailable() and S.Bladestorm:CooldownRemains() > 21 or not S.Bladestorm:IsAvailable()) then
     if Cast(S.SweepingStrikes, nil, nil, not Target:IsInMeleeRange(8)) then return "sweeping_strikes aoe 10"; end
+  end
+  if CDsON() and S.Ravager:IsCastable() then
+    if Cast(S.Ravager, Settings.Arms.GCDasOffGCD.Ravager, nil, not Target:IsInMeleeRange(12)) then return "ravager aoe"; end
   end
   -- avatar,if=raid_event.adds.in>15|talent.blademasters_torment|target.time_to_die<20|buff.hurricane.remains<3
   if CDsON() and S.Avatar:IsCastable() and (S.BlademastersTorment:IsAvailable() or FightRemains < 20 or Player:BuffRemains(S.HurricaneBuff) < 3) then
@@ -370,6 +382,9 @@ local function SingleTarget()
   if CDsON() and S.ThunderousRoar:IsCastable() then
     if Cast(S.ThunderousRoar, Settings.Arms.GCDasOffGCD.ThunderousRoar, nil, not Target:IsInMeleeRange(12)) then return "thunderous_roar single_target 8"; end
   end
+  if CDsON() and S.Ravager:IsCastable() then
+    if Cast(S.Ravager, Settings.Arms.GCDasOffGCD.Ravager, nil, not Target:IsInMeleeRange(12)) then return "ravager single_target"; end
+  end
   -- bladestorm,if=talent.hurricane&raid_event.add.in>22&talent.warlords_torment
   if CDsON() and S.Bladestorm:IsReady() and (S.Hurricane:IsAvailable() and S.WarlordsTorment:IsAvailable()) then
     if Cast(S.Bladestorm, Settings.Arms.GCDasOffGCD.Bladestorm, nil, not TargetInMeleeRange) then return "bladestorm single_target 10"; end
@@ -389,6 +404,9 @@ local function SingleTarget()
   -- mortal_strike
   if S.MortalStrike:IsReady() then
     if Cast(S.MortalStrike, nil, nil, not TargetInMeleeRange) then return "mortal_strike single_target 18"; end
+  end
+  if S.Skullsplitter:IsCastable() and Target:DebuffUp(S.ThunderousRoar) then
+    if Cast(S.Skullsplitter, nil, nil, not TargetInMeleeRange) then return "skullsplitter single_target Thunderous Roar"; end
   end
   -- execute,if=(buff.juggernaut.up&buff.juggernaut.remains<gcd)|(buff.sudden_death.react&dot.deep_wounds.remains&set_bonus.tier31_2pc|buff.sudden_death.react&!dot.rend.remains&set_bonus.tier31_4pc)
   if S.Execute:IsReady() and ((Player:BuffUp(S.JuggernautBuff) and Player:BuffRemains(S.JuggernautBuff) < Player:GCD()) or (Player:BuffUp(S.SuddenDeathBuff) and Target:DebuffRemains(S.DeepWoundsDebuff) and Player:HasTier(31, 2) or Player:BuffUp(S.SuddenDeathBuff) and Target:DebuffDown(S.RendDebuff) and Player:HasTier(31, 4))) then

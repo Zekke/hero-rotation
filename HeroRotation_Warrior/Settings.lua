@@ -58,6 +58,7 @@ HR.GUISettings.APL.Warrior = {
       Bladestorm = false,
       ColossusSmash = false,
       IgnorePain = false,
+      Ravager = false,
       Shockwave = true,
       ThunderousRoar = false,
       Warbreaker = false,

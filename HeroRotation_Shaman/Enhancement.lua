@@ -53,13 +53,18 @@ local MaxAshenCatalystStacks = 8
 local MaxConvergingStormsStacks = 6
 local VarMinTalentedCDRemains = 1000
 local EnemiesMelee, EnemiesMeleeCount, Enemies40yCount
-local MaxEBCharges = S.LavaBurst:IsAvailable() and 2 or 1
+local MaxEBCharges = 1
+local VarLavaBurst = not S.ElementalBlast:IsAvailable()
 local TIAction = S.LightningBolt
 local BossFightRemains = 11111
 local FightRemains = 11111
 
 HL:RegisterForEvent(function()
-  MaxEBCharges = S.LavaBurst:IsAvailable() and 2 or 1
+  MaxEBCharges = 1
+end, "SPELLS_CHANGED", "LEARNED_SPELL_IN_TAB")
+
+HL:RegisterForEvent(function()
+  VarLavaBurst = not S.ElementalBlast:IsAvailable()
 end, "SPELLS_CHANGED", "LEARNED_SPELL_IN_TAB")
 
 HL:RegisterForEvent(function()
@@ -222,7 +227,7 @@ local function Single()
     if Cast(S.ElementalBlast, nil, nil, not Target:IsSpellInRange(S.ElementalBlast)) then return "elemental_blast single 24"; end
   end
   -- lava_burst,if=!talent.thorims_invocation.enabled&buff.maelstrom_weapon.stack>=5
-  if S.LavaBurst:IsReady() and (not S.ThorimsInvocation:IsAvailable() and MaelstromStacks >= 5) then
+  if S.LavaBurst:IsReady() and VarLavaBurst and (not S.ThorimsInvocation:IsAvailable() and MaelstromStacks >= 5) then
     if Cast(S.LavaBurst, nil, nil, not Target:IsSpellInRange(S.LavaBurst)) then return "lava_burst single 26"; end
   end
   -- lightning_bolt,if=((buff.maelstrom_weapon.stack>=8)|(talent.static_accumulation.enabled&buff.maelstrom_weapon.stack>=5))&buff.primordial_wave.down
@@ -480,7 +485,7 @@ local function Funnel()
     if Cast(S.ChainLightning, nil, nil, not Target:IsSpellInRange(S.ChainLightning)) then return "chain_lightning funnel 14"; end
   end
   -- lava_burst,if=(buff.molten_weapon.stack+buff.volcanic_strength.up>buff.crackling_surge.stack)&buff.maelstrom_weapon.stack=buff.maelstrom_weapon.max_stack
-  if S.LavaBurst:IsReady() and ((Player:BuffStack(S.MoltenWeaponBuff) + num(Player:BuffUp(S.VolcanicStrengthBuff)) > Player:BuffStack(S.CracklingSurgeBuff)) and MaelstromStacks == MaxMaelstromStacks) then
+  if S.LavaBurst:IsReady() and VarLavaBurst and ((Player:BuffStack(S.MoltenWeaponBuff) + num(Player:BuffUp(S.VolcanicStrengthBuff)) > Player:BuffStack(S.CracklingSurgeBuff)) and MaelstromStacks == MaxMaelstromStacks) then
     if Cast(S.LavaBurst, nil, nil, not Target:IsSpellInRange(S.LavaBurst)) then return "lava_burst funnel 16"; end
   end
   -- lightning_bolt,if=buff.maelstrom_weapon.stack=buff.maelstrom_weapon.max_stack
@@ -560,7 +565,7 @@ local function Funnel()
     if Cast(S.ElementalBlast, nil, nil, not Target:IsSpellInRange(S.ElementalBlast)) then return "elemental_blast funnel 54"; end
   end
   -- lava_burst,if=(buff.molten_weapon.stack+buff.volcanic_strength.up>buff.crackling_surge.stack)&buff.maelstrom_weapon.stack>=5
-  if S.LavaBurst:IsReady() and ((Player:BuffStack(S.MoltenWeaponBuff) + num(Player:BuffUp(S.VolcanicStrengthBuff)) > Player:BuffStack(S.CracklingSurgeBuff)) and MaelstromStacks >= 5) then
+  if S.LavaBurst:IsReady() and VarLavaBurst and ((Player:BuffStack(S.MoltenWeaponBuff) + num(Player:BuffUp(S.VolcanicStrengthBuff)) > Player:BuffStack(S.CracklingSurgeBuff)) and MaelstromStacks >= 5) then
     if Cast(S.LavaBurst, nil, nil, not Target:IsSpellInRange(S.LavaBurst)) then return "lava_burst funnel 56"; end
   end
   -- lightning_bolt,if=buff.maelstrom_weapon.stack>=5
