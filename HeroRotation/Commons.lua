@@ -41,6 +41,11 @@ function Commons.TargetIsValid()
   return Target:Exists() and Player:CanAttack(Target) and not Target:IsDeadOrGhost() or HR.GUISettings.General.ForceReadyStatus
 end
 
+-- Is the current target and ally?
+function Commons.TargetIsFriendly()
+  return Target:Exists() and UnitIsFriend("player", "target") and UnitCanAssist("player", "target") and not Target:IsDeadOrGhost()
+end
+
 -- Is the current unit valid during cycle?
 function Commons.UnitIsCycleValid(Unit, BestUnitTTD, TimeToDieOffset)
   return not Unit:IsFacingBlacklisted() and not Unit:IsUserCycleBlacklisted() and (not BestUnitTTD or Unit:FilteredTimeToDie(">", BestUnitTTD, TimeToDieOffset))

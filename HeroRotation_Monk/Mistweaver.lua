@@ -41,6 +41,7 @@ local OnUseExcludes = {
 local Enemies5y
 local Enemies8y
 local EnemiesCount8
+local ShouldReturn
 local Stuns = {
   { S.LegSweep, "Cast Leg Sweep (Stun)", function () return true end },
   { S.Paralysis, "Cast Paralysis (Stun)", function () return true end },
@@ -63,77 +64,192 @@ local function UseItems()
   end
 end
 
-local function Defensives()
-  -- Dampen Harm
-  if S.DampenHarm:IsCastable() and Player:BuffDown(S.FortifyingBrew) and Player:HealthPercentage() <= Settings.Mistweaver.DampenHarmHP then
-    if Cast(S.DampenHarm, nil, Settings.Mistweaver.DisplayStyle.DampenHarm) then return "dampen_harm defensives 2"; end
+local function CountAlliesBelowPercentHP(Percent)
+    local groupType, numMembers
+    if IsInRaid() then
+        groupType = "raid"
+        numMembers = GetNumGroupMembers()
+    elseif IsInGroup() then
+        groupType = "party"
+        numMembers = GetNumGroupMembers()
+    else
+        return 0 -- Pas dans un groupe ou un raid
+    end
+
+    local count = 0
+    for i = 1, numMembers do
+        local unit = groupType .. i
+        if UnitExists(unit) and not UnitIsDeadOrGhost(unit) then
+            local healthPercent = (UnitHealth(unit) / UnitHealthMax(unit)) * 100
+            if healthPercent < Percent then
+                count = count + 1
+            end
+        end
+    end
+
+    -- Vérifie le joueur lui-même dans le cas d'un groupe
+    if groupType == "party" and UnitExists("player") and not UnitIsDeadOrGhost("player") then
+        local healthPercent = (UnitHealth("player") / UnitHealthMax("player")) * 100
+        if healthPercent < Percent then
+            count = count + 1
+        end
+    end
+
+    return count
+end
+
+local function IsJadeSerpentStatueSummoned()
+    -- Nom de la Statue du Serpent de Jade en anglais, ajustez en fonction de la langue du client WoW si nécessaire
+    local jadeSerpentStatueName = "Jade Serpent Statue"
+
+    -- Parcourir les familiers du joueur
+    for i = 1, 5 do
+        local unit = "statue" .. i
+        if UnitExists(unit) and UnitName(unit) == jadeSerpentStatueName then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function DPS()
+    if S.SheilunsGift:IsCastable() and S.SheilunsGift:IsReady() and CountAlliesBelowPercentHP(50) >= 2 then
+      if Cast(S.SheilunsGift) then return "Sheilun's Gift"; end
+    end
+    if S.TouchofDeath:CooldownUp() and ((S.ImpTouchofDeath:IsAvailable() and Target:HealthPercentage() <= 15) or (Target:Health() < Player:Health())) then
+      if Cast(S.TouchofDeath, nil, nil, not Target:IsInRange(5)) then return "Touch of Death"; end
+    end
+    --1) Summon White Tiger Statue => si SWTS Talented + ennemies > 1
+    if S.SummonWhiteTigerStatue:IsCastable() and EnemiesCount8 > 1 then
+      if Cast(S.SummonWhiteTigerStatue, Settings.CommonsOGCD.GCDasOffGCD.SummonWhiteTigerStatue, nil, not Target:IsInRange(40)) then return "Summon White Tiger Statue"; end
+    end
+    --2) SUGGEST (ou cast sur sois meme ?) Zen Pulse => Zen Pulse talented + ennemies > 3
+    if S.ZenPulse:IsCastable() and EnemiesCount8 > 3 then
+      if Cast(S.ZenPulse) then return "Zen Pulse"; end
+    end
+    if S.AncientConcordance:IsAvailable() and EnemiesCount8 >= 3 and Player:BuffUp(S.AncientConcordanceBuff) then
+        --3) Blackout Kick => si Ancient Concordance talented + buff Jadefire Stomp + ennemies >= 3
+        if S.BlackoutKick:IsCastable() then
+            if Cast(S.BlackoutKick, nil, nil, not Target:IsInRange(5)) then return "Blackout Kick (AoE)"; end
+        end
+        --4) Tiger Palm => si Teachings of the Monastery talented + Blackout kick en cd
+        if S.TigerPalm:IsCastable() and S.TeachingsoftheMonastery:IsAvailable() then
+            if Cast(S.TigerPalm, nil, nil, not Target:IsInRange(5)) then return "Tiger Palm (AoE)"; end
+        end
+    end
+    --5) Spinning Crane Kick => ennemies >= 5
+    if S.SpinningCraneKick:IsCastable() and EnemiesCount8 >= 5 then
+      if Cast(S.SpinningCraneKick) then return "Spinning Crane Kick (5+)"; end
+    end
+    --6) Jadefire stomp => Jadefire stomp talented
+    if CDsON() and S.JadefireStomp:IsCastable() and Player:BuffDown(S.JadefireStomp) then
+      if Cast(S.JadefireStomp, nil, nil, not Target:IsInRange(30)) then return "Jadefire Stomp"; end
+    end
+    if S.EssenceFont:IsCastable() and S.AncientTeachings:IsAvailable() and Player:BuffDown(S.AncientTeachingsBuff) then
+      if Cast(S.EssenceFont) then return "Essence Font"; end
+    end
+    --7) Spinning Crane kick => ennemies >= 3
+    if S.SpinningCraneKick:IsCastable() and EnemiesCount8 >= 3 then
+      if Cast(S.SpinningCraneKick) then return "Spinning Crane Kick (3+)"; end
+    end
+    --8) Rising Sun kick
+    if S.RisingSunKick:IsCastable() then
+      if S.ThunderFocusTea:IsCastable() and S.ThunderFocusTea:IsReady() then
+        if Cast(S.ThunderFocusTea) then return "Thunder Focus Tea (Rising Sun Kick)"; end
+      end
+      if Cast(S.RisingSunKick, nil, nil, not Target:IsInRange(5)) then return "Rising Sun Kick"; end
+    end
+    --9) Spinning Crane Kick => ennemies > 1
+    if S.SpinningCraneKick:IsCastable() and EnemiesCount8 > 1 then
+      if Cast(S.SpinningCraneKick) then return "Spinning Crane Kick (1+)"; end
+    end
+    --10) Blackout Kick
+    if S.BlackoutKick:IsCastable() then
+      if Cast(S.BlackoutKick, nil, nil, not Target:IsInRange(5)) then return "Blackout Kick"; end
+    end
+    --11) Tiger Palm
+    if S.TigerPalm:IsCastable() then
+      if Cast(S.TigerPalm, nil, nil, not Target:IsInRange(5)) then return "Tiger Palm"; end
+    end
+end
+
+local function YulonTheJadeSerpent()
+  if S.RenewingMist:IsCastable() and S.RenewingMist:Charges() > 0  and not Player:IsChanneling(S.SoothingMist) then
+    if Cast(S.RenewingMist) then return "Renewing Mist"; end
   end
-  -- Fortifying Brew
-  if S.FortifyingBrew:IsCastable() and Player:BuffDown(S.DampenHarm) and Player:HealthPercentage() <= Settings.Mistweaver.FortifyingBrewHP then
-    if Cast(S.FortifyingBrew, Settings.Mistweaver.DisplayStyle.FortifyingBrew) then return "fortifying_brew defensives 4"; end
+  if Player:BuffStack(S.ManaTeaBuff) > 2 and Player:BuffDown(S.ManaTeaBuffCost) then
+    --if Cast(S.ManaTea) then return "Mana Tea"; end
+  end
+  if S.InvokeYulonTheJadeSerpent:IsCastable() then
+    if Cast(S.InvokeYulonTheJadeSerpent) then return "Invoke Yulon, the Jade Serpent"; end
+  end
+  if Target:BuffUp(S.ChiHarmony) or Target:BuffDown(S.ChiHarmony) then
+    if S.EnvelopingMist:IsCastable() and Player:IsChanneling(S.SoothingMist) then
+      if Cast(S.EnvelopingMist) then return "Enveloping Mist"; end
+    end
+    if S.SoothingMist:IsCastable() and not Player:IsChanneling(S.SoothingMist) then
+      if Cast(S.SoothingMist) then return "Soothing Mist"; end
+    end
   end
 end
 
-local function Precombat()
-  -- flask
-  -- food
-  -- augmentation
-  -- snapshot_stats
-  -- potion
-  -- Note: Removing this as it's no longer necessary to do in Precombat
-  -- fleshcraft
-  if S.Fleshcraft:IsCastable() then
-    if Cast(S.Fleshcraft, nil, Settings.Commons.DisplayStyle.Covenant) then return "fleshcraft precombat 2"; end
+local function Heal()
+  if Player:BuffUp(S.VivaciousVivification) and Target:HealthPercentage() < 35 and Player:BuffDown(S.YulonsBlessing) then
+    if S.ThunderFocusTea:IsCastable() and S.ThunderFocusTea:IsReady() then
+      if Cast(S.ThunderFocusTea) then return "Thunder Focus Tea (Vivify emergency)"; end
+    end
+    if S.Vivify:IsCastable() then
+      if Cast(S.Vivify) then return "Vivify emergency"; end
+    end
   end
-  -- chi_burst
-  if S.ChiBurst:IsCastable() then
-    if Cast(S.ChiBurst, nil, nil, not Target:IsInRange(40)) then return "chi_burst precombat 4"; end
+  if S.SummonJadeSerpentStatue:IsCastable() and S.SummonJadeSerpentStatue:TimeSinceLastCast() > 90 then
+    if Cast(S.SummonJadeSerpentStatue) then return "Summon Jade Serpent Statue"; end
   end
-  -- chi_wave
-  if S.ChiWave:IsCastable() then
-    if Cast(S.ChiWave, nil, nil, not Target:IsInRange(40)) then return "chi_wave precombat 6"; end
+  if CDsON() and S.InvokeYulonTheJadeSerpent:IsAvailable() and (S.InvokeYulonTheJadeSerpent:IsReady() or Player:BuffUp(S.YulonsBlessing)) and IsInRaid() then
+    ShouldReturn = YulonTheJadeSerpent();
+    if ShouldReturn then return "Yulon: " .. ShouldReturn end;
   end
-end
-
-local function AOE()
-  -- spinning_crane_kick
-  if S.SpinningCraneKick:IsCastable() then
-    if Cast(S.SpinningCraneKick, nil, nil, not Target:IsInMeleeRange(8)) then return "spinning_crane_kick aoe 2"; end
+  if S.RenewingMist:IsCastable() and S.RenewingMist:Charges() > 0 and not Player:IsChanneling(S.SoothingMist) then
+    if S.ThunderFocusTea:IsCastable() and S.ThunderFocusTea:IsReady() and S.SecretInfusion:IsAvailable() and not IsInRaid() then
+      if Cast(S.ThunderFocusTea) then return "Thunder Focus Tea (Renewing Mist)"; end
+    end
+    if Cast(S.RenewingMist) then return "Renewing Mist"; end
   end
-  -- chi_wave
-  if S.ChiWave:IsCastable() then
-    if Cast(S.ChiWave, nil, nil, not Target:IsInRange(40)) then return "chi_wave aoe 4"; end
+  if Player:IsChanneling(S.SoothingMist) and Target:BuffUp(S.EnvelopingMist) and Target:BuffUp(S.SoothingMist) then
+    if Cast(S.PoolEnergy) then return "Channeling Soothing Mist"; end
   end
-  -- chi_burst
-  if S.ChiBurst:IsCastable() then
-    if Cast(S.ChiBurst, nil, nil, not Target:IsInRange(40)) then return "chi_burst aoe 6"; end
+  if S.EnvelopingMist:IsCastable() and Target:BuffDown(S.EnvelopingMist) and Player:IsChanneling(S.SoothingMist) then
+    if S.ThunderFocusTea:IsCastable() and S.ThunderFocusTea:IsReady() and S.SecretInfusion:IsAvailable() and IsInRaid() then
+      if Cast(S.ThunderFocusTea) then return "Thunder Focus Tea (Enveloping Mist)"; end
+    end
+    if Cast(S.EnvelopingMist) then return "Enveloping Mist"; end
   end
-end
-
-local function ST()
-  -- thunder_focus_tea
-  if S.ThunderFocusTea:IsCastable() then
-    if Cast(S.ThunderFocusTea, Settings.Mistweaver.OffGCDasOffGCD.ThunderFocusTea) then return "thunder_focus_tea st 2"; end
+  if S.Vivify:IsCastable() and Player:IsChanneling(S.SoothingMist) and Target:HealthPercentage() < 75 then
+    if S.ThunderFocusTea:IsCastable() and S.ThunderFocusTea:IsReady() and not S.SecretInfusion:IsAvailable() then
+      if Cast(S.ThunderFocusTea) then return "Thunder Focus Tea (Soothing Mist channeling)"; end
+    end
+    if S.Vivify:IsCastable() then
+      if Cast(S.Vivify) then return "Vivify (Soothing Mist Channeling)"; end
+    end
   end
-  -- rising_sun_kick
-  if S.RisingSunKick:IsReady() then
-    if Cast(S.RisingSunKick, nil, nil, not Target:IsInMeleeRange(5)) then return "rising_sun_kick st 4"; end
+  if S.SoothingMist:IsCastable() and CountAlliesBelowPercentHP(75) > 1 and IsInRaid() then
+    if Cast(S.SoothingMist) then return "Soothing Mist AoE"; end
   end
-  -- blackout_kick,if=buff.teachings_of_the_monastery.stack=1&cooldown.rising_sun_kick.remains<12
-  if S.BlackoutKick:IsCastable() and (Player:BuffStack(S.TeachingsOfTheMonasteryBuff) == 1 and S.RisingSunKick:CooldownRemains() < 12) then
-    if Cast(S.BlackoutKick, nil, nil, not Target:IsInMeleeRange(5)) then return "blackout_kick st 6"; end
+  if S.ExpelHarm:IsCastable() and Player:BuffUp(S.ChiHarmony) and Player:HealthPercentage() < 75 then
+    if Cast(S.ExpelHarm) then return "Expel Harm (Chi Harmony)"; end
   end
-  -- chi_wave
-  if S.ChiWave:IsCastable() then
-    if Cast(S.ChiWave, nil, nil, not Target:IsInRange(40)) then return "chi_wave st 8"; end
+  if S.SheilunsGift:IsCastable() and S.SheilunsGift:IsReady() and CountAlliesBelowPercentHP(80) >= 2 and not IsInRaid() then
+    if Cast(S.SheilunsGift) then return "Sheilun's Gift"; end
   end
-  -- chi_burst
-  if S.ChiBurst:IsCastable() then
-    if Cast(S.ChiBurst, nil, nil, not Target:IsInRange(40)) then return "chi_burst st 10"; end
+  if S.EssenceFont:IsCastable() and S.AncientTeachings:IsAvailable() and Player:BuffDown(S.AncientTeachingsBuff) then
+    if S.ThunderFocusTea:IsCastable() and S.ThunderFocusTea:IsReady() and S.SecretInfusion:IsAvailable() and not IsInRaid() then
+      if Cast(S.ThunderFocusTea) then return "Thunder Focus Tea (Essence Font)"; end
+    end
+    if Cast(S.EssenceFont) then return "Essence Font"; end
   end
-  -- tiger_palm,if=buff.teachings_of_the_monastery.stack<3|buff.teachings_of_the_monastery.remains<2
-  if S.TigerPalm:IsCastable() and (Player:BuffStack(S.TeachingsOfTheMonasteryBuff) < 3 or Player:BuffRemains(S.TeachingsOfTheMonasteryBuff) < 2) then
-    if Cast(S.TigerPalm, nil, nil, not Target:IsInMeleeRange(5)) then return "tiger_palm st 12"; end
+  if S.SoothingMist:IsCastable() and CountAlliesBelowPercentHP(75) < 2 then
+    if Cast(S.SoothingMist) then return "Soothing Mist ST"; end
   end
 end
 
@@ -150,87 +266,17 @@ local function APL()
 
   --- In Combat
   if Everyone.TargetIsValid() then
-    -- Precombat
-    if not Player:AffectingCombat() then
-      local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
-    end
-    -- auto_attack
-    -- Interrupts
-    local ShouldReturn = Everyone.Interrupt(S.LegSweep, Settings.Commons.GCDasOffGCD.LegSweep, Stuns); if ShouldReturn and Settings.General.InterruptWithStun then return ShouldReturn; end
     -- Defensives
-    local ShouldReturn = Defensives(); if ShouldReturn then return ShouldReturn; end
-    -- use_item,name=scars_of_fraternal_strife,if=!buff.scars_of_fraternal_strife_4.up&time>1
-    --[[if I.ScarsofFraternalStrife:IsEquippedAndReady() and Settings.Commons.Enabled.Trinkets and (Player:BuffDown(S.ScarsofFraternalStrifeBuff4) and HL.CombatTime() > 1) then
-      if Cast(I.ScarsofFraternalStrife, nil, Settings.Commons.DisplayStyle.Trinkets) then return "scars_of_fraternal_strife main 1"; end
-    end
-    -- use_item,name=jotungeirr_destinys_call
-    if I.Jotungeirr:IsEquippedAndReady() then
-      if Cast(I.Jotungeirr, nil, Settings.Commons.DisplayStyle.Items) then return "jotungeirr_destinys_call main 2"; end
-    end]]
+    --local ShouldReturn = Defensives(); if ShouldReturn then return ShouldReturn; end
     -- use_items
-    if Settings.Commons.Enabled.Trinkets then
-      local ShouldReturn = UseItems(); if ShouldReturn then return ShouldReturn; end
-    end
-    if CDsON() and Target:TimeToDie() < 18 then
-      -- blood_fury,if=target.time_to_die<18
-      if S.BloodFury:IsCastable() then
-        if Cast(S.BloodFury, Settings.Commons.OffGCDasOffGCD.Racials) then return "blood_fury main 4"; end
-      end
-      -- berserking,if=target.time_to_die<18
-      if S.Berserking:IsCastable() then
-        if Cast(S.Berserking, Settings.Commons.OffGCDasOffGCD.Racials) then return "berserking main 6"; end
-      end
-      -- lights_judgment,if=target.time_to_die<18
-      if S.LightsJudgment:IsCastable() then
-        if Cast(S.LightsJudgment, Settings.Commons.OffGCDasOffGCD.Racials, not Target:IsInRange(40)) then return "lights_judgment main 8"; end
-      end
-      -- fireblood,if=target.time_to_die<18
-      if S.Fireblood:IsCastable() then
-        if Cast(S.Fireblood, Settings.Commons.OffGCDasOffGCD.Racials) then return "fireblood main 10"; end
-      end
-      -- ancestral_call,if=target.time_to_die<18
-      if S.AncestralCall:IsCastable() then
-        if Cast(S.AncestralCall, Settings.Commons.OffGCDasOffGCD.Racials) then return "ancestral_call main 12"; end
-      end
-      -- bag_of_tricks,if=target.time_to_die<18
-      if S.BagOfTricks:IsCastable() then
-        if Cast(S.BagOfTricks, Settings.Commons.OffGCDasOffGCD.Racials, not Target:IsInRange(40)) then return "bag_of_tricks main 14"; end
-      end
-    end
-    -- potion
-    --[[if I.PotionofSpectralIntellect:IsReady() and Settings.Commons.Enabled.Potions then
-      if Cast(I.PotionofSpectralIntellect, nil, Settings.Commons.DisplayStyle.Potions) then return "potion main 16"; end
-    end]]
-    -- weapons_of_order
-    if S.WeaponsOfOrder:IsCastable() and CDsON() then
-      if Cast(S.WeaponsOfOrder, nil, Settings.Commons.DisplayStyle.Covenant) then return "weapons_of_order main 18"; end
-    end
-    -- faeline_stomp
-    if S.FaelineStomp:IsCastable() then
-      if Cast(S.FaelineStomp, nil, Settings.Commons.DisplayStyle.Covenant) then return "faeline_stomp main 20"; end
-    end
-    if CDsON() then
-      -- fallen_order
-      if S.FallenOrder:IsCastable() then
-        if Cast(S.FallenOrder, nil, Settings.Commons.DisplayStyle.Covenant) then return "fallen_order main 22"; end
-      end
-      -- bonedust_brew
-      if S.BonedustBrew:IsCastable() then
-        if Cast(S.BonedustBrew, nil, Settings.Commons.DisplayStyle.Covenant) then return "bonedust_brew main 24"; end
-      end
-    end
-    -- fleshcraft,if=soulbind.lead_by_example.enabled
-    if S.Fleshcraft:IsCastable() and (S.LeadByExample:SoulbindEnabled()) then
-      if Cast(S.Fleshcraft, nil, Settings.Commons.DisplayStyle.Covenant) then return "fleshcraft main 26"; end
-    end
-    -- call_action_list,name=aoe,if=active_enemies>=3
-    if (EnemiesCount8 >= 3) then
-      local ShouldReturn = AOE(); if ShouldReturn then return ShouldReturn; end
-    end
-    -- call_action_list,name=st,if=active_enemies<3
-    if (EnemiesCount8 < 3) then
-      local ShouldReturn = ST(); if ShouldReturn then return ShouldReturn; end
-    end
+    ShouldReturn = DPS()
+    if ShouldReturn then return "DPS: " .. ShouldReturn end
+    -- Manually added Pool filler
+    if Cast(S.PoolEnergy) then return "Pool Energy"; end
+  end
+  if Everyone.TargetIsFriendly() and Target:HealthPercentage() < 100 then
+    ShouldReturn = Heal()
+    if ShouldReturn then return "Heal: " .. ShouldReturn end
     -- Manually added Pool filler
     if Cast(S.PoolEnergy) then return "Pool Energy"; end
   end

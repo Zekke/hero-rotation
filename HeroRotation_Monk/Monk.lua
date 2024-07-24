@@ -79,6 +79,7 @@ Spell.Monk.Commons = {
   BonedustBrewDebuff                    = Spell(386276),
   DampenHarmBuff                        = Spell(122278),
   RushingJadeWindBuff                   = Spell(116847),
+  VivaciousVivification                 = Spell(392883),
   -- Debuffs
   -- Item Effects
   CalltoDominanceBuff                   = Spell(403380), -- Neltharion trinket buff
@@ -194,25 +195,39 @@ Spell.Monk.Brewmaster = MergeTableByKey(Spell.Monk.Commons, {
 Spell.Monk.Mistweaver = MergeTableByKey(Spell.Monk.Commons, {
   -- Abilities
   BlackoutKick                          = Spell(100784),
+  ChiHarmony                            = Spell(423439),
   EnvelopingMist                        = Spell(124682),
   EssenceFont                           = Spell(191837),
   EssenceFontBuff                       = Spell(191840),
-  InvokeYulonTheJadeSerpent             = Spell(123904),
+  InvokeYulonTheJadeSerpent             = MultiSpell(123904, 322118),
+  YulonsBlessing                        = Spell(389422),
   LifeCocoon                            = Spell(116849),
   RenewingMist                          = Spell(115151),
+  RenewingMistBuff                      = Spell(119611),
   Revival                               = Spell(115310),
   SoothingMist                          = Spell(115175),
   SpinningCraneKick                     = Spell(101546),
   TeachingsOfTheMonasteryBuff           = Spell(202090),
   ThunderFocusTea                       = Spell(116680),
   -- Talents
+  AncientConcordance                    = Spell(388740),
+  AncientConcordanceBuff                = Spell(389391),
+  AncientTeachings                      = Spell(388023),
+  AncientTeachingsBuff                  = Spell(388026),
   InvokeChiJiTheRedCrane                = Spell(325197),
+  JadefireStomp                         = Spell(388193),
   LifecyclesEnvelopingMistBuff          = Spell(197919),
   LifecyclesVivifyBuff                  = Spell(197916),
-  ManaTea                               = Spell(197908),
+  ManaTea                               = Spell(115294),
+  ManaTeaBuff                           = Spell(115867),
+  ManaTeaBuffCost                       = Spell(197908),
   RefreshingJadeWind                    = Spell(196725),
+  SecretInfusion                        = Spell(388491),
   SongOfChiJi                           = Spell(198898),
+  SheilunsGift                          = Spell(399491),
   SummonJadeSerpentStatue               = Spell(115313),
+  TeachingsoftheMonastery               = Spell(116645),
+  ZenPulse                              = Spell(124081),
   -- Defensive
   FortifyingBrew                        = Spell(243435),
   -- Utility

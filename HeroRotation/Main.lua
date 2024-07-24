@@ -341,7 +341,7 @@
     -- Monk
       [268]   = "HeroRotation_Monk",          -- Brewmaster
       [269]   = "HeroRotation_Monk",          -- Windwalker
-      --[270]   = "HeroRotation_Monk",          -- Mistweaver
+      [270]   = "HeroRotation_Monk",          -- Mistweaver
     -- Paladin
       --[65]    = "HeroRotation_Paladin",       -- Holy
       [66]    = "HeroRotation_Paladin",       -- Protection
