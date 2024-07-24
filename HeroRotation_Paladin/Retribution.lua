@@ -145,7 +145,7 @@ local function Precombat()
 end
 
 local function Cooldowns()
-  if S.ShieldofVengeance:IsCastable() and Target:DebuffUp(S.ExecutionSentence) and Player:BuffUp(S.AvengingWrathBuff) then
+  if S.ShieldofVengeance:IsCastable() and Target:DebuffUp(S.ExecutionSentence) and (Player:BuffUp(S.AvengingWrathBuff) or Player:BuffUp(S.CrusadeBuff))then
     if Cast(S.ShieldofVengeance) then return "shield_of_vengeance cooldowns test"; end
   end
   -- potion,if=buff.avenging_wrath.up|buff.crusade.up|fight_remains<30
@@ -220,15 +220,15 @@ local function Finishers()
   -- variable,name=ds_castable,value=(spell_targets.divine_storm>=3|spell_targets.divine_storm>=2&!talent.divine_arbiter|buff.empyrean_power.up)&!buff.empyrean_legacy.up&!(buff.divine_arbiter.up&buff.divine_arbiter.stack>24)
   VarDSCastable = ((EnemiesCount8y >= 3 or EnemiesCount8y >= 2 and not S.DivineArbiter:IsAvailable() or Player:BuffUp(S.EmpyreanPowerBuff)) and Player:BuffDown(S.EmpyreanLegacyBuff) and not (Player:BuffUp(S.DivineArbiterBuff) and Player:BuffStack(S.DivineArbiterBuff) > 24))
   -- divine_storm,if=variable.ds_castable&(!talent.crusade|cooldown.crusade.remains>gcd*3|buff.crusade.up&buff.crusade.stack<10)
-  if S.DivineStorm:IsReady() and (VarDSCastable and (Settings.Retribution.DisableCrusadeAWCDCheck or not S.Crusade:IsAvailable() or S.Crusade:CooldownRemains() > PlayerGCD * 3 or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10)) then
+  if S.DivineStorm:IsReady() and (VarDSCastable and (S.RadiantGlory:IsAvailable() or Settings.Retribution.DisableCrusadeAWCDCheck or not S.Crusade:IsAvailable() or S.Crusade:CooldownRemains() > PlayerGCD * 3 or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10)) then
     if Cast(S.DivineStorm, nil, nil, not Target:IsInRange(8)) then return "divine_storm finishers 2" end
   end
   -- justicars_vengeance,if=!talent.crusade|cooldown.crusade.remains>gcd*3|buff.crusade.up&buff.crusade.stack<10
-  if S.JusticarsVengeance:IsReady() and (Settings.Retribution.DisableCrusadeAWCDCheck or not S.Crusade:IsAvailable() or S.Crusade:CooldownRemains() > PlayerGCD * 3 or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10) then
+  if S.JusticarsVengeance:IsReady() and (S.RadiantGlory:IsAvailable() or Settings.Retribution.DisableCrusadeAWCDCheck or not S.Crusade:IsAvailable() or S.Crusade:CooldownRemains() > PlayerGCD * 3 or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10) then
     if Cast(S.JusticarsVengeance, nil, nil, not Target:IsSpellInRange(S.JusticarsVengeance)) then return "justicars_vengeance finishers 4"; end
   end
   -- templars_verdict,if=!talent.crusade|cooldown.crusade.remains>gcd*3|buff.crusade.up&buff.crusade.stack<10
-  if VerdictSpell:IsReady() and (Settings.Retribution.DisableCrusadeAWCDCheck or not S.Crusade:IsAvailable() or S.Crusade:CooldownRemains() > PlayerGCD * 3 or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10) then
+  if VerdictSpell:IsReady() and (S.RadiantGlory:IsAvailable() or Settings.Retribution.DisableCrusadeAWCDCheck or not S.Crusade:IsAvailable() or S.Crusade:CooldownRemains() > PlayerGCD * 3 or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10) then
     if Cast(VerdictSpell, nil, nil, not Target:IsSpellInRange(VerdictSpell)) then return "either verdict finishers 6" end
   end
 end
@@ -239,7 +239,7 @@ local function Generators()
     local ShouldReturn = Finishers(); if ShouldReturn then return ShouldReturn; end
   end
   -- wake_of_ashes,if=holy_power<=2&(cooldown.avenging_wrath.remains>6|cooldown.crusade.remains>6)&(!talent.execution_sentence|cooldown.execution_sentence.remains>4|target.time_to_die<8)&(!raid_event.adds.exists|raid_event.adds.in>20|raid_event.adds.up)
-  if S.WakeofAshes:IsCastable() and (HolyPower <= 2 and (Settings.Retribution.DisableCrusadeAWCDCheck or S.AvengingWrath:CooldownRemains() > 6 or S.Crusade:CooldownRemains() > 6) and (not S.ExecutionSentence:IsAvailable() or S.ExecutionSentence:CooldownRemains() > 4 or FightRemains < 8)) then
+  if S.WakeofAshes:IsCastable() and ((CDsON() and S.RadiantGlory:IsAvailable() and HolyPower <= 2) or (HolyPower <= 2 and (Settings.Retribution.DisableCrusadeAWCDCheck or S.AvengingWrath:CooldownRemains() > 6 or S.Crusade:CooldownRemains() > 6) and (not S.ExecutionSentence:IsAvailable() or S.ExecutionSentence:CooldownRemains() > 4 or FightRemains < 8))) then
     if Cast(S.WakeofAshes, Settings.Retribution.GCDasOffGCD.WakeOfAshes, nil, not Target:IsInRange(14)) then return "wake_of_ashes generators 2"; end
   end
   -- blade_of_justice,if=!dot.expurgation.ticking&holy_power<=3&set_bonus.tier31_2pc
