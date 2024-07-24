@@ -43,6 +43,15 @@ Spell.DeathKnight.Commons = {
   SacrificialPact                       = Spell(327574),
   SoulReaper                            = Spell(343294),
   UnholyGround                          = Spell(374265),
+  -- Hero Talents
+  GiftoftheSanlayn                      = Spell(434152),
+  VampiricStrike                        = Spell(433901),
+  VampiricStrikeAction                  = Spell(433895),
+  -- Hero Talent Buffs
+  EssenceoftheBloodQueenBuff            = Spell(433925),
+  GiftoftheSanlaynBuff                  = Spell(434153),
+  InflictionofSorrowBuff                = Spell(460049),
+  VampricStrikeBuff                     = Spell(433899),
   -- Buffs
   AbominationLimbBuff                   = Spell(383269),
   DeathAndDecayBuff                     = Spell(188290),
@@ -150,9 +159,9 @@ Spell.DeathKnight.Frost = MergeTableByKey(Spell.DeathKnight.Commons, {
 
 Spell.DeathKnight.Unholy = MergeTableByKey(Spell.DeathKnight.Commons, {
   -- Abilities
+  FesteringScytheAction                 = Spell(458128),
   -- Talents
   Apocalypse                            = Spell(275699),
-  ArmyoftheDamned                       = Spell(276837),
   ArmyoftheDead                         = Spell(42650),
   BurstingSores                         = Spell(207264),
   ClawingShadows                        = Spell(207311),
@@ -160,18 +169,18 @@ Spell.DeathKnight.Unholy = MergeTableByKey(Spell.DeathKnight.Commons, {
   CommanderoftheDead                    = Spell(390259),
   DarkTransformation                    = Spell(63560),
   Defile                                = Spell(152280),
+  DoomedBidding                         = Spell(455386),
   EbonFever                             = Spell(207269),
   Epidemic                              = Spell(207317),
-  EternalAgony                          = Spell(390268),
+  FesteringScythe                       = Spell(455397),
   FesteringStrike                       = Spell(85948),
   Festermight                           = Spell(377590),
-  GhoulishFrenzy                        = Spell(377587),
   ImprovedDeathCoil                     = Spell(377580),
-  InfectedClaws                         = Spell(207272),
   Morbidity                             = Spell(377592),
   Outbreak                              = Spell(77575),
   Pestilence                            = Spell(277234),
   Plaguebringer                         = Spell(390175),
+  RaiseAbomination                      = Spell(455395),
   RaiseDead                             = Spell(46584),
   RottenTouch                           = Spell(390275),
   ScourgeStrike                         = Spell(55090),
@@ -179,22 +188,18 @@ Spell.DeathKnight.Unholy = MergeTableByKey(Spell.DeathKnight.Commons, {
   Superstrain                           = Spell(390283),
   UnholyAssault                         = Spell(207289),
   UnholyBlight                          = Spell(115989),
-  UnholyCommand                         = Spell(316941),
-  UnholyPact                            = Spell(319230),
   VileContagion                         = Spell(390279),
   -- Buffs
   CommanderoftheDeadBuff                = Spell(390260),
   DefileBuff                            = Spell(218100),
+  FesteringScytheBuff                   = Spell(458123),
   FestermightBuff                       = Spell(377591),
-  PlaguebringerBuff                     = Spell(390178),
   RunicCorruptionBuff                   = Spell(51460),
   SuddenDoomBuff                        = Spell(81340),
-  UnholyAssaultBuff                     = Spell(207289),
   -- Debuffs
   DeathRotDebuff                        = Spell(377540),
   FesteringWoundDebuff                  = Spell(194310),
   RottenTouchDebuff                     = Spell(390276),
-  UnholyBlightDebuff                    = Spell(115994),
 })
 
 -- Items
@@ -205,6 +210,9 @@ Item.DeathKnight.Commons = {
   IrideusFragment                       = Item(193743, {13, 14}),
   MirrorOfFracturedTomorrows            = Item(207581, {13, 14}),
   VialofAnimatedBlood                   = Item(159625, {13, 14}),
+  -- Trinkets
+  MirrorofFracturedTomorrows            = Item(207581, {13, 14}),
+  TreacherousTransmitter                = Item(221023, {13, 14}),
   -- Other Items
   Fyralath                              = Item(206448, {16}),
 }

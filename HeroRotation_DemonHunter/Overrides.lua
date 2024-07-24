@@ -1,21 +1,21 @@
 --- ============================ HEADER ============================
 -- HeroLib
-local HL      = HeroLib
-local Cache   = HeroCache
-local Unit    = HL.Unit
-local Player  = Unit.Player
-local Pet     = Unit.Pet
-local Target  = Unit.Target
-local Spell   = HL.Spell
-local Item    = HL.Item
+local HL             = HeroLib
+local Cache          = HeroCache
+local Unit           = HL.Unit
+local Player         = Unit.Player
+local Pet            = Unit.Pet
+local Target         = Unit.Target
+local Spell          = HL.Spell
+local Item           = HL.Item
 -- HeroRotation
-local HR      = HeroRotation
+local HR             = HeroRotation
+local DH             = HR.Commons.DemonHunter
 -- Spells
-local SpellHavoc              = Spell.DemonHunter.Havoc
-local SpellVengeance          = Spell.DemonHunter.Vengeance
+local SpellHavoc     = Spell.DemonHunter.Havoc
+local SpellVengeance = Spell.DemonHunter.Vengeance
 -- Lua
 -- WoW API
-local IsInJailersTower = IsInJailersTower
 
 --- ============================ CONTENT ============================
 -- Havoc, ID: 577
@@ -47,6 +47,20 @@ VengOldSpellIsCastable = HL.AddCoreOverride ("Spell.IsCastable",
       return BaseCheck and not Player:IsCasting(self)
     else
       return BaseCheck
+    end
+  end
+, 581)
+
+HL.AddCoreOverride ("Player.Demonsurge",
+  function(self, Buff)
+    if Buff == "Hardcast" then
+      return SpellVengeance.FelDesolation:IsLearned()
+    else
+      if DH.Demonsurge[Buff] ~= nil then
+        return DH.Demonsurge[Buff]
+      else
+        return false
+      end
     end
   end
 , 581)
