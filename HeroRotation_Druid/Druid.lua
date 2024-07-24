@@ -155,7 +155,6 @@ Spell.Druid.Feral = MergeTableByKey(Spell.Druid.Commons, {
   Bloodtalons                           = Spell(319439),
   BrutalSlash                           = Spell(202028),
   CircleofLifeandDeath                  = Spell(400320),
-  DireFixation                          = Spell(417710),
   DoubleClawedRake                      = Spell(391700),
   FeralFrenzy                           = Spell(274837),
   FranticMomentum                       = Spell(391875),
@@ -189,7 +188,6 @@ Spell.Druid.Feral = MergeTableByKey(Spell.Druid.Commons, {
   -- Debuffs
   AdaptiveSwarmDebuff                   = Spell(391889),
   AdaptiveSwarmHeal                     = Spell(391891),
-  DireFixationDebuff                    = Spell(417713),
   LIMoonfireDebuff                      = Spell(155625),
   ThrashDebuff                          = Spell(405233),
 })

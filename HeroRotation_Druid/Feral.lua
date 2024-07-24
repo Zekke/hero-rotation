@@ -285,7 +285,7 @@ end
 
 local function EvaluateTargetIfConvokeCD(TargetUnit)
   -- if=fight_remains<5|(buff.smoldering_frenzy.up|!set_bonus.tier31_4pc)&(dot.rip.remains>4-talent.ashamanes_guidance&buff.tigers_fury.up&(combo_points<=2)|buff.bs_inc.up&combo_points<=3)&(debuff.dire_fixation.up|!talent.dire_fixation.enabled|spell_targets.swipe_cat>1)&(target.time_to_die>5-talent.ashamanes_guidance.enabled|target.time_to_die=fight_remains)
-  return (FightRemains < 5 or (Player:BuffUp(S.SmolderingFrenzyBuff) or not Player:HasTier(31, 4)) and (TargetUnit:DebuffRemains(S.RipDebuff) > 4 - num(S.AshamanesGuidance:IsAvailable()) and Player:BuffUp(S.TigersFury) and ComboPoints < 2 or Player:BuffUp(BsInc) and ComboPoints <= 3) and (TargetUnit:DebuffUp(S.DireFixationDebuff) or not S.DireFixation:IsAvailable() or EnemiesCount11y > 1) and (TargetUnit:TimeToDie() > 5 - num(S.AshamanesGuidance:IsAvailable()) or TargetUnit:TimeToDie() == FightRemains))
+  return (FightRemains < 5 or (Player:BuffUp(S.SmolderingFrenzyBuff) or not Player:HasTier(31, 4)) and (TargetUnit:DebuffRemains(S.RipDebuff) > 4 - num(S.AshamanesGuidance:IsAvailable()) and Player:BuffUp(S.TigersFury) and ComboPoints < 2 or Player:BuffUp(BsInc) and ComboPoints <= 3) and (TargetUnit:TimeToDie() > 5 - num(S.AshamanesGuidance:IsAvailable()) or TargetUnit:TimeToDie() == FightRemains))
 end
 
 local function EvaluateTargetIfLIMoonfireAoEBuilder(TargetUnit)
@@ -311,7 +311,7 @@ end
 
 local function EvaluateTargetIfFeralFrenzy(TargetUnit)
   -- if=(combo_points<=2|combo_points<=3&buff.bs_inc.up)&(dot.rip.ticking|spell_targets.swipe_cat>1)&(!talent.dire_fixation.enabled|debuff.dire_fixation.up|spell_targets.swipe_cat>1)&(target.time_to_die>6|target.time_to_die=fight_remains)
-  return ((ComboPoints <= 2 or ComboPoints <= 3 and Player:BuffUp(BsInc)) and (TargetUnit:DebuffUp(S.RipDebuff) or EnemiesCount11y > 1) and (not S.DireFixation:IsAvailable() or TargetUnit:DebuffUp(S.DireFixationDebuff) or EnemiesCount11y > 1) and (TargetUnit:TimeToDie() > 6 or TargetUnit:TimeToDie() == FightRemains))
+  return ((ComboPoints <= 2 or ComboPoints <= 3 and Player:BuffUp(BsInc)) and (TargetUnit:DebuffUp(S.RipDebuff) or EnemiesCount11y > 1) and (TargetUnit:TimeToDie() > 6 or TargetUnit:TimeToDie() == FightRemains))
 end
 
 local function EvaluateTargetIfFerociousBiteBerserk(TargetUnit)
@@ -409,11 +409,11 @@ end
 
 local function Builder()
   -- thrash_cat,if=refreshable&(!talent.dire_fixation.enabled|talent.dire_fixation.enabled&debuff.dire_fixation.up)&buff.clearcasting.react&!talent.thrashing_claws.enabled
-  if S.Thrash:IsCastable() and (Target:DebuffRefreshable(S.ThrashDebuff) and (not S.DireFixation:IsAvailable() or S.DireFixation:IsAvailable() and Target:DebuffUp(S.DireFixationDebuff)) and Player:BuffUp(S.Clearcasting) and not S.ThrashingClaws:IsAvailable()) then
+  if S.Thrash:IsCastable() and (Target:DebuffRefreshable(S.ThrashDebuff) and Player:BuffUp(S.Clearcasting) and not S.ThrashingClaws:IsAvailable()) then
     if Cast(S.Thrash, nil, nil, not IsInAoERange) then return "thrash builder 2"; end
   end
   -- shred,if=(buff.clearcasting.react|(talent.dire_fixation.enabled&!debuff.dire_fixation.up))&!(variable.need_bt&buff.bt_shred.up)
-  if S.Shred:IsReady() and ((Player:BuffUp(S.Clearcasting) or (S.DireFixation:IsAvailable() and Target:DebuffDown(S.DireFixationDebuff))) and not (VarNeedBT and BTBuffUp(S.Shred))) then
+  if S.Shred:IsReady() and (Player:BuffUp(S.Clearcasting) and not (VarNeedBT and BTBuffUp(S.Shred))) then
     if Cast(S.Shred, nil, nil, not IsInMeleeRange) then return "shred builder 4"; end
   end
   -- brutal_slash,if=cooldown.brutal_slash.full_recharge_time<4&!(variable.need_bt&buff.bt_brutal_slash.up)
@@ -445,7 +445,7 @@ local function Builder()
     if Cast(S.BrutalSlash, nil, nil, not IsInAoERange) then return "brutal_slash builder 12"; end
   end
   -- swipe_cat,if=spell_targets.swipe_cat>1|(talent.wild_slashes.enabled&(debuff.dire_fixation.up|!talent.dire_fixation.enabled))
-  if S.Swipe:IsReady() and (EnemiesCount11y > 1 or (S.WildSlashes:IsAvailable() and (Target:DebuffUp(S.DireFixationDebuff) or not S.DireFixation:IsAvailable()))) then
+  if S.Swipe:IsReady() and (EnemiesCount11y > 1 or S.WildSlashes:IsAvailable()) then
     if Cast(S.Swipe, nil, nil, not IsInAoERange) then return "swipe builder 14"; end
   end
   -- shred,if=!(variable.need_bt&buff.bt_shred.up)
@@ -514,7 +514,7 @@ local function AoeBuilder()
     if Cast(S.Swipe, nil, nil, not IsInAoERange) then return "swipe aoe_builder 20"; end
   end
   -- shred,target_if=max:target.time_to_die,if=(spell_targets.swipe_cat<4|talent.dire_fixation.enabled)&!buff.sudden_ambush.up&!(variable.easy_swipe&talent.wild_slashes)&!(variable.need_bt&buff.bt_shred.up)
-  if S.Shred:IsReady() and ((EnemiesCount11y < 4 or S.DireFixation:IsAvailable()) and Player:BuffDown(S.SuddenAmbushBuff) and not (VarEasySwipe and S.WildSlashes:IsAvailable()) and not (VarNeedBT and BTBuffUp(S.Shred))) then
+  if S.Shred:IsReady() and (EnemiesCount11y < 4 and Player:BuffDown(S.SuddenAmbushBuff) and not (VarEasySwipe and S.WildSlashes:IsAvailable()) and not (VarNeedBT and BTBuffUp(S.Shred))) then
     if Everyone.CastTargetIf(S.Shred, EnemiesMelee, "max", EvaluateTargetIfFilterTTD, nil, not IsInMeleeRange) then return "shred aoe_builder 22"; end
   end
   -- thrash_cat,if=!(variable.need_bt&buff.bt_thrash.up)
@@ -607,7 +607,7 @@ local function Berserk()
     if Cast(S.LIMoonfire, nil, nil, not Target:IsSpellInRange(S.LIMoonfire)) then return "moonfire_cat berserk 18"; end
   end
   -- brutal_slash,if=cooldown.brutal_slash.charges>1&(!talent.dire_fixation.enabled|debuff.dire_fixation.up)
-  if S.BrutalSlash:IsReady() and (S.BrutalSlash:Charges() > 1 and (not S.DireFixation:IsAvailable() or Target:DebuffUp(S.DireFixationDebuff))) then
+  if S.BrutalSlash:IsReady() and (S.BrutalSlash:Charges() > 1) then
     if Cast(S.BrutalSlash, nil, nil, not IsInAoERange) then return "brutal_slash berserk 20"; end
   end
   -- shred
