@@ -271,9 +271,9 @@ local function AR()
   -- variable,name=dont_soul_cleave,value=variable.can_spb|variable.can_spb_soon|variable.can_spb_one_gcd|prev_gcd.1.fracture
   VarDontSoulCleave = VarCanSpB or VarCanSpBSoon or VarCanSpBOneGCD or Player:PrevGCD(1, S.Fracture)
   -- variable,name=rg_enhance_cleave,op=setif,condition=variable.big_aoe|fight_remains<10,value=1,value_else=0
-  VarRGEnhCleave = (VarBigAoE or FightRemains < 10) and 1 or 0
+  VarRGEnhCleave = (VarBigAoE or BossFightRemains < 10) and 1 or 0
   -- variable,name=cooldown_sync,value=(debuff.reavers_mark.up&buff.thrill_of_the_fight_damage.up)|fight_remains<20
-  VarCDSync = (Target:DebuffUp(S.ReaversMarkDebuff) and Player:BuffUp(S.ThrilloftheFightDmgBuff)) or FightRemains < 20
+  VarCDSync = (Target:DebuffUp(S.ReaversMarkDebuff) and Player:BuffUp(S.ThrilloftheFightDmgBuff)) or BossFightRemains < 20
   -- potion,use_off_gcd=1,if=variable.cooldown_sync
   if Settings.Commons.Enabled.Potions and VarCDSync then
     local PotionSelected = Everyone.PotionSelected()
@@ -300,7 +300,7 @@ local function AR()
     if CastAnnotated(S.Pool, false, "WAIT") then return "Wait for RGActive()"; end
   end
   -- call_action_list,name=ar_execute,if=fight_remains<20
-  if FightRemains < 20 then
+  if BossFightRemains < 20 then
     local ShouldReturn = ARExecute(); if ShouldReturn then return ShouldReturn; end
   end
   -- metamorphosis,use_off_gcd=1,if=!buff.metamorphosis.up&!(cooldown.the_hunt.up|buff.reavers_glaive.up)
@@ -399,7 +399,7 @@ end
 
 local function FelDev()
   -- spirit_burst,if=talent.spirit_bomb&(variable.can_spburst|(buff.metamorphosis.remains<(gcd.remains+execute_time+1)&buff.demonsurge_spirit_burst.up))
-  if S.SpiritBurst:IsReady() and (S.SpiritBomb:IsAvailable() and (VarCanSpBurst or (Player:BuffRemains(S.MetamorphosisBuff) < (Player:GCDRemains() + S.SpiritBurst:ExecuteTime() + 1) and Player:BuffUp(S.DemonsurgeSpiritBurstBuff)))) then
+  if S.SpiritBurst:IsReady() and (S.SpiritBomb:IsAvailable() and (VarCanSpBurst or (Player:BuffRemains(S.MetamorphosisBuff) < (Player:GCDRemains() + S.SpiritBurst:ExecuteTime() + 1) and Player:Demonsurge("SpiritBurst")))) then
     if Cast(S.SpiritBurst, nil, nil, not Target:IsInMeleeRange(8)) then return "spirit_burst fel_dev 2"; end
   end
   -- soul_sunder,if=buff.demonsurge_soul_sunder.up|!variable.dont_soul_cleave|(buff.metamorphosis.remains<(gcd.remains+execute_time+1)&buff.demonsurge_soul_sunder.up)
@@ -654,7 +654,7 @@ local function FS()
     end
   end
   -- call_action_list,name=fs_execute,if=fight_remains<20
-  if FightRemains < 20 then
+  if BossFightRemains < 20 then
     local ShouldReturn = FSExecute(); if ShouldReturn then return ShouldReturn; end
   end
   -- run_action_list,name=fel_dev,if=buff.metamorphosis.up&!buff.demonsurge_hardcast.up&(buff.demonsurge_soul_sunder.up|buff.demonsurge_spirit_burst.up)
