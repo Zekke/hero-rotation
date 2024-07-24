@@ -35,7 +35,7 @@ Spell.Shaman.Commons = {
   FlametongueWeapon                     = Spell(318038),
   FrostShock                            = Spell(196840),
   HealingSurge                          = Spell(8004),
-  LightningBolt                         = Spell(188196),
+  LightningBolt                         = MultiSpell(188196, 452201),
   LightningShield                       = Spell(192106),
   -- Talents
   AstralShift                           = Spell(108271),
