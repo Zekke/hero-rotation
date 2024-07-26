@@ -34,6 +34,7 @@ HR.GUISettings.APL.Warrior = {
       Signature = "Suggested",
       Trinkets = "Suggested",
       -- Class Specific
+      ChampionsSpear = "Suggested",
       Charge = "Suggested",
       HeroicLeap = "Suggested",
     },
@@ -42,6 +43,7 @@ HR.GUISettings.APL.Warrior = {
     -- {Display OffGCD as OffGCD, ForceReturn}
     GCDasOffGCD = {
       BattleShout = true,
+      Ravager = false,
     },
     OffGCDasOffGCD = {
       Racials = true,
@@ -76,7 +78,6 @@ HR.GUISettings.APL.Warrior = {
     },
     GCDasOffGCD = {
       Avatar = false,
-      Ravager = false,
       Recklessness = false,
       Shockwave = true,
       ThunderousRoar = false,
@@ -99,7 +100,6 @@ HR.GUISettings.APL.Warrior = {
     GCDasOffGCD = {
       Avatar = false,
       DemoralizingShout = false,
-      Ravager = false,
       Shockwave = true,
       ThunderousRoar = false,
     }
