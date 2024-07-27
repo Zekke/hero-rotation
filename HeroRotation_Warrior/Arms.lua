@@ -192,7 +192,7 @@ local function Execute()
     if Everyone.CastTargetIf(S.Skullsplitter, Enemies8y, "min", EvaluateTargetIfFilterLowestHP, nil, not Target:IsInMeleeRange(8)) then return "sweeping_strikes execute 8"; end
   end
   -- ravager
-  if S.Ravager:IsCastable() then
+  if CDsON() and S.Ravager:IsCastable() then
     if Everyone.CastTargetIf(S.Ravager, Enemies8y, "min", EvaluateTargetIfFilterLowestHP, nil, not Target:IsInRange(40), Settings.CommonsOGCD.GCDasOffGCD.Ravager) then return "ravager execute 10"; end
   end
   -- avatar
@@ -247,7 +247,7 @@ local function AoE()
     if Cast(S.Avatar, Settings.Arms.GCDasOffGCD.Avatar) then return "avatar aoe 8"; end
   end
   -- ravager,if=cooldown.sweeping_strikes.remains<=1|buff.sweeping_strikes.up
-  if S.Ravager:IsCastable() and (S.SweepingStrikes:CooldownRemains() <= 1 or Player:BuffUp(S.SweepingStrikesBuff)) then
+  if CDsON() and S.Ravager:IsCastable() and (S.SweepingStrikes:CooldownRemains() <= 1 or Player:BuffUp(S.SweepingStrikesBuff)) then
     if Cast(S.Ravager, Settings.CommonsOGCD.GCDasOffGCD.Ravager, nil, not Target:IsInRange(40)) then return "ravager aoe 10"; end
   end
   -- sweeping_strikes
@@ -342,7 +342,7 @@ local function SingleTarget()
     if Cast(S.ChampionsSpear, nil, Settings.CommonsDS.DisplayStyle.ChampionsSpear, not Target:IsSpellInRange(S.ChampionsSpear)) then return "champions_spear single_target 10"; end
   end
   -- ravager
-  if S.Ravager:IsCastable() then
+  if CDsON() and S.Ravager:IsCastable() then
     if Cast(S.Ravager, Settings.CommonsOGCD.GCDasOffGCD.Ravager, nil, not Target:IsInRange(40)) then return "ravager single_target 12"; end
   end
   -- avatar
