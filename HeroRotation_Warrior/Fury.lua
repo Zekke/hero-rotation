@@ -217,7 +217,7 @@ local function MultiTarget()
   end
   -- bloodbath,if=buff.furious_bloodthirst.up
   if S.Bloodbath:IsCastable() and (Player:BuffUp(S.FuriousBloodthirstBuff)) then
-    if Cast(S.Bloodthirst, nil, nil, not TargetInMeleeRange) then return "bloodthirst multi_target 24"; end
+    if Cast(S.Bloodbath, nil, nil, not TargetInMeleeRange) then return "bloodbath multi_target 24"; end
   end
   -- crushing_blow
   if S.CrushingBlow:IsCastable() then
@@ -229,7 +229,7 @@ local function MultiTarget()
   end
   -- bloodbath,if=!dot.gushing_wound.remains
   if S.Bloodbath:IsCastable() and (Player:BuffUp(S.FuriousBloodthirstBuff)) then
-    if Cast(S.Bloodthirst, nil, nil, not TargetInMeleeRange) then return "bloodthirst multi_target 30"; end
+    if Cast(S.Bloodbath, nil, nil, not TargetInMeleeRange) then return "bloodbath multi_target 30"; end
   end
   -- rampage,if=talent.reckless_abandon
   if S.Rampage:IsReady() and (S.RecklessAbandon:IsAvailable()) then
@@ -241,7 +241,7 @@ local function MultiTarget()
   end
   -- bloodbath
   if S.Bloodbath:IsCastable() then
-    if Cast(S.Bloodthirst, nil, nil, not TargetInMeleeRange) then return "bloodthirst multi_target 36"; end
+    if Cast(S.Bloodbath, nil, nil, not TargetInMeleeRange) then return "bloodbath multi_target 36"; end
   end
   -- bloodthirst
   if S.Bloodthirst:IsCastable() then
@@ -396,7 +396,7 @@ end
 local function Trinkets()
   -- use_item,name=fyralath_the_dreamrender,if=dot.mark_of_fyralath.ticking
   if Settings.Commons.Enabled.Items and I.Fyralath:IsEquippedAndReady() and (S.MarkofFyralathDebuff:AuraActiveCount() > 0) then
-    if Cast(I.Fyralath, nil, Settings.CommonsDS.DisplayStyle.Items, not Target:IsInRange(25)) then return "fyralath_the_dreamrender trinkets 2"; end
+    if Cast(I.Fyralath, nil, Settings.CommonsDS.DisplayStyle.Items, not Target:IsItemInRange(I.Fyralath)) then return "fyralath_the_dreamrender trinkets 2"; end
   end
   if Settings.Commons.Enabled.Trinkets then
     -- use_item,use_off_gcd=1,name=algethar_puzzle_box,if=cooldown.recklessness.remains<3|(talent.anger_management&cooldown.avatar.remains<3)
@@ -557,20 +557,3 @@ local function Init()
 end
 
 HR.SetAPL(72, APL, Init)
-
-
-
-
-
-      -- avatar,if=talent.titans_torment&buff.enrage.up&raid_event.adds.in>15&!buff.avatar.up&cooldown.odyns_fury.remains|talent.berserkers_torment&buff.enrage.up&!buff.avatar.up&raid_event.adds.in>15|!talent.titans_torment&!talent.berserkers_torment&(buff.recklessness.up|target.time_to_die<20)
-      if S.Avatar:IsCastable() and (S.TitansTorment:IsAvailable() and EnrageUp and Player:BuffDown(S.AvatarBuff) and S.OdynsFury:CooldownDown() or S.BerserkersTorment:IsAvailable() and EnrageUp and Player:BuffDown(S.AvatarBuff) or not S.TitansTorment:IsAvailable() and not S.BerserkersTorment:IsAvailable() and (Player:BuffUp(S.RecklessnessBuff) or FightRemains < 20)) then
-        if Cast(S.Avatar, Settings.Fury.GCDasOffGCD.Avatar) then return "avatar main 20"; end
-      end
-      -- recklessness,if=!raid_event.adds.exists&(talent.annihilator&cooldown.champions_spear.remains<1|cooldown.avatar.remains>40|!talent.avatar|target.time_to_die<12)
-      if S.Recklessness:IsCastable() and (S.Annihilator:IsAvailable() and S.ChampionsSpear:CooldownRemains() < 1 or S.Avatar:CooldownRemains() > 40 or not S.Avatar:IsAvailable() or FightRemains < 12) then
-        if Cast(S.Recklessness, Settings.Fury.GCDasOffGCD.Recklessness) then return "recklessness main 22"; end
-      end
-      -- recklessness,if=!raid_event.adds.exists&!talent.annihilator|target.time_to_die<12
-      if S.Recklessness:IsCastable() and (not S.Annihilator:IsAvailable() or FightRemains < 12) then
-        if Cast(S.Recklessness, Settings.Fury.GCDasOffGCD.Recklessness) then return "recklessness main 24"; end
-      end
