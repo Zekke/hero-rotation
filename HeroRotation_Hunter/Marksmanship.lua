@@ -12,7 +12,6 @@ local Player     = Unit.Player
 local Target     = Unit.Target
 local Pet        = Unit.Pet
 local Spell      = HL.Spell
-local MultiSpell = HL.MultiSpell
 local Item       = HL.Item
 -- HeroRotation
 local HR         = HeroRotation
@@ -22,14 +21,9 @@ local AoEON      = HR.AoEON
 -- Num/Bool Helper Functions
 local num        = HR.Commons.Everyone.num
 local bool       = HR.Commons.Everyone.bool
--- lua
-local GetTime    = GetTime
--- File Locals
-local Hunter     = HR.Commons.Hunter
 
 --- ============================ CONTENT ===========================
 --- ======= APL LOCALS =======
--- luacheck: max_line_length 9999
 
 -- Define S/I for spell and item arrays
 local S = Spell.Hunter.Marksmanship
@@ -44,7 +38,8 @@ local OnUseExcludes = {
 }
 
 --- ===== GUI Settings =====
-local Everyone = HR.Commons.Everyone;
+local Everyone = HR.Commons.Everyone
+local Hunter = HR.Commons.Hunter
 local Settings = {
   General = HR.GUISettings.General,
   Commons = HR.GUISettings.APL.Hunter.Commons,
@@ -52,11 +47,6 @@ local Settings = {
   CommonsOGCD = HR.GUISettings.APL.Hunter.CommonsOGCD,
   Marksmanship = HR.GUISettings.APL.Hunter.Marksmanship
 }
-
--- Trinket Item Objects
-local Equip = Player:GetEquipment()
-local Trinket1 = (Equip[13]) and Item(Equip[13]) or Item(0)
-local Trinket2 = (Equip[14]) and Item(Equip[14]) or Item(0)
 
 --- ===== Rotation Variables =====
 local VarCAExecute = Target:HealthPercentage() > 70 and S.CarefulAim:IsAvailable()
