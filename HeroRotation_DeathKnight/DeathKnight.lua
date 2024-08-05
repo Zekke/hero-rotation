@@ -235,7 +235,6 @@ Item.DeathKnight.Commons = {
   -- Trinkets
   AlgetharPuzzleBox                     = Item(193701, {13, 14}),
   IrideusFragment                       = Item(193743, {13, 14}),
-  MirrorOfFracturedTomorrows            = Item(207581, {13, 14}),
   VialofAnimatedBlood                   = Item(159625, {13, 14}),
   -- Trinkets
   MirrorofFracturedTomorrows            = Item(207581, {13, 14}),

@@ -188,7 +188,7 @@ local function MultiTarget()
     if Cast(S.ThunderousRoar, Settings.Fury.GCDasOffGCD.ThunderousRoar, nil, not Target:IsInMeleeRange(12)) then return "thunderous_roar multi_target 6"; end
   end
   -- champions_spear,if=buff.enrage.up
-  if S.ChampionsSpear:IsCastable() and (EnrageUp) then
+  if CDsON() and S.ChampionsSpear:IsCastable() and (EnrageUp) then
     if Cast(S.ChampionsSpear, nil, Settings.CommonsDS.DisplayStyle.Signature, not (Target:IsInRange(25) or TargetInMeleeRange)) then return "champions_spear multi_target 8"; end
   end
   -- odyns_fury,if=dot.odyns_fury_torment_mh.remains<1&(buff.enrage.up|talent.titanic_rage)&cooldown.avatar.remains
@@ -275,7 +275,7 @@ local function SingleTarget()
     if Cast(S.Avatar, Settings.Fury.GCDasOffGCD.Avatar) then return "avatar single_target 4"; end
   end
   -- champions_spear,if=buff.enrage.up&((buff.furious_bloodthirst.up&talent.titans_torment)|!talent.titans_torment|target.time_to_die<20|active_enemies>1|!set_bonus.tier31_2pc)&raid_event.adds.in>15
-  if S.ChampionsSpear:IsCastable() and (EnrageUp and ((Player:BuffUp(S.FuriousBloodthirstBuff) and S.TitansTorment:IsAvailable()) or not S.TitansTorment:IsAvailable() or FightRemains < 20 or EnemiesMeleeCount > 1 or not Player:HasTier(31, 2))) then
+  if CDsON() and S.ChampionsSpear:IsCastable() and (EnrageUp and ((Player:BuffUp(S.FuriousBloodthirstBuff) and S.TitansTorment:IsAvailable()) or not S.TitansTorment:IsAvailable() or FightRemains < 20 or EnemiesMeleeCount > 1 or not Player:HasTier(31, 2))) then
     if Cast(S.ChampionsSpear, nil, Settings.CommonsDS.DisplayStyle.Signature, not (Target:IsInRange(25) or TargetInMeleeRange)) then return "champions_spear single_target 6"; end
   end
   -- whirlwind,if=spell_targets.whirlwind>1&talent.improved_whirlwind&!buff.meat_cleaver.up|raid_event.adds.in<2&talent.improved_whirlwind&!buff.meat_cleaver.up
@@ -402,7 +402,7 @@ local function Trinkets()
   if Settings.Commons.Enabled.Items and I.Fyralath:IsEquippedAndReady() and (S.MarkofFyralathDebuff:AuraActiveCount() > 0) then
     if Cast(I.Fyralath, nil, Settings.CommonsDS.DisplayStyle.Items, not Target:IsItemInRange(I.Fyralath)) then return "fyralath_the_dreamrender trinkets 2"; end
   end
-  if Settings.Commons.Enabled.Trinkets then
+  if Settings.Commons.Enabled.Trinkets and CDsON() then
     -- use_item,use_off_gcd=1,name=algethar_puzzle_box,if=cooldown.recklessness.remains<3|(talent.anger_management&cooldown.avatar.remains<3)
     if I.AlgetharPuzzleBox:IsEquippedAndReady() and (S.Recklessness:CooldownRemains() < 3 or (S.AngerManagement:IsAvailable() and S.Avatar:CooldownRemains() < 3)) then
       if Cast(I.AlgetharPuzzleBox, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "algethar_puzzle_box trinkets 4"; end
