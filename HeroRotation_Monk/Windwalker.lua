@@ -272,7 +272,7 @@ local function DefaultAoE()
     if Cast(S.CelestialConduit, nil, nil, not Target:IsInMeleeRange(15)) then return "celestial_conduit default_aoe 12"; end
   end
   -- chi_burst,if=combo_strike
-  if S.ChiBurst:IsCastable() and (ComboStrike(S.ChiBurst)) then
+  if S.ChiBurst:IsCastable() and (ComboStrike(S.ChiBurst)) and Player:BuffUp(S.ChiBurstBuff) then
     if Cast(S.ChiBurst, nil, nil, not Target:IsInRange(40)) then return "chi_burst default_aoe 14"; end
   end
   -- spinning_crane_kick,if=buff.dance_of_chiji.stack=2|buff.dance_of_chiji.up&combo_strike&buff.storm_earth_and_fire.up
@@ -419,7 +419,7 @@ local function DefaultST()
     if Cast(S.BlackoutKick, nil, nil, not Target:IsInMeleeRange(5)) then return "blackout_kick default_st 34"; end
   end
   -- chi_burst,if=!buff.ordered_elements.up
-  if S.ChiBurst:IsCastable() and (Player:BuffDown(S.OrderedElementsBuff)) then
+  if S.ChiBurst:IsCastable() and (Player:BuffDown(S.OrderedElementsBuff)) and Player:BuffUp(S.ChiBurstBuff) then
     if Cast(S.ChiBurst, nil, nil, not Target:IsInRange(40)) then return "chi_burst default_st 36"; end
   end
   -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&(buff.ordered_elements.up|buff.bok_proc.up&chi.deficit>=1&talent.energy_burst)
@@ -447,7 +447,7 @@ local function DefaultST()
     if Cast(S.TigerPalm, nil, nil, not Target:IsInMeleeRange(5)) then return "tiger_palm default_st 48"; end
   end
   -- chi_burst
-  if S.ChiBurst:IsCastable() then
+  if S.ChiBurst:IsCastable() and Player:BuffUp(S.ChiBurstBuff) then
     if Cast(S.ChiBurst, nil, nil, not Target:IsInRange(40)) then return "chi_burst default_st 50"; end
   end
   -- spinning_crane_kick,if=combo_strike&buff.ordered_elements.up&talent.hit_combo
