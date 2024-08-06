@@ -610,7 +610,7 @@ local function APL()
     -- Eclipse Check
     EclipseCheck()
     -- Precombat
-    if not Player:AffectingCombat() then
+    if not Player:AffectingCombat() and Player:BuffDown(S.TravelForm) then
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
     end
     -- variable,name=is_aoe,value=spell_targets.starfall>(1+(!talent.aetherial_kindling&!talent.starweaver))&talent.starfall

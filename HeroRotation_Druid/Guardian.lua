@@ -364,7 +364,7 @@ local function APL()
 
   if Everyone.TargetIsValid() then
     -- Precombat
-    if not Player:AffectingCombat() then
+    if not Player:AffectingCombat() and Player:BuffDown(S.TravelForm) then
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
     end
     -- Interrupt

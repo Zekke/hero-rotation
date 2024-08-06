@@ -766,13 +766,13 @@ local function APL()
 
   if Everyone.TargetIsValid() then
     -- Precombat
-    if not Player:AffectingCombat() then
+    if not Player:AffectingCombat() and Player:BuffDown(S.TravelForm) then
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
     end
     -- Interrupts
     local ShouldReturn = Everyone.Interrupt(S.SkullBash, Settings.CommonsDS.DisplayStyle.Interrupts, InterruptStuns); if ShouldReturn then return ShouldReturn; end
     -- prowl,if=(buff.bs_inc.down|!in_combat)&!buff.prowl.up
-    if S.Prowl:IsCastable() and (Player:BuffDown(BsInc) or not Player:AffectingCombat()) then
+    if S.Prowl:IsCastable() and Player:BuffUp(S.TravelForm) and (Player:BuffDown(BsInc) or not Player:AffectingCombat()) then
       if Cast(S.Prowl) then return "prowl main 2"; end
     end
     -- cat_form,if=!buff.cat_form.up

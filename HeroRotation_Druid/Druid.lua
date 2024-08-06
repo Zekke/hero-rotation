@@ -36,6 +36,7 @@ Spell.Druid.Commons = {
   Prowl                                 = MultiSpell(5215,102547),
   Regrowth                              = Spell(8936),
   Shred                                 = Spell(5221),
+  TravelForm                            = Spell(783),
   -- Talents
   AstralInfluence                       = Spell(197524),
   ConvoketheSpirits                     = Spell(391528),
