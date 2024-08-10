@@ -183,7 +183,7 @@ local function DRWUp()
   end
   -- consumption
   if S.Consumption:IsCastable() then
-    if Cast(S.Consumption, nil, Settings.Blood.DisplayStyle.Consumption, not Target:IsSpellInRange(S.Consumption)) then return "consumption drw_up 22"; end
+    if Cast(S.Consumption, nil, Settings.Blood.DisplayStyle.Consumption, not Target:IsInMeleeRange(5)) then return "consumption drw_up 22"; end
   end
   -- blood_boil,if=charges_fractional>=1.1&buff.hemostasis.stack<5
   if S.BloodBoil:IsReady() and (S.BloodBoil:ChargesFractional() >= 1.1 and Player:BuffStack(S.HemostasisBuff) < 5) then
@@ -251,7 +251,7 @@ local function Standard()
   end
   -- consumption
   if S.Consumption:IsCastable() then
-    if Cast(S.Consumption, nil, Settings.Blood.DisplayStyle.Consumption, not Target:IsSpellInRange(S.Consumption)) then return "consumption standard 10"; end
+    if Cast(S.Consumption, nil, Settings.Blood.DisplayStyle.Consumption, not Target:IsInMeleeRange(5)) then return "consumption standard 10"; end
   end
   -- soul_reaper,if=active_enemies=1&target.time_to_pct_35<5&target.time_to_die>(dot.soul_reaper.remains+5)
   if S.SoulReaper:IsReady() and (EnemiesMeleeCount == 1 and (Target:TimeToX(35) < 5 or Target:HealthPercentage() <= 35) and Target:TimeToDie() > (Target:DebuffRemains(S.SoulReaperDebuff) + 5)) then
