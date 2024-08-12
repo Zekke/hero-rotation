@@ -351,17 +351,17 @@ local function AoEBurst()
   if S.Epidemic:IsReady() and (not S.VampiricStrikeAction:IsLearned() and (not S.BurstingSores:IsAvailable() or S.BurstingSores:IsAvailable() and S.FesteringWoundDebuff:AuraActiveCount() < ActiveEnemies and S.FesteringWoundDebuff:AuraActiveCount() < ActiveEnemies * 0.4 and Player:BuffUp(S.SuddenDoomBuff) or Player:BuffUp(S.SuddenDoomBuff) and (Player:BuffUp(S.AFeastofSoulsBuff) or Target:DebuffRemains(S.DeathRotDebuff) < Player:GCD() or Target:DebuffStack(S.DeathRotDebuff) < 10))) then
     if Cast(S.Epidemic, Settings.Unholy.GCDasOffGCD.Epidemic, nil, not Target:IsInRange(40)) then return "epidemic aoe_burst 2"; end
   end
-  -- wound_spender,target_if=max:debuff.festering_wound.stack,if=debuff.festering_wound.stack>=1|buff.vampiric_strike.react
-  if WoundSpender:IsReady() then
-    if Everyone.CastTargetIf(WoundSpender, EnemiesMelee, "max", EvaluateTargetIfFilterFWStack, EvaluateTargetIfWoundSpenderAoEBurst, not Target:IsSpellInRange(WoundSpender)) then return "wound_spender aoe_burst 4"; end
-  end
   -- wound_spender,target_if=min:debuff.chains_of_ice_trollbane_slow.remains,if=debuff.chains_of_ice_trollbane_slow.up
   if WoundSpender:IsReady() then
-    if Everyone.CastTargetIf(WoundSpender, EnemiesMelee, "min", EvaluateTargetIfFilterTrollbaneSlow, EvaluateTargetIfWoundSpenderAoEBurst2, not Target:IsSpellInRange(WoundSpender)) then return "wound_spender aoe_burst 6"; end
+    if Everyone.CastTargetIf(WoundSpender, EnemiesMelee, "min", EvaluateTargetIfFilterTrollbaneSlow, EvaluateTargetIfWoundSpenderAoEBurst2, not Target:IsSpellInRange(WoundSpender)) then return "wound_spender aoe_burst 4"; end
   end
   -- festering_strike,if=buff.festering_scythe.react
   if S.FesteringScytheAction:IsReady() then
-    if Cast(S.FesteringScytheAction, nil, nil, not Target:IsInMeleeRange(14)) then return "festering_scythe aoe_burst 8"; end
+    if Cast(S.FesteringScytheAction, nil, nil, not Target:IsInMeleeRange(14)) then return "festering_scythe aoe_burst 6"; end
+  end
+  -- wound_spender,target_if=max:debuff.festering_wound.stack,if=debuff.festering_wound.stack>=1|buff.vampiric_strike.react
+  if WoundSpender:IsReady() then
+    if Everyone.CastTargetIf(WoundSpender, EnemiesMelee, "max", EvaluateTargetIfFilterFWStack, EvaluateTargetIfWoundSpenderAoEBurst, not Target:IsSpellInRange(WoundSpender)) then return "wound_spender aoe_burst 8"; end
   end
   -- epidemic
   if S.Epidemic:IsReady() then
@@ -524,8 +524,8 @@ local function CDsShared()
   if S.ArmyoftheDead:IsReady() and not Settings.Commons.DisableAotD and ((VarSTPlanning or VarAddsRemain) and (S.CommanderoftheDead:IsAvailable() and S.DarkTransformation:CooldownRemains() < 5 or not S.CommanderoftheDead:IsAvailable() and ActiveEnemies >= 1) or BossFightRemains < 35) then
     if Cast(S.ArmyoftheDead, nil, Settings.Unholy.DisplayStyle.ArmyOfTheDead) then return "army_of_the_dead cds_shared 4"; end
   end
-  -- raise_abomination,if=(variable.st_planning|variable.adds_remain)&(talent.commander_of_the_dead&cooldown.dark_transformation.remains<gcd*2|!talent.commander_of_the_dead&active_enemies>=1)|fight_remains<30
-  if S.RaiseAbomination:IsCastable() and ((VarSTPlanning or VarAddsRemain) and (S.CommanderoftheDead:IsAvailable() and S.DarkTransformation:CooldownRemains() < Player:GCD() * 2 or not S.CommanderoftheDead:IsAvailable() and ActiveEnemies >= 1) or BossFightRemains < 30) then
+  -- raise_abomination,if=(variable.st_planning|variable.adds_remain)|fight_remains<30
+  if S.RaiseAbomination:IsCastable() and ((VarSTPlanning or VarAddsRemain) or BossFightRemains < 30) then
     if Cast(S.RaiseAbomination, Settings.Unholy.GCDasOffGCD.RaiseAbomination) then return "raise_abomination cds_shared 6"; end
   end
   -- summon_gargoyle,use_off_gcd=1,if=(variable.st_planning|variable.adds_remain)&(buff.commander_of_the_dead.up|!talent.commander_of_the_dead&active_enemies>=1)
@@ -706,8 +706,8 @@ local function ST()
   if S.DeathCoil:IsReady() and (not VarPoolingRunicPower and VarSpendRP or BossFightRemains < 10) then
     if Cast(S.DeathCoil, nil, nil, not Target:IsSpellInRange(S.DeathCoil)) then return "death_coil st 6"; end
   end
-  -- festering_strike,if=!variable.pop_wounds&debuff.festering_wound.stack<4
-  if FesteringAction:IsReady() and (not VarPopWounds and FesterStacks < 4) then
+  -- festering_strike,if=debuff.festering_wound.stack<4&(!variable.pop_wounds|buff.festering_scythe.react)
+  if FesteringAction:IsReady() and (FesterStacks < 4 and (not VarPopWounds or Player:BuffUp(S.FesteringScytheBuff))) then
     if Cast(FesteringAction, nil, nil, not Target:IsInMeleeRange(FesteringRange)) then return "festering_strike st 8"; end
   end
   -- wound_spender,if=variable.pop_wounds

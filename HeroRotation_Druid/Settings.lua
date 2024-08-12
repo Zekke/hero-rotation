@@ -74,7 +74,6 @@ HR.GUISettings.APL.Druid = {
   Feral = {
     FeralRegrowthHP = 50,
     FeralFrenziedRegenHP = 70,
-    Align2Min = false,
     ShowCatFormOOC = false,
     ShowHealSpells = false,
     UseEasySwipe = false,
@@ -160,7 +159,6 @@ CreatePanelOption("CheckButton", CP_Feral, "APL.Druid.Feral.UseEasySwipe", "Use 
 CreatePanelOption("Slider", CP_Feral, "APL.Druid.Feral.FeralRegrowthHP", {0, 100, 1}, "Regrowth HP", "Set the Regrowth HP threshold.")
 CreatePanelOption("Slider", CP_Feral, "APL.Druid.Feral.FeralFrenziedRegenHP", {0, 100, 1}, "Frenzied Regen HP", "Set the Frenzied Regen HP threshold.")
 CreatePanelOption("CheckButton", CP_Feral, "APL.Druid.Feral.UseZerkBiteweave", "Use 'Zerk Biteweave'", "Enable this option to suggest Ferocious Bite during Incarnation/Berserk in AoE situations.")
-CreatePanelOption("CheckButton", CP_Feral, "APL.Druid.Feral.Align2Min", "Always align Berserk with Convoke", "Enable this option to force the addon to align Berserk usage with Convoke.")
 CreateARPanelOptions(CP_Feral, "APL.Druid.Feral")
 
 -- Guardian

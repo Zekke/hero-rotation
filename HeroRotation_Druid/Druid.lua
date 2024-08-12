@@ -40,6 +40,7 @@ Spell.Druid.Commons = {
   -- Talents
   AstralInfluence                       = Spell(197524),
   ConvoketheSpirits                     = Spell(391528),
+  FluidForm                             = Spell(449193),
   FrenziedRegeneration                  = Spell(22842),
   HeartoftheWild                        = Spell(319454),
   Innervate                             = Spell(29166),
@@ -76,6 +77,9 @@ Spell.Druid.Commons = {
 }
 
 Spell.Druid.DruidoftheClaw = {
+  -- Buffs
+  RavageBuffFeral                       = Spell(441585),
+  RavageBuffGuardian                    = Spell(441602),
 }
 
 Spell.Druid.ElunesChosen = {
@@ -85,6 +89,8 @@ Spell.Druid.KeeperoftheGrove = {
 }
 
 Spell.Druid.Wildstalker = {
+  -- Debuffs
+  BloodseekerVinesDebuff                = Spell(439531),
 }
 
 Spell.Druid.Balance = MergeTableByKey(Spell.Druid.Commons, {
@@ -171,6 +177,7 @@ Spell.Druid.Feral = MergeTableByKey(Spell.Druid.Commons, {
   BrutalSlash                           = Spell(202028),
   CircleofLifeandDeath                  = Spell(400320),
   DoubleClawedRake                      = Spell(391700),
+  DreadfulBleeding                      = Spell(391045),
   FeralFrenzy                           = Spell(274837),
   FranticMomentum                       = Spell(391875),
   Incarnation                           = Spell(102543),
