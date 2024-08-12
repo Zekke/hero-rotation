@@ -647,7 +647,7 @@ local function Variables()
   -- variable,name=zerk_biteweave,op=reset
   VarZerkBiteweave = Settings.Feral.UseZerkBiteweave
   -- variable,name=regrowth,op=reset
-  VarRegrowth = Settings.Feral.ShowHealSpells and Player:HealthPercentage() <= Settings.Feral.FeralRegrowthHP
+  VarRegrowth = Settings.Feral.ShowHealSpells
   -- variable,name=easy_swipe,op=reset
   VarEasySwipe = Settings.Feral.UseEasySwipe
 end
@@ -688,6 +688,9 @@ local function APL()
   end
 
   if Everyone.TargetIsValid() then
+    if S.Regrowth:IsReady() and (Player:BuffUp(S.PredatorySwiftnessBuff) and Player:HealthPercentage() <= Settings.Feral.FeralRegrowthHP) then
+      if Cast(S.Regrowth, Settings.Feral.GCDasOffGCD.Regrowth) then return "regrowth defensive"; end
+    end
     -- Precombat
     if not Player:AffectingCombat() and Player:BuffDown(S.TravelForm) then
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
