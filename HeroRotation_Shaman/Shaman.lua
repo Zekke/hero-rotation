@@ -132,7 +132,7 @@ Spell.Shaman.Enhancement = MergeTableByKey(Spell.Shaman.Commons, {
 Spell.Shaman.Elemental = MergeTableByKey(Spell.Shaman.Commons, {
   -- Abilities
   EarthShock                            = Spell(8042),
-  Earthquake                            = Spell(61882),
+  Earthquake                            = MultiSpell(61882,462620),
   FireElemental                         = Spell(198067),
   -- Talents
   Aftershock                            = Spell(273221),
@@ -146,7 +146,8 @@ Spell.Shaman.Elemental = MergeTableByKey(Spell.Shaman.Commons, {
   FlowofPower                           = Spell(385923),
   FluxMelting                           = Spell(381776),
   FurtherBeyond                         = Spell(381787),
-  Icefury                               = Spell(210714),
+  FusionofElements                      = Spell(462840),
+  Icefury                               = MultiSpell(462816,210714),
   ImprovedFlametongueWeapon             = Spell(382027),
   LavaBeam                              = Spell(114074),
   LavaSurge                             = Spell(77756),
