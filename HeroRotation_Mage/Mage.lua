@@ -32,7 +32,6 @@ if not Spell.Mage then Spell.Mage = {} end
 Spell.Mage.Commons = {
   -- Racials
   AncestralCall                         = Spell(274738),
-  BagofTricks                           = Spell(312411),
   Berserking                            = Spell(26297),
   BloodFury                             = Spell(20572),
   Fireblood                             = Spell(265221),
@@ -40,33 +39,17 @@ Spell.Mage.Commons = {
   -- Abilities
   ArcaneExplosion                       = Spell(1449), --Melee, 10
   ArcaneIntellect                       = Spell(1459),
-  Blink                                 = MultiSpell(1953, 212653),
   Frostbolt                             = Spell(116),
   FrostNova                             = Spell(122),
-  SlowFall                              = Spell(130),
-  TimeWarp                              = Spell(80353),
   -- Talents
-  AlterTime                             = Spell(342245),
-  BlastWave                             = Spell(157981),
   Counterspell                          = Spell(2139),
   DragonsBreath                         = Spell(31661),
-  FocusMagic                            = Spell(321358),
-  IceBlock                              = Spell(45438),
   IceFloes                              = Spell(108839),
   IceNova                               = Spell(157997), --splash, 8
-  Invisibility                          = Spell(66),
-  Meteor                                = Spell(153561),
   MirrorImage                           = Spell(55342),
-  RemoveCurse                           = Spell(475),
-  RingOfFrost                           = Spell(113724),
   ShiftingPower                         = Spell(382440), --Melee 15
-  SpellSteal                            = Spell(30449),
-  TemporalWarp                          = Spell(386539),
   -- Buffs
   ArcaneIntellectBuff                   = Spell(1459),
-  BerserkingBuff                        = Spell(26297),
-  BloodFuryBuff                         = Spell(20572),
-  TemporalWarpBuff                      = Spell(386540),
   -- Debuffs
   -- Trinket Effects
   SpoilsofNeltharusCrit                 = Spell(381954),
@@ -78,6 +61,11 @@ Spell.Mage.Commons = {
 }
 
 Spell.Mage.Frostfire = {
+  -- Talents
+  IsothermicCore                        = Spell(431095),
+  -- Buffs
+  ExcessFrost                           = Spell(438611),
+  FrostfireEmpowermentBuff              = Spell(431177),
 }
 
 Spell.Mage.Spellslinger = {
@@ -92,6 +80,7 @@ Spell.Mage.Spellslinger = {
 Spell.Mage.Sunfury = {
   -- Talents
   SpellfireSpheres                      = Spell(448601),
+  SunfuryExecution                      = Spell(449349),
   -- Buffs
   ArcaneSoulBuff                        = Spell(451038),
   BurdenofPowerBuff                     = Spell(451049),
@@ -149,38 +138,38 @@ Spell.Mage.Fire = MergeTableByKey(Spell.Mage.Commons, {
   Flamestrike                           = Spell(2120),
   -- Talents
   AlexstraszasFury                      = Spell(235870),
-  BlazingBarrier                        = Spell(235313),
+  CalloftheSunKing                      = Spell(343222),
   Combustion                            = Spell(190319),
   FeeltheBurn                           = Spell(383391),
   FlameAccelerant                       = Spell(203275),
   FireBlast                             = Spell(108853),
   Firestarter                           = Spell(205026),
-  FlameOn                               = Spell(205029),
   FlamePatch                            = Spell(205037),
-  FromTheAshes                          = Spell(342344),
-  FueltheFire                           = Spell(416094),
   Hyperthermia                          = Spell(383860),
   ImprovedScorch                        = Spell(383604),
   Kindling                              = Spell(155148),
-  LivingBomb                            = Spell(44457),
+  Meteor                                = Spell(153561),
   PhoenixFlames                         = Spell(257541),
+  PhoenixReborn                         = Spell(453123),
   Pyroblast                             = Spell(11366),
+  Quickflame                            = Spell(450807),
+  Scald                                 = Spell(450746),
   Scorch                                = Spell(2948),
   SearingTouch                          = Spell(269644),
+  SpontaneousCombustion                 = Spell(451875),
   SunKingsBlessing                      = Spell(383886),
-  TemperedFlames                        = Spell(383659),
   -- Buffs
   CombustionBuff                        = Spell(190319),
   FeeltheBurnBuff                       = Spell(383395),
   FlameAccelerantBuff                   = Spell(203277),
   FlamesFuryBuff                        = Spell(409964), -- T30 4pc bonus
+  HeatShimmerBuff                       = Spell(458964),
   HeatingUpBuff                         = Spell(48107),
   HotStreakBuff                         = Spell(48108),
   HyperthermiaBuff                      = Spell(383874),
   SunKingsBlessingBuff                  = Spell(383882),
   FuryoftheSunKingBuff                  = Spell(383883),
   -- Debuffs
-  CharringEmbersDebuff                  = Spell(408665), -- T30 2pc bonus
   IgniteDebuff                          = Spell(12654),
   ImprovedScorchDebuff                  = Spell(383608),
 })
@@ -227,37 +216,21 @@ if not Item.Mage then Item.Mage = {} end
 Item.Mage.Commons = {
   -- DF Trinkets
   AshesoftheEmbersoul                   = Item(207167, {13, 14}),
-  BalefireBranch                        = Item(159630, {13, 14}),
-  BeacontotheBeyond                     = Item(203963, {13, 14}),
   BelorrelostheSuncaller                = Item(207172, {13, 14}),
-  ConjuredChillglobe                    = Item(194300, {13, 14}),
-  DesperateInvokersCodex                = Item(194310, {13, 14}),
-  DMDDance                              = Item(198088, {13, 14}),
-  DMDDanceBox                           = Item(198478, {13, 14}),
-  DMDInferno                            = Item(198086, {13, 14}),
-  DMDInfernoBox                         = Item(194872, {13, 14}),
-  DMDRime                               = Item(198087, {13, 14}),
-  DMDRimeBox                            = Item(198477, {13, 14}),
   DragonfireBombDispenser               = Item(202610, {13, 14}),
-  EruptingSpearFragment                 = Item(193769, {13, 14}),
   HornofValor                           = Item(133642, {13, 14}),
-  IcebloodDeathsnare                    = Item(194304, {13, 14}),
   IrideusFragment                       = Item(193743, {13, 14}),
-  MirrorofFracturedTomorrows            = Item(207581, {13, 14}),
   MoonlitPrism                          = Item(137541, {13, 14}),
-  NeltharionsCalltoChaos                = Item(204201, {13, 14}),
   NymuesUnravelingSpindle               = Item(208615, {13, 14}),
-  SeaStar                               = Item(56290, {13, 14}),
   SpoilsofNeltharus                     = Item(193773, {13, 14}),
   TimebreachingTalon                    = Item(193791, {13, 14}),
-  TimeThiefsGambit                      = Item(207579, {13, 14}),
-  TomeofUnstablePower                   = Item(193628, {13, 14}),
-  VoidmendersShadowgem                  = Item(110007, {13, 14}),
   -- TWW Trinkets
   AberrantSpellforge                    = Item(212451, {13, 14}),
   HighSpeakersAccretion                 = Item(219303, {13, 14}),
+  ImperfectAscendancySerum              = Item(225654, {13, 14}),
   MadQueensMandate                      = Item(212454, {13, 14}),
   MereldarsToll                         = Item(219313, {13, 14}),
+  SignetofthePriory                     = Item(219308, {13, 14}),
   SpymastersWeb                         = Item(220202, {13, 14}),
   TreacherousTransmitter                = Item(221023, {13, 14}),
   -- TWW Gladiator's Badges
@@ -269,7 +242,6 @@ Item.Mage.Commons = {
   VerdantGladiatorsBadge                = Item(209343, {13, 14}),
   -- Other On-Use Items
   Dreambinder                           = Item(208616, {16}),
-  IridaltheEarthsMaster                 = Item(208321, {16}),
 }
 
 Item.Mage.Arcane = MergeTableByKey(Item.Mage.Commons, {
