@@ -647,7 +647,7 @@ local function Variables()
   -- variable,name=zerk_biteweave,op=reset
   VarZerkBiteweave = Settings.Feral.UseZerkBiteweave
   -- variable,name=regrowth,op=reset
-  VarRegrowth = Settings.Feral.ShowHealSpells
+  VarRegrowth = Settings.Feral.ShowHealSpells and Player:HealthPercentage() <= Settings.Feral.FeralRegrowthHP
   -- variable,name=easy_swipe,op=reset
   VarEasySwipe = Settings.Feral.UseEasySwipe
 end
