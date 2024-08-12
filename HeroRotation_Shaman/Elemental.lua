@@ -120,7 +120,7 @@ local function Precombat()
   if S.ElementalBlast:IsViable() then
     if Cast(S.ElementalBlast, nil, nil, not Target:IsSpellInRange(S.ElementalBlast)) then return "elemental_blast precombat 6"; end
   end
-  if Player:IsCasting(S.ElementalBlast) and S.PrimordialWave:IsViable() then
+  if CDsON() and Player:IsCasting(S.ElementalBlast) and S.PrimordialWave:IsViable() then
     if Cast(S.PrimordialWave, nil, Settings.CommonsDS.DisplayStyle.Signature, not Target:IsSpellInRange(S.PrimordialWave)) then return "primordial_wave precombat 8"; end
   end
   if Player:IsCasting(S.ElementalBlast) and not S.PrimordialWave:IsViable() and S.FlameShock:IsReady() then
@@ -132,14 +132,14 @@ local function Precombat()
   if Player:IsCasting(S.LavaBurst) and S.FlameShock:IsReady() then 
     if Cast(S.FlameShock, nil, nil, not Target:IsSpellInRange(S.FlameShock)) then return "flameshock precombat 14"; end
   end
-  if Player:IsCasting(S.LavaBurst) and S.PrimordialWave:IsViable() then
+  if CDsON() and Player:IsCasting(S.LavaBurst) and S.PrimordialWave:IsViable() then
     if Cast(S.PrimordialWave, nil, Settings.CommonsDS.DisplayStyle.Signature, not Target:IsSpellInRange(S.PrimordialWave)) then return "primordial_wave precombat 16"; end
   end
 end
 
 local function Aoe()
   -- actions.aoe+=/fire_elemental,if=!buff.fire_elemental.up&(!talent.primal_elementalist.enabled|!buff.lesser_fire_elemental.up)
-  if S.FireElemental:IsReady() then
+  if CDsON() and S.FireElemental:IsReady() then
     if Cast(S.FireElemental, Settings.Elemental.GCDasOffGCD.FireElemental) then return "fire_elemental aoe 2"; end
   end
   -- actions.aoe+=/storm_elemental,if=!buff.storm_elemental.up&(!talent.primal_elementalist.enabled|!buff.lesser_storm_elemental.up)
@@ -159,15 +159,15 @@ local function Aoe()
     if Cast(S.LiquidMagmaTotem, Settings.Elemental.GCDasOffGCD.LiquidMagmaTotem, nil, not Target:IsInRange(40)) then return "liquid_magma_totem aoe 10"; end
   end
   -- actions.aoe+=/primordial_wave,cycle_targets=1,if=buff.surge_of_power.up
-  if S.PrimordialWave:IsViable() and Player:BuffUp(S.SurgeofPowerBuff) then
+  if CDsON() and S.PrimordialWave:IsViable() and Player:BuffUp(S.SurgeofPowerBuff) then
     if Everyone.CastTargetIf(S.PrimordialWave, Enemies10ySplash, "min", EvaluateFlameShockRemains, nil, not Target:IsSpellInRange(S.PrimordialWave), nil, Settings.CommonsDS.DisplayStyle.Signature) then return "primordial_wave aoe 12"; end
   end
   -- actions.aoe+=/primordial_wave,cycle_targets=1,if=talent.deeply_rooted_elements.enabled&!talent.surge_of_power.enabled
-  if S.PrimordialWave:IsViable() and S.DeeplyRootedElements:IsAvailable() and not S.SurgeofPower:IsAvailable() then
+  if CDsON() and S.PrimordialWave:IsViable() and S.DeeplyRootedElements:IsAvailable() and not S.SurgeofPower:IsAvailable() then
     if Everyone.CastTargetIf(S.PrimordialWave, Enemies10ySplash, "min", EvaluateFlameShockRemains, nil, not Target:IsSpellInRange(S.PrimordialWave), nil, Settings.CommonsDS.DisplayStyle.Signature) then return "primordial_wave aoe 14"; end
   end
   -- actions.aoe+=/primordial_wave,cycle_targets=1,if=talent.master_of_the_elements.enabled&!talent.lightning_rod.enabled
-  if S.PrimordialWave:IsViable() and S.MasteroftheElements:IsAvailable() and not S.LightningRod:IsAvailable() then
+  if CDsON() and S.PrimordialWave:IsViable() and S.MasteroftheElements:IsAvailable() and not S.LightningRod:IsAvailable() then
     if Everyone.CastTargetIf(S.PrimordialWave, Enemies10ySplash, "min", EvaluateFlameShockRemains, nil, not Target:IsSpellInRange(S.PrimordialWave), nil, Settings.CommonsDS.DisplayStyle.Signature) then return "primordial_wave aoe 16"; end
   end
   if S.FlameShock:IsCastable() then
@@ -201,7 +201,7 @@ local function Aoe()
     end
   end
   -- actions.aoe+=/ascendance
-  if S.Ascendance:IsCastable() then
+  if CDsON() and S.Ascendance:IsCastable() then
     if Cast(S.Ascendance, Settings.CommonsOGCD.GCDasOffGCD.Ascendance) then return "ascendance aoe 32"; end
   end
   -- actions.aoe+=/lava_burst,cycle_targets=1,if=dot.flame_shock.remains&active_enemies=3&(!talent.lightning_rod.enabled&set_bonus.tier31_4pc)
@@ -324,7 +324,7 @@ end
 
 local function SingleTarget()
   -- actions.single_target+=/fire_elemental,if=!buff.fire_elemental.up&(!talent.primal_elementalist.enabled|!buff.lesser_fire_elemental.up)
-  if S.FireElemental:IsCastable() then
+  if CDsON() and S.FireElemental:IsCastable() then
     if Cast(S.FireElemental, Settings.Elemental.GCDasOffGCD.FireElemental) then return "fire_elemental single_target 2"; end
   end
   -- actions.single_target+=/storm_elemental,if=!buff.storm_elemental.up&(!talent.primal_elementalist.enabled|!buff.lesser_storm_elemental.up)
@@ -340,7 +340,7 @@ local function SingleTarget()
     if Cast(S.LiquidMagmaTotem, Settings.Elemental.GCDasOffGCD.LiquidMagmaTotem, nil, not Target:IsInRange(40)) then return "liquid_magma_totem single_target 8"; end
   end
   -- actions.single_target+=/primordial_wave,cycle_targets=1
-  if S.PrimordialWave:IsViable() then
+  if CDsON() and S.PrimordialWave:IsViable() then
     if Everyone.CastTargetIf(S.PrimordialWave, Enemies10ySplash, "min", EvaluateFlameShockRemains, nil, not Target:IsSpellInRange(S.PrimordialWave), nil, Settings.CommonsDS.DisplayStyle.Signature) then return "primordial_wave single_target 10"; end
   end
   -- actions.single_target+=/flame_shock,cycle_targets=1,if=active_enemies=1&refreshable&(dot.flame_shock.remains<cooldown.primordial_wave.remains|!talent.primordial_wave.enabled)&!buff.surge_of_power.up&(!buff.master_of_the_elements.up|(!buff.stormkeeper.up&(talent.elemental_blast.enabled&maelstrom<90-10*talent.eye_of_the_storm.enabled|maelstrom<60-5*talent.eye_of_the_storm.enabled)))
@@ -364,7 +364,7 @@ local function SingleTarget()
     if Cast(S.Stormkeeper, Settings.Elemental.GCDasOffGCD.Stormkeeper) then return "stormkeeper single_target 20"; end
   end
   -- actions.single_target+=/ascendance,if=!buff.stormkeeper.up
-  if S.Ascendance:IsCastable() and (not Player:StormkeeperP()) then
+  if CDsON() and S.Ascendance:IsCastable() and (not Player:StormkeeperP()) then
     if Cast(S.Ascendance, Settings.CommonsOGCD.GCDasOffGCD.Ascendance) then return "ascendance single_target 24"; end
   end
   -- actions.single_target+=/lightning_bolt,if=buff.stormkeeper.up&buff.surge_of_power.up
