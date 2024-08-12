@@ -125,7 +125,7 @@ HL.AddCoreOverride ("Player.StormkeeperP",
 
 HL.AddCoreOverride ("Player.IcefuryP",
   function()
-    if not SpellEle.Icefury:IsAvailable() then return false end
+    if not SpellEle.IcefuryTalent:IsAvailable() then return false end
     local IcefuryUp = Player:BuffUp(SpellEle.IcefuryBuff)
     if not Player:IsCasting() then
       return IcefuryUp
