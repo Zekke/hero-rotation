@@ -90,6 +90,7 @@ Spell.Rogue.Commons = {
   FateboundCoinHeads      = Spell(456479),
   FateboundCoinTails      = Spell(452538),
   FateboundLuckyCoin      = Spell(461818),
+  FatefulEnding           = Spell(454428),
   FindWeakness            = Spell(91023),
   FindWeaknessDebuff      = Spell(316220),
   FlawlessForm            = Spell(441321),
