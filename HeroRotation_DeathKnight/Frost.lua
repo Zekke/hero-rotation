@@ -247,6 +247,59 @@ local function EvaluateCycleReapersMarkCDs(TargetUnit)
   return TargetUnit:DebuffDown(S.ReapersMarkDebuff)
 end
 
+function findClosestTimes(timings, currentTime)
+  local closestPastTime = findClosestPastTime(timings, currentTime)
+  local closestFutureTime = findClosestFutureTime(timings, currentTime)
+  return closestPastTime, closestFutureTime
+end
+
+function findClosestPastTime(timings, currentTime)
+  local closestPastTime = 0
+  for _, time in ipairs(timings) do
+    if time <= currentTime and time >= closestPastTime then
+      closestPastTime = time
+    end
+  end
+  return closestPastTime
+end
+
+function findClosestFutureTime(timings, currentTime)
+  local closestFutureTime = currentTime
+  for _, time in ipairs(timings) do
+    if time >= currentTime and (closestFutureTime == currentTime or time <= closestFutureTime) then
+      closestFutureTime = time
+    end
+  end
+  return closestFutureTime
+end
+
+function HoldCDs(cd)
+  if Target:NPCID() == 200927 then
+    return SmolderonCDs(cd)
+  end
+  return false
+end
+
+function SmolderonCDs(cd)
+  local WorldInFlamesTimings = {68, 167, 265, 364}
+  local currentFightTime = HL.CombatTime()
+  local closestPastTime, closestFutureTime = findClosestTimes(WorldInFlamesTimings, currentFightTime)
+  local IgnitedEssenceDebuff = Spell(421858)
+  local debuffStack = Player:DebuffStack(IgnitedEssenceDebuff)
+
+  if closestPastTime == 0 then
+    return not (cd <= closestFutureTime - currentFightTime + 5)
+  elseif (currentFightTime - closestPastTime) < 30 then
+    if debuffStack == 5 then
+      return false
+    else
+      return true
+    end
+  else
+    return not (cd <= closestFutureTime - currentFightTime + 5)
+  end
+end
+
 --- ===== Rotation Functions =====
 local function Precombat()
   -- flask
@@ -424,15 +477,15 @@ local function Cooldowns()
     if Cast(S.EmpowerRuneWeapon, Settings.CommonsOGCD.GCDasOffGCD.EmpowerRuneWeapon) then return "empower_rune_weapon cooldowns 16"; end
   end
   -- pillar_of_frost,if=talent.obliteration&!talent.breath_of_sindragosa&variable.sending_cds|fight_remains<12
-  if S.PillarofFrost:IsCastable() and (S.Obliteration:IsAvailable() and not S.BreathofSindragosa:IsAvailable() and VarSendingCDs or BossFightRemains < 12) then
+  if S.PillarofFrost:IsCastable() and (S.Obliteration:IsAvailable() and not S.BreathofSindragosa:IsAvailable() and VarSendingCDs or BossFightRemains < 12) and not HoldCDs(45) then
     if Cast(S.PillarofFrost, Settings.Frost.GCDasOffGCD.PillarOfFrost) then return "pillar_of_frost cooldowns 18"; end
   end
   -- pillar_of_frost,if=talent.breath_of_sindragosa&variable.sending_cds&(buff.breath_of_sindragosa.up|cooldown.breath_of_sindragosa.remains>cooldown.pillar_of_frost.duration-20)|fight_remains<12
-  if S.PillarofFrost:IsCastable() and (S.BreathofSindragosa:IsAvailable() and VarSendingCDs and (Player:BuffUp(S.BreathofSindragosa) or S.BreathofSindragosa:CooldownRemains() > VarPillarCD - 20) or BossFightRemains < 12) then
+  if S.PillarofFrost:IsCastable() and (S.BreathofSindragosa:IsAvailable() and VarSendingCDs and (Player:BuffUp(S.BreathofSindragosa) or S.BreathofSindragosa:CooldownRemains() > VarPillarCD - 20) or BossFightRemains < 12) and not HoldCDs(45) then
     if Cast(S.PillarofFrost, Settings.Frost.GCDasOffGCD.PillarOfFrost) then return "pillar_of_frost cooldowns 20"; end
   end
   -- pillar_of_frost,if=!talent.obliteration&!talent.breath_of_sindragosa&variable.sending_cds
-  if S.PillarofFrost:IsCastable() and (not S.Obliteration:IsAvailable() and not S.BreathofSindragosa:IsAvailable() and VarSendingCDs) then
+  if S.PillarofFrost:IsCastable() and (not S.Obliteration:IsAvailable() and not S.BreathofSindragosa:IsAvailable() and VarSendingCDs) and not HoldCDs(45) then
     if Cast(S.PillarofFrost, Settings.Frost.GCDasOffGCD.PillarOfFrost) then return "pillar_of_frost cooldowns 22"; end
   end
   -- breath_of_sindragosa,if=!buff.breath_of_sindragosa.up&cooldown.empower_rune_weapon.remains_expected<15&runic_power>variable.breath_rp_threshold&(variable.adds_remain|variable.st_planning|fight_remains<30)|(time<10&rune<1)
@@ -452,7 +505,7 @@ local function Cooldowns()
     if Cast(S.FrostwyrmsFury, Settings.Frost.GCDasOffGCD.FrostwyrmsFury, nil, not Target:IsInRange(40)) then return "frostwyrms_fury cooldowns 30"; end
   end
   -- frostwyrms_fury,if=!talent.apocalypse_now&talent.obliteration&(talent.pillar_of_frost&buff.pillar_of_frost.up&!variable.2h_check|!buff.pillar_of_frost.up&variable.2h_check&cooldown.pillar_of_frost.remains|!talent.pillar_of_frost)&((buff.pillar_of_frost.remains<gcd|buff.unholy_strength.up)&(debuff.razorice.stack=5|!death_knight.runeforge.razorice&!talent.glacial_advance))
-  if S.FrostwyrmsFury:IsCastable() and (not S.ApocalypseNow:IsAvailable() and S.Obliteration:IsAvailable() and (S.PillarofFrost:IsAvailable() and Player:BuffUp(S.PillarofFrostBuff) and not Var2HCheck or Player:BuffDown(S.PillarofFrostBuff) and Var2HCheck and S.PillarofFrost:CooldownDown() or not S.PillarofFrost:IsAvailable()) and ((Player:BuffRemains(S.PillarofFrostBuff) < Player:GCD() or Player:BuffUp(S.UnholyStrengthBuff)) and (Target:DebuffStack(S.RazoriceDebuff) == 5 or not UsingRazorice and not S.GlacialAdvance:IsAvailable()))) then
+  if S.FrostwyrmsFury:IsCastable() and (not S.ApocalypseNow:IsAvailable() and S.Obliteration:IsAvailable() and (S.PillarofFrost:IsAvailable() and Player:BuffUp(S.PillarofFrostBuff) and not Var2HCheck or Player:BuffDown(S.PillarofFrostBuff) and Var2HCheck and S.PillarofFrost:CooldownDown() or not S.PillarofFrost:IsAvailable()) and ((Player:BuffRemains(S.PillarofFrostBuff) < Player:GCD() or Player:BuffUp(S.UnholyStrengthBuff)) and (Target:DebuffStack(S.RazoriceDebuff) == 5 or not UsingRazorice and not S.GlacialAdvance:IsAvailable()))) and not HoldCDs(180) then
     if Cast(S.FrostwyrmsFury, Settings.Frost.GCDasOffGCD.FrostwyrmsFury, nil, not Target:IsInRange(40)) then return "frostwyrms_fury cooldowns 32"; end
   end
   -- raise_dead
@@ -537,6 +590,9 @@ local function Obliteration()
   if S.Obliterate:IsReady() and (Player:BuffUp(S.KillingMachineBuff)) then
     if Everyone.CastTargetIf(S.Obliterate, EnemiesMelee, "max", EvaluateTargetIfFilterRazoriceStacksModified, nil, not Target:IsInMeleeRange(5)) then return "obliterate obliteration 10"; end
   end
+  if S.Obliterate:IsReady() and (Player:BuffUp(S.KillingMachineBuff)) then
+    if Cast(S.Obliterate, nil, nil, not Target:IsInMeleeRange(5)) then return "obliterate obliteration 10 bypass"; end
+  end
   -- howling_blast,if=!buff.killing_machine.react&(!dot.frost_fever.ticking)
   if S.HowlingBlast:IsReady() and (Player:BuffDown(S.KillingMachineBuff) and Target:DebuffDown(S.FrostFeverDebuff)) then
     if Cast(S.HowlingBlast, nil, nil, not Target:IsSpellInRange(S.HowlingBlast)) then return "howling_blast obliteration 12"; end
@@ -576,6 +632,9 @@ local function Obliteration()
   -- howling_blast,if=!buff.killing_machine.up
   if S.HowlingBlast:IsReady() and (Player:BuffDown(S.KillingMachineBuff)) then
     if Cast(S.HowlingBlast, nil, nil, not Target:IsSpellInRange(S.HowlingBlast)) then return "howling_blast obliteration 30"; end
+  end
+  if S.FrostStrike:IsReady() and Player:Rune() < 2 then
+    if Cast(S.FrostStrike, Settings.Frost.GCDasOffGCD.FrostStrike, nil, not Target:IsSpellInRange(S.FrostStrike)) then return "frost_strike obliteration bypass"; end
   end
 end
 
