@@ -1,12 +1,14 @@
-**Not everything is updated for Dragonflight, so please check the table below (Supported Rotations). If a spec is in WIP or KO status, please do not report an issue about it.**
+**Not everything is updated for The War Within, so please check the table below (Supported Rotations). If a spec is in WIP or KO status, please do not report an issue about it.**
 
 **If you are missing dependencies, ([HeroDBC](https://www.curseforge.com/wow/addons/herodbc) and [HeroLib](https://www.curseforge.com/wow/addons/herolib)), you have to install them.**
 
-**If you are experiencing issues with AoE rotations (likely abilities not being recommended), be sure to have enemies nameplates enabled and enough nameplates shown (camera can hide them).**
+**If you are experiencing issues with AoE rotations (likely abilities not being recommended), be sure to have enemies nameplates enabled and enough nameplates shown (camera can hide them). Also, (for casters, especially) you or a member of your party/raid must use an AoE ability before we can determine the number of targets near that enemy.**
 
 **If you see an icon with "POOL" written inside, it means you have to pool your resources. It's a normal behavior. Please see this [link explaining resource pooling](https://wow.gamepedia.com/Resource_pooling).**
 
-**If you update the addon via the Twitch Client and wish to get every change as they are released, please set the addon type to Alpha by right clicking the addon name and selecting Alpha under Release Type. Note that this can potentially include updates that break functionality!**
+**If you update the addon via the Curse Client and wish to get every change as they are released, please set the addon type to Alpha by right clicking the addon name and selecting Alpha under Release Type. This is dependent upon Curse grabbing updates from GitHub, which it doesn't always do properly, so some updates may be missed. Note that this can potentially include updates that break functionality!**
+
+**If you would like to update the addon directly from GitHub via [WowUp](https://wowup.io), go to the Get Addons tab, click Install from URL, enter the GitHub repo address (https://github.com/herotc/hero-rotation), and click Import. Remember to do the same with HeroLib (https://github.com/herotc/hero-lib) and HeroDBC (https://github.com/herotc/hero-dbc).**
 
 # HeroRotation
 
@@ -74,7 +76,7 @@ Every rotation is based on [SimulationCraft](http://simulationcraft.org/) [Actio
 | Rogue        | ![Assassination](https://img.shields.io/badge/Assassination-Good-brightgreen.svg) :warning: | ![Outlaw](https://img.shields.io/badge/Outlaw-Good-brightgreen.svg)   :warning:     | ![Subtlety](https://img.shields.io/badge/Subtlety-Good-brightgreen.svg)   :warning: |
 | Shaman       | ![Elemental](https://img.shields.io/badge/Elemental-Good-brightgreen.svg)           | ![Enhancement](https://img.shields.io/badge/Enhancement-WIP-orange.svg)             |                                                                                     |
 | Warlock      | ![Affliction](https://img.shields.io/badge/Affliction-WIP-orange.svg)               | ![Demonology](https://img.shields.io/badge/Demonology-WIP-orange.svg)               | ![Destruction](https://img.shields.io/badge/Destruction-WIP-orange.svg)             |
-| Warrior      | ![Arms](https://img.shields.io/badge/Arms-Good-brightgreen.svg)                     | ![Fury](https://img.shields.io/badge/Fury-Good-brightgreen.svg)                     | ![Protection](https://img.shields.io/badge/Protection-WIP-orange.svg)               |
+| Warrior      | ![Arms](https://img.shields.io/badge/Arms-Good-brightgreen.svg)                     | ![Fury](https://img.shields.io/badge/Fury-Good-brightgreen.svg)                     | ![Protection](https://img.shields.io/badge/Protection-Good-brightgreen.svg)         |
 
 ![Spec](https://img.shields.io/badge/Spec-Good-brightgreen.svg) - The rotation does have an optimal SimC APL and is optimally implemented in the addon.\
 ![Spec](https://img.shields.io/badge/Spec-OK-green.svg) - The rotation does not have an optimal SimC APL but is optimally implemented in the addon.\
@@ -83,7 +85,7 @@ Every rotation is based on [SimulationCraft](http://simulationcraft.org/) [Actio
 :warning: - The rotation is maintained by the community (through Pull Requests) and not by the core team.
 
 Do you want to contribute? Feel free to open a [pull request](https://github.com/herotc/hero-rotation/pulls), an [issue](https://github.com/herotc/hero-rotation/issues) or ask around in our [Discord](https://discord.gg/tFR2uvK).\
-You can look at our [Battle for Azeroth](https://github.com/herotc/hero-rotation/tree/bfa), [Legion](https://github.com/herotc/hero-rotation/tree/legion), and [Shadowlands](https://github.com/herotc/hero-rotation/tree/shadowlands) branches too if you want to see earlier versions.
+You can look at our [Battle for Azeroth](https://github.com/herotc/hero-rotation/tree/bfa), [Legion](https://github.com/herotc/hero-rotation/tree/legion), [Shadowlands](https://github.com/herotc/hero-rotation/tree/shadowlands), and [Dragonflight](https://github.com/herotc/hero-rotation/tree/dragonflight) branches too if you want to see earlier versions.
 Rogue rotations are usually the most polished ones, so you can take inspiration from them.
 
 ## Support the team
