@@ -284,7 +284,7 @@ local function Aoe()
   end
   -- lava_burst,target_if=dot.flame_shock.remains,if=cooldown_react&buff.lava_surge.up&(!talent.lightning_rod.enabled&set_bonus.tier31_4pc)
   if S.LavaBurst:IsViable() and (Player:BuffUp(S.LavaSurgeBuff) and (not S.LightningRod:IsAvailable() and Player:HasTier(31, 4))) then
-    if Everyone.CastCycle(S.LavaBurst, Enemies10ySplash, EvaluateCycleFlameShockRemains, not Target:IsSpellInRange(S.LavaBurst)) then return "lava_burst aoe 42"; end
+    if Everyone.CastCycle(S.LavaBurst, Enemies10ySplash, EvaluateFlameShockRemains, not Target:IsSpellInRange(S.LavaBurst)) then return "lava_burst aoe 42"; end
   end
   -- lava_burst,target_if=dot.flame_shock.remains,if=cooldown_react&buff.lava_surge.up&talent.master_of_the_elements.enabled&!buff.master_of_the_elements.up&(maelstrom>=52-5*talent.eye_of_the_storm.enabled-2*talent.flow_of_power.enabled)&(!talent.echoes_of_great_sundering.enabled&!talent.lightning_rod.enabled|buff.echoes_of_great_sundering_es.up|buff.echoes_of_great_sundering_eb.up)&(!buff.ascendance.up&active_enemies>3|active_enemies=3)
   -- Note: Buff ID for echoes_of_great_sundering_eb and echoes_of_great_sundering_es is the same.
@@ -648,6 +648,10 @@ local function APL()
       if PotionSelected and PotionSelected:IsReady() then
         if Cast(PotionSelected, nil, Settings.CommonsDS.DisplayStyle.Potions) then return "potion main 14"; end
       end
+    end
+    -- actions+=/lava_burst,if=(active_dot.flame_shock=active_enemies|active_dot.flame_shock>=6)&buff.primordial_wave.up&(buff.lava_surge.up|(maelstrom>=52-5*talent.eye_of_the_storm.enabled-2*talent.flow_of_power.enabled))
+    if S.LavaBurst:IsCastable() and (S.FlameShockDebuff:AuraActiveCount() >= Shaman.ClusterTargets or S.FlameShockDebuff:AuraActiveCount() >= 6 or Player:BuffRemains(S.PrimordialWaveBuff) <= Player:GCD()) and Player:BuffUp(S.PrimordialWaveBuff) and (Player:BuffUp(S.LavaSurgeBuff) or (Player:MaelstromP() >= 52 - 5 * num(S.EyeoftheStorm:IsAvailable()) - 2 * num(S.FlowofPower:IsAvailable()))) then
+      if Cast(S.LavaBurst, nil, nil, not Target:IsSpellInRange(S.LavaBurst)) then return "lava_burst primordial wave"; end
     end
     -- run_action_list,name=aoe,if=spell_targets.chain_lightning>2
     if AoEON() and (Shaman.ClusterTargets > 2) then

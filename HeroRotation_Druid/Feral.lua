@@ -694,7 +694,7 @@ local function APL()
       if Cast(S.Regrowth, Settings.Feral.GCDasOffGCD.Regrowth) then return "regrowth defensive"; end
     end
     -- Precombat
-    if not Player:AffectingCombat() and Player:BuffDown(S.TravelForm) then
+    if not Player:AffectingCombat() then
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
     end
     -- Interrupts
