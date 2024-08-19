@@ -32,9 +32,9 @@ HR.GUISettings.APL.Shaman = {
       Interrupts = "Cooldown",
       Items = "Suggested",
       Potions = "Suggested",
-      Signature = "Suggested",
       Trinkets = "Suggested",
       -- Class Specific
+      PrimordialWave = "Suggested",
       SpiritwalkersGrace = "SuggestedRight",
     },
   },
