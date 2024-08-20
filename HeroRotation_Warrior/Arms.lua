@@ -210,7 +210,7 @@ local function Execute()
   end
   -- ravager
   if CDsON() and S.Ravager:IsCastable() then
-    if Everyone.CastTargetIf(S.Ravager, Enemies8y, "min", EvaluateTargetIfFilterLowestHP, nil, not Target:IsInRange(40), Settings.CommonsOGCD.GCDasOffGCD.Ravager) then return "ravager execute 10"; end
+    if Everyone.CastTargetIf(S.Ravager, Enemies8y, "min", EvaluateTargetIfFilterLowestHP, nil, not Target:IsInRange(8), Settings.CommonsOGCD.GCDasOffGCD.Ravager) then return "ravager execute 10"; end
   end
   -- avatar
   if CDsON() and S.Avatar:IsCastable() then
@@ -265,7 +265,7 @@ local function AoE()
   end
   -- ravager,if=cooldown.sweeping_strikes.remains<=1|buff.sweeping_strikes.up
   if CDsON() and S.Ravager:IsCastable() and (S.SweepingStrikes:CooldownRemains() <= 1 or Player:BuffUp(S.SweepingStrikesBuff)) then
-    if Cast(S.Ravager, Settings.CommonsOGCD.GCDasOffGCD.Ravager, nil, not Target:IsInRange(40)) then return "ravager aoe 10"; end
+    if Cast(S.Ravager, Settings.CommonsOGCD.GCDasOffGCD.Ravager, nil, not Target:IsInRange(8)) then return "ravager aoe 10"; end
   end
   -- sweeping_strikes
   if S.SweepingStrikes:IsCastable() then
@@ -360,7 +360,7 @@ local function SingleTarget()
   end
   -- ravager
   if CDsON() and S.Ravager:IsCastable() then
-    if Cast(S.Ravager, Settings.CommonsOGCD.GCDasOffGCD.Ravager, nil, not Target:IsInRange(40)) then return "ravager single_target 12"; end
+    if Cast(S.Ravager, Settings.CommonsOGCD.GCDasOffGCD.Ravager, nil, not Target:IsInRange(8)) then return "ravager single_target 12"; end
   end
   -- avatar
   if CDsON() and S.Avatar:IsCastable() then
