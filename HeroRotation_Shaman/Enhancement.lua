@@ -224,7 +224,7 @@ local function Single()
   end
   -- primordial_wave,if=!dot.flame_shock.ticking&talent.lashing_flames.enabled&(raid_event.adds.in>(action.primordial_wave.cooldown%(1+set_bonus.tier31_4pc))|raid_event.adds.in<6)
   if S.PrimordialWave:IsReady() and CDsON() and (Target:DebuffUp(S.FlameShockDebuff) and S.LashingFlames:IsAvailable()) then
-    if Cast(S.PrimordialWave, nil, Settings.CommonsDS.DisplayStyle.Signature, not Target:IsSpellInRange(S.PrimordialWave)) then return "primordial_wave single 6"; end
+    if Cast(S.PrimordialWave, nil, Settings.CommonsDS.DisplayStyle.PrimordialWave, not Target:IsSpellInRange(S.PrimordialWave)) then return "primordial_wave single 6"; end
   end
   -- flame_shock,if=!ticking&talent.lashing_flames.enabled
   if S.FlameShock:IsReady() and (Target:DebuffDown(S.FlameShockDebuff) and S.LashingFlames:IsAvailable()) then
@@ -288,7 +288,7 @@ local function Single()
   end
   -- primordial_wave,if=raid_event.adds.in>(action.primordial_wave.cooldown%(1+set_bonus.tier31_4pc))|raid_event.adds.in<6
   if S.PrimordialWave:IsReady() and CDsON() then
-    if Cast(S.PrimordialWave, nil, Settings.CommonsDS.DisplayStyle.Signature, not Target:IsSpellInRange(S.PrimordialWave)) then return "primordial_wave single 38"; end
+    if Cast(S.PrimordialWave, nil, Settings.CommonsDS.DisplayStyle.PrimordialWave, not Target:IsSpellInRange(S.PrimordialWave)) then return "primordial_wave single 38"; end
   end
   -- stormstrike,if=talent.deeply_rooted_elements.enabled&talent.elemental_spirits.enabled
   if S.Stormstrike:IsReady() and (S.DeeplyRootedElements:IsAvailable() and S.ElementalSpirits:IsAvailable()) then
@@ -414,7 +414,7 @@ local function Aoe()
   end
   -- primordial_wave,target_if=min:dot.flame_shock.remains,if=!buff.primordial_wave.up
   if S.PrimordialWave:IsReady() and CDsON() and (Player:BuffDown(S.PrimordialWaveBuff)) then
-    if Everyone.CastTargetIf(S.PrimordialWave, EnemiesMelee, "min", EvaluateTargetIfFilterPrimordialWave, EvaluateTargetIfPrimordialWave, nil, not Target:IsSpellInRange(S.PrimordialWave), Settings.CommonsDS.DisplayStyle.Signature) then return "primordial_wave aoe 10"; end
+    if Everyone.CastTargetIf(S.PrimordialWave, EnemiesMelee, "min", EvaluateTargetIfFilterPrimordialWave, EvaluateTargetIfPrimordialWave, nil, not Target:IsSpellInRange(S.PrimordialWave), Settings.CommonsDS.DisplayStyle.PrimordialWave) then return "primordial_wave aoe 10"; end
   end
   -- chain_lightning,if=buff.arc_discharge.up&buff.maelstrom_weapon.stack>=5
   if S.ChainLightning:IsReady() and (Player:BuffUp(S.ArcDischargeBuff) and MaelstromStacks >= 5) then
@@ -667,7 +667,7 @@ local function CustomAPL()
   if EnemiesMeleeCount > 1 or Player:BuffUp(S.PrimordialWaveBuff) then
     -- primordial_wave,if=set_bonus.tier31_2pc&(raid_event.adds.in>(action.primordial_wave.cooldown%(1+set_bonus.tier31_4pc))|raid_event.adds.in<6)
     if S.PrimordialWave:IsReady() and (Player:HasTier(31, 2)) then
-      if Cast(S.PrimordialWave, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsSpellInRange(S.PrimordialWave)) then return "primordial_wave custom 2"; end
+      if Cast(S.PrimordialWave, nil, Settings.CommonsDS.DisplayStyle.PrimordialWave, not Target:IsSpellInRange(S.PrimordialWave)) then return "primordial_wave custom 2"; end
     end
     -- feral_spirit
     if S.FeralSpirit:IsCastable() then
