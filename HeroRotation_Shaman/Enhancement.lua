@@ -260,7 +260,7 @@ end
 local function Single()
   -- windstrike,if=talent.thorims_invocation.enabled&buff.maelstrom_weapon.stack>1&ti_lightning_bolt&!talent.elemental_spirits.enabled
   if S.Windstrike:IsCastable() and (S.ThorimsInvocation:IsAvailable() and MaelstromStacks > 1 and TIAction == S.LightningBolt and not S.ElementalSpirits:IsAvailable()) then
-    if Cast(S.Windstrike, nil, nil, not Target:IsSpellInRange(S.Windstrike)) then return "windstrike single 2"; end
+    if Cast(S.Windstrike, nil, nil, not Target:IsInRange(30)) then return "windstrike single 2"; end
   end
   -- feral_spirit
   if S.FeralSpirit:IsCastable() then
@@ -268,7 +268,7 @@ local function Single()
   end
   -- tempest,if=buff.maelstrom_weapon.stack=buff.maelstrom_weapon.max_stack|(buff.maelstrom_weapon.stack>=5&(tempest_mael_count>30|buff.awakening_storms.stack=2))
   if S.TempestAbility:IsReady() and (MaelstromStacks == MaxMaelstromStacks or (MaelstromStacks >= 5 and (Shaman.TempestMaelstrom > 30 or Player:BuffStack(S.AwakeningStormsBuff) == 2))) then
-    if Cast(S.TempestAbility, nil, nil, not Target:IsSpellInRange(S.TempestAbility)) then return "tempest single 6"; end
+    if Cast(S.TempestAbility, nil, nil, not Target:IsInRange(40)) then return "tempest single 6"; end
   end
   -- doom_winds,if=raid_event.adds.in>=action.doom_winds.cooldown
   if S.DoomWinds:IsCastable() then
@@ -276,7 +276,7 @@ local function Single()
   end
   -- windstrike,if=talent.thorims_invocation.enabled&buff.maelstrom_weapon.stack>1&ti_lightning_bolt
   if S.Windstrike:IsCastable() and (S.ThorimsInvocation:IsAvailable() and MaelstromStacks > 1 and TIAction == S.LightningBolt) then
-    if Cast(S.Windstrike, nil, nil, not Target:IsSpellInRange(S.Windstrike)) then return "windstrike single 10"; end
+    if Cast(S.Windstrike, nil, nil, not Target:IsInRange(30)) then return "windstrike single 10"; end
   end
   -- sundering,if=buff.ascendance.up&pet.surging_totem.active&talent.earthsurge.enabled
   if S.Sundering:IsReady() and (Player:BuffUp(S.AscendanceBuff) and TotemFinder(S.SurgingTotem) and S.Earthsurge:IsAvailable()) then
@@ -320,7 +320,7 @@ local function Single()
   end
   -- tempest,if=buff.maelstrom_weapon.stack>=8
   if S.TempestAbility:IsReady() and (MaelstromStacks >= 8) then
-    if Cast(S.TempestAbility, nil, nil, not Target:IsSpellInRange(S.TempestAbility)) then return "tempest single 24"; end
+    if Cast(S.TempestAbility, nil, nil, not Target:IsInRange(40)) then return "tempest single 24"; end
   end
   -- lightning_bolt,if=buff.maelstrom_weapon.stack>=8&buff.primordial_wave.up&raid_event.adds.in>buff.primordial_wave.remains&(!buff.splintered_elements.up|fight_remains<=12)
   if S.LightningBolt:IsCastable() and (MaelstromStacks >= 8 and Player:BuffUp(S.PrimordialWaveBuff) and (Player:BuffDown(S.SplinteredElementsBuff) or FightRemains <= 12)) then
@@ -363,7 +363,7 @@ local function Single()
   -- Note: These two lines have the same if condition.
   if (S.TotemicRebound:IsAvailable() and mathmin(S.Stormstrike:TimeSinceLastCast(), S.Windstrike:TimeSinceLastCast()) >= 3.5) or (S.AwakeningStorms:IsAvailable() and mathmin(S.Stormstrike:TimeSinceLastCast(), S.Windstrike:TimeSinceLastCast(), S.LightningBolt:TimeSinceLastCast(), S.TempestAbility:TimeSinceLastCast(), S.ChainLightning:TimeSinceLastCast()) >= 3.5) then
     if S.Windstrike:IsCastable() then
-      if Cast(S.Windstrike, nil, nil, not Target:IsSpellInRange(S.Windstrike)) then return "windstrike single 44"; end
+      if Cast(S.Windstrike, nil, nil, not Target:IsInRange(30)) then return "windstrike single 44"; end
     end
     if S.Stormstrike:IsReady() then
       if Cast(S.Stormstrike, nil, nil, not Target:IsSpellInRange(S.Stormstrike)) then return "stormstrike single 46"; end
@@ -403,7 +403,7 @@ local function Single()
   end
   -- windstrike
   if S.Windstrike:IsCastable() then
-    if Cast(S.Windstrike, nil, nil, not Target:IsSpellInRange(S.Windstrike)) then return "windstrike single 64"; end
+    if Cast(S.Windstrike, nil, nil, not Target:IsInRange(30)) then return "windstrike single 64"; end
   end
   -- stormstrike
   if S.Stormstrike:IsReady() then
@@ -419,7 +419,7 @@ local function Single()
   end
   -- tempest,if=buff.maelstrom_weapon.stack>=5
   if S.TempestAbility:IsReady() and (MaelstromStacks >= 5) then
-    if Cast(S.TempestAbility, nil, nil, not Target:IsSpellInRange(S.TempestAbility)) then return "tempest single 72"; end
+    if Cast(S.TempestAbility, nil, nil, not Target:IsInRange(40)) then return "tempest single 72"; end
   end
   -- lightning_bolt,if=talent.hailstorm.enabled&buff.maelstrom_weapon.stack>=5&buff.primordial_wave.down
   if S.LightningBolt:IsCastable() and (S.Hailstorm:IsAvailable() and MaelstromStacks >= 5 and Player:BuffDown(S.PrimordialWaveBuff)) then
@@ -458,11 +458,11 @@ end
 local function Aoe()
   -- tempest,target_if=min:debuff.lightning_rod.remains,if=buff.maelstrom_weapon.stack=buff.maelstrom_weapon.max_stack|(buff.maelstrom_weapon.stack>=5&(tempest_mael_count>30|buff.awakening_storms.stack=2))
   if S.TempestAbility:IsReady() and (MaelstromStacks == MaxMaelstromStacks or (MaelstromStacks >= 5 and (Shaman.TempestMaelstrom > 30 or Player:BuffStack(S.AwakeningStormsBuff) == 2))) then
-    if Everyone.CastTargetIf(S.TempestAbility, EnemiesMelee, "min", EvaluateTargetIfFilterLightningRodRemains, nil, not Target:IsSpellInRange(S.TempestAbility)) then return "tempest aoe 2"; end
+    if Everyone.CastTargetIf(S.TempestAbility, EnemiesMelee, "min", EvaluateTargetIfFilterLightningRodRemains, nil, not Target:IsInRange(40)) then return "tempest aoe 2"; end
   end
   -- windstrike,target_if=min:debuff.lightning_rod.remains,if=talent.thorims_invocation.enabled&buff.maelstrom_weapon.stack>1&ti_chain_lightning
   if S.Windstrike:IsCastable() and (S.ThorimsInvocation:IsAvailable() and MaelstromStacks > 1 and TIAction == S.ChainLightning) then
-    if Everyone.CastTargetIf(S.Windstrike, EnemiesMelee, "min", EvaluateTargetIfFilterLightningRodRemains, nil, not Target:IsSpellInRange(S.Windstrike)) then return "windstrike aoe 4"; end
+    if Everyone.CastTargetIf(S.Windstrike, EnemiesMelee, "min", EvaluateTargetIfFilterLightningRodRemains, nil, not Target:IsInRange(30)) then return "windstrike aoe 4"; end
   end
   -- crash_lightning,if=talent.crashing_storms.enabled&((talent.unruly_winds.enabled&active_enemies>=10)|active_enemies>=15)
   if S.CrashLightning:IsReady() and (S.CrashingStorms:IsAvailable() and ((S.UnrulyWinds:IsAvailable() and EnemiesMeleeCount >= 10) or EnemiesMeleeCount >= 15)) then
@@ -554,7 +554,7 @@ local function Aoe()
   end
   -- windstrike
   if S.Windstrike:IsReady() then
-    if Cast(S.Windstrike, nil, nil, not Target:IsSpellInRange(S.Windstrike)) then return "windstrike aoe 50"; end
+    if Cast(S.Windstrike, nil, nil, not Target:IsInRange(30)) then return "windstrike aoe 50"; end
   end
   -- stormstrike
   if S.Stormstrike:IsReady() then
@@ -601,11 +601,11 @@ local function Funnel()
   end
   -- windstrike,if=(talent.thorims_invocation.enabled&buff.maelstrom_weapon.stack>1)|buff.converging_storms.stack=buff.converging_storms.max_stack
   if S.Windstrike:IsCastable() and ((S.ThorimsInvocation:IsAvailable() and MaelstromStacks > 1) or Player:BuffStack(S.ConvergingStormsBuff) == MaxConvergingStormsStacks) then
-    if Cast(S.Windstrike, nil, nil, not Target:IsSpellInRange(S.Windstrike)) then return "windstrike funnel 4"; end
+    if Cast(S.Windstrike, nil, nil, not Target:IsInRange(30)) then return "windstrike funnel 4"; end
   end
   -- tempest,if=buff.maelstrom_weapon.stack=buff.maelstrom_weapon.max_stack|(buff.maelstrom_weapon.stack>=5&(tempest_mael_count>30|buff.awakening_storms.stack=2))
   if S.TempestAbility:IsReady() and (MaelstromStacks == MaxMaelstromStacks or (MaelstromStacks >= 5 and (Shaman.TempestMaelstrom > 30 or Player:BuffStack(S.AwakeningStormsBuff) == 2))) then
-    if Cast(S.TempestAbility, nil, nil, not Target:IsSpellInRange(S.TempestAbility)) then return "tempest funnel 6"; end
+    if Cast(S.TempestAbility, nil, nil, not Target:IsInRange(40)) then return "tempest funnel 6"; end
   end
   -- lightning_bolt,if=(active_dot.flame_shock=active_enemies|active_dot.flame_shock=6)&buff.primordial_wave.up&buff.maelstrom_weapon.stack=buff.maelstrom_weapon.max_stack&(!buff.splintered_elements.up|fight_remains<=12|raid_event.adds.remains<=gcd)
   if S.LightningBolt:IsCastable() and ((S.FlameShockDebuff:AuraActiveCount() >= EnemiesMeleeCount or S.FlameShockDebuff:AuraActiveCount() >= 6) and Player:BuffUp(S.PrimordialWaveBuff) and MaelstromStacks == MaxMaelstromStacks and (Player:BuffDown(S.SplinteredElementsBuff) or FightRemains <= 12)) then
@@ -709,7 +709,7 @@ local function Funnel()
   end
   -- windstrike
   if S.Windstrike:IsCastable() then
-    if Cast(S.Windstrike, nil, nil, not Target:IsSpellInRange(S.Windstrike)) then return "windstrike funnel 58"; end
+    if Cast(S.Windstrike, nil, nil, not Target:IsInRange(30)) then return "windstrike funnel 58"; end
   end
   -- stormstrike
   if S.Stormstrike:IsReady() then
@@ -930,7 +930,7 @@ local function APL()
   end
 
   -- Update Thorim's Invocation
-  if Player:AffectingCombat() and Player:BuffUp(S.AscendanceBuff) then
+  if Player:AffectingCombat() then
     if Player:PrevGCD(1, S.ChainLightning) then
       TIAction = S.ChainLightning
     elseif Player:PrevGCD(1, S.LightningBolt) then
