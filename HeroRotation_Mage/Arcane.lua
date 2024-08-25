@@ -62,11 +62,6 @@ S.ArcaneBarrage:RegisterInFlight()
 --- ===== Rotation Variables =====
 local VarAoETargetCount = (not S.ArcingCleave:IsAvailable()) and 9 or 2
 local VarOpener = true
-local Trinket1, Trinket2
-local VarTrinket1CD, VarTrinket2CD
-local VarTrinket1ID, VarTrinket2ID
-local VarTrinket1Range, VarTrinket2Range
-local VarSteroidTrinketEquipped
 local Enemies8ySplash, EnemiesCount8ySplash
 local ClearCastingMaxStack = S.ImprovedClearcasting:IsAvailable() and 3 or 1
 local BossFightRemains = 11111
@@ -74,36 +69,8 @@ local FightRemains = 11111
 local CastAE
 local GCDMax
 
---- ===== Trinket Item Objects =====
- = Player:GetTrinketItems()
-
 --- ===== Trinket Variables =====
-local function SetTrinketVariables()
-  Trinket1, Trinket2 = Player:GetTrinketItems()
-  VarTrinket1ID = Trinket1:ID()
-  VarTrinket2ID = Trinket2:ID()
-
-  -- If we don't have trinket items, try again in 2 seconds.
-  if VarTrinket1ID == 0 or VarTrinket2ID == 0 then
-    Delay(2, function()
-        Trinket1, Trinket2 = Player:GetTrinketItems()
-        VarTrinket1ID = Trinket1:ID()
-        VarTrinket2ID = Trinket2:ID()
-      end
-    )
-  end
-
-  local Trinket1Spell = Trinket1:OnUseSpell()
-  VarTrinket1Range = (Trinket1Spell and Trinket1Spell.MaximumRange > 0 and Trinket1Spell.MaximumRange <= 100) and Trinket1Spell.MaximumRange or 100
-  local Trinket2Spell = Trinket2:OnUseSpell()
-  VarTrinket2Range = (Trinket2Spell and Trinket2Spell.MaximumRange > 0 and Trinket2Spell.MaximumRange <= 100) and Trinket2Spell.MaximumRange or 100
-
-  VarTrinket1CD = Trinket1:Cooldown()
-  VarTrinket2CD = Trinket2:Cooldown()
-
-  VarSteroidTrinketEquipped = I.ForgedGladiatorsBadge:IsEquipped() or I.SignetofthePriory:IsEquipped() or I.HighSpeakersAccretion:IsEquipped() or I.SpymastersWeb:IsEquipped() or I.TreacherousTransmitter:IsEquipped()
-end
-SetTrinketVariables()
+local VarSteroidTrinketEquipped = I.ForgedGladiatorsBadge:IsEquipped() or I.SignetofthePriory:IsEquipped() or I.HighSpeakersAccretion:IsEquipped() or I.SpymastersWeb:IsEquipped() or I.TreacherousTransmitter:IsEquipped()
 
 --- ===== Event Registrations =====
 HL:RegisterForEvent(function()
@@ -119,7 +86,7 @@ HL:RegisterForEvent(function()
 end, "SPELLS_CHANGED", "LEARNED_SPELL_IN_TAB")
 
 HL:RegisterForEvent(function()
-  SetTrinketVariables()
+  VarSteroidTrinketEquipped = I.ForgedGladiatorsBadge:IsEquipped() or I.SignetofthePriory:IsEquipped() or I.HighSpeakersAccretion:IsEquipped() or I.SpymastersWeb:IsEquipped() or I.TreacherousTransmitter:IsEquipped()
 end, "PLAYER_EQUIPMENT_CHANGED")
 
 --- ===== Rotation Functions =====
@@ -146,7 +113,7 @@ local function Precombat()
   end
   -- evocation,if=talent.evocation
   if S.Evocation:IsReady() then
-    if Cast(S.Evocation) then return "evocation precombat 6"; end
+    if Cast(S.Evocation, Settings.Arcane.GCDasOffGCD.Evocation) then return "evocation precombat 6"; end
   end
 end
 
@@ -283,9 +250,9 @@ local function Sunfury()
     if Cast(S.PresenceofMind, Settings.Arcane.OffGCDasOffGCD.PresenceOfMind) then return "presence_of_mind sunfury 4"; end
   end
   -- wait,sec=0.05,if=buff.presence_of_mind.up&prev_gcd.1.arcane_blast,line_cd=15
-  -- arcane_barrage,if=(buff.arcane_charge.stack=4&((time-action.arcane_blast.last_used<0.015&buff.nether_precision.stack=1)|buff.nether_precision.stack=2)&active_enemies>=4&talent.orb_barrage&buff.burden_of_power.down&((talent.high_voltage&buff.clearcasting.react)|(cooldown.arcane_orb.remains<gcd.max|action.arcane_orb.charges>0)))&buff.arcane_soul.down
+  -- arcane_barrage,if=(buff.arcane_charge.stack=4&(time-action.arcane_blast.last_used<0.015&buff.nether_precision.stack=1)&active_enemies>=(5-(2*(talent.arcane_bombardment&target.health.pct<35)))&talent.arcing_cleave&buff.burden_of_power.down&((talent.high_voltage&buff.clearcasting.react)|(cooldown.arcane_orb.remains<gcd.max|action.arcane_orb.charges>0)))&buff.arcane_soul.down
   -- Note: Using PrevGCDP instead of time-action.arcane_blast.last_used<0.015 to avoid icon flicker.
-  if S.ArcaneBarrage:IsCastable() and ((Player:ArcaneCharges() == 4 and ((Player:PrevGCDP(1, S.ArcaneBlast) and Player:BuffStack(S.NetherPrecisionBuff) == 1) or Player:BuffStack(S.NetherPrecisionBuff) == 2) and EnemiesCount8ySplash >= 4 and S.OrbBarrage:IsAvailable() and Player:BuffDown(S.BurdenofPowerBuff) and ((S.HighVoltage:IsAvailable() and Player:BuffUp(S.ClearcastingBuff)) or (S.ArcaneOrb:CooldownRemains() < GCDMax or S.ArcaneOrb:CooldownUp()))) and Player:BuffDown(S.ArcaneSoulBuff)) then
+  if S.ArcaneBarrage:IsCastable() and ((Player:ArcaneCharges() == 4 and (Player:PrevGCDP(1, S.ArcaneBlast) and Player:BuffStack(S.NetherPrecisionBuff) == 1) and EnemiesCount8ySplash >= (5 - (2 * num(S.ArcaneBombardment:IsAvailable() and Target:HealthPercentage() < 35))) and S.ArcingCleave:IsAvailable() and Player:BuffDown(S.BurdenofPowerBuff) and ((S.HighVoltage:IsAvailable() and Player:BuffUp(S.ClearcastingBuff)) or (S.ArcaneOrb:CooldownRemains() < GCDMax or S.ArcaneOrb:CooldownUp()))) and Player:BuffDown(S.ArcaneSoulBuff)) then
     if Cast(S.ArcaneBarrage, nil, nil, not Target:IsSpellInRange(S.ArcaneBarrage)) then return "arcane_barrage sunfury 6"; end
   end
   -- arcane_orb,if=buff.arcane_charge.stack<2&buff.arcane_soul.down&((!talent.high_voltage|buff.clearcasting.react=0)|active_enemies<4)

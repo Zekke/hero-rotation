@@ -73,7 +73,7 @@ local VarDotsUp = false
 local VarManualVTsApplied = false
 local PreferVT = false
 local Crash = S.ShadowCrashTarget:IsAvailable() and S.ShadowCrashTarget or S.ShadowCrash
-local Fiend = (S.Mindbender:IsAvailable()) and S.Mindbender or S.Shadowfiend
+local Fiend = (S.Mindbender:IsAvailable() and S.Mindbender) or (S.VoidWraith:IsAvailable() and S.VoidWraithAbility) or S.Shadowfiend
 local FiendUp, FiendRemains = false, 0
 local EntropicRiftUp, EntropicRiftRemains = false, 0
 local PowerSurgeUp, PowerSurgeRemains = false, 0
@@ -102,7 +102,7 @@ end, "PLAYER_REGEN_ENABLED")
 
 HL:RegisterForEvent(function()
   Crash = S.ShadowCrashTarget:IsAvailable() and S.ShadowCrashTarget or S.ShadowCrash
-  Fiend = (S.Mindbender:IsAvailable()) and S.Mindbender or S.Shadowfiend
+  Fiend = (S.Mindbender:IsAvailable() and S.Mindbender) or (S.VoidWraith:IsAvailable() and S.VoidWraithAbility) or S.Shadowfiend
   S.ShadowCrash:RegisterInFlightEffect(205386)
   S.ShadowCrash:RegisterInFlight()
   S.ShadowCrashTarget:RegisterInFlightEffect(205386)
@@ -556,7 +556,7 @@ local function Filler()
   end
   -- mind_flay,target_if=max:dot.devouring_plague.remains,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2
   if Flay:IsCastable() then
-    if Everyone.CastTargetIf(Flay, Enemies40y, "max", EvaluateTargetIfFilterDPRemains, nil, not Target:IsSpellInRange(Flay)) then return "mind_flay filler 18"; end
+    if Everyone.CastTargetIf(Flay, Enemies40y, "max", EvaluateTargetIfFilterDPRemains, nil, not Target:IsInRange(46)) then return "mind_flay filler 18"; end
   end
   -- divine_star
   if S.DivineStar:IsReady() then
@@ -604,7 +604,7 @@ local function Main()
     local ShouldReturn = CDs(); if ShouldReturn then return ShouldReturn; end
   end
   -- mindbender,if=(dot.shadow_word_pain.ticking&variable.dots_up|action.shadow_crash.in_flight&talent.whispering_shadows)&(fight_remains<30|target.time_to_die>15)&(!talent.dark_ascension|cooldown.dark_ascension.remains<gcd.max|fight_remains<15)
-  if CDsON() and Fiend:IsCastable() and ((Target:DebuffUp(S.ShadowWordPainDebuff) and VarDotsUp or Crash:InFlight() and S.WhisperingShadows:IsAvailable()) and (FightRemains < 30 or Target:TimeToDie() > 15) and (not S.DarkAscension:IsAvailable() or S.DarkAscension:CooldownRemains() < GCDMax or BossFightRemains < 15)) then
+  if CDsON() and Fiend:IsCastable() and ((Target:DebuffUp(S.ShadowWordPainDebuff) and VarDotsUp or Crash:InFlight() and S.WhisperingShadows:IsAvailable()) and (BossFightRemains < 30 or Target:TimeToDie() > 15) and (not S.DarkAscension:IsAvailable() or S.DarkAscension:CooldownRemains() < GCDMax or BossFightRemains < 15)) then
     if Cast(Fiend, Settings.Shadow.GCDasOffGCD.Mindbender) then return "mindbender main 2"; end
   end
   -- void_blast,target_if=max:(dot.devouring_plague.remains*1000+target.time_to_die),if=(dot.devouring_plague.remains>=execute_time|buff.entropic_rift.remains<=gcd.max|action.void_torrent.channeling&talent.void_empowerment)&(insanity.deficit>=16|cooldown.mind_blast.full_recharge_time<=gcd.max)&(!talent.mind_devourer|!buff.mind_devourer.up|buff.entropic_rift.remains<=gcd.max)
@@ -613,7 +613,7 @@ local function Main()
   end
   -- wait,sec=cooldown.mind_blast.recharge_time,if=cooldown.mind_blast.recharge_time<buff.entropic_rift.remains&buff.entropic_rift.up&buff.entropic_rift.remains<gcd.max&cooldown.mind_blast.charges<1
   if S.MindBlast:Recharge() < EntropicRiftRemains and EntropicRiftUp and EntropicRiftRemains < GCDMax and S.MindBlast:Charges() < 1 then
-    if CastAnnotated(S.Pool, false, "WAIT") then return "Wait for Mind Blast"; end
+    if HR.CastAnnotated(S.Pool, false, "WAIT") then return "Wait for Mind Blast"; end
   end
   -- mind_blast,if=buff.voidform.up&full_recharge_time<=gcd.max&(!talent.insidious_ire|dot.devouring_plague.remains>=execute_time)&(cooldown.void_bolt.remains%gcd.max-cooldown.void_bolt.remains%%gcd.max)*gcd.max<=0.25&(cooldown.void_bolt.remains%gcd.max-cooldown.void_bolt.remains%%gcd.max)>=0.01
   if S.MindBlast:IsCastable() and (Player:BuffUp(S.VoidformBuff) and S.MindBlast:FullRechargeTime() <= GCDMax and (not S.InsidiousIre:IsAvailable() or Target:DebuffRemains(S.DevouringPlagueDebuff) >= S.MindBlast:ExecuteTime()) and (S.VoidBolt:CooldownRemains() / GCDMax - S.VoidBolt:CooldownRemains() % GCDMax) * GCDMax <= 0.25 and (S.VoidBolt:CooldownRemains() / GCDMax - S.VoidBolt:CooldownRemains() % GCDMax) >= 0.01) then
@@ -621,7 +621,7 @@ local function Main()
   end
   -- void_bolt,target_if=max:target.time_to_die,if=insanity.deficit>16&cooldown.void_bolt.remains<=0.1
   if S.VoidBolt:IsCastable() and (Player:InsanityDeficit() > 16 and S.VoidBolt:CooldownRemains() <= 0.1) then
-    if Everyone.CastTargetIf(S.VoidBolt, Enemies10ySplash, "max", EvaluateTargetIfFilterTTD, nil, not Target:IsSpellInRange(S.VoidBolt)) then return "void_bolt main 8"; end
+    if Everyone.CastTargetIf(S.VoidBolt, Enemies10ySplash, "max", EvaluateTargetIfFilterTTD, nil, not Target:IsInRange(46)) then return "void_bolt main 8"; end
   end
   -- devouring_plague,target_if=max:target.time_to_die*(dot.devouring_plague.remains<=gcd.max|variable.dr_force_prio|!talent.distorted_reality&variable.me_force_prio),if=active_dot.devouring_plague<=1&dot.devouring_plague.remains<=gcd.max&(!talent.void_eruption|cooldown.void_eruption.remains>=gcd.max*3)|insanity.deficit<=16
   if S.DevouringPlague:IsReady() then
@@ -629,7 +629,7 @@ local function Main()
   end
   -- void_torrent,target_if=max:(dot.devouring_plague.remains*1000+target.time_to_die),if=(dot.devouring_plague.ticking|talent.void_eruption&cooldown.void_eruption.up)&talent.entropic_rift&!variable.holding_crash
   if S.VoidTorrent:IsReady() and (Player:HeroTreeID() == 18 and not VarHoldingCrash) then
-    if Everyone.CastTargetIf(S.VoidTorrent, Enemies10ySplash, EvaluateTargetIfFilterDPPlusTTD, EvaluateTargetIfVTMain, not Target:IsSpellInRange(S.VoidTorrent), Settings.Shadow.GCDasOffGCD.VoidTorrent) then return "void_torrent main 12"; end
+    if Everyone.CastTargetIf(S.VoidTorrent, Enemies10ySplash, "max", EvaluateTargetIfFilterDPPlusTTD, EvaluateTargetIfVTMain, not Target:IsSpellInRange(S.VoidTorrent), Settings.Shadow.GCDasOffGCD.VoidTorrent) then return "void_torrent main 12"; end
   end
   -- shadow_word_death,target_if=max:(target.health.pct<=20)*100+dot.devouring_plague.ticking,if=talent.depth_of_shadows
   if S.ShadowWordDeath:IsReady() and (S.DepthofShadows:IsAvailable()) then
@@ -645,7 +645,7 @@ local function Main()
   end
   -- void_bolt,target_if=max:target.time_to_die,if=cooldown.void_bolt.remains<=0.1
   if S.VoidBolt:IsCastable() and (S.VoidBolt:CooldownRemains() <= 0.1) then
-    if Everyone.CastTargetIf(S.VoidBolt, Enemies10ySplash, "max", EvaluateTargetIfFilterTTD, nil, not Target:IsSpellInRange(S.VoidBolt)) then return "void_bolt main 20"; end
+    if Everyone.CastTargetIf(S.VoidBolt, Enemies10ySplash, "max", EvaluateTargetIfFilterTTD, nil, not Target:IsInRange(46)) then return "void_bolt main 20"; end
   end
   -- call_action_list,name=empowered_filler,if=(buff.mind_spike_insanity.stack>2&talent.mind_spike|buff.mind_flay_insanity.stack>2&!talent.mind_spike)&talent.empowered_surges&!cooldown.void_eruption.up
   if (Player:BuffStack(S.MindSpikeInsanityBuff) > 2 and S.MindSpike:IsAvailable() or Player:BuffStack(S.MindFlayInsanityBuff) > 2 and not S.MindSpike:IsAvailable()) and S.EmpoweredSurges:IsAvailable() and S.VoidEruption:CooldownDown() then
@@ -711,8 +711,7 @@ local function APL()
 
     -- Check our fiend status
     FiendUp = Fiend:TimeSinceLastCast() <= 15
-    FiendRemains = 15 - Fiend:TimeSinceLastCast()
-    if FiendRemains < 0 then FiendRemains = 0 end
+    FiendRemains = mathmax(15 - Fiend:TimeSinceLastCast(), 0)
 
     -- Check out Entropic Rift status
     if Player:HeroTreeID() == 18 then
