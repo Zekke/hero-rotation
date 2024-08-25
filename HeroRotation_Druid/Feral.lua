@@ -399,7 +399,7 @@ local function Builder()
   end
   -- moonfire_cat,if=refreshable
   if S.LIMoonfire:IsReady() and (Target:DebuffRefreshable(S.LIMoonfireDebuff)) then
-    if Cast(S.LIMoonfire, nil, nil, not Target:IsSpellInRange(S.LIMoonfire)) then return "moonfire_cat builder 12"; end
+    if Cast(S.LIMoonfire, nil, nil, not Target:IsInRange(40)) then return "moonfire_cat builder 12"; end
   end
   -- brutal_slash,if=!(variable.need_bt&buff.bt_swipe.up)
   if S.BrutalSlash:IsReady() and (not (VarNeedBT and BTBuffUp(S.Swipe))) then
@@ -423,7 +423,7 @@ local function Builder()
   end
   -- moonfire_cat,if=variable.need_bt&buff.bt_moonfire.down
   if S.LIMoonfire:IsReady() and (VarNeedBT and BTBuffDown(S.LIMoonfire)) then
-    if Cast(S.LIMoonfire, nil, nil, not Target:IsSpellInRange(S.LIMoonfire)) then return "moonfire_cat builder 24"; end
+    if Cast(S.LIMoonfire, nil, nil, not Target:IsInRange(40)) then return "moonfire_cat builder 24"; end
   end
   -- thrash_cat,if=variable.need_bt&buff.bt_thrash.down
   if S.Thrash:IsCastable() and (VarNeedBT and BTBuffDown(S.Thrash)) then
@@ -487,7 +487,7 @@ local function AoeBuilder()
   end
   -- moonfire_cat,target_if=max:(3*refreshable)+dot.adaptive_swarm_damage.ticking,if=refreshable&(spell_targets.swipe_cat<4|talent.brutal_slash)&!(buff.bt_moonfire.up&active_bt_triggers=2)
   if S.LIMoonfire:IsReady() and ((EnemiesCount8y < 4 or S.BrutalSlash:IsAvailable()) and not (BTBuffUp(S.LIMoonfireDebuff) and CountActiveBtTriggers() == 2)) then
-    if Everyone.CastTargetIf(S.LIMoonfire, Enemies8y, "max", EvaluateTargetIfFilterLIMoonfire, EvaluateTargetIfLIMoonfireRefreshable, not Target:IsSpellInRange(S.LIMoonfire)) then return "moonfire_cat aoe_builder 16"; end
+    if Everyone.CastTargetIf(S.LIMoonfire, Enemies8y, "max", EvaluateTargetIfFilterLIMoonfire, EvaluateTargetIfLIMoonfireRefreshable, not Target:IsInRange(5))then return "moonfire_cat aoe_builder 16"; end
   end
   -- swipe_cat,if=!(buff.bt_swipe.up&active_bt_triggers=2)
   if S.Swipe:IsReady() and (not (BTBuffUp(S.Swipe) and CountActiveBtTriggers() == 2)) then
@@ -495,7 +495,7 @@ local function AoeBuilder()
   end
   -- moonfire_cat,target_if=max:(3*refreshable)+dot.adaptive_swarm_damage.ticking,if=refreshable&!(buff.bt_moonfire.up&active_bt_triggers=2)
   if S.LIMoonfire:IsReady() and (not (BTBuffUp(S.LIMoonfire) and CountActiveBtTriggers() == 2)) then
-    if Everyone.CastTargetIf(S.LIMoonfire, Enemies8y, "max", EvaluateTargetIfFilterLIMoonfire, EvaluateTargetIfLIMoonfireRefreshable, not Target:IsSpellInRange(S.LIMoonfire)) then return "moonfire_cat aoe_builder 20"; end
+    if Everyone.CastTargetIf(S.LIMoonfire, Enemies8y, "max", EvaluateTargetIfFilterLIMoonfire, EvaluateTargetIfLIMoonfireRefreshable, not Target:IsInRange(5))then return "moonfire_cat aoe_builder 20"; end
   end
   -- rake,target_if=min:dot.rake.remains-20*(dot.rake.pmultiplier<persistent_multiplier),if=!(buff.bt_rake.up&active_bt_triggers=2)
   if S.Rake:IsReady() and (not (BTBuffUp(S.Rake) and CountActiveBtTriggers() == 2)) then
@@ -511,7 +511,7 @@ local function AoeBuilder()
   end
   -- moonfire_cat,target_if=max:dot.moonfire.ticks_gained_on_refresh,if=variable.need_bt&buff.bt_moonfire.down
   if S.LIMoonfire:IsReady() and (VarNeedBT and BTBuffDown(S.LIMoonfire)) then
-    if Everyone.CastTargetIf(S.LIMoonfire, Enemies8y, "max", EvaluateTargetIfFilterLIMoonfire2, nil, not Target:IsSpellInRange(S.LIMoonfire)) then return "moonfire_cat aoe_builder 28"; end
+    if Everyone.CastTargetIf(S.LIMoonfire, Enemies8y, "max", EvaluateTargetIfFilterLIMoonfire2, nil, not Target:IsInRange(5))then return "moonfire_cat aoe_builder 28"; end
   end
   -- shred,if=variable.need_bt&buff.bt_shred.down&!variable.easy_swipe
   if S.Shred:IsReady() and (VarNeedBT and BTBuffDown(S.Shred) and not VarEasySwipe) then
@@ -547,7 +547,7 @@ local function Berserk()
   end
   -- moonfire_cat,if=refreshable
   if S.LIMoonfire:IsReady() and (Target:DebuffRefreshable(S.LIMoonfireDebuff)) then
-    if Cast(S.LIMoonfire, nil, nil, not Target:IsSpellInRange(S.LIMoonfire)) then return "moonfire_cat berserk 8"; end
+    if Cast(S.LIMoonfire, nil, nil, not Target:IsInRange(5))then return "moonfire_cat berserk 8"; end
   end
   -- thrash_cat,if=!talent.thrashing_claws&refreshable
   if S.Thrash:IsReady() and (not S.ThrashingClaws:IsAvailable() and Target:DebuffRefreshable(S.ThrashDebuff)) then
