@@ -845,7 +845,7 @@ local function APL()
     -- variable,name=has_external_pi,value=cooldown.invoke_power_infusion_0.duration>0
     -- Note: Not handling external buffs.
     -- call_action_list,name=trinkets
-    if (Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items) then
+    if (Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items) and CDsON() then
       local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=aoe_opener,if=time<3&active_enemies>2
@@ -857,7 +857,7 @@ local function APL()
       local ShouldReturn = NormalOpener(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=cooldowns,if=talent.storm_earth_and_fire
-    if S.StormEarthAndFire:IsAvailable() then
+    if S.StormEarthAndFire:IsAvailable() and CDsON() then
       local ShouldReturn = Cooldowns(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=default_aoe,if=active_enemies>=5
