@@ -395,7 +395,9 @@ local function APL()
       end
     end
     -- run_action_list,name=bear
-    local ShouldReturn = Bear(); if ShouldReturn then return ShouldReturn; end
+    if Player:BuffUp(S.BearForm) then
+      local ShouldReturn = Bear(); if ShouldReturn then return ShouldReturn; end
+    end
     if HR.CastAnnotated(S.Pool, false, "WAIT") then return "Pool Resources"; end
   end
 end
