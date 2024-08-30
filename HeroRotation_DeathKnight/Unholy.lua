@@ -39,7 +39,7 @@ local I = Item.DeathKnight.Unholy
 
 -- Create table to exclude above trinkets from On Use function
 local OnUseExcludes = {
-  I.Fyralath:ID(),
+  I.TreacherousTransmitter:ID(),
 }
 
 --- ===== GUI Settings =====
@@ -118,11 +118,11 @@ local function SetTrinketVariables()
   VarTrinket1BL = T1.Blacklisted
   VarTrinket2BL = T2.Blacklisted
 
-  VarTrinket1Buffs = Trinket1:HasUseBuff() or VarTrinket1ID == I.MirrorofFracturedTomorrows:ID()
-  VarTrinket2Buffs = Trinket2:HasUseBuff() or VarTrinket2ID == I.MirrorofFracturedTomorrows:ID()
+  VarTrinket1Buffs = Trinket1:HasUseBuff() or VarTrinket1ID == I.TreacherousTransmitter:ID()
+  VarTrinket2Buffs = Trinket2:HasUseBuff() or VarTrinket2ID == I.TreacherousTransmitter:ID()
 
-  VarTrinket1Duration = (VarTrinket1ID == I.MirrorofFracturedTomorrows:ID()) and 20 or Trinket1:BuffDuration()
-  VarTrinket2Duration = (VarTrinket2ID == I.MirrorofFracturedTomorrows:ID()) and 20 or Trinket2:BuffDuration()
+  VarTrinket1Duration = (VarTrinket1ID == I.TreacherousTransmitter:ID()) and 15 or Trinket1:BuffDuration()
+  VarTrinket2Duration = (VarTrinket2ID == I.TreacherousTransmitter:ID()) and 15 or Trinket2:BuffDuration()
 
   VarTrinket1Sync = 0.5
   if VarTrinket1Buffs and (S.Apocalypse:IsAvailable() and VarTrinket1CD % 30 == 0 or S.DarkTransformation:IsAvailable() and VarTrinket1CD % 45 == 0) or VarTrinket1ID == I.TreacherousTransmitter:ID() then
@@ -283,9 +283,14 @@ local function EvaluateTargetIfWoundSpenderAoESetup(TargetUnit)
 end
 
 --- ===== CastCycle Functions =====
+local function EvaluateCycleOutbreakCDs(TargetUnit)
+  -- target_if=target.time_to_die>dot.virulent_plague.remains&dot.virulent_plague.ticks_remain<5,if=(dot.virulent_plague.refreshable|talent.superstrain&(dot.frost_fever.refreshable|dot.blood_plague.refreshable))&(!talent.unholy_blight|talent.plaguebringer)&(!talent.raise_abomination|talent.raise_abomination&cooldown.raise_abomination.remains>dot.virulent_plague.ticks_remain*3)
+  return (TargetUnit:TimeToDie() > TargetUnit:DebuffRemains(S.VirulentPlagueDebuff) and TargetUnit:DebuffTicksRemain(S.VirulentPlagueDebuff) < 5) and ((TargetUnit:DebuffRefreshable(S.VirulentPlagueDebuff) or S.Superstrain:IsAvailable() and (TargetUnit:DebuffRefreshable(S.FrostFeverDebuff) or TargetUnit:DebuffRefreshable(S.BloodPlagueDebuff))) and (not S.UnholyBlight:IsAvailable() or S.Plaguebringer:IsAvailable()) and (not S.RaiseAbomination:IsAvailable() or S.RaiseAbomination:IsAvailable() and S.RaiseAbomination:CooldownRemains() > TargetUnit:DebuffTicksRemain(S.VirulentPlagueDebuff) * 3))
+end
+
 local function EvaluateCycleOutbreakCDsSan(TargetUnit)
-  -- target_if=target.time_to_die>dot.virulent_plague.remains,if=(dot.virulent_plague.refreshable|talent.morbidity&buff.infliction_of_sorrow.up&talent.superstrain&dot.frost_fever.refreshable&dot.blood_plague.refreshable)&(!talent.unholy_blight|talent.unholy_blight&cooldown.dark_transformation.remains>15%((2*talent.superstrain)+(2*talent.ebon_fever)+(2*talent.plaguebringer)))&(!talent.raise_abomination|talent.raise_abomination&cooldown.raise_abomination.remains>15%((2*talent.superstrain)+(2*talent.ebon_fever)+(2*talent.plaguebringer)))
-  return (TargetUnit:TimeToDie() > TargetUnit:DebuffRemains(S.VirulentPlagueDebuff)) and ((TargetUnit:DebuffRefreshable(S.VirulentPlagueDebuff) or S.Morbidity:IsAvailable() and Player:BuffUp(S.InflictionofSorrowBuff) and S.Superstrain:IsAvailable() and TargetUnit:DebuffRefreshable(S.FrostFeverDebuff) and TargetUnit:DebuffRefreshable(S.BloodPlagueDebuff)) and (not S.UnholyBlight:IsAvailable() or S.UnholyBlight:IsAvailable() and S.DarkTransformation:CooldownRemains() > 15 / ((2 * num(S.Superstrain:IsAvailable())) + (2 * num(S.EbonFever:IsAvailable())) + (2 * num(S.Plaguebringer:IsAvailable())))))
+  -- target_if=target.time_to_die>dot.virulent_plague.remains&dot.virulent_plague.ticks_remain<5,if=(dot.virulent_plague.refreshable|talent.morbidity&buff.infliction_of_sorrow.up&talent.superstrain&dot.frost_fever.refreshable&dot.blood_plague.refreshable)&(!talent.unholy_blight|talent.unholy_blight&cooldown.dark_transformation.remains)&(!talent.raise_abomination|talent.raise_abomination&cooldown.raise_abomination.remains)
+  return (TargetUnit:TimeToDie() > TargetUnit:DebuffRemains(S.VirulentPlagueDebuff) and TargetUnit:DebuffTicksRemain(S.VirulentPlagueDebuff) < 5) and ((TargetUnit:DebuffRefreshable(S.VirulentPlagueDebuff) or S.Morbidity:IsAvailable() and Player:BuffUp(S.InflictionofSorrowBuff) and S.Superstrain:IsAvailable() and TargetUnit:DebuffRefreshable(S.FrostFeverDebuff) and TargetUnit:DebuffRefreshable(S.BloodPlagueDebuff)) and (not S.UnholyBlight:IsAvailable() or S.UnholyBlight:IsAvailable() and S.DarkTransformation:CooldownDown()) and (not S.RaiseAbomination:IsAvailable() or S.RaiseAbomination:IsAvailable() and S.RaiseAbomination:CooldownDown()))
 end
 
 --- ===== Rotation Functions =====
@@ -306,13 +311,13 @@ local function Precombat()
   if S.ArmyoftheDead:IsReady() and not Settings.Commons.DisableAotD then
     if Cast(S.ArmyoftheDead, nil, Settings.Unholy.DisplayStyle.ArmyOfTheDead) then return "army_of_the_dead precombat 4"; end
   end
-  -- variable,name=trinket_1_buffs,value=trinket.1.has_use_buff|trinket.1.is.mirror_of_fractured_tomorrows
-  -- variable,name=trinket_2_buffs,value=trinket.2.has_use_buff|trinket.2.is.mirror_of_fractured_tomorrows
-  -- variable,name=trinket_1_duration,op=setif,value=20,value_else=trinket.1.proc.any_dps.duration,condition=trinket.1.is.mirror_of_fractured_tomorrows
-  -- variable,name=trinket_2_duration,op=setif,value=20,value_else=trinket.2.proc.any_dps.duration,condition=trinket.2.is.mirror_of_fractured_tomorrows
+  -- variable,name=trinket_1_buffs,value=trinket.1.has_use_buff|trinket.1.is.treacherous_transmitter
+  -- variable,name=trinket_2_buffs,value=trinket.2.has_use_buff|trinket.2.is.treacherous_transmitter
+  -- variable,name=trinket_1_duration,op=setif,value=15,value_else=trinket.1.proc.any_dps.duration,condition=trinket.1.is.treacherous_transmitter
+  -- variable,name=trinket_2_duration,op=setif,value=15,value_else=trinket.2.proc.any_dps.duration,condition=trinket.2.is.treacherous_transmitter
   -- variable,name=trinket_1_sync,op=setif,value=1,value_else=0.5,condition=variable.trinket_1_buffs&(talent.apocalypse&trinket.1.cooldown.duration%%cooldown.apocalypse.duration=0|talent.dark_transformation&trinket.1.cooldown.duration%%cooldown.dark_transformation.duration=0)|trinket.1.is.treacherous_transmitter
   -- variable,name=trinket_2_sync,op=setif,value=1,value_else=0.5,condition=variable.trinket_2_buffs&(talent.apocalypse&trinket.2.cooldown.duration%%cooldown.apocalypse.duration=0|talent.dark_transformation&trinket.2.cooldown.duration%%cooldown.dark_transformation.duration=0)|trinket.2.is.treacherous_transmitter
-  -- variable,name=trinket_priority,op=setif,value=2,value_else=1,condition=!variable.trinket_1_buffs&variable.trinket_2_buffs&(trinket.2.has_cooldown|!trinket.1.has_cooldown)|variable.trinket_2_buffs&((trinket.2.cooldown.duration%trinket.2.proc.any_dps.duration)*(1.5+trinket.2.has_buff.strength)*(variable.trinket_2_sync))>((trinket.1.cooldown.duration%trinket.1.proc.any_dps.duration)*(1.5+trinket.1.has_buff.strength)*(variable.trinket_1_sync)*(1+((trinket.1.ilvl-trinket.2.ilvl)%100)))
+  -- variable,name=trinket_priority,op=setif,value=2,value_else=1,condition=!variable.trinket_1_buffs&variable.trinket_2_buffs&(trinket.2.has_cooldown|!trinket.1.has_cooldown)|variable.trinket_2_buffs&((trinket.2.cooldown.duration%variable.trinket_2_duration)*(1.5+trinket.2.has_buff.strength)*(variable.trinket_2_sync)*(1+((trinket.2.ilvl-trinket.1.ilvl)%100)))>((trinket.1.cooldown.duration%variable.trinket_1_duration)*(1.5+trinket.1.has_buff.strength)*(variable.trinket_1_sync)*(1+((trinket.1.ilvl-trinket.2.ilvl)%100)))
   -- variable,name=damage_trinket_priority,op=setif,value=2,value_else=1,condition=!variable.trinket_1_buffs&!variable.trinket_2_buffs&trinket.2.ilvl>=trinket.1.ilvl
   -- Note: Moved the above variable definitions to initial profile load, SPELLS_CHANGED, and PLAYER_EQUIPMENT_CHANGED.
   -- Manually added: outbreak
@@ -423,9 +428,9 @@ local function CDs()
   if S.Apocalypse:IsReady() and (VarSTPlanning) then
     if Cast(S.Apocalypse, Settings.Unholy.GCDasOffGCD.Apocalypse, nil, not Target:IsInMeleeRange(5)) then return "apocalypse cds 6"; end
   end
-  -- outbreak,if=(dot.virulent_plague.refreshable)&(!talent.unholy_blight|talent.unholy_blight&cooldown.dark_transformation.remains>15%((2*talent.superstrain)+(2*talent.ebon_fever)+(2*talent.plaguebringer)))&(!talent.raise_abomination|talent.raise_abomination&cooldown.raise_abomination.remains>15%((2*talent.superstrain)+(2*talent.ebon_fever)+(2*talent.plaguebringer)))
-  if S.Outbreak:IsReady() and (Target:DebuffRefreshable(S.VirulentPlagueDebuff) and (not S.UnholyBlight:IsAvailable() or S.UnholyBlight:IsAvailable() and S.DarkTransformation:CooldownRemains() > 15 / ((2 * num(S.Superstrain:IsAvailable())) + (2 * num(S.EbonFever:IsAvailable())) + (2 * num(S.Plaguebringer:IsAvailable())))) and (not S.RaiseAbomination:IsAvailable() or S.RaiseAbomination:IsAvailable() and S.RaiseAbomination:CooldownRemains() > 15 / ((2 * num(S.Superstrain:IsAvailable())) + (2 * num(S.EbonFever:IsAvailable())) + (2 * num(S.Plaguebringer:IsAvailable()))))) then
-    if Cast(S.Outbreak, nil, nil, not Target:IsSpellInRange(S.Outbreak)) then return "outbreak cds 8"; end
+  -- outbreak,target_if=target.time_to_die>dot.virulent_plague.remains&dot.virulent_plague.ticks_remain<5,if=(dot.virulent_plague.refreshable|talent.superstrain&(dot.frost_fever.refreshable|dot.blood_plague.refreshable))&(!talent.unholy_blight|talent.plaguebringer)&(!talent.raise_abomination|talent.raise_abomination&cooldown.raise_abomination.remains>dot.virulent_plague.ticks_remain*3)
+  if S.Outbreak:IsReady() then
+    if Everyone.CastCycle(S.Outbreak, Enemies10ySplash, EvaluateCycleOutbreakCDs, not Target:IsSpellInRange(S.Outbreak)) then return "outbreak cds 8"; end
   end
   -- apocalypse,target_if=max:debuff.festering_wound.stack,if=variable.adds_remain&rune<=3
   if S.Apocalypse:IsReady() and (VarAddsRemain and Player:Rune() <= 3) then
@@ -450,8 +455,8 @@ local function CDsAoE()
   if S.DarkTransformation:IsCastable() and (VarAddsRemain and (S.VileContagion:CooldownRemains() > 5 or not S.VileContagion:IsAvailable() or Player:DnDTicking() or AnyDnD:CooldownRemains() < 3)) then
     if Cast(S.DarkTransformation, Settings.Unholy.GCDasOffGCD.DarkTransformation) then return "dark_transformation cds_aoe 6"; end
   end
-  -- outbreak,if=(dot.virulent_plague.refreshable)&(!talent.unholy_blight|talent.unholy_blight&cooldown.dark_transformation.remains>15%((2*talent.superstrain)+(2*talent.ebon_fever)+(2*talent.plaguebringer)))&(!talent.raise_abomination|talent.raise_abomination&cooldown.raise_abomination.remains>15%((2*talent.superstrain)+(2*talent.ebon_fever)+(2*talent.plaguebringer)))
-  if S.Outbreak:IsReady() and (Target:DebuffRefreshable(S.VirulentPlagueDebuff) and (not S.UnholyBlight:IsAvailable() or S.UnholyBlight:IsAvailable() and S.DarkTransformation:CooldownRemains() > 15 / ((2 * num(S.Superstrain:IsAvailable())) + (2 * num(S.EbonFever:IsAvailable())) + (2 * num(S.Plaguebringer:IsAvailable())))) and (not S.RaiseAbomination:IsAvailable() or S.RaiseAbomination:IsAvailable() and S.RaiseAbomination:CooldownRemains() > 15 / ((2 * num(S.Superstrain:IsAvailable())) + (2 * num(S.EbonFever:IsAvailable())) + (2 * num(S.Plaguebringer:IsAvailable()))))) then
+  -- outbreak,if=dot.virulent_plague.ticks_remain<5&dot.virulent_plague.refreshable&(!talent.unholy_blight|talent.unholy_blight&cooldown.dark_transformation.remains)&(!talent.raise_abomination|talent.raise_abomination&cooldown.raise_abomination.remains)
+  if S.Outbreak:IsReady() and (Target:DebuffTicksRemain(S.VirulentPlagueDebuff) < 5 and Target:DebuffRefreshable(S.VirulentPlagueDebuff) and (not S.UnholyBlight:IsAvailable() or S.UnholyBlight:IsAvailable() and S.DarkTransformation:CooldownDown()) and (not S.RaiseAbomination:IsAvailable() or S.RaiseAbomination:IsAvailable() and S.RaiseAbomination:CooldownDown())) then
     if Cast(S.Outbreak, nil, nil, not Target:IsSpellInRange(S.Outbreak)) then return "outbreak cds_aoe 8"; end
   end
   -- apocalypse,target_if=max:debuff.festering_wound.stack,if=variable.adds_remain&rune<=3
@@ -477,8 +482,8 @@ local function CDsAoESan()
   if S.UnholyAssault:IsCastable() and (VarAddsRemain) then
     if Everyone.CastTargetIf(S.UnholyAssault, EnemiesMelee, "max", EvaluateTargetIfFilterFWStack, EvaluateTargetIfUnholyAssaultCDsAoESan, not Target:IsInMeleeRange(5), Settings.Unholy.GCDasOffGCD.UnholyAssault) then return "unholy_assault cds_aoe_san 6"; end
   end
-  -- outbreak,if=(dot.virulent_plague.refreshable|talent.morbidity&!buff.gift_of_the_sanlayn.up&talent.superstrain&dot.frost_fever.refreshable&dot.blood_plague.refreshable)&(!talent.unholy_blight|talent.unholy_blight&cooldown.dark_transformation.remains>15%((2*talent.superstrain)+(2*talent.ebon_fever)+(2*talent.plaguebringer)))&(!talent.raise_abomination|talent.raise_abomination&cooldown.raise_abomination.remains>15%((2*talent.superstrain)+(2*talent.ebon_fever)+(2*talent.plaguebringer)))
-  if S.Outbreak:IsReady() and ((Target:DebuffRefreshable(S.VirulentPlagueDebuff) or S.Morbidity:IsAvailable() and Player:BuffDown(S.GiftoftheSanlaynBuff) and S.Superstrain:IsAvailable() and Target:DebuffRefreshable(S.FrostFeverDebuff) and Target:DebuffRefreshable(S.BloodPlagueDebuff)) and (not S.UnholyBlight:IsAvailable() or S.UnholyBlight:IsAvailable() and S.DarkTransformation:CooldownRemains() > 15 / ((2 * num(S.Superstrain:IsAvailable())) + (2 * num(S.EbonFever:IsAvailable())) + (2 * num(S.Plaguebringer:IsAvailable())))) and (not S.RaiseAbomination:IsAvailable() or S.RaiseAbomination:IsAvailable() and S.RaiseAbomination:CooldownRemains() > 15 / ((2 * num(S.Superstrain:IsAvailable())) + (2 * num(S.EbonFever:IsAvailable())) + (2 * num(S.Plaguebringer:IsAvailable()))))) then
+  -- outbreak,if=dot.virulent_plague.ticks_remain<5&(dot.virulent_plague.refreshable|talent.morbidity&!buff.gift_of_the_sanlayn.up&talent.superstrain&dot.frost_fever.refreshable&dot.blood_plague.refreshable)&(!talent.unholy_blight|talent.unholy_blight&cooldown.dark_transformation.remains)&(!talent.raise_abomination|talent.raise_abomination&cooldown.raise_abomination.remains)
+  if S.Outbreak:IsReady() and (Target:DebuffTicksRemain(S.VirulentPlagueDebuff) < 5 and (Target:DebuffRefreshable(S.VirulentPlagueDebuff) or S.Morbidity:IsAvailable() and Player:BuffDown(S.GiftoftheSanlaynBuff) and S.Superstrain:IsAvailable() and Target:DebuffRefreshable(S.FrostFeverDebuff) and Target:DebuffRefreshable(S.BloodPlagueDebuff)) and (not S.UnholyBlight:IsAvailable() or S.UnholyBlight:IsAvailable() and S.DarkTransformation:CooldownDown()) and (not S.RaiseAbomination:IsAvailable() or S.RaiseAbomination:IsAvailable() and S.RaiseAbomination:CooldownDown())) then
     if Cast(S.Outbreak, nil, nil, not Target:IsSpellInRange(S.Outbreak)) then return "outbreak cds_aoe_san 8"; end
   end
   -- apocalypse,target_if=max:debuff.festering_wound.stack,if=variable.adds_remain&rune<=3
@@ -504,7 +509,7 @@ local function CDsSan()
   if S.Apocalypse:IsReady() and (VarSTPlanning and FesterStacks >= 3) then
     if Cast(S.Apocalypse, Settings.Unholy.GCDasOffGCD.Apocalypse, nil, not Target:IsInMeleeRange(5)) then return "apocalypse cds_san 6"; end
   end
-  -- outbreak,target_if=target.time_to_die>dot.virulent_plague.remains,if=(dot.virulent_plague.refreshable|talent.morbidity&buff.infliction_of_sorrow.up&talent.superstrain&dot.frost_fever.refreshable&dot.blood_plague.refreshable)&(!talent.unholy_blight|talent.unholy_blight&cooldown.dark_transformation.remains>15%((2*talent.superstrain)+(2*talent.ebon_fever)+(2*talent.plaguebringer)))&(!talent.raise_abomination|talent.raise_abomination&cooldown.raise_abomination.remains>15%((2*talent.superstrain)+(2*talent.ebon_fever)+(2*talent.plaguebringer)))
+  -- outbreak,target_if=target.time_to_die>dot.virulent_plague.remains&dot.virulent_plague.ticks_remain<5,if=(dot.virulent_plague.refreshable|talent.morbidity&buff.infliction_of_sorrow.up&talent.superstrain&dot.frost_fever.refreshable&dot.blood_plague.refreshable)&(!talent.unholy_blight|talent.unholy_blight&cooldown.dark_transformation.remains)&(!talent.raise_abomination|talent.raise_abomination&cooldown.raise_abomination.remains)
   if S.Outbreak:IsReady() then
     if Everyone.CastCycle(S.Outbreak, EnemiesMelee, EvaluateCycleOutbreakCDsSan, not Target:IsSpellInRange(S.Outbreak)) then return "outbreak cds_san 8"; end
   end
@@ -673,12 +678,8 @@ local function SanST()
 end
 
 local function SanTrinkets()
-  -- use_item,name=fyralath_the_dreamrender,if=dot.mark_of_fyralath.ticking&(active_enemies<5|active_enemies>21|fight_remains<4)&(pet.abomination.active|pet.army_ghoul.active|!talent.raise_abomination&!talent.army_of_the_dead|time>15)
-  if Settings.Commons.Enabled.Items and I.Fyralath:IsReady() and (Target:DebuffUp(S.MarkofFyralathDebuff) and (ActiveEnemies < 5 or ActiveEnemies > 21 or BossFightRemains < 4) and (VarAbomActive or VarArmyGhoulActive or not S.RaiseAbomination:IsAvailable() and not S.ArmyoftheDead:IsAvailable() or HL.CombatTime() > 15)) then
-    if Cast(I.Fyralath, nil, Settings.CommonsDS.DisplayStyle.Items, not Target:IsItemInRange(I.Fyralath)) then return "fyralath_the_dreamrender san_trinkets 2"; end
-  end
   if Settings.Commons.Enabled.Trinkets then
-    -- do_treacherous_transmitter_task,use_off_gcd=1,if=buff.errant_manaforge_emission.up&buff.dark_transformation.up|buff.cryptic_instructions.up&buff.dark_transformation.up|buff.realigning_nexus_convergence_divergence.up&buff.dark_transformation.up
+    -- do_treacherous_transmitter_task,use_off_gcd=1,if=buff.errant_manaforge_emission.up&(pet.apoc_ghoul.active|!talent.apocalypse&buff.dark_transformation.up)|buff.cryptic_instructions.up&(pet.apoc_ghoul.active|!talent.apocalypse&buff.dark_transformation.up)|buff.realigning_nexus_convergence_divergence.up&(pet.apoc_ghoul.active|!talent.apocalypse&buff.dark_transformation.up)
     -- TODO: Handle the above.
     -- use_item,use_off_gcd=1,slot=trinket1,if=(variable.trinket_1_buffs|trinket.1.is.treacherous_transmitter)&(buff.dark_transformation.up&buff.dark_transformation.remains<variable.trinket_1_duration*0.73&(variable.trinket_priority=1|trinket.2.cooldown.remains|!trinket.2.has_cooldown))|variable.trinket_1_duration>=fight_remains
     if Trinket1:IsReady() and not VarTrinket1BL and ((VarTrinket1Buffs or VarTrinket1ID == I.TreacherousTransmitter:ID()) and (Pet:BuffUp(S.DarkTransformation) and Pet:BuffRemains(S.DarkTransformation) < VarTrinket1Duration * 0.73 and (VarTrinketPriority == 1 or Trinket2:CooldownDown() or not Trinket2:HasCooldown())) or VarTrinket1Duration >= BossFightRemains) then
@@ -695,6 +696,13 @@ local function SanTrinkets()
     -- use_item,use_off_gcd=1,slot=trinket2,if=!variable.trinket_2_buffs&(variable.damage_trinket_priority=2|trinket.1.cooldown.remains|!trinket.1.has_cooldown|!talent.summon_gargoyle&!talent.army_of_the_dead&!talent.raise_abomination|!talent.summon_gargoyle&talent.army_of_the_dead&(!talent.raise_abomination&cooldown.army_of_the_dead.remains>20|talent.raise_abomination&cooldown.raise_abomination.remains>20)|!talent.summon_gargoyle&!talent.army_of_the_dead&!talent.raise_abomination&cooldown.dark_transformation.remains>20|talent.summon_gargoyle&cooldown.summon_gargoyle.remains>20&!pet.gargoyle.active)|fight_remains<15
     if Trinket2:IsReady() and not VarTrinket2BL and (not VarTrinket2Buffs and (VarDamageTrinketPriority == 2 or Trinket1:CooldownDown() or not Trinket1:HasCooldown() or not S.SummonGargoyle:IsAvailable() and not S.ArmyoftheDead:IsAvailable() and not S.RaiseAbomination:IsAvailable() or not S.SummonGargoyle:IsAvailable() and S.ArmyoftheDead:IsAvailable() and (not S.RaiseAbomination:IsAvailable() and S.ArmyoftheDead:CooldownRemains() > 20 or S.RaiseAbomination:IsAvailable() and S.RaiseAbomination:CooldownRemains() > 20) or not SummonGargoyle:IsAvailable() and not S.ArmyoftheDead:IsAvailable() and not S.RaiseAbomination:IsAvailable() and S.DarkTransformation:CooldownRemains() > 20 or S.SummonGargoyle:IsAvailable() and S.SummonGargoyle:CooldownRemains() > 20 and not VarGargActive) or BossFightRemains < 15) then
       if Cast(Trinket2, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket2Range)) then return "Generic use_item for " .. Trinket2:Name() .. " san_trinkets 10"; end
+    end
+  end
+  -- Note: Generic use_items for non-trinkets.
+  if Settings.Commons.Enabled.Items then
+    local ItemToUse, _, ItemRange = Player:GetUseableItems(OnUseExcludes, nil, true)
+    if ItemToUse and ((not VarTrinket1Buffs or Trinket1:CooldownDown()) and (not VarTrinket2Buffs or Trinket2:CooldownDown())) then
+      if Cast(ItemToUse, nil, Settings.CommonsDS.DisplayStyle.Items, not Target:IsInRange(ItemRange)) then return "Generic use_item for " .. ItemToUse:Name() .. " san_trinkets 12"; end
     end
   end
 end

@@ -246,7 +246,7 @@ Spell.Monk.Mistweaver = MergeTableByKey(Spell.Monk.Commons, {
 -- Items
 if not Item.Monk then Item.Monk = {}; end
 Item.Monk.Commons = {
-  -- Trinkets
+  -- DF Trinkets
   AlgetharPuzzleBox                     = Item(193701, {13, 14}),
   AshesoftheEmbersoul                   = Item(207167, {13, 14}),
   BeacontotheBeyond                     = Item(203963, {13, 14}),
@@ -257,6 +257,8 @@ Item.Monk.Commons = {
   MirrorofFracturedTomorrows            = Item(207581, {13, 14}),
   NeltharionsCalltoDominance            = Item(204202, {13, 14}),
   WitherbarksBranch                     = Item(109999, {13, 14}),
+  -- TWW Trinkets
+  ImperfectAscendancySerum              = Item(225654, {13, 14}),
   -- Other On-Use Items
   Djaruun                               = Item(202569, {16}),
 }
