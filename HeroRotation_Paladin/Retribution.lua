@@ -202,6 +202,9 @@ local function Cooldowns()
   if S.ExecutionSentence:IsCastable() and ((Settings.Retribution.DisableCrusadeAWCDCheck or Player:BuffDown(S.CrusadeBuff) and S.Crusade:CooldownRemains() > 15 or Player:BuffStack(S.CrusadeBuff) == 10 or not S.Crusade:IsAvailable() and S.AvengingWrath:CooldownRemains() < 0.75 or S.AvengingWrath:CooldownRemains() > 15) and (HolyPower >= 4 and HL.CombatTime() < 5 or HolyPower >= 3 and HL.CombatTime() > 5 or HolyPower >= 2 and S.DivineAuxiliary:IsAvailable()) and (Target:TimeToDie() > 8 and not S.ExecutionersWill:IsAvailable() or Target:TimeToDie() > 12)) then
     if Cast(S.ExecutionSentence, Settings.Retribution.GCDasOffGCD.ExecutionSentence, nil, not Target:IsSpellInRange(S.ExecutionSentence)) then return "execution_sentence cooldowns 14"; end
   end
+  if S.HammerofLight:IsCastable() and HolyPower >= 5 then
+    if Cast(S.HammerofLight, nil, nil, not Target:IsInRange(12)) then return "Hammer of Light test"; end
+  end
   -- avenging_wrath,if=(holy_power>=4&time<5|holy_power>=3&(time>5|!talent.vanguard_of_justice)|holy_power>=2&talent.divine_auxiliary&(cooldown.execution_sentence.remains=0|cooldown.final_reckoning.remains=0))&(!raid_event.adds.up|target.time_to_die>10)
   if S.AvengingWrath:IsCastable() and ((HolyPower >= 4 and HL.CombatTime() < 5 or HolyPower >= 3 and (HL.CombatTime() > 5 or not S.VanguardofJustice:IsAvailable()) or HolyPower >= 2 and S.DivineAuxiliary:IsAvailable() and (S.ExecutionSentence:CooldownUp() or S.FinalReckoning:CooldownUp())) and (EnemiesCount8y == 1 or Target:TimeToDie() > 10)) then
     if Cast(S.AvengingWrath, Settings.Retribution.OffGCDasOffGCD.AvengingWrath) then return "avenging_wrath cooldowns 16" end
