@@ -78,7 +78,6 @@ AffOldSpellIsReady = HL.AddCoreOverride ("Spell.IsReady",
     elseif self == SpellAffli.UnstableAffliction then
       local UAUnit = SpellAffli.UnstableAfflictionDebuff:AuraActiveUnits()[1]
       local UARemains = 0
-      -- Pandemic values from Icy Veins' guide.
       local Pandemic = SpellAffli.CreepingDeath:IsAvailable() and 5.4 or 6.3
       if UAUnit then
         UARemains = UAUnit:DebuffRemains(SpellAffli.UnstableAfflictionDebuff)
@@ -87,7 +86,19 @@ AffOldSpellIsReady = HL.AddCoreOverride ("Spell.IsReady",
     elseif self == SpellAffli.SeedofCorruption or self == SpellAffli.Haunt then
       return BaseCheck and not Player:IsCasting(self) and not self:InFlight()
     elseif self == SpellAffli.MaleficRapture then
-      return BaseCheck and (Target:DebuffUp(SpellAffli.CorruptionDebuff) or Target:DebuffUp(SpellAffli.AgonyDebuff) or Target:DebuffUp(SpellAffli.UnstableAfflictionDebuff) or Target:DebuffUp(SpellAffli.SiphonLifeDebuff) or Target:DebuffUp(SpellAffli.HauntDebuff) or Target:DebuffUp(SpellAffli.SoulRotDebuff) or Target:DebuffUp(SpellAffli.VileTaintDebuff))
+      return BaseCheck and Player:SoulShardsP() > 0 and (Target:DebuffUp(SpellAffli.CorruptionDebuff) or Target:DebuffUp(SpellAffli.WitherDebuff) or Target:DebuffUp(SpellAffli.AgonyDebuff) or Target:DebuffUp(SpellAffli.UnstableAfflictionDebuff) or Target:DebuffUp(SpellAffli.SiphonLifeDebuff) or Target:DebuffUp(SpellAffli.HauntDebuff) or Target:DebuffUp(SpellAffli.SoulRotDebuff) or Target:DebuffUp(SpellAffli.VileTaintDebuff))
+    else
+      return BaseCheck
+    end
+  end
+, 265)
+
+local AffOldSpellIsAvailable
+AffOldSpellIsAvailable = HL.AddCoreOverride ("Spell.IsAvailable",
+  function (self, CheckPet)
+    local BaseCheck = AffOldSpellIsAvailable(self, CheckPet)
+    if self == SpellAffli.Wither then
+      return self:IsLearned()
     else
       return BaseCheck
     end
@@ -117,6 +128,22 @@ AffOldBuffRemains = HL.AddCoreOverride ("Player.BuffRemains",
       local SoulRotBuffLength = 8
       local Remains = SoulRotBuffLength - (GetTime() - Warlock.SoulRotAppliedTime)
       return (Remains > 0) and Remains or 0
+    else
+      return BaseCheck
+    end
+  end
+, 265)
+
+local AffOldDebuffUp
+AffOldDebuffUp = HL.AddCoreOverride ("Target.DebuffUp",
+  function (self, Spell, AnyCaster, BypassRecovery)
+    local BaseCheck = AffOldDebuffUp(self, Spell, AnyCaster, BypassRecovery)
+    if Spell == SpellAffli.UnstableAfflictionDebuff then
+      return BaseCheck or Player:IsCasting(SpellAffli.UnstableAffliction)
+    elseif Spell == SpellAffli.HauntDebuff then
+      return BaseCheck or Player:IsCasting(SpellAffli.Haunt)
+    elseif Spell == SpellAffli.VileTaintDebuff then
+      return BaseCheck or Player:IsCasting(SpellAffli.VileTaint)
     else
       return BaseCheck
     end

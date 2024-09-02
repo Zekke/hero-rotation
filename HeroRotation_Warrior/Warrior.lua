@@ -46,6 +46,7 @@ Spell.Warrior.Commons = {
   BerserkersTorment                     = Spell(390123),
   Bladestorm                            = MultiSpell(227847, 389774, 446035),
   BloodandThunder                       = Spell(384277),
+  ChampionsMight                        = Spell(386284),
   ChampionsSpear                        = Spell(376079),
   DoubleTime                            = Spell(103827),
   CrushingForce                         = Spell(382764),
@@ -66,6 +67,7 @@ Spell.Warrior.Commons = {
   ThunderClap                           = Spell(6343),
   ThunderousRoar                        = Spell(384318),
   TitanicThrow                          = Spell(384090),
+  WarlordsTorment                       = Spell(390140),
   WreckingThrow                         = Spell(384110),
   -- Buffs
   AvatarBuff                            = Spell(107574),
@@ -76,6 +78,7 @@ Spell.Warrior.Commons = {
   -- Debuffs
   ChampionsMightDebuff                  = Spell(376080),
   MarkofFyralathDebuff                  = Spell(414532),
+  RavagerDebuff                         = Spell(228920), -- Dummy Debuff entry. Actually handled in Events.
   ThunderousRoarDebuff                  = Spell(397364),
   -- Pool
   Pool                                  = Spell(999910),
@@ -91,6 +94,7 @@ Spell.Warrior.MountainThane = {
   ThunderBlastAbility                   = Spell(435222),
   -- Talents
   CrashingThunder                       = Spell(436707),
+  LightningStrikes                      = Spell(434969),
   ThunderBlast                          = Spell(435607),
   -- Buffs
   BurstofPowerBuff                      = Spell(437121),
@@ -98,6 +102,14 @@ Spell.Warrior.MountainThane = {
 }
 
 Spell.Warrior.Slayer = {
+  -- Talents
+  SlayersDominance                      = Spell(444767),
+  -- Buffs
+  BrutalFinishBuff                      = Spell(446918),
+  ImminentDemiseBuff                    = Spell(445606),
+  OpportunistBuff                       = Spell(456120),
+  -- Debuffs
+  MarkedforExecutionDebuff              = Spell(445584),
 }
 
 Spell.Warrior.Arms = MergeTableByKey(Spell.Warrior.Commons, {
@@ -106,9 +118,11 @@ Spell.Warrior.Arms = MergeTableByKey(Spell.Warrior.Commons, {
   Whirlwind                             = Spell(1680),
   -- Talents
   BlademastersTorment                   = Spell(390138),
+  Bloodletting                          = Spell(383154),
   Cleave                                = Spell(845),
   ColossusSmash                         = MultiSpell(167105, 262161),
   Dreadnaught                           = Spell(262150),
+  ExecutionersPrecision                 = Spell(386634),
   FervorofBattle                        = Spell(202316),
   Massacre                              = Spell(281001),
   MercilessBonegrinder                  = Spell(383317),
@@ -122,8 +136,12 @@ Spell.Warrior.Arms = MergeTableByKey(Spell.Warrior.Commons, {
   Warbreaker                            = Spell(262161),
   -- Buffs
   CollateralDamageBuff                  = Spell(334783),
+  JuggernautBuff                        = Spell(383290),
+  LethalBlowsBuff                       = Spell(455485), -- TWW S1 4pc
+  MartialProwessBuff                    = Spell(7384),
   MercilessBonegrinderBuff              = Spell(383316),
   StrikeVulnerabilitiesBuff             = Spell(394173),
+  SuddenDeathBuff                       = Spell(52437),
   SweepingStrikesBuff                   = Spell(260708),
   -- Debuffs
   ColossusSmashDebuff                   = Spell(208086),
@@ -147,19 +165,24 @@ Spell.Warrior.Fury = MergeTableByKey(Spell.Warrior.Commons, {
   DancingBlades                         = Spell(391683),
   ImprovedWhilwind                      = Spell(12950),
   Massacre                              = Spell(206315),
+  MeatCleaver                           = Spell(280392),
   OdynsFury                             = Spell(385059),
   Onslaught                             = Spell(315720),
   RagingBlow                            = Spell(85288),
   Rampage                               = Spell(184367),
   RecklessAbandon                       = Spell(396749),
   Recklessness                          = Spell(1719),
+  SlaughteringStrikes                   = Spell(388004),
   Tenderize                             = Spell(388933),
   TitanicRage                           = Spell(394329),
   TitansTorment                         = Spell(390135),
+  Unhinged                              = Spell(386628),
   WrathandFury                          = Spell(392936),
   -- Buffs
   AshenJuggernautBuff                   = Spell(392537),
+  BloodbathBuff                         = Spell(461288),
   BloodcrazeBuff                        = Spell(393951),
+  CrushingBlowBuff                      = Spell(396752),
   DancingBladesBuff                     = Spell(391688),
   EnrageBuff                            = Spell(184362),
   FuriousBloodthirstBuff                = Spell(423211), -- T31 2pc
@@ -225,7 +248,7 @@ Spell.Warrior.Protection = MergeTableByKey(Spell.Warrior.Protection, Spell.Warri
 -- Items
 if not Item.Warrior then Item.Warrior = {} end
 Item.Warrior.Commons = {
-  -- Trinkets
+  -- DF Trinkets
   AlgetharPuzzleBox                     = Item(193701, {13, 14}),
   BeacontotheBeyond                     = Item(203963, {13, 14}),
   CrimsonGladiatorsBadgeofFerocity      = Item(201807, {13, 14}),
@@ -233,6 +256,8 @@ Item.Warrior.Commons = {
   IrideusFragment                       = Item(193743, {13, 14}),
   ManicGrieftorch                       = Item(194308, {13, 14}),
   VialofAnimatedBlood                   = Item(159625, {13, 14}),
+  -- TWW Trinkets
+  MarkofKhardros                        = Item(133300, {13, 14}),
   -- Other Items
   Fyralath                              = Item(206448, {16}),
 }
