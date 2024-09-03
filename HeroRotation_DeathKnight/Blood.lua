@@ -368,6 +368,10 @@ local function APL()
     if CDsON() and S.RaiseDead:IsCastable() then
       if Cast(S.RaiseDead, nil, Settings.CommonsDS.DisplayStyle.RaiseDead) then return "raise_dead main 4"; end
     end
+    -- reapers_mark
+    if S.ReapersMark:IsCastable() then
+      if Cast(S.ReapersMark, nil, nil, not Target:IsSpellInRange(S.ReapersMark)) then return "reapers_mark main"; end
+    end
     -- icebound_fortitude,if=!(buff.dancing_rune_weapon.up|buff.vampiric_blood.up)&(target.cooldown.pause_action.remains>=8|target.cooldown.pause_action.duration>0)
     -- Above Above lines handled via Defensives()
     -- vampiric_blood,if=!buff.vampiric_blood.up&!buff.vampiric_strength.up
