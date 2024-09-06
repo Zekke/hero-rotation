@@ -567,7 +567,7 @@ local function ThaneMT()
 end
 
 local function Trinkets()
-  if CDsON() aSettings.Commons.Enabled.Trinkets then
+  if CDsON() and Settings.Commons.Enabled.Trinkets then
     -- do_treacherous_transmitter_task
     -- use_item,name=treacherous_transmitter,if=variable.adds_remain|variable.st_planning
     if I.TreacherousTransmitter:IsEquippedAndReady() and (VarAddsRemain or VarSTPlanning) then
