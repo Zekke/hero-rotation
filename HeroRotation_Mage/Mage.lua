@@ -52,10 +52,7 @@ Spell.Mage.Commons = {
   ArcaneIntellectBuff                   = Spell(1459),
   -- Debuffs
   -- Trinket Effects
-  SpoilsofNeltharusCrit                 = Spell(381954),
-  SpoilsofNeltharusHaste                = Spell(381955),
-  SpoilsofNeltharusMastery              = Spell(381956),
-  SpoilsofNeltharusVers                 = Spell(381957),
+  SpymastersWebBuff                     = Spell(444959), -- Buff from using Spymaster's Web trinket
   -- Pool
   Pool                                  = Spell(999910)
 }
@@ -64,8 +61,11 @@ Spell.Mage.Frostfire = {
   -- Abilities
   FrostfireBolt                         = Spell(431044),
   -- Talents
+  ExcessFire                            = Spell(438595),
+  ExcessFrost                           = Spell(438600),
   IsothermicCore                        = Spell(431095),
   -- Buffs
+  ExcessFireBuff                        = Spell(438624),
   ExcessFrostBuff                       = Spell(438611),
   FrostfireEmpowermentBuff              = Spell(431177),
 }

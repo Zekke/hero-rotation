@@ -66,6 +66,8 @@ Spell.Shaman.Commons = {
   -- Other Class Debuffs
   ChaosBrandDebuff                      = Spell(1490),
   HuntersMarkDebuff                     = Spell(257284),
+  -- Trinket Effects
+  SpymastersWebBuff                     = Spell(444959), -- Buff from using Spymaster's Web trinket
   -- Misc
   Pool                                  = Spell(999910),
 }
@@ -73,6 +75,7 @@ Spell.Shaman.Commons = {
 Spell.Shaman.Farseer = {
   -- Talents
   AncestralSwiftness                    = Spell(443454),
+  ElementalReverb                       = Spell(443418),
   PrimordialCapacity                    = Spell(443448),
 }
 
@@ -83,11 +86,13 @@ Spell.Shaman.Stormbringer = {
   -- Talents
   ArcDischarge                          = Spell(455096),
   AwakeningStorms                       = Spell(455129),
+  RollingThunder                        = Spell(454026),
   Supercharge                           = Spell(455110),
   Tempest                               = Spell(454009),
   -- Buffs
   ArcDischargeBuff                      = Spell(455097),
   AwakeningStormsBuff                   = Spell(462131),
+  TempestBuff                           = Spell(454015),
 }
 
 Spell.Shaman.Totemic = {

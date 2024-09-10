@@ -61,6 +61,7 @@ Spell.Druid.Commons = {
   SurvivalInstincts                     = Spell(61336),
   ThrashBear                            = Spell(77758),
   ThrashCat                             = Spell(106830),
+  Typhoon                               = Spell(132469),
   WildCharge                            = MultiSpell(16979,49376),
   -- Buffs
   FrenziedRegenerationBuff              = Spell(22842),
@@ -81,7 +82,8 @@ Spell.Druid.Commons = {
 
 Spell.Druid.DruidoftheClaw = {
   -- Abilities
-  RavageAbility                         = Spell(441605),
+  RavageAbilityBear                     = Spell(441605),
+  RavageAbilityCat                      = Spell(441591),
   -- Talents
   FountofStrength                       = Spell(441675),
   Ravage                                = Spell(441583),
