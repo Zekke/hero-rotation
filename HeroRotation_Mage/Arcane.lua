@@ -425,7 +425,7 @@ local function APL()
         end
       end
     end
-    if CDsON() aSettings.Commons.Enabled.Trinkets then
+    if CDsON() and Settings.Commons.Enabled.Trinkets then
       -- use_item,name=spymasters_web,if=(prev_gcd.1.arcane_surge|prev_gcd.1.evocation)&(fight_remains<80|target.health.pct<35|!talent.arcane_bombardment|(buff.spymasters_report.stack=40&fight_remains>240))|fight_remains<20
       if I.SpymastersWeb:IsEquippedAndReady() and ((Player:PrevGCDP(1, S.ArcaneSurge) or Player:PrevGCDP(1, S.Evocation)) and (FightRemains < 80 or Target:HealthPercentage() < 35 or not S.ArcaneBombardment:IsAvailable() or (Player:BuffStack(S.SpymastersWebBuff) == 40 and FightRemains > 240)) or BossFightRemains < 20) then
         if Cast(I.SpymastersWeb, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "spymasters_web main 16"; end

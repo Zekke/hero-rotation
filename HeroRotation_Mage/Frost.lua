@@ -260,7 +260,7 @@ local function Aoe()
     if Cast(S.ConeofCold, nil, nil, not Target:IsInRange(12)) then return "cone_of_cold aoe 2"; end
   end
   -- frozen_orb,if=(!prev_gcd.1.cone_of_cold|!talent.isothermic_core)&(!prev_gcd.1.glacial_spike|!freezable)
-  if CDsON() aS.FrozenOrb:IsCastable() and ((not Player:PrevGCDP(1, S.ConeofCold) or not S.IsothermicCore:IsAvailable()) and (not Player:PrevGCDP(1, S.GlacialSpike) or not Freezable())) then
+  if CDsON() and S.FrozenOrb:IsCastable() and ((not Player:PrevGCDP(1, S.ConeofCold) or not S.IsothermicCore:IsAvailable()) and (not Player:PrevGCDP(1, S.GlacialSpike) or not Freezable())) then
     if Cast(S.FrozenOrb, Settings.Frost.GCDasOffGCD.FrozenOrb, nil, not Target:IsInRange(40)) then return "frozen_orb aoe 4"; end
   end
   -- blizzard,if=!prev_gcd.1.glacial_spike|!freezable
