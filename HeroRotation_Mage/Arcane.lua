@@ -115,7 +115,7 @@ local function Precombat()
     if Cast(S.ArcaneBlast, nil, nil, not Target:IsSpellInRange(S.ArcaneBlast)) then return "arcane_blast precombat 4"; end
   end
   -- evocation,if=talent.evocation
-  if S.Evocation:IsReady() then
+  if CDsON() and S.Evocation:IsReady() then
     if Cast(S.Evocation, Settings.Arcane.GCDasOffGCD.Evocation) then return "evocation precombat 6"; end
   end
 end
@@ -419,7 +419,7 @@ local function APL()
     -- invoke_external_buff,name=blessing_of_autumn,if=cooldown.touch_of_the_magi.remains>5
     -- Note: Not handling external buffs.
     -- use_items,if=prev_gcd.1.arcane_surge|prev_gcd.1.evocation|fight_remains<20|!variable.steroid_trinket_equipped
-    if Settings.Commons.Enabled.Items or Settings.Commons.Enabled.Trinkets then
+    if CDsON() and (Settings.Commons.Enabled.Items or Settings.Commons.Enabled.Trinkets) then
       local ItemToUse, ItemSlot, ItemRange = Player:GetUseableItems(OnUseExcludes)
       if ItemToUse and (Player:PrevGCDP(1, S.ArcaneSurge) or Player:PrevGCDP(1, S.Evocation) or BossFightRemains < 20 or not VarSteroidTrinketEquipped) then
         local DisplayStyle = Settings.CommonsDS.DisplayStyle.Trinkets
@@ -429,7 +429,7 @@ local function APL()
         end
       end
     end
-    if Settings.Commons.Enabled.Trinkets then
+    if CDsON() and Settings.Commons.Enabled.Trinkets then
       -- use_item,name=spymasters_web,if=(prev_gcd.1.arcane_surge|prev_gcd.1.evocation)&(fight_remains<80|target.health.pct<35|!talent.arcane_bombardment)|fight_remains<20
       if I.SpymastersWeb:IsEquippedAndReady() and ((Player:PrevGCDP(1, S.ArcaneSurge) or Player:PrevGCDP(1, S.Evocation)) and (FightRemains < 80 or Target:HealthPercentage() < 35 or not S.ArcaneBombardment:IsAvailable()) or BossFightRemains < 20) then
         if Cast(I.SpymastersWeb, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "spymasters_web main 16"; end
