@@ -626,7 +626,7 @@ local function CDs ()
   if HR.CDsON() and S.SymbolsofDeath:IsReady() then
     if S.InvigoratingShadowdust:IsAvailable() and SnD_Condition() and Player:BuffRemains(S.SymbolsofDeath) <= 3
       and Player:BuffDown(S.TheRottenBuff) and (S.Flagellation:CooldownRemains() > 10 or S.Flagellation:IsReady()
-      and (S.ShadowBlades:CooldownRemains() >= 20 or S.ShadowBlades:IsReady()) or Player:BuffRemains(S.ShadowDanceBuff) >= 2) then
+      and S.ShadowBlades:CooldownRemains() >= 20 or Player:BuffRemains(S.ShadowDanceBuff) >= 2) then
       if Cast(S.SymbolsofDeath, Settings.Subtlety.OffGCDasOffGCD.SymbolsofDeath) then return "Cast Symbols of Death with Dust" end
     end
   end
