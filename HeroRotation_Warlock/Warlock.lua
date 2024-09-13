@@ -39,6 +39,7 @@ Spell.Warlock.Commons = {
   SummonSoulkeeper                      = Spell(386256),
   InquisitorsGaze                       = Spell(386344),
   InquisitorsGazeBuff                   = Spell(388068),
+  Shadowfury                            = Spell(30283),
   Soulburn                              = Spell(385899),
   -- Buffs
   SpymastersReportBuff                  = Spell(451199),
@@ -74,6 +75,7 @@ Spell.Warlock.Hellcaller = {
   Malevolence                           = Spell(442726),
   Wither                                = Spell(445468),
   -- Debuffs
+  MalevolenceBuff                       = Spell(442726),
   WitherDebuff                          = Spell(445474),
 }
 
