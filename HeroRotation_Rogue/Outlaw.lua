@@ -442,7 +442,7 @@ local function SpellQueueMacro (BaseSpell)
     else
       MacroAbility = Stealth(true)
     end
-    if not Settings.Outlaw.SpellQueueMacro.ImprovedAdrenalineRush or not MacroAbility then
+    if CDsON() and not Settings.Outlaw.SpellQueueMacro.ImprovedAdrenalineRush or not MacroAbility then
       if Cast(S.AdrenalineRush, Settings.Outlaw.OffGCDasOffGCD.AdrenalineRush) then
         return "Cast Adrenaline Rush"
       end

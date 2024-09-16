@@ -175,10 +175,6 @@ local function Precombat()
   if S.HuntersMark:IsCastable() and (Target:DebuffDown(S.HuntersMark)) then
     if Cast(S.HuntersMark, Settings.CommonsOGCD.GCDasOffGCD.HuntersMark) then return "hunters_mark precombat 2"; end
   end
-  -- bestial_wrath
-  if S.BestialWrath:IsCastable() then
-    if Cast(S.BestialWrath, Settings.BeastMastery.GCDasOffGCD.BestialWrath) then return "bestial_wrath precombat 4"; end
-  end
   -- barbed_shot
   if S.BarbedShot:IsCastable() and S.BarbedShot:Charges() >= 2 then
     if Cast(S.BarbedShot, nil, nil, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot precombat 8"; end

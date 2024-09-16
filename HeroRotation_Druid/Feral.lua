@@ -446,7 +446,12 @@ end
 local function Finisher()
   -- primal_wrath,target_if=max:dot.bloodseeker_vines.ticking,if=spell_targets.primal_wrath>1&((dot.primal_wrath.remains<6.5&!buff.bs_inc.up|dot.primal_wrath.refreshable)|(!talent.rampant_ferocity.enabled&(spell_targets.primal_wrath>1&!dot.bloodseeker_vines.ticking&!buff.ravage.up|spell_targets.primal_wrath>6+talent.ravage)))
   if S.PrimalWrath:IsReady() and (EnemiesCount8y > 1) then
-    if Everyone.CastTargetIf(S.PrimalWrath, Enemies8y, "max", EvaluateTargetIfFilterBloodseeker, EvaluateTargetIfPrimalWrath, not IsInAoERange) then return "primal_wrath finisher 2"; end
+    if Everyone.CastTargetIf(S.PrimalWrath, Enemies8y, "max", EvaluateTargetIfFilterBloodseeker, EvaluateTargetIfPrimalWrath, not IsInAoERange) then
+      if Cast(S.PrimalWrath, nil, nil, not IsInAoERange) then return "primal_wrath finisher 2"; end
+    end
+  end
+  if S.PrimalWrath:IsReady() and EnemiesCountMelee > 1 and (Player:BuffUp(S.BloodtalonsBuff) or not S.Bloodtalons:IsAvailable()) and (Player:BuffUp(S.TigersFury) or Target:DebuffRemains(S.RipDebuff) < S.TigersFury:CooldownRemains()) then
+    if Cast(S.PrimalWrath, nil, nil, not IsInAoERange) then return "primal_wrath finisher test"; end
   end
   -- rip,target_if=refreshable,if=(!talent.primal_wrath|spell_targets=1)&(buff.bloodtalons.up|!talent.bloodtalons)&(buff.tigers_fury.up|dot.rip.remains<cooldown.tigers_fury.remains)&(remains<fight_remains|remains<4&buff.ravage.up)
   if S.Rip:IsReady() and ((not S.PrimalWrath:IsAvailable() or EnemiesCountMelee == 1) and (Player:BuffUp(S.BloodtalonsBuff) or not S.Bloodtalons:IsAvailable()) and (Player:BuffUp(S.TigersFury) or Target:DebuffRemains(S.RipDebuff) < S.TigersFury:CooldownRemains())) then
@@ -462,6 +467,9 @@ local function Finisher()
   if BiteFinisher:IsReady() then
     if Everyone.CastTargetIf(BiteFinisher, EnemiesMelee, "max", EvaluateTargetIfFilterBloodseeker, nil, not IsInMeleeRange) then return "ferocious_bite finisher 8"; end
   end
+  if BiteFinisher:IsReady() then
+    if Cast(BiteFinisher, nil, nil, not IsInMeleeRange) then return "ferocious_bite finisher 10"; end
+  end
 end
 
 local function AoeBuilder()
@@ -473,7 +481,7 @@ local function AoeBuilder()
   end
   -- brutal_slash,target_if=min:time_to_die,if=(cooldown.brutal_slash.full_recharge_time<4|time_to_die<4|raid_event.adds.remains<4)&!(variable.need_bt&buff.bt_swipe.up)
   if S.BrutalSlash:IsReady() and ((S.BrutalSlash:FullRechargeTime() < 4 or FightRemains < 4) and not (VarNeedBT and BTBuffUp(S.Swipe))) then
-    if Everyone.CastTargetIf(S.BrutalSlash, Enemies8y, "min", EvaluateTargetIfFilterTTD, nil, not IsInAoERange) then return "brutal_slash aoe_builder 4"; end
+    if Cast(S.BrutalSlash, nil, nil, not IsInAoERange) then return "brutal_slash aoe_builder 4"; end
   end
   -- swipe_cat,if=time_to_die<4|(talent.wild_slashes&spell_targets.swipe_cat>4&!(variable.need_bt&buff.bt_swipe.up))
   if S.Swipe:IsReady() and (FightRemains < 4 or (S.WildSlashes:IsAvailable() and EnemiesCount8y > 4 and not (VarNeedBT and BTBuffUp(S.Swipe)))) then
@@ -502,7 +510,7 @@ local function AoeBuilder()
     if Everyone.CastCycle(S.LIMoonfire, Enemies8y, EvaluateCycleMoonfire, not Target:IsInRange(40)) then return "moonfire_cat aoe_builder 16"; end
   end
   -- rake,target_if=refreshable,if=!(variable.need_bt&buff.bt_rake.up)&!variable.cc_capped
-  if S.Rake:IsReady() and (S.DoubleClawedRake:IsAvailable() and not (VarNeedBT and BTBuffUp(S.Rake)) and not VarCCCapped) then
+  if S.Rake:IsReady() and not VarNeedBT and BTBuffUp(S.Rake) and not VarCCCapped then
     if Everyone.CastCycle(S.Rake, EnemiesMelee, EvaluateCycleRakeRefreshable, nil, not IsInMeleeRange) then return "rake aoe_builder 18"; end
   end
   -- brutal_slash,if=!(variable.need_bt&buff.bt_swipe.up)
