@@ -370,7 +370,7 @@ local function APL()
       if Cast(S.WildCharge, Settings.CommonsOGCD.GCDasOffGCD.WildCharge, nil, not Target:IsInRange(S.WildCharge.MaximumRange)) then return "wild_charge main 2"; end
     end
     -- auto_attack,if=!buff.prowl.up
-    if Settings.Commons.Enabled.Trinkets then
+    if CDsON() and Settings.Commons.Enabled.Trinkets then
       -- use_item,slot=trinket1
       if Trinket1:IsReady() then
         if Cast(Trinket1, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket1Range)) then return "use_item trinket1 ("..tostring(Trinket1:Name())..") main 4"; end
@@ -381,7 +381,7 @@ local function APL()
       end
     end
     -- Manually added: use_items for non-trinkets
-    if Settings.Commons.Enabled.Items then
+    if CDsON() and Settings.Commons.Enabled.Items then
       local ItemToUse, ItemSlot, ItemRange = Player:GetUseableItems(OnUseExcludes, nil, true)
       if ItemToUse then
         if Cast(ItemToUse, nil, Settings.CommonsDS.DisplayStyle.Items, not Target:IsInRange(ItemRange)) then return "Generic use_items for " .. ItemToUse:Name() .. " main 8"; end
