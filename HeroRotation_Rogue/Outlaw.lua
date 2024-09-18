@@ -474,7 +474,7 @@ local function SpellQueueMacro (BaseSpell, ReturnSpellOnly)
       else
         MacroAbility = Stealth(true)
       end
-      if not Settings.Outlaw.SpellQueueMacro.ImprovedAdrenalineRush or not MacroAbility then
+      if CDsON() and not Settings.Outlaw.SpellQueueMacro.ImprovedAdrenalineRush or not MacroAbility then
         if Cast(S.AdrenalineRush, Settings.Outlaw.OffGCDasOffGCD.AdrenalineRush) then
           return "Cast Adrenaline Rush"
         end
@@ -899,7 +899,7 @@ local function APL ()
         end
       end
       -- actions.precombat+=/adrenaline_rush,precombat_seconds=3,if=talent.improved_adrenaline_rush
-      if S.AdrenalineRush:IsReady() and S.ImprovedAdrenalineRush:IsAvailable() then
+      if CDsON() and S.AdrenalineRush:IsReady() and S.ImprovedAdrenalineRush:IsAvailable() then
         if Cast(S.AdrenalineRush, Settings.Outlaw.OffGCDasOffGCD.AdrenalineRush) then
           return "Cast Adrenaline Rush (Opener)"
         end
