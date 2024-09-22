@@ -45,6 +45,8 @@ HL:RegisterForSelfCombatEvent(
         Surge.ConsumingFire = true
         Surge.FelDesolation = true
         Surge.SigilofDoom = true
+        Surge.SoulSunder = true
+        Surge.SpiritBurst = true
       elseif SpellID == SpellVDH.ConsumingFire:ID() then
         Surge.ConsumingFire = false
       elseif SpellID == SpellVDH.FelDesolation:ID() then
@@ -98,7 +100,7 @@ HL:RegisterForSelfCombatEvent(
     local SpellID = select(12, ...)
     local IncAmt = 0
     if SpellID == SpellVDH.Fracture:ID() or SpellID == SpellVDH.Shear:ID() then
-      IncAmt = 2
+      IncAmt = Player:BuffUp(SpellVDH.MetamorphosisBuff) and 3 or 2
     elseif SpellID == SpellVDH.SoulCarver:ID() then
       IncAmt = 3
       C_Timer.After(1, function() Soul.IncomingSouls = Soul.IncomingSouls + 1; end)
