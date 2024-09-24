@@ -81,11 +81,15 @@ local EffectiveCPSpend
 local VarTrinketFailures = 0
 local function SetTrinketVariables ()
   local T1, T2 = Player:GetTrinketData()
-
+  HR.Print("HR SetTrinketVariable Attempt#" .. VarTrinketFailures + 1 .. "/10")
+  --HR.Print("Trinket1 : " .. T1.ID)
+  --HR.Print("Trinket2 : " .. T2.ID)
+  --HR.Print("Trinket1 Ready? " .. tostring(T1.Object:IsReady()))
+  --HR.Print("Trinket1 remaining time " .. T1.Object:CooldownRemains())
   -- If we don't have trinket items, try again in 2 seconds.
-  if VarTrinketFailures < 5 and (T1.ID == 0 or T2.ID == 0) then
+  if VarTrinketFailures < 10 and (T1.ID == 0 or T2.ID == 0) then
     VarTrinketFailures = VarTrinketFailures + 1
-    Delay(5, function()
+    Delay(1, function()
       SetTrinketVariables()
     end
     )
@@ -105,6 +109,15 @@ local function SetTrinketVariables ()
     TrinketSyncSlot = 2
   else
     TrinketSyncSlot = 0
+  end
+  --HR.Print("TrinketSyncSlot : " .. TrinketSyncSlot)
+  if VarTrinketFailures < 10 and ((TrinketSyncSlot == 1 and not TrinketItem1:IsReady() and TrinketItem1:CooldownRemains() == 0) or (TrinketSyncSlot == 2 and not TrinketItem2:IsReady() and TrinketItem2:CooldownRemains() == 0)) then
+    VarTrinketFailures = VarTrinketFailures + 1
+    Delay(1, function()
+      SetTrinketVariables()
+    end
+    )
+    return
   end
 end
 SetTrinketVariables()
