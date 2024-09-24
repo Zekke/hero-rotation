@@ -766,10 +766,7 @@ local function CDs ()
 
   -- actions.cds+=/call_action_list,name=items
   if Settings.Commons.Enabled.Trinkets then
-    ShouldReturn = UsableItems()
-    if ShouldReturn then
-      return ShouldReturn
-    end
+    local ShouldReturn = UsableItems(); if ShouldReturn then return ShouldReturn; end
   end
 
   -- actions.cds+=/invoke_external_buff,name=power_infusion,if=dot.deathmark.ticking

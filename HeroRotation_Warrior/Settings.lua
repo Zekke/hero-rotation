@@ -99,6 +99,7 @@ HR.GUISettings.APL.Warrior = {
     },
     GCDasOffGCD = {
       Avatar = false,
+      Demolish = false,
       DemoralizingShout = false,
       Shockwave = true,
       ThunderousRoar = false,
