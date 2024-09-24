@@ -81,15 +81,11 @@ local EffectiveCPSpend
 local VarTrinketFailures = 0
 local function SetTrinketVariables ()
   local T1, T2 = Player:GetTrinketData()
-  HR.Print("HR SetTrinketVariable Attempt#" .. VarTrinketFailures + 1 .. "/10")
-  --HR.Print("Trinket1 : " .. T1.ID)
-  --HR.Print("Trinket2 : " .. T2.ID)
-  --HR.Print("Trinket1 Ready? " .. tostring(T1.Object:IsReady()))
-  --HR.Print("Trinket1 remaining time " .. T1.Object:CooldownRemains())
-  -- If we don't have trinket items, try again in 2 seconds.
-  if VarTrinketFailures < 10 and (T1.ID == 0 or T2.ID == 0) then
+
+  -- If we don't have trinket items, try again in 5 seconds.
+  if VarTrinketFailures < 5 and ((T1.ID == 0 or T2.ID == 0) or (T1.SpellID > 0 and not T1.Usable or T2.SpellID > 0 and not T2.Usable)) then
     VarTrinketFailures = VarTrinketFailures + 1
-    Delay(1, function()
+    Delay(5, function()
       SetTrinketVariables()
     end
     )
@@ -97,9 +93,7 @@ local function SetTrinketVariables ()
   end
 
   TrinketItem1 = T1.Object
-  TrinketItem1Range = T1.Range
   TrinketItem2 = T2.Object
-  TrinketItem2Range = T2.Range
 
   -- actions.precombat+=/variable,name=trinket_sync_slot,value=1,if=trinket.1.has_stat.any_dps&(!trinket.2.has_stat.any_dps|trinket.1.cooldown.duration>=trinket.2.cooldown.duration)&!trinket.2.is.witherbarks_branch|trinket.1.is.witherbarks_branch
   -- actions.precombat+=/variable,name=trinket_sync_slot,value=2,if=trinket.2.has_stat.any_dps&(!trinket.1.has_stat.any_dps|trinket.2.cooldown.duration>trinket.1.cooldown.duration)&!trinket.1.is.witherbarks_branch|trinket.2.is.witherbarks_branch
@@ -109,15 +103,6 @@ local function SetTrinketVariables ()
     TrinketSyncSlot = 2
   else
     TrinketSyncSlot = 0
-  end
-  --HR.Print("TrinketSyncSlot : " .. TrinketSyncSlot)
-  if VarTrinketFailures < 10 and ((TrinketSyncSlot == 1 and not TrinketItem1:IsReady() and TrinketItem1:CooldownRemains() == 0) or (TrinketSyncSlot == 2 and not TrinketItem2:IsReady() and TrinketItem2:CooldownRemains() == 0)) then
-    VarTrinketFailures = VarTrinketFailures + 1
-    Delay(1, function()
-      SetTrinketVariables()
-    end
-    )
-    return
   end
 end
 SetTrinketVariables()
@@ -656,10 +641,12 @@ local function UsableItems ()
   -- actions.items+=/use_items,slots=trinket1,if=(variable.trinket_sync_slot=1&(debuff.deathmark.up|fight_remains<=20)|(variable.trinket_sync_slot=2&(!trinket.2.cooldown.ready|!debuff.deathmark.up&cooldown.deathmark.remains>20))|!variable.trinket_sync_slot)
   -- actions.items+=/use_items,slots=trinket2,if=(variable.trinket_sync_slot=2&(debuff.deathmark.up|fight_remains<=20)|(variable.trinket_sync_slot=1&(!trinket.1.cooldown.ready|!debuff.deathmark.up&cooldown.deathmark.remains>20))|!variable.trinket_sync_slot)
   if TrinketItem1:IsReady() then
-    if (not Player:IsItemBlacklisted(TrinketItem1) and not ValueIsInArray(OnUseExcludeTrinkets, TrinketItem1:ID()))
+    if not Player:IsItemBlacklisted(TrinketItem1) and not ValueIsInArray(OnUseExcludeTrinkets, TrinketItem1:ID())
       and (TrinketSyncSlot == 1 and (S.Deathmark:AnyDebuffUp() or HL.BossFilteredFightRemains("<", 20))
       or (TrinketSyncSlot == 2 and (not TrinketItem2:IsReady() or not S.Deathmark:AnyDebuffUp() and S.Deathmark:CooldownRemains() > 20)) or TrinketSyncSlot == 0) then
-      if Cast(TrinketItem1, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(TrinketItem1Range)) then return "Trinket 1"; end
+      if Cast(TrinketItem1, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then
+        return "Trinket 1";
+      end
     end
   end
 
@@ -667,7 +654,9 @@ local function UsableItems ()
     if not Player:IsItemBlacklisted(TrinketItem2) and not ValueIsInArray(OnUseExcludeTrinkets, TrinketItem2:ID())
       and (TrinketSyncSlot == 2 and (S.Deathmark:AnyDebuffUp() or HL.BossFilteredFightRemains("<", 20))
       or (TrinketSyncSlot == 1 and (not TrinketItem1:IsReady() or not S.Deathmark:AnyDebuffUp() and S.Deathmark:CooldownRemains() > 20)) or TrinketSyncSlot == 0) then
-      if Cast(TrinketItem2, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(TrinketItem2Range)) then return "Trinket 2"; end
+      if Cast(TrinketItem2, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then
+        return "Trinket 2";
+      end
     end
   end
 end
@@ -1099,8 +1088,6 @@ local function APL ()
     MeleeEnemies10yCount = 1
     MeleeEnemies5y = {}
   end
-
-  --HR.Print(TrinketItem1.ID())
 
   -- Rotation Variables Update
   BleedTickTime, ExsanguinatedBleedTickTime = 2 * Player:SpellHaste(), 1 * Player:SpellHaste()
