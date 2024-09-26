@@ -300,6 +300,7 @@ Item.Druid.Commons = {
   ImperfectAscendancySerum              = Item(225654, {13, 14}),
   OvinaxsMercurialEgg                   = Item(220305, {13, 14}),
   SikransEndlessArsenal                 = Item(212449, {13, 14}),
+  SignetofthePriory                     = Item(219308, {13, 14}),
   TwinFangInstruments                   = Item(219319, {13, 14}),
   -- Other On-Use Items
   Djaruun                               = Item(202569, {16}),

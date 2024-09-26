@@ -569,7 +569,7 @@ local function Cooldown()
     end
     -- use_item,slot=trinket1,if=(trinket.1.has_use_damage|trinket.1.is.twin_fang_instruments|trinket.1.is.sikrans_endless_arsenal)&(trinket.2.cooldown.remains>20|!variable.trinket_2_buffs|trinket.2.cooldown.remains&cooldown.tigers_fury.remains>20)
     -- TODO: Handle has_use_damage. Until then, using HasUseBuff logic.
-    if Trinket1:IsReady() and not VarTrinket1BL and ((Trinket1:HasUseBuff() or VarTrinket1ID == I.TwinFangInstruments:ID() or VarTrinket1ID == I.SikransEndlessArsenal:ID()) and (Trinket2:CooldownRemains() > 20 or not VarTrinket2Buffs or Trinket2:CooldownDown() and S.TigersFury:CooldownRemains() > 20)) then
+    if Trinket1:IsReady() and not VarTrinket1BL and ((Trinket1:HasUseBuff() or VarTrinket1ID == I.SignetofthePriory:ID() or VarTrinket1ID == I.TwinFangInstruments:ID() or VarTrinket1ID == I.SikransEndlessArsenal:ID()) and (Trinket2:CooldownRemains() > 20 or not VarTrinket2Buffs or Trinket2:CooldownDown() and S.TigersFury:CooldownRemains() > 20)) then
       if Cast(Trinket1, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket1Range)) then return "Generic use_item for "..Trinket1:Name().." cooldown 20"; end
     end
     -- use_item,slot=trinket2,if=(trinket.2.has_use_damage|trinket.2.is.twin_fang_instruments|trinket.2.is.sikrans_endless_arsenal)&(trinket.1.cooldown.remains>20|!variable.trinket_1_buffs|trinket.1.cooldown.remains&cooldown.tigers_fury.remains>20)
