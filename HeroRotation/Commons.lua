@@ -167,16 +167,13 @@ function Commons.GroupBuffMissing(spell)
   local TotalChars = 0
   local BuffedChars = 0
   for _, Char in pairs(Group) do
-    if Char:Exists() and not Char:IsDeadOrGhost() and Char:IsInRange(range) then
+    if Char:Exists() and not Char:IsDeadOrGhost() and Char:IsInRange(range) and not (Player:IsInDelve() and Char:Name() == "Brann Bronzebeard") then
       TotalChars = TotalChars + 1
       if spell:ID() == 381748 then -- Blessing of the Bronze
         local _, _, CharClass = Char:Class()
         if Char:BuffUp(Spell(BotBBuffIDs[CharClass]), true) then
           BuffedChars = BuffedChars + 1
         end
-      elseif Player:IsInDelve() and Char:Name() == "Brann Bronzebeard" then
-        -- If in a Delve with Brann, remove him from the total count.
-        TotalChars = TotalChars - 1
       elseif Char:BuffDown(spell, true) then
         return true
       end
