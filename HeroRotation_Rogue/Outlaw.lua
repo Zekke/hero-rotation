@@ -876,7 +876,7 @@ local function APL ()
   -- Out of Combat
   if not Player:AffectingCombat() and S.Vanish:TimeSinceLastCast() > 1 then
     -- Stealth
-    if not Player:StealthUp(true, false) then
+    if (not Player:StealthUp(true, false)) and S.BetweentheEyes:CooldownRemains() == 0 then
       ShouldReturn = Rogue.Stealth(Rogue.StealthSpell())
       if ShouldReturn then
         return ShouldReturn
