@@ -51,6 +51,7 @@ Spell.Paladin.Commons = {
   LayonHands                            = Spell(633),
   OfDuskandDawn                         = Spell(409441),
   Seraphim                              = Spell(152262),
+  VengefulWrath                         = Spell(406835),
   ZealotsParagon                        = Spell(391142),
   -- Auras
   ConcentrationAura                     = Spell(317920),
@@ -75,6 +76,11 @@ Spell.Paladin.Commons = {
 }
 
 Spell.Paladin.HeraldoftheSun = {
+  -- Talents
+  BlessingofAnshe                       = Spell(445200),
+  -- Buffs
+  BlessingofAnsheHolyBuff               = Spell(445204),
+  BlessingofAnsheRetBuff                = Spell(445206),
 }
 
 Spell.Paladin.Lightsmith = {
@@ -140,6 +146,7 @@ Spell.Paladin.Retribution = MergeTableByKey(Spell.Paladin.Commons, {
   -- Talents
   AshestoDust                           = Spell(383300),
   BladeofJustice                        = Spell(184575),
+  BladeofVengeance                      = Spell(403826),
   BladeofWrath                          = Spell(231832),
   BlessedChampion                       = Spell(403010),
   BoundlessJudgment                     = Spell(405278),
@@ -162,6 +169,7 @@ Spell.Paladin.Retribution = MergeTableByKey(Spell.Paladin.Commons, {
   FinalVerdict                          = Spell(383328),
   FiresofJustice                        = Spell(203316),
   HolyBlade                             = Spell(383342),
+  HolyFlames                            = Spell(406545),
   Jurisdiction                          = Spell(402971),
   JusticarsVengeance                    = Spell(215661),
   RadiantDecree                         = Spell(383469),
@@ -169,6 +177,7 @@ Spell.Paladin.Retribution = MergeTableByKey(Spell.Paladin.Commons, {
   RadiantGlory                          = Spell(458359),
   RighteousVerdict                      = Spell(267610),
   ShieldofVengeance                     = Spell(184662),
+  TempestoftheLightbringer              = Spell(383396),
   TemplarSlash                          = Spell(406647),
   TemplarStrike                         = Spell(407480),
   VanguardofJustice                     = Spell(406545),
@@ -178,53 +187,25 @@ Spell.Paladin.Retribution = MergeTableByKey(Spell.Paladin.Commons, {
   -- Buffs
   CrusadeBuff                           = MultiSpell(231895,454373),
   DivineArbiterBuff                     = Spell(406975),
+  DivineHammerBuff                      = Spell(198034),
   DivineResonanceBuff                   = Spell(384029),
   EchoesofWrathBuff                     = Spell(423590), -- T31, 4pc
   EmpyreanLegacyBuff                    = Spell(387178),
   EmpyreanPowerBuff                     = Spell(326733),
   -- Debuffs
+  ExecutionSentenceDebuff               = Spell(343527),
   ExpurgationDebuff                     = Spell(383346),
 })
 Spell.Paladin.Retribution = MergeTableByKey(Spell.Paladin.Retribution, Spell.Paladin.HeraldoftheSun)
 Spell.Paladin.Retribution = MergeTableByKey(Spell.Paladin.Retribution, Spell.Paladin.Templar)
 
-Spell.Paladin.Holy = MergeTableByKey(Spell.Paladin.Commons, {
-  -- Abilities
-  DivineProtection                      = Spell(498),
-  HolyShock                             = Spell(20473),
-  Judgment                              = Spell(275773),
-  LightofDawn                           = Spell(85222),
-  InfusionofLightBuff                   = Spell(54149),
-  -- Talents
-  AvengingCrusader                      = Spell(216331),
-  Awakening                             = Spell(248033),
-  BestowFaith                           = Spell(223306),
-  CrusadersMight                        = Spell(196926),
-  GlimmerofLight                        = Spell(325966),
-  GlimmerofLightDebuff                  = Spell(325966),
-  HolyPrism                             = Spell(114165),
-  LightsHammer                          = Spell(114158),
-})
-Spell.Paladin.Holy = MergeTableByKey(Spell.Paladin.Holy, Spell.Paladin.HeraldoftheSun)
-Spell.Paladin.Holy = MergeTableByKey(Spell.Paladin.Holy, Spell.Paladin.Lightsmith)
-
 -- Items
 if not Item.Paladin then Item.Paladin = {} end
 Item.Paladin.Commons = {
-  -- Trinkets
-  AlgetharPuzzleBox                     = Item(193701, {13, 14}),
-  BeaconToTheBeyond                     = Item(203963, {13, 14}),
 }
 
 Item.Paladin.Protection = MergeTableByKey(Item.Paladin.Commons, {
 })
 
 Item.Paladin.Retribution = MergeTableByKey(Item.Paladin.Commons, {
-  -- Other On-Use Items
-  Fyralath                              = Item(206448, {16}),
-  ShadowedRazingAnnihilator             = Item(205046, {16}),
-  
-})
-
-Item.Paladin.Holy = MergeTableByKey(Item.Paladin.Commons, {
 })

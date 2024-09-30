@@ -69,7 +69,10 @@ Spell.Evoker.Commons = {
 }
 
 Spell.Evoker.Chronowarden = {
+  -- Abilitiies
+  ChronoFlames                          = Spell(431443),
   -- Talents
+  ChronoFlame                           = Spell(431442),
   ThreadsofFate                         = Spell(431715),
 }
 
@@ -80,7 +83,7 @@ Spell.Evoker.Flameshaper = {
   FanTheFlames                          = Spell(444318),
   TravelingFlame                        = Spell(444140),
   -- Buffs
-  EnkindleBuff                        = Spell(444017),
+  EnkindleBuff                          = Spell(444017),
 }
 
 Spell.Evoker.Scalecommander = {
@@ -104,17 +107,19 @@ Spell.Evoker.Augmentation = MergeTableByKey(Spell.Evoker.Commons, {
   BronzeAttunement                      = Spell(403265),
   -- Talents
   BlisteringScales                      = Spell(360827),
-  BreathofEons                          = Spell(403631),
+  BreathofEons                          = MultiSpell(403631,442204),
   DreamofSpring                         = Spell(414969),
   EbonMight                             = Spell(395152),
   Eruption                              = Spell(395160),
   FontofMagic                           = Spell(408083),
   ImminentDestruction                   = Spell(459537),
   InterwovenThreads                     = Spell(412713),
+  MoltenEmbers                          = Spell(459725),
+  Overlord                              = Spell(410260),
   Prescience                            = Spell(409311),
   PupilofAlexstrasza                    = Spell(407814),
   TimeSkip                              = Spell(404977),
-  Upheaval                              = Spell(408092),
+  Upheaval                              = Spell(396286),
   -- Buffs
   BlackAttunementBuff                   = Spell(403264),
   BlisteringScalesBuff                  = Spell(360827),
@@ -184,24 +189,27 @@ Spell.Evoker.Devastation = MergeTableByKey(Spell.Evoker.Devastation, Spell.Evoke
 if not Item.Evoker then Item.Evoker = {} end
 Item.Evoker.Commons = {
   -- Trinkets kept for variables
-  BeacontotheBeyond                     = Item(203963, {13, 14}),
-  BelorrelostheSuncaller                = Item(207172, {13, 14}),
-  MirrorofFracturedTomorrows            = Item(207581, {13, 14}),
   RubyWhelpShell                        = Item(193757, {13, 14}),
   WhisperingIncarnateIcon               = Item(194301, {13, 14}),
   -- DF Trinkets
   NymuesUnravelingSpindle               = Item(208615, {13, 14}),
   -- TWW Trinkets
-  AberrantSpellforge                    = Item(212451, {13, 14}),
-  ConcoctionKissofDeath                 = Item(215174, {13, 14}),
   SpymastersWeb                         = Item(220202, {13, 14}),
-  TreacherousTransmitter                = Item(221023, {13, 14}),
-  -- DF Items
-  KharnalexTheFirstLight                = Item(195519, {16}),
 }
 
 Item.Evoker.Augmentation = MergeTableByKey(Item.Evoker.Commons, {
+  -- Trinkets kept for variables
+  BeacontotheBeyond                     = Item(203963, {13, 14}),
+  -- TWW Trinkets
+  AberrantSpellforge                    = Item(212451, {13, 14}),
+  ConcoctionKissofDeath                 = Item(215174, {13, 14}),
+  TreacherousTransmitter                = Item(221023, {13, 14}),
 })
 
 Item.Evoker.Devastation = MergeTableByKey(Item.Evoker.Commons, {
+  -- Trinkets kept for variables
+  BelorrelostheSuncaller                = Item(207172, {13, 14}),
+  MirrorofFracturedTomorrows            = Item(207581, {13, 14}),
+  -- DF Items
+  KharnalexTheFirstLight                = Item(195519, {16}),
 })

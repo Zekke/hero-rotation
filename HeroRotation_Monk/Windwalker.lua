@@ -649,8 +649,8 @@ local function DefaultCleave()
       if Cast(S.TigerPalm, nil, nil, not Target:IsInMeleeRange(5)) then return "tiger_palm default_cleave 36"; end
     end
   end
-  -- fists_of_fury,target_if=max:target.time_to_die,if=buff.ordered_elements.remains>execute_time|!buff.ordered_elements.up|buff.ordered_elements.remains<=gcd.max|active_enemies>2
-  if S.FistsofFury:IsReady() and (Player:BuffRemains(S.OrderedElementsBuff) > S.FistsofFury:ExecuteTime() or Player:BuffDown(S.OrderedElementsBuff) or Player:BuffRemains(S.OrderedElementsBuff) <= Player:GCD() or EnemiesCount8y > 2) then
+  -- fists_of_fury,target_if=max:target.time_to_die
+  if S.FistsofFury:IsReady() then
     --if Everyone.CastTargetIf(S.FistsofFury, Enemies8y, "max", EvaluateTargetIfFilterTTD, nil, not Target:IsInMeleeRange(8)) then return "fists_of_fury default_cleave 38"; end
     if Cast(S.FistsofFury, nil, nil, not Target:IsInMeleeRange(8)) then return "fists_of_fury default_cleave 38"; end
   end
@@ -861,8 +861,8 @@ local function DefaultST()
   if S.BlackoutKick:IsReady() and (Player:BuffStack(S.TeachingsoftheMonasteryBuff) > 7 and S.MemoryoftheMonastery:IsAvailable() and Player:BuffDown(S.MemoryoftheMonasteryBuff) and S.FistsofFury:CooldownDown()) then
     if Everyone.CastTargetIf(S.BlackoutKick, Enemies5y, "min", EvaluateTargetIfFilterMarkoftheCrane, nil, not Target:IsInMeleeRange(5)) then return "blackout_kick default_st 38"; end
   end
-  -- fists_of_fury,if=buff.ordered_elements.remains>execute_time|!buff.ordered_elements.up|buff.ordered_elements.remains<=gcd.max
-  if S.FistsofFury:IsReady() and (Player:BuffRemains(S.OrderedElementsBuff) > S.FistsofFury:ExecuteTime() or Player:BuffDown(S.OrderedElementsBuff) or Player:BuffRemains(S.OrderedElementsBuff) <= Player:GCD()) then
+  -- fists_of_fury
+  if S.FistsofFury:IsReady() then
     if Cast(S.FistsofFury, nil, nil, not Target:IsInMeleeRange(8)) then return "fists_of_fury default_st 40"; end
   end
   -- spinning_crane_kick,if=(buff.dance_of_chiji.stack=2|buff.dance_of_chiji.remains<2&buff.dance_of_chiji.up)&combo_strike&!buff.ordered_elements.up
