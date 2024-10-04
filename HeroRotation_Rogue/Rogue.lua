@@ -104,6 +104,8 @@ Spell.Rogue.Commons = {
   FollowTheBlood          = Spell(457068),
   HandOfFate              = Spell(452536),
   ImprovedAmbush          = Spell(381620),
+  LingeringDarkness       = Spell(457056),
+  LingeringDarknessBuff   = Spell(457273),
   MarkedforDeath          = Spell(137619),
   MomentumOfDespair       = Spell(457067),
   Nightstalker            = Spell(14062),
@@ -278,6 +280,7 @@ Spell.Rogue.Subtlety = MergeTableByKey(Spell.Rogue.Commons, {
   FinalityEviscerateBuff  = Spell(385949),
   FinalityRuptureBuff     = Spell(385951),
   Flagellation            = Spell(384631),
+  FlagellationBuff        = Spell(384631),
   FlagellationPersistBuff = Spell(394758),
   Gloomblade              = Spell(200758),
   GoremawsBite            = Spell(426591),
@@ -335,6 +338,7 @@ Item.Rogue.Subtlety = {
   -- Trinkets
   BottledFlayedwingToxin   = Item(178742, {13, 14}),
   ImperfectAscendancySerum = Item(225654, {13, 14}),
+  MadQueensMandate         = Item(212454, {13, 14}),
   TreacherousTransmitter   = Item(221023, {13, 14})
 }
 
