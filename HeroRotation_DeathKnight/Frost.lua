@@ -151,7 +151,7 @@ end
 SetTrinketVariables()
 
 local function SetSpellVariables()
-  VarBreathRPCost = 1.7
+  VarBreathRPCost = 17
   VarStaticRimeBuffs = S.RageoftheFrozenChampion:IsAvailable() or S.Icebreaker:IsAvailable()
   VarBreathRPThreshold = 60
   VarERWBreathRPTrigger = 70
@@ -395,7 +395,14 @@ local function Breath()
     if Cast(S.HowlingBlast, nil, nil, not Target:IsSpellInRange(S.HowlingBlast)) then return "howling_blast breath 2"; end
   end
   -- horn_of_winter,if=rune<2&runic_power.deficit>30&(!buff.empower_rune_weapon.up|runic_power<variable.breath_rp_cost*2*gcd.max)
-  if S.HornofWinter:IsReady() and (Player:Rune() < 2 and Player:RunicPowerDeficit() > 30 and (Player:BuffDown(S.EmpowerRuneWeaponBuff) or Player:RunicPower() < VarBreathRPCost * 2 * Player:GCD())) then
+  --HR.Print("Horn of Winter (Breath) :")
+  --HR.Print(".Runes (should be < 2) : " .. Player:Rune())
+  --HR.Print(".RP Deficit (should be > 30) : " .. Player:RunicPowerDeficit())
+  --HR.Print(".3rd condition :")
+  --HR.Print("..Empower Rune Weapon BuffDown : " .. tostring(Player:BuffDown(S.EmpowerRuneWeaponBuff)))
+  --HR.Print("..VarBreathRPCost = " .. VarBreathRPCost)
+  --HR.Print("..RP = " .. Player:RunicPower())
+  if S.HornofWinter:IsReady() and Player:Rune() < 3 and Player:RunicPowerDeficit() > 30 and (Player:BuffDown(S.EmpowerRuneWeaponBuff) or Player:RunicPower() < (VarBreathRPCost * 2 * Player:GCD())) then
     if Cast(S.HornofWinter, Settings.Frost.GCDasOffGCD.HornOfWinter) then return "horn_of_winter breath 4"; end
   end
   -- obliterate,target_if=max:(debuff.razorice.stack+1)%(debuff.razorice.remains+1)*death_knight.runeforge.razorice+((hero_tree.deathbringer&debuff.reapers_mark_debuff.down)*5),if=buff.killing_machine.react|runic_power.deficit>20
