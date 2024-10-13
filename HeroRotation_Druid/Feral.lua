@@ -78,7 +78,7 @@ local VarTrinket1Sync, VarTrinket2Sync
 local VarTrinketPriority
 local VarTrinketFailures = 0
 local function SetTrinketVariables()
-  local T1, T2 = Player:GetTrinketData()
+  local T1, T2 = Player:GetTrinketData(OnUseExcludes)
 
   -- If we don't have trinket items, try again in 5 seconds.
   if VarTrinketFailures < 5 and ((T1.ID == 0 or T2.ID == 0) or (T1.SpellID > 0 and not T1.Usable or T2.SpellID > 0 and not T2.Usable)) then
@@ -374,7 +374,7 @@ local function Precombat()
   -- Note: Moved to variable declarations and PLAYER_EQUIPMENT_CHANGED.
   -- Manually added: wild_charge
   if S.WildCharge:IsCastable() and (not Target:IsInRange(8)) then
-    if Cast(S.WildCharge, nil, nil, not Target:IsInRange(28)) then return "wild_charge precombat 6"; end
+    if Cast(S.WildCharge, Settings.CommonsOGCD.GCDasOffGCD.WildCharge, nil, not Target:IsInRange(28)) then return "wild_charge precombat 6"; end
   end
   -- Manually added: rake
   if S.Rake:IsReady() then
@@ -788,7 +788,7 @@ end
 local function OnInit()
   S.RipDebuff:RegisterAuraTracking()
 
-  HR.Print("Feral Druid rotation has been updated for patch 11.0.0.")
+  HR.Print("Feral Druid rotation has been updated for patch 11.0.2.")
 end
 
 HR.SetAPL(103, APL, OnInit)

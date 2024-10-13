@@ -120,6 +120,8 @@ local function Precombat()
 end
 
 local function Defensives()
+  -- ardent_defender
+  -- Note: This is now in the APL, but we are handling it as we have been.
   if Player:HealthPercentage() <= Settings.Protection.LoHHP and S.LayonHands:IsCastable() then
     if Cast(S.LayonHands, nil, Settings.Protection.DisplayStyle.Defensives) then return "lay_on_hands defensive 2"; end
   end
@@ -228,21 +230,21 @@ local function HammerofLight()
 end
 
 local function Standard()
-  -- call_action_list,name=hammer_of_light,if=talent.lights_guidance.enabled&(cooldown.eye_of_tyr.remains<2|buff.hammer_of_light_ready.up)&(!talent.redoubt.enabled|buff.redoubt.stack>=2|!talent.bastion_of_light.enabled)
-  if S.LightsGuidance:IsAvailable() and (S.EyeofTyr:CooldownRemains() < 2 or S.HammerofLight:IsLearned()) and (not S.Redoubt:IsAvailable() or Player:BuffStack(S.RedoubtBuff) >= 2 or not S.BastionofLight:IsAvailable()) then
+  -- call_action_list,name=hammer_of_light,if=talent.lights_guidance.enabled&(cooldown.eye_of_tyr.remains<2|buff.hammer_of_light_ready.up)&(!talent.redoubt.enabled|buff.redoubt.stack>=2|!talent.bastion_of_light.enabled)&!buff.hammer_of_light_free.up
+  if S.LightsGuidance:IsAvailable() and (S.EyeofTyr:CooldownRemains() < 2 or S.HammerofLight:IsLearned()) and (not S.Redoubt:IsAvailable() or Player:BuffStack(S.RedoubtBuff) >= 2 or not S.BastionofLight:IsAvailable()) and S.HammerofLight:Cost() > 0 then
     local ShouldReturn = HammerofLight(); if ShouldReturn then return ShouldReturn; end
   end
-  -- hammer_of_light,if=(!talent.redoubt.enabled|buff.redoubt.stack=3)&(buff.blessing_of_dawn.stack>=1|!talent.of_dusk_and_dawn.enabled)
-  if S.HammerofLight:IsReady() and ((not S.Redoubt:IsAvailable() or Player:BuffStack(S.RedoubtBuff) == 3) and (Player:BuffUp(S.BlessingofDawnBuff) or not S.OfDuskandDawn:IsAvailable())) then
+  -- hammer_of_light,if=buff.hammer_of_light_free.remains<2|buff.shake_the_heavens.duration<1|!buff.shake_the_heavens.up|cooldown.eye_of_tyr.remains<1.5|fight_remains<2
+  if S.HammerofLight:IsReady() and (Player:BuffRemains(S.LightsDeliveranceBuff) < 2 or Player:BuffRemains(S.ShaketheHeavensBuff) < 1 or Player:BuffDown(S.ShaketheHeavensBuff) or S.EyeofTyr:CooldownRemains() < 1.5 or BossFightRemains < 2) then
     if Cast(S.HammerofLight, Settings.Protection.GCDasOffGCD.EyeOfTyr, nil, not Target:IsInRange(12)) then return "hammer_of_light standard 2"; end
   end
-  -- shield_of_the_righteous,if=(((!talent.righteous_protector.enabled|cooldown.righteous_protector_icd.remains=0)&holy_power>2)|buff.bastion_of_light.up|buff.divine_purpose.up)&!((buff.hammer_of_light_ready.up|buff.hammer_of_light_free.up))
+  -- shield_of_the_righteous,if=(!talent.righteous_protector.enabled|cooldown.righteous_protector_icd.remains=0)&!buff.hammer_of_light_ready.up
   local RighteousProtectorICD = 999
   if S.RighteousProtector:IsAvailable() then
     local LastCast = mathmin(S.ShieldoftheRighteous:TimeSinceLastCast(), S.WordofGlory:TimeSinceLastCast())
     RighteousProtectorICD = mathmax(0, 1 - mathmin(S.ShieldoftheRighteous:TimeSinceLastCast(), S.WordofGlory:TimeSinceLastCast()))
   end
-  if S.ShieldoftheRighteous:IsReady() and ((((not S.RighteousProtector:IsAvailable() or RighteousProtectorICD == 0) and Player:HolyPower() > 2) or Player:BuffUp(S.BastionofLightBuff) or Player:BuffUp(S.DivinePurposeBuff)) and not (S.HammerofLight:IsLearned())) then
+  if S.ShieldoftheRighteous:IsReady() and ((not S.RighteousProtector:IsAvailable() or RighteousProtectorICD == 0) and not S.HammerofLight:IsLearned()) then
     if Cast(S.ShieldoftheRighteous, nil, Settings.Protection.DisplayStyle.ShieldOfTheRighteous) then return "shield_of_the_righteous standard 4"; end
   end
   -- holy_armaments,if=next_armament=sacred_weapon&(!buff.sacred_weapon.up|(buff.sacred_weapon.remains<6&!buff.avenging_wrath.up&cooldown.avenging_wrath.remains<=30))
@@ -428,6 +430,8 @@ local function APL()
     if CDsON() then
       local ShouldReturn = Cooldowns(); if ShouldReturn then return ShouldReturn; end
     end
+    -- call_action_list,name=defensives
+    -- Note: Moved above Cooldowns().
     -- call_action_list,name=trinkets
     if Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items then
       local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
@@ -440,7 +444,7 @@ local function APL()
 end
 
 local function Init()
-  HR.Print("Protection Paladin rotation has been updated for patch 11.0.0.")
+  HR.Print("Protection Paladin rotation has been updated for patch 11.0.2.")
 end
 
 HR.SetAPL(66, APL, Init)

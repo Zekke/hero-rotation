@@ -84,7 +84,7 @@ local VarTrinket1BL, VarTrinket2BL
 local VarTrinket1IsWeird, VarTrinket2IsWeird
 local VarTrinketFailures = 0
 local function SetTrinketVariables()
-  local T1, T2 = Player:GetTrinketData()
+  local T1, T2 = Player:GetTrinketData(OnUseExcludes)
 
   -- If we don't have trinket items, try again in 5 seconds.
   if VarTrinketFailures < 5 and ((T1.ID == 0 or T2.ID == 0) or (T1.SpellID > 0 and not T1.Usable or T2.SpellID > 0 and not T2.Usable)) then
@@ -1134,7 +1134,7 @@ end
 local function Init()
   S.FlameShockDebuff:RegisterAuraTracking()
 
-  HR.Print("Enhancement Shaman rotation has been updated for patch 11.0.0.")
+  HR.Print("Enhancement Shaman rotation has been updated for patch 11.0.2.")
 end
 
 HR.SetAPL(263, APL, Init)

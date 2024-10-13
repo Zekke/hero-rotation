@@ -62,7 +62,7 @@ local OnUseExcludes = {
 local trinket1, trinket2
 local VarTrinketFailures = 0
 local function SetTrinketVariables()
-  local T1, T2 = Player:GetTrinketData()
+  local T1, T2 = Player:GetTrinketData(OnUseExcludes)
 
   -- If we don't have trinket items, try again in 5 seconds.
   if VarTrinketFailures < 5 and ((T1.ID == 0 or T2.ID == 0) or (T1.SpellID > 0 and not T1.Usable or T2.SpellID > 0 and not T2.Usable)) then
@@ -376,8 +376,12 @@ local function Finish(ReturnSpellOnly)
     if S.Crackshot:IsAvailable() and (S.Vanish:CooldownRemains() > 45 or S.UnderhandedUpperhand:IsAvailable()
       and S.WithoutATrace:IsAvailable() and (Player:BuffRemains(S.AdrenalineRush) > 12 or Player:BuffDown(S.AdrenalineRush)
       and S.AdrenalineRush:CooldownRemains() > 45)) and (HL.FilteredFightRemains(EnemiesBF, ">", 30)) then
-      if CastPooling(S.BetweentheEyes, nil, not Target:IsSpellInRange(S.BetweentheEyes)) then
-        return "Cast Between the Eyes"
+      if ReturnSpellOnly then
+        return S.BetweentheEyes
+      else
+        if CastPooling(S.BetweentheEyes, nil, not Target:IsSpellInRange(S.BetweentheEyes)) then
+          return "Cast Between the Eyes"
+        end
       end
     end
   end
@@ -495,7 +499,6 @@ local function SpellQueueMacro (BaseSpell, ReturnSpellOnly)
   end
 
   local MacroTable = { BaseSpell, MacroAbility }
-
   ShouldReturn = CastQueue(unpack(MacroTable))
   if ShouldReturn then
     return "| " .. MacroTable[2]:Name()
@@ -1050,7 +1053,7 @@ local function APL ()
 end
 
 local function Init ()
-  HR.Print("Outlaw Rogue rotation has been updated for patch 11.0.0. \n ",
+  HR.Print("Outlaw Rogue rotation has been updated for patch 11.0.2. \n ",
     "Note: It is known & Intended that Audacity procs will suggest Sinister Strike without a keybind shown")
 end
 

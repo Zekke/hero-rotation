@@ -74,7 +74,7 @@ local VarTrinket1Steroids, VarTrinket2Steroids
 local VarSpecialTrinket
 local VarTrinketFailures = 0
 local function SetTrinketVariables()
-  local T1, T2 = Player:GetTrinketData()
+  local T1, T2 = Player:GetTrinketData(OnUseExcludes)
 
   -- If we don't have trinket items, try again in 5 seconds.
   if VarTrinketFailures < 5 and ((T1.ID == 0 or T2.ID == 0) or (T1.SpellID > 0 and not T1.Usable or T2.SpellID > 0 and not T2.Usable)) then
@@ -462,7 +462,7 @@ local function Meta()
     if Cast(S.ThrowGlaive, Settings.Havoc.GCDasOffGCD.ThrowGlaive, nil, not Target:IsSpellInRange(S.ThrowGlaive)) then return "throw_glaive main 58"; end
   end
   -- fel_rush,if=buff.unbound_chaos.down&recharge_time<cooldown.eye_beam.remains&debuff.essence_break.down&(cooldown.eye_beam.remains>8|charges_fractional>1.01)&buff.out_of_range.down&active_enemies>1
-  if S.FelRush:IsCastable() and UseFelRush() and (Player:BuffDown(S.UnboundChaosBuff) and S.FelRush:Recharge() < S.EyeBeam:CooldownDown() and Target:DebuffDown(S.EssenceBreakDebuff) and (S.EyeBeam:CooldownRemains() > 8 or S.FelRush:ChargesFractional() > 1.01) and IsInMeleeRange(15) and Enemies8yCount > 1) then
+  if S.FelRush:IsCastable() and UseFelRush() and (Player:BuffDown(S.UnboundChaosBuff) and S.FelRush:Recharge() < S.EyeBeam:CooldownRemains() and Target:DebuffDown(S.EssenceBreakDebuff) and (S.EyeBeam:CooldownRemains() > 8 or S.FelRush:ChargesFractional() > 1.01) and IsInMeleeRange(15) and Enemies8yCount > 1) then
     if Cast(S.FelRush, nil, Settings.CommonsDS.DisplayStyle.FelRush) then return "fel_rush meta 60"; end
   end
   -- demons_bite

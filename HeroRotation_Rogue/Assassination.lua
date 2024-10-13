@@ -81,7 +81,7 @@ local EffectiveCPSpend
 -- Equipment
 local VarTrinketFailures = 0
 local function SetTrinketVariables ()
-  local T1, T2 = Player:GetTrinketData()
+  local T1, T2 = Player:GetTrinketData(OnUseExcludeTrinkets)
 
   -- If we don't have trinket items, try again in 5 seconds.
   if VarTrinketFailures < 5 and ((T1.ID == 0 or T2.ID == 0) or (T1.SpellID > 0 and not T1.Usable or T2.SpellID > 0 and not T2.Usable)) then
@@ -112,6 +112,14 @@ HL:RegisterForEvent(function()
   VarTrinketFailures = 0
   SetTrinketVariables()
 end, "PLAYER_EQUIPMENT_CHANGED")
+
+HL:RegisterForEvent(function()
+  if S.FateboundInevitability:IsAvailable() then
+    S.ColdBlood = Spell(456330)
+  else
+    S.ColdBlood = Spell(382245)
+  end
+end, "SPELLS_CHANGED", "LEARNED_SPELL_IN_TAB", "PLAYER_LOGIN", "PLAYER_TALENT_UPDATE", "PLAYER_SPECIALIZATION_CHANGED")
 
 -- Interrupts
 local Interrupts = {
@@ -511,13 +519,6 @@ end
 
 -- # Vanish Handling
 local function Vanish ()
-  -- actions.vanish=pool_resource,for_next=1,extra_amount=45
-  if Settings.Commons.ShowPooling and Player:EnergyPredicted() < 45 then
-    if Cast(S.PoolEnergy) then
-      return "Pool for Vanish"
-    end
-  end
-
   -- # Vanish to fish for Fateful Ending
   -- actions.vanish+=/vanish,if=!buff.fatebound_lucky_coin.up&(buff.fatebound_coin_tails.stack>=5|buff.fatebound_coin_heads.stack>=5)
   if S.Vanish:IsCastable() and Player:BuffDown(S.FateboundLuckyCoin) and
@@ -539,13 +540,6 @@ local function Vanish ()
     ShouldReturn = StealthMacro(S.Vanish)
     if ShouldReturn then
       return "Cast Vanish Garrote Deathmark (No Carnage)" .. ShouldReturn
-    end
-  end
-
-  -- actions.vanish=pool_resource,for_next=1,extra_amount=45
-  if Settings.Commons.ShowPooling and Player:EnergyPredicted() < 45 then
-    if Cast(S.PoolEnergy) then
-      return "Pool for Vanish"
     end
   end
 
@@ -760,10 +754,6 @@ end
 
 -- # Cooldowns
 local function CDs ()
-  if not TargetInAoERange then
-    return
-  end
-
   if not HR.CDsON() then
     return
   end
@@ -850,7 +840,7 @@ local function CDs ()
   -- |!variable.single_target)&!buff.vanish.up&(!cooldown.kingsbane.up|!variable.single_target)&!cooldown.deathmark.up
   if S.ColdBlood:IsReady() and Player:DebuffDown(S.ColdBlood) then
     if Player:BuffDown(S.EdgeCase) and S.Deathmark:CooldownRemains() > 10 and Player:BuffDown(S.DarkestNightBuff)
-      and ComboPoints >= EffectiveCPSpend and (NotPooling or Target:DebuffStack(S.AmplifyingPoisonDebuff) >= 20
+      and ComboPoints >= EffectiveCPSpend and (NotPooling or (Target:DebuffStack(S.AmplifyingPoisonDebuff) + Target:DebuffStack(S.AmplifyingPoisonDebuffDeathmark)) >= 20
       or not SingleTarget) and Player:BuffDown(Rogue.VanishBuffSpell()) and (not S.Kingsbane:CooldownUp() or not SingleTarget)
       and not S.Deathmark:CooldownUp() then
       if Cast(S.ColdBlood, Settings.CommonsOGCD.OffGCDasOffGCD.ColdBlood) then
@@ -1243,19 +1233,19 @@ local function APL ()
     -- Racials
     if HR.CDsON() then
       -- actions+=/arcane_torrent,if=energy.deficit>=15+energy.regen_combined
-      if S.ArcaneTorrent:IsCastable() and TargetInMeleeRange and Player:EnergyDeficit() >= 15 + EnergyRegenCombined then
+      if S.ArcaneTorrent:IsCastable() and Player:EnergyDeficit() >= 15 + EnergyRegenCombined then
         if Cast(S.ArcaneTorrent, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then
           return "Cast Arcane Torrent"
         end
       end
       -- actions+=/arcane_pulse
-      if S.ArcanePulse:IsCastable() and TargetInMeleeRange then
+      if S.ArcanePulse:IsCastable() then
         if Cast(S.ArcanePulse, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then
           return "Cast Arcane Pulse"
         end
       end
       -- actions+=/lights_judgment
-      if S.LightsJudgment:IsCastable() and TargetInMeleeRange then
+      if S.LightsJudgment:IsCastable() then
         if Cast(S.LightsJudgment, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then
           return "Cast Lights Judgment"
         end
@@ -1281,7 +1271,7 @@ local function Init ()
   S.Sepsis:RegisterAuraTracking()
   S.Garrote:RegisterAuraTracking()
 
-  HR.Print("Assassination Rogue rotation has been updated for patch 11.0.0.")
+  HR.Print("Assassination Rogue rotation has been updated for patch 11.0.2.")
 end
 
 HR.SetAPL(259, APL, Init)

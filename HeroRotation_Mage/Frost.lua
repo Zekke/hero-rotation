@@ -164,8 +164,8 @@ local function Cooldowns()
     if I.ImperfectAscendancySerum:IsEquippedAndReady() and (Player:BuffRemains(S.IcyVeinsBuff) > 19 or BossFightRemains < 25) then
       if Cast(I.ImperfectAscendancySerum, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "imperfect_ascendancy_serum cd 2"; end
     end
-    -- use_item,name=spymasters_web,if=(buff.icy_veins.remains>19&fight_remains<100)|fight_remains<25
-    if I.SpymastersWeb:IsEquippedAndReady() and ((Player:BuffRemains(S.IcyVeinsBuff) > 19 and BossFightRemains < 100) or BossFightRemains < 25) then
+    -- use_item,name=spymasters_web,if=(buff.icy_veins.remains>19&(fight_remains<100|buff.spymasters_report.stack=40&fight_remains>120))|fight_remains<25
+    if I.SpymastersWeb:IsEquippedAndReady() and ((Player:BuffRemains(S.IcyVeinsBuff) > 19 and (BossFightRemains < 100 or Player:BuffStack(S.SpymastersReportBuff) == 40 and FightRemains > 120)) or BossFightRemains < 25) then
       if Cast(I.SpymastersWeb, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "spymasters_web cd 4"; end
     end
   end
@@ -593,8 +593,8 @@ local function APL()
     if CDsON() then
       local ShouldReturn = Cooldowns(); if ShouldReturn then return ShouldReturn; end
     end
-    -- run_action_list,name=aoe,if=active_enemies>=7&!set_bonus.tier30_2pc|active_enemies>=4&talent.ice_caller
-    if AoEON() and (EnemiesCount16ySplash >= 7 and not Player:HasTier(30, 2) or EnemiesCount16ySplash >= 4 and S.IceCaller:IsAvailable()) then
+    -- run_action_list,name=aoe,if=active_enemies>=7|active_enemies>=3&talent.ice_caller
+    if AoEON() and (EnemiesCount16ySplash >= 7 or EnemiesCount16ySplash >= 3 and S.IceCaller:IsAvailable()) then
       local ShouldReturn = Aoe(); if ShouldReturn then return ShouldReturn; end
       if HR.CastAnnotated(S.Pool, false, "WAIT") then return "pool for Aoe()"; end
     end
@@ -622,7 +622,7 @@ end
 local function Init()
   S.WintersChillDebuff:RegisterAuraTracking()
 
-  HR.Print("Frost Mage rotation has been updated for patch 11.0.0.")
+  HR.Print("Frost Mage rotation has been updated for patch 11.0.2.")
 end
 
 HR.SetAPL(64, APL, Init)
