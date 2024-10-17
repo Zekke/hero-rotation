@@ -1007,7 +1007,7 @@ local function Direct ()
   end
 
   -- actions.direct+=/echoing_reprimand,if=variable.use_filler|fight_remains<20
-  if CDsON() and S.EchoingReprimand:IsReady() then
+  if S.EchoingReprimand:IsReady() then
     if Cast(S.EchoingReprimand, Settings.CommonsOGCD.GCDasOffGCD.EchoingReprimand, nil, not TargetInMeleeRange) then
       return "Cast Echoing Reprimand"
     end

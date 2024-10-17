@@ -341,7 +341,8 @@ Item.Rogue.Subtlety = {
   BottledFlayedwingToxin   = Item(178742, {13, 14}),
   ImperfectAscendancySerum = Item(225654, {13, 14}),
   MadQueensMandate         = Item(212454, {13, 14}),
-  TreacherousTransmitter   = Item(221023, {13, 14})
+  TreacherousTransmitter   = Item(221023, {13, 14}),
+  SkardynsGrace            = Item(133282, {13, 14})
 }
 
 function Commons.StealthSpell()
