@@ -75,7 +75,7 @@ local VarTrinket1Spell, VarTrinket2Spell
 local VarTrinket1Range, VarTrinket2Range
 local VarTrinket1CastTime, VarTrinket2CastTime
 local VarTrinket1CD, VarTrinket2CD
-local VarTrinket1BL, VarTrinket2BL
+local VarTrinket1Ex, VarTrinket2Ex
 local VarOnUseTrinket
 local VarTrinketFailures = 0
 local function SetTrinketVariables()
@@ -110,8 +110,8 @@ local function SetTrinketVariables()
   VarTrinket1CD = T1.Cooldown
   VarTrinket2CD = T2.Cooldown
 
-  VarTrinket1BL = T1.Blacklisted
-  VarTrinket2BL = T2.Blacklisted
+  VarTrinket1Ex = T1.Excluded
+  VarTrinket2Ex = T2.Excluded
 
   local T1Test = num(Trinket1:HasUseBuff() and VarTrinket1ID ~= I.OvinaxsMercurialEgg:ID())
   local T2Test = num(Trinket2:HasUseBuff() and VarTrinket2ID ~= I.OvinaxsMercurialEgg:ID()) * 2
@@ -249,14 +249,17 @@ local function Precombat()
   if S.Wrath:IsCastable() and (Player:IsCasting(S.Wrath) and S.Wrath:Count() == 2 or Player:PrevGCD(1, S.Wrath) and S.Wrath:Count() == 1) then
     if Cast(S.Wrath, nil, nil, not Target:IsSpellInRange(S.Wrath)) then return "wrath precombat 4"; end
   end
-  -- wait,sec=0.1,if=hero_tree.keeper_of_the_grove&!talent.stellar_flare
+  -- regrowth,if=hero_tree.keeper_of_the_grove&!talent.stellar_flare
+  if S.Regrowth:IsCastable() and (Player:HeroTreeID() == 23 and not S.StellarFlare:IsAvailable()) then
+    if Cast(S.Regrowth, Settings.Balance.GCDasOffGCD.Regrowth) then return "regrowth precombat 6"; end
+  end
   -- starfire,if=!talent.stellar_flare&hero_tree.elunes_chosen
   if S.Starfire:IsCastable() and (not S.StellarFlare:IsAvailable() and Player:HeroTreeID() == 24) then
-    if Cast(S.Starfire, nil, nil, not Target:IsSpellInRange(S.Starfire)) then return "starfire precombat 6"; end
+    if Cast(S.Starfire, nil, nil, not Target:IsSpellInRange(S.Starfire)) then return "starfire precombat 8"; end
   end
   -- stellar_flare
   if S.StellarFlare:IsCastable() then
-    if Cast(S.StellarFlare, nil, nil, not Target:IsSpellInRange(S.StellarFlare)) then return "stellar_flare precombat 8"; end
+    if Cast(S.StellarFlare, nil, nil, not Target:IsSpellInRange(S.StellarFlare)) then return "stellar_flare precombat 10"; end
   end
 end
 
@@ -280,11 +283,11 @@ local function PreCD()
   end
   if Settings.Commons.Enabled.Trinkets then
     -- use_item,slot=trinket1,if=!trinket.1.is.spymasters_web&!trinket.1.is.imperfect_ascendancy_serum&!trinket.1.is.treacherous_transmitter&(variable.on_use_trinket=1|variable.on_use_trinket=3)&variable.cd_condition
-    if Trinket1:IsReady() and not VarTrinket1BL and (VarTrinket1ID ~= I.SpymastersWeb:ID() and VarTrinket1ID ~= I.ImperfectAscendancySerum:ID() and VarTrinket1ID ~= I.TreacherousTransmitter:ID() and (VarOnUseTrinket == 1 or VarOnUseTrinket == 3) and VarCDCondition) then
+    if Trinket1:IsReady() and not VarTrinket1Ex and not Player:IsItemBlacklisted(Trinket1) and (VarTrinket1ID ~= I.SpymastersWeb:ID() and VarTrinket1ID ~= I.ImperfectAscendancySerum:ID() and VarTrinket1ID ~= I.TreacherousTransmitter:ID() and (VarOnUseTrinket == 1 or VarOnUseTrinket == 3) and VarCDCondition) then
       if Cast(Trinket1, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket1Range)) then return "trinket1 ("..Trinket1:Name()..") pre_cd 8"; end
     end
     -- use_item,slot=trinket2,if=!trinket.2.is.spymasters_web&!trinket.2.is.imperfect_ascendancy_serum&!trinket.2.is.treacherous_transmitter&variable.on_use_trinket=2&variable.cd_condition
-    if Trinket2:IsReady() and not VarTrinket2BL and (VarTrinket2ID ~= I.SpymastersWeb:ID() and VarTrinket2ID ~= I.ImperfectAscendancySerum:ID() and VarTrinket2ID ~= I.TreacherousTransmitter:ID() and VarOnUseTrinket == 2 and VarCDCondition) then
+    if Trinket2:IsReady() and not VarTrinket2Ex and not Player:IsItemBlacklisted(Trinket2) and (VarTrinket2ID ~= I.SpymastersWeb:ID() and VarTrinket2ID ~= I.ImperfectAscendancySerum:ID() and VarTrinket2ID ~= I.TreacherousTransmitter:ID() and VarOnUseTrinket == 2 and VarCDCondition) then
       if Cast(Trinket2, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket2Range)) then return "trinket2 ("..Trinket2:Name()..") pre_cd 8"; end
     end
   end
@@ -327,8 +330,8 @@ local function ST()
       if Cast(S.Incarnation, Settings.Balance.GCDasOffGCD.CAInc) then return "celestial_alignment st 16"; end
     end
   end
-  -- force_of_nature,if=cooldown.ca_inc.remains<gcd.max&(!talent.natures_grace|!variable.eclipse|variable.eclipse_remains>6)|variable.eclipse_remains>=3&cooldown.ca_inc.remains>10+15*talent.control_of_the_dream&(fight_remains>cooldown+5|cooldown.ca_inc.remains>fight_remains)
-  if S.ForceofNature:IsCastable() and (CAInc:CooldownRemains() < Player:GCD() and (not S.NaturesGrace:IsAvailable() or not VarEclipse or VarEclipseRemains > 6) or VarEclipseRemains >= 3 and CAInc:CooldownRemains() > 10 + 15 * num(S.ControloftheDream:IsAvailable()) and (BossFightRemains > CAInc:CooldownRemains() + 5 or CAInc:CooldownRemains() > BossFightRemains)) then
+  -- force_of_nature,if=cooldown.ca_inc.remains<gcd.max&(!talent.natures_grace|!variable.eclipse|variable.eclipse_remains>6)|variable.eclipse_remains>=6&cooldown.ca_inc.remains>10+15*talent.control_of_the_dream&(fight_remains>cooldown+5|cooldown.ca_inc.remains>fight_remains)
+  if S.ForceofNature:IsCastable() and (CAInc:CooldownRemains() < Player:GCD() and (not S.NaturesGrace:IsAvailable() or not VarEclipse or VarEclipseRemains > 6) or VarEclipseRemains >= 6 and CAInc:CooldownRemains() > 10 + 15 * num(S.ControloftheDream:IsAvailable()) and (BossFightRemains > CAInc:CooldownRemains() + 5 or CAInc:CooldownRemains() > BossFightRemains)) then
     if Cast(S.ForceofNature, Settings.Balance.GCDasOffGCD.ForceOfNature) then return "force_of_nature st 18"; end
   end
   -- fury_of_elune,if=5+variable.passive_asp<astral_power.deficit
@@ -590,11 +593,11 @@ local function APL()
     VarGenericTrinketCondition = VarNoCDTalent or BossFightRemains < VarCAEffectiveCD and (Player:BuffUp(S.HarmonyoftheGroveBuff) or S.ConvoketheSpirits:CooldownUp()) or ((Player:BuffStack(S.SpymastersReportBuff) + VarCAEffectiveCD / 6) > 29 or BossFightRemains < CAIncCD + VarCAEffectiveCD) and VarCAEffectiveCD > 20 or VarOnUseTrinket == 0
     if Settings.Commons.Enabled.Trinkets then
       -- use_item,slot=trinket1,if=!trinket.1.is.spymasters_web&!trinket.1.is.imperfect_ascendancy_serum&!trinket.1.is.treacherous_transmitter&(variable.on_use_trinket!=1&trinket.2.cooldown.remains>20|fight_remains<(20+20*(trinket.2.cooldown.remains<25))|variable.generic_trinket_condition)
-      if Trinket1:IsReady() and not VarTrinket1BL and (VarTrinket1ID ~= I.SpymastersWeb:ID() and VarTrinket1ID ~= I.ImperfectAscendancySerum:ID() and VarTrinket1ID ~= I.TreacherousTransmitter:ID() and (VarOnUseTrinket ~= 1 and Trinket2:CooldownRemains() > 20 or (VarOnUseTrinket == 1 or VarOnUseTrinket == 3) and VarCDCondition or BossFightRemains < (20 + 20 * num(Trinket2:CooldownRemains() < 25)) or VarGenericTrinketCondition)) then
+      if Trinket1:IsReady() and not VarTrinket1Ex and not Player:IsItemBlacklisted(Trinket1) and (VarTrinket1ID ~= I.SpymastersWeb:ID() and VarTrinket1ID ~= I.ImperfectAscendancySerum:ID() and VarTrinket1ID ~= I.TreacherousTransmitter:ID() and (VarOnUseTrinket ~= 1 and Trinket2:CooldownRemains() > 20 or (VarOnUseTrinket == 1 or VarOnUseTrinket == 3) and VarCDCondition or BossFightRemains < (20 + 20 * num(Trinket2:CooldownRemains() < 25)) or VarGenericTrinketCondition)) then
         if Cast(Trinket1, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket1Range)) then return "use_items trinket1 ("..Trinket1:Name()..") main 10"; end
       end
       -- use_item,slot=trinket2,if=!trinket.2.is.spymasters_web&!trinket.2.is.imperfect_ascendancy_serum&!trinket.2.is.treacherous_transmitter&(variable.on_use_trinket!=2&trinket.1.cooldown.remains>20|fight_remains<(20+20*(trinket.1.cooldown.remains<25))|variable.generic_trinket_condition)
-      if Trinket2:IsReady() and not VarTrinket2BL and (VarTrinket2ID ~= I.SpymastersWeb:ID() and VarTrinket2ID ~= I.ImperfectAscendancySerum:ID() and VarTrinket2ID ~= I.TreacherousTransmitter:ID() and (VarOnUseTrinket ~= 2 and Trinket1:CooldownRemains() > 20 or VarOnUseTrinket == 2 and VarCDCondition or BossFightRemains < (20 + 20 * num(Trinket1:CooldownRemains() < 25)) or VarGenericTrinketCondition)) then
+      if Trinket2:IsReady() and not VarTrinket2Ex and not Player:IsItemBlacklisted(Trinket2) and (VarTrinket2ID ~= I.SpymastersWeb:ID() and VarTrinket2ID ~= I.ImperfectAscendancySerum:ID() and VarTrinket2ID ~= I.TreacherousTransmitter:ID() and (VarOnUseTrinket ~= 2 and Trinket1:CooldownRemains() > 20 or VarOnUseTrinket == 2 and VarCDCondition or BossFightRemains < (20 + 20 * num(Trinket1:CooldownRemains() < 25)) or VarGenericTrinketCondition)) then
         if Cast(Trinket2, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket2Range)) then return "use_items trinket2 ("..Trinket2:Name()..") main 12"; end
       end
     end
