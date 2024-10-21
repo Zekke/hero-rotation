@@ -1102,7 +1102,7 @@ local function APL()
       if Cast(S.PrimordialWave, nil, Settings.CommonsDS.DisplayStyle.PrimordialWave, not Target:IsSpellInRange(S.PrimordialWave)) then return "primordial_wave main 22"; end
     end
     -- feral_spirit,if=talent.elemental_spirits.enabled|(talent.alpha_wolf.enabled&active_enemies>1)
-    if S.FeralSpirit:IsCastable() and CDsON() and (S.ElementalSpirits:IsAvailable() or (S.AlphaWolf:IsAvailable() and EnemiesMeleeCount > 1)) then
+    if S.FeralSpirit:IsCastable() and (S.ElementalSpirits:IsAvailable() or (S.AlphaWolf:IsAvailable() and EnemiesMeleeCount > 1)) then
       if Cast(S.FeralSpirit, Settings.Enhancement.GCDasOffGCD.FeralSpirit) then return "feral_spirit main 24"; end
     end
     -- surging_totem

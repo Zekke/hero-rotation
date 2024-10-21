@@ -657,7 +657,7 @@ local function CDs ()
 
   -- # Use Keep it Rolling with any 4 buffs. If Broadside is not active, then wait until just before the lowest buff expires in an attempt to obtain it from Count the Odds.
   -- actions.cds+=/keep_it_rolling,if=rtb_buffs>=4&(rtb_buffs.min_remains<2|buff.broadside.up)
-  if S.KeepItRolling:IsReady() and RtB_Buffs() >= 4 and (Cache.APLVar.RtB_Buffs.MinRemains < 3 or Player:BuffUp(S.Broadside)) then
+  if CDsON() and S.KeepItRolling:IsReady() and RtB_Buffs() >= 4 and (Cache.APLVar.RtB_Buffs.MinRemains < 3 or Player:BuffUp(S.Broadside)) then
     if Cast(S.KeepItRolling, Settings.Outlaw.GCDasOffGCD.KeepItRolling) then
       return "Cast Keep it Rolling"
     end
