@@ -262,8 +262,7 @@ local function SuggestCycleDoT(DoTSpell, DoTEvaluation, DoTMinTTD, Enemies)
   local TargetGUID = Target:GUID()
   for _, CycleUnit in pairs(Enemies) do
     if CycleUnit:GUID() ~= TargetGUID and Everyone.UnitIsCycleValid(CycleUnit, BestUnitTTD, -CycleUnit:DebuffRemains(DoTSpell))
-      and DoTEvaluation(CycleUnit)
-      and CycleUnit:NPCID() ~= 218884 then
+      and DoTEvaluation(CycleUnit) then
       BestUnit, BestUnitTTD = CycleUnit, CycleUnit:TimeToDie()
     end
   end
@@ -932,28 +931,19 @@ local function AoE_Dot ()
   if S.Garrote:IsCastable() and ComboPointsDeficit >= 1 and not EnergyRegenSaturated then
       SuggestCycleDoT(S.Garrote, Evaluate_Garrote_Target, 12, MeleeEnemies5y)
   end
-      SuggestCycleDoT(S.Garrote, Evaluate_Garrote_Target, 12, MeleeEnemies5y)
-    end
-  end
-      SuggestCycleDoT(S.Garrote, Evaluate_Garrote_Target, 12, MeleeEnemies5y)
-    end
-  end
-      SuggestCycleDoT(S.Garrote, Evaluate_Garrote_Target, 12, MeleeEnemies5y)
+
+  -- # Rupture upkeep, also uses it in AoE to reach energy or scent of blood saturation
+  --actions.aoe_dot+=/rupture,cycle_targets=1,if=variable.dot_finisher_condition&refreshable&(!dot.kingsbane.ticking
+  -- |buff.cold_blood.up)&(!variable.regen_saturated&(talent.scent_of_blood.rank=2|talent.scent_of_blood.rank<=1
+  -- &(buff.indiscriminate_carnage.up|target.time_to_die-remains>15)))
+  -- &target.time_to_die-remains>(7+(talent.dashing_scoundrel*5)+(variable.regen_saturated*6))&!buff.darkest_night.up
+  if S.Rupture:IsReady() and HR.AoEON() and DotFinisherCondition and (Target:DebuffDown(S.Kingsbane) or Player:BuffUp(S.ColdBlood))
   and (not EnergyRegenSaturated and (S.ScentOfBlood:TalentRank() == 2 or S.ScentOfBlood:TalentRank() <= 1
     and (Player:BuffUp(S.IndiscriminateCarnageBuff) or Target:TimeToDie() > 15))) then
     local function EvaluateRuptureTarget(TargetUnit)
       return IsDebuffRefreshable(TargetUnit, S.Rupture, RuptureThreshold)
     end
     SuggestCycleDoT(S.Rupture, EvaluateRuptureTarget, (7 + (BoolToInt(S.DashingScoundrel:IsAvailable()) * 5) + (BoolToInt(EnergyRegenSaturated) * 6)), MeleeEnemies5y)
-  -- |buff.cold_blood.up)&(!variable.regen_saturated&(talent.scent_of_blood.rank=2|talent.scent_of_blood.rank<=1
-  -- &(buff.indiscriminate_carnage.up|target.time_to_die-remains>15)))
-  -- &target.time_to_die-remains>(7+(talent.dashing_scoundrel*5)+(variable.regen_saturated*6))&!buff.darkest_night.up
-  if S.Rupture:IsReady() and HR.AoEON() and DotFinisherCondition and (Target:DebuffDown(S.Kingsbane) or Player:BuffUp(S.ColdBlood))
-    and (not EnergyRegenSaturated and (S.ScentOfBlood:TalentRank() == 2 or S.ScentOfBlood:TalentRank() <= 1
-    and (Player:BuffUp(S.IndiscriminateCarnageBuff or Target:TimeToDie() > 15))))
-    and Target:TimeToDie() > (7 + (BoolToInt(S.DashingScoundrel:IsAvailable()) * 5) + (BoolToInt(EnergyRegenSaturated) * 6))
-    and Player:BuffDown(S.DarkestNightBuff) then
-    SuggestCycleDoT(S.Rupture, Evaluate_Rupture_Target, RuptureDurationThreshold, MeleeEnemies5y)
   end
 
   -- actions.aoe_dot+=/rupture,cycle_targets=1,if=variable.dot_finisher_condition&refreshable
@@ -1015,19 +1005,19 @@ local function Direct ()
     -- &(!debuff.caustic_spatter.up|debuff.caustic_spatter.remains<=2)&combo_points.deficit>1&!variable.single_target
   local UseCausticFiller = S.CausticSpatter:IsAvailable() and Target:DebuffUp(S.Rupture)
     and (not Target:DebuffUp(S.CausticSpatterDebuff) or Target:DebuffRemains(S.CausticSpatterDebuff) <= 2)
+    and ComboPointsDeficit > 1 and not SingleTarget
+
+  -- actions.direct+=/mutilate,if=variable.use_caustic_filler
+  if S.Mutilate:IsCastable() and UseCausticFiller then
+    if Cast(S.Mutilate, nil, nil, not TargetInMeleeRange) then
+      return "Cast Mutilate (Caustic)"
+    end
+  end
+
   -- actions.direct+=/ambush,if=variable.use_caustic_filler
   if (S.Ambush:IsReady() or S.AmbushOverride:IsReady()) and (Player:StealthUp(true, true) and UseCausticFiller) then
     if Cast(S.Ambush, nil, nil, not TargetInMeleeRange) then
       return "Cast Ambush (Caustic)"
-    end
-  end
-    end
-  end
-
-  -- actions.direct+=/echoing_reprimand,if=variable.use_filler|fight_remains<20
-  if CDsON() and S.EchoingReprimand:IsReady() then
-    if Cast(S.EchoingReprimand, Settings.CommonsOGCD.GCDasOffGCD.EchoingReprimand, nil, not TargetInMeleeRange) then
-    if HR.AoEON() and UseFiller and not PriorityRotation and (MeleeEnemies10yCount >= 3 - BoolToInt(S.MomentumOfDespair:IsAvailable() and S.ThrownPrecision:IsAvailable()))
     end
   end
 
@@ -1036,7 +1026,7 @@ local function Direct ()
   -- &(spell_targets.fan_of_knives>=3-(talent.momentum_of_despair&talent.thrown_precision)
   -- |buff.clear_the_witnesses.up&!talent.vicious_venoms)
   if S.FanofKnives:IsReady() then
-    if HR.AoEON() and not PriorityRotation and (MeleeEnemies10yCount >= 3 - BoolToInt(S.MomentumOfDespair and S.ThrownPrecision))
+    if HR.AoEON() and UseFiller and not PriorityRotation and (MeleeEnemies10yCount >= 3 - BoolToInt(S.MomentumOfDespair:IsAvailable() and S.ThrownPrecision:IsAvailable()))
       or Player:BuffUp(S.ClearTheWitnessesBuff) and not S.ViciousVenoms:IsAvailable() then
       if CastPooling(S.FanofKnives) then
         return "Cast Fan of Knives"

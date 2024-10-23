@@ -733,9 +733,6 @@ local function CDs ()
   if HR.CDsON() and S.GoremawsBite:IsAvailable() and S.GoremawsBite:IsReady() then
     if SnD_Condition() and ComboPointsDeficit >= 3 and (not S.ShadowDance:IsReady() or S.DoubleDance:IsAvailable()
       and Player:BuffUp(S.ShadowDanceBuff) and S.TheRotten:IsAvailable()) then
-  if HR.CDsON() and S.GoremawsBite:IsAvailable() and S.GoremawsBite:IsReady() then
-    if SnD_Condition() and ComboPointsDeficit >= 3 and (not S.ShadowDance:IsReady() or S.DoubleDance:IsAvailable()
-      and Player:BuffUp(S.ShadowDanceBuff) and S.TheRotten:IsAvailable()) then
       if Cast(S.GoremawsBite, nil, nil, not Target:IsSpellInRange(S.GoremawsBite)) then
         return "Cast Goremaw's Bite"
       end
