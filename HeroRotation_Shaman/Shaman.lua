@@ -67,6 +67,7 @@ Spell.Shaman.Commons = {
   ChaosBrandDebuff                      = Spell(1490),
   HuntersMarkDebuff                     = Spell(257284),
   -- Trinket Effects
+  SpymastersReportBuff                  = Spell(451199), -- Stacking buff from before using Spymaster's Web trinket
   SpymastersWebBuff                     = Spell(444959), -- Buff from using Spymaster's Web trinket
   -- Misc
   Pool                                  = Spell(999910),
@@ -116,6 +117,7 @@ Spell.Shaman.Elemental = MergeTableByKey(Spell.Shaman.Commons, {
   EchoesofGreatSundering                = Spell(384087),
   ElectrifiedShocks                     = Spell(382086),
   EyeoftheStorm                         = Spell(381708),
+  FirstAscendant                        = Spell(462440),
   FlowofPower                           = Spell(385923),
   FluxMelting                           = Spell(381776),
   FusionofElements                      = Spell(462840),
@@ -148,6 +150,7 @@ Spell.Shaman.Elemental = MergeTableByKey(Spell.Shaman.Commons, {
   MagmaChamberBuff                      = Spell(381933),
   MasteroftheElementsBuff               = Spell(260734),
   PoweroftheMaelstromBuff               = Spell(191877),
+  StormFrenzyBuff                       = Spell(462725),
   StormkeeperBuff                       = Spell(191634),
   SurgeofPowerBuff                      = Spell(285514),
   -- Debuffs
@@ -206,7 +209,7 @@ Spell.Shaman.Enhancement = MergeTableByKey(Spell.Shaman.Commons, {
   HotHandBuff                           = Spell(215785),
   IceStrikeBuff                         = Spell(384357),
   MaelstromWeaponBuff                   = Spell(344179),
-  StormbringerBuff                      = Spell(201846),
+  StormsurgeBuff                        = Spell(201846),
   WindfuryTotemBuff                     = Spell(327942),
   -- Debuffs
   LashingFlamesDebuff                   = Spell(334168),

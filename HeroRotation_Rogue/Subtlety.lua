@@ -47,6 +47,7 @@ local I = Item.Rogue.Subtlety
 local OnUseExcludes = {
   I.BottledFlayedwingToxin:ID(),
   I.ImperfectAscendancySerum:ID(),
+  I.MadQueensMandate:ID(),
   I.TreacherousTransmitter:ID(),
   I.SkardynsGrace:ID()
 }
@@ -267,19 +268,17 @@ local function SnD_Condition ()
 end
 
 local function Skip_Rupture (ShadowDanceBuff)
-  -- actions.finish+=/variable,name=skip_rupture,value=buff.thistle_tea.up&spell_targets.shuriken_storm=1
-  -- |buff.shadow_dance.up&(spell_targets.shuriken_storm=1|dot.rupture.ticking&spell_targets.shuriken_storm>=2)|buff.darkest_night.up
-  return Player:BuffUp(S.ThistleTea) and MeleeEnemies10yCount == 1
-    or ShadowDanceBuff and (MeleeEnemies10yCount == 1 or Target:DebuffUp(S.Rupture) and MeleeEnemies10yCount >= 2)
+  -- actions.finish+=/variable,name=skip_rupture,value=buff.shadow_dance.up&(spell_targets.shuriken_storm=1
+  -- |dot.rupture.ticking&spell_targets.shuriken_storm>=2)|buff.darkest_night.up
+  return ShadowDanceBuff and (MeleeEnemies10yCount == 1 or Target:DebuffUp(S.Rupture) and MeleeEnemies10yCount >= 2)
     or Player:BuffUp(S.DarkestNightBuff)
 end
 
 local function Rupture_Before_Flag()
   -- actions.cds=variable,name=ruptures_before_flag,value=variable.priority_rotation|spell_targets<=4
-  -- |talent.invigorating_shadowdust&!talent.follow_the_blood|(talent.replicating_shadows&(spell_targets>=5
-  -- &active_dot.rupture>=spell_targets-2))|!talent.replicating_shadows
-  return PriorityRotation or MeleeEnemies10yCount <= 4 or S.InvigoratingShadowdust:IsAvailable()
-    and not S.FollowTheBlood:IsAvailable() or (S.ReplicatingShadows:IsAvailable() and (MeleeEnemies10yCount >= 5 and S.Rupture:AuraActiveCount() >= MeleeEnemies10yCount - 2))
+  -- |(talent.replicating_shadows&(spell_targets>=5&active_dot.rupture>=spell_targets-2))|!talent.replicating_shadows
+  return PriorityRotation or MeleeEnemies10yCount <= 4
+    or (S.ReplicatingShadows:IsAvailable() and (MeleeEnemies10yCount >= 5 and S.Rupture:AuraActiveCount() >= MeleeEnemies10yCount - 2))
     or not S.ReplicatingShadows:IsAvailable()
 end
 
@@ -288,9 +287,9 @@ local function Used_For_Danse(Spell)
 end
 
 local function Secret_Condition()
-  -- actions.finish=variable,name=secret_condition,value=((buff.danse_macabre.stack>=3)|!talent.danse_macabre|
-  -- (talent.unseen_blade&buff.shadow_dance.up&(buff.escalating_blade.stack>=2|buff.shadow_blades.up)))
-  return ((Player:BuffStack(S.DanseMacabreBuff) >= 3) or not S.DanseMacabre:IsAvailable()
+  -- actions.finish=variable,name=secret_condition,value=((buff.danse_macabre.stack>=1)|!talent.danse_macabre
+  -- |(talent.unseen_blade&buff.shadow_dance.up&(buff.escalating_blade.stack>=2|buff.shadow_blades.up)))
+  return ((Player:BuffStack(S.DanseMacabreBuff) >= 1) or not S.DanseMacabre:IsAvailable()
     or (S.UnseenBlade:IsAvailable() and Player:BuffUp(S.ShadowDanceBuff)
     and (Player:BuffStack(S.EscalatingBlade) >= 2 or Player:BuffUp(S.ShadowBlades))))
 end
@@ -403,9 +402,7 @@ local function Finish (ReturnSpellOnly, StealthSpell, ForceStealth)
   -- |!talent.improved_shadow_dance)
   -- Attention: Due to the SecTec/ColdBlood interaction, this adaption has additional checks not found in the APL string
   if S.SecretTechnique:IsReady() then
-    if (Secret_Condition(ShadowDanceBuff, PremeditationBuff) or ForceStealth)
-      and (not S.ColdBlood:IsAvailable() or (Settings.CommonsOGCD.OffGCDasOffGCD.ColdBlood and S.ColdBlood:IsReady())
-      or Player:BuffUp(S.ColdBlood) or ColdBloodCDRemains > ShadowDanceBuffRemains - 2 or not S.ImprovedShadowDance:IsAvailable()) then
+    if (Secret_Condition(ShadowDanceBuff, PremeditationBuff) or ForceStealth) then
       if ReturnSpellOnly then
         return S.SecretTechnique
       end
@@ -670,51 +667,27 @@ local function CDs ()
     end
   end
 
-  -- actions.cds+=/sepsis,if=variable.snd_condition&(cooldown.shadow_blades.remains<=3
-  -- &cooldown.symbols_of_death.remains<=3|fight_remains<=12)
-  if CDsON() and S.Sepsis:IsAvailable() and S.Sepsis:IsReady() then
-    if SnD_Condition() and (S.ShadowBlades:CooldownRemains() <= 3
-      and S.SymbolsofDeath:CooldownRemains() <= 3 or HL.BossFilteredFightRemains("<=", 12)) then
-      if Cast(S.Sepsis, nil, Settings.CommonsDS.DisplayStyle.Sepsis, not Target:IsSpellInRange(S.Sepsis)) then
-        return "Cast Sepsis"
-      end
-    end
-  end
-
-  -- actions.cds+=/flagellation,target_if=max:target.time_to_die,if=variable.snd_condition&variable.ruptures_before_flag
-  -- &combo_points>=5&target.time_to_die>10&(cooldown.shadow_blades.remains<=2|fight_remains<=24)
-  -- &(!talent.invigorating_shadowdust|cooldown.symbols_of_death.remains<=3|buff.symbols_of_death.remains>3)
+  -- actions.cds+=/flagellation,target_if=max:target.time_to_die,if=(variable.snd_condition
+  -- &variable.ruptures_before_flag&combo_points>=5&target.time_to_die>10)|fight_remains<=24
   if CDsON() and S.Flagellation:IsAvailable() and S.Flagellation:IsReady() then
-    if SnD_Condition() and Rupture_Before_Flag() and EffectiveComboPoints >= 5 and Target:TimeToDie() > 10
-      and (S.ShadowBlades:CooldownRemains() <= 2 or HL.BossFilteredFightRemains("<=", 24))
-      and (not S.InvigoratingShadowdust:IsAvailable() or S.SymbolsofDeath:CooldownRemains() <= 3 or Player:BuffRemains(S.SymbolsofDeath) > 3) then
+    if (SnD_Condition() and Rupture_Before_Flag() and ComboPoints >= 5 and Target:TimeToDie() > 10) or HL.BossFilteredFightRemains("<=", 24) then
       if Cast(S.Flagellation, nil, Settings.CommonsDS.DisplayStyle.Flagellation, not Target:IsSpellInRange(S.Flagellation)) then
         return "Cast Flagellation"
       end
     end
   end
 
-  -- # Symbols without Invigorating Shadowdust
-  -- actions.cds+=/symbols_of_death,if=!talent.invigorating_shadowdust&variable.snd_condition
-  -- &(buff.shadow_blades.up|cooldown.shadow_blades.remains>20)
+  -- actions.cds+=/symbols_of_death,if=variable.snd_condition&dot.rupture.ticking&(buff.shadow_blades.up
+  -- |(cooldown.shadow_blades.remains>=25&(buff.darkest_night.up|!talent.death_perception|!talent.deathstalkers_mark)))
+  -- &buff.symbols_of_death.remains<=3
   if CDsON() and S.SymbolsofDeath:IsReady() then
-    if not S.InvigoratingShadowdust:IsAvailable() and SnD_Condition()
-      and (Player:BuffUp(S.ShadowBlades) or S.ShadowBlades:CooldownRemains() > 20) then
+    if SnD_Condition() and Target:DebuffUp(S.Rupture) and (Player:BuffUp(S.ShadowBlades)
+      or ((S.ShadowBlades:CooldownRemains() >= 25 or S.ShadowBlades:IsReady())
+      and (Player:BuffUp(S.DarkestNightBuff) or not S.DeathPerception:IsAvailable() or not S.DeathStalkersMark:IsAvailable())))
+      and Player:BuffRemains(S.SymbolsofDeath) <= 3 then
       if Cast(S.SymbolsofDeath, Settings.Subtlety.OffGCDasOffGCD.SymbolsofDeath) then
-        return "Cast Symbols of Death without Dust"
+        return "Cast Symbols of Death"
       end
-    end
-  end
-
-  -- # Symbols with Invigorating Shadowdust
-  -- actions.cds+=/symbols_of_death,if=talent.invigorating_shadowdust&variable.snd_condition
-  -- &buff.symbols_of_death.remains<=3&!buff.the_rotten.up&(cooldown.flagellation.remains>10|cooldown.flagellation.up
-  -- &cooldown.shadow_blades.remains>=20|buff.shadow_dance.remains>=2)
-  if CDsON() and S.SymbolsofDeath:IsReady() then
-    if S.InvigoratingShadowdust:IsAvailable() and SnD_Condition() and Player:BuffRemains(S.SymbolsofDeath) <= 3
-      and Player:BuffDown(S.TheRottenBuff) and (S.Flagellation:CooldownRemains() > 10 or S.Flagellation:IsReady()
-      and S.ShadowBlades:CooldownRemains() >= 20 or Player:BuffRemains(S.ShadowDanceBuff) >= 2) then
-      if Cast(S.SymbolsofDeath, Settings.Subtlety.OffGCDasOffGCD.SymbolsofDeath) then return "Cast Symbols of Death with Dust" end
     end
   end
 
@@ -731,18 +704,7 @@ local function CDs ()
 
   -- actions.cds+=/echoing_reprimand,if=variable.snd_condition&combo_points.deficit>=3
   -- &(!talent.the_rotten|!talent.reverberation|buff.shadow_dance.up)
-  if CDsON() and S.EchoingReprimand:IsCastable() and S.EchoingReprimand:IsAvailable() then
-    if SnD_Condition() and ComboPointsDeficit >= 3
-      and (not S.TheRotten:IsAvailable() or not S.Reverberation:IsAvailable() or Player:BuffUp(S.ShadowDance)) then
-      if Cast(S.EchoingReprimand, nil, Settings.CommonsDS.DisplayStyle.EchoingReprimand, not Target:IsSpellInRange(S.EchoingReprimand)) then
-        return "Cast Echoing Reprimand"
-      end
-    end
-  end
-
-  -- actions.cds+=/shuriken_tornado,if=variable.snd_condition&buff.symbols_of_death.up&combo_points<=2
-  -- &!buff.premeditation.up&(!talent.flagellation|cooldown.flagellation.remains>20)&spell_targets.shuriken_storm>=3
-  -- Shuriken Tornado with Symbols of Death on 3 and more targets
+  if HR.CDsON() and S.EchoingReprimand:IsCastable() and S.EchoingReprimand:IsAvailable() then
   if CDsON() and S.ShurikenTornado:IsAvailable() and S.ShurikenTornado:IsReady() then
     if SnD_Condition() and Player:BuffUp(S.SymbolsofDeath) and EffectiveComboPoints <= 2 and not Player:BuffUp(S.PremeditationBuff)
       and (not S.Flagellation:IsAvailable() or S.Flagellation:CooldownRemains() > 20) and MeleeEnemies10yCount >= 3 then
@@ -767,41 +729,13 @@ local function CDs ()
   -- actions.cds+=/vanish,if=buff.shadow_dance.up&talent.invigorating_shadowdust&talent.unseen_blade&(combo_points.deficit>1)
   -- &(cooldown.flagellation.remains>=60|!talent.flagellation|fight_remains<=(30*cooldown.vanish.charges))
   -- &(cooldown.secret_technique.remains>=10&!raid_event.adds.up)
-  if CDsON() and S.Vanish:IsReady() then
-    if Player:BuffUp(S.ShadowDanceBuff) and S.InvigoratingShadowdust:IsAvailable() and S.UnseenBlade:IsAvailable()
-      and ComboPointsDeficit > 1 and (S.Flagellation:CooldownRemains() >= 60 or not S.Flagellation:IsAvailable() or HL.BossFilteredFightRemains("<=", 30 * S.Vanish:Charges()))
-      and S.SecretTechnique:CooldownRemains() >= 10 then
-      ShouldReturn = StealthMacro(S.Vanish, StealthEnergyRequired)
-      if ShouldReturn then
-        return "Vanish Macro" .. ShouldReturn
-      end
-    end
-  end
-
-  -- # Use shadow dance during subterfuge in CDs or if the fight ends in <8s
-  --actions.cds+=/shadow_dance,if=!buff.shadow_dance.up&(talent.invigorating_shadowdust&buff.shadow_blades.up
-  -- &((talent.deathstalkers_mark&buff.subterfuge.up)|(dot.rupture.ticking&variable.snd_condition&talent.unseen_blade)))
-  -- |fight_remains<=8
-  if CDsON() and S.ShadowDance:IsAvailable() and MayBurnShadowDance() and S.ShadowDance:IsReady() then
-    if not Player:BuffUp(S.ShadowDanceBuff) and (S.InvigoratingShadowdust:IsAvailable() and Player:BuffUp(S.ShadowBlades)
-      and ((S.DeathStalkersMark:IsAvailable() and Player:BuffUp(S.Subterfuge))
-      or (Target:DebuffUp(S.Rupture) and SnD_Condition() and S.UnseenBlade:IsAvailable())))
-      or HL.BossFilteredFightRemains("<=", 8) then
-      ShouldReturn = StealthMacro(S.ShadowDance, StealthEnergyRequired)
-      if ShouldReturn then
-        return "Shadow Dance Macro CDs" .. ShouldReturn
-      end
-    end
-  end
-
-  -- actions.cds+=/goremaws_bite,if=variable.snd_condition&combo_points.deficit>=3
-  -- &(!cooldown.shadow_dance.up|talent.double_dance&buff.shadow_dance.up&!talent.invigorating_shadowdust
-  -- |spell_targets.shuriken_storm<4&!talent.invigorating_shadowdust|talent.the_rotten|raid_event.adds.up)
   -- Goremaws Bite during Shadow Dance if possible.
-  if CDsON() and S.GoremawsBite:IsAvailable() and S.GoremawsBite:IsReady() then
+  if HR.CDsON() and S.GoremawsBite:IsAvailable() and S.GoremawsBite:IsReady() then
     if SnD_Condition() and ComboPointsDeficit >= 3 and (not S.ShadowDance:IsReady() or S.DoubleDance:IsAvailable()
-      and Player:BuffUp(S.ShadowDanceBuff) and not S.InvigoratingShadowdust:IsAvailable() or MeleeEnemies10yCount < 4
-      and not S.InvigoratingShadowdust:IsAvailable() or S.TheRotten:IsAvailable()) then
+      and Player:BuffUp(S.ShadowDanceBuff) and S.TheRotten:IsAvailable()) then
+  if HR.CDsON() and S.GoremawsBite:IsAvailable() and S.GoremawsBite:IsReady() then
+    if SnD_Condition() and ComboPointsDeficit >= 3 and (not S.ShadowDance:IsReady() or S.DoubleDance:IsAvailable()
+      and Player:BuffUp(S.ShadowDanceBuff) and S.TheRotten:IsAvailable()) then
       if Cast(S.GoremawsBite, nil, nil, not Target:IsSpellInRange(S.GoremawsBite)) then
         return "Cast Goremaw's Bite"
       end
@@ -869,19 +803,11 @@ end
 -- # Items
 local function Items()
   if Settings.Commons.Enabled.Trinkets then
-    -- actions.items+=/use_item,name=treacherous_transmitter,if=buff.flaggellation_buff.up|fight_remains<=15
+    -- actions.items=use_item,name=treacherous_transmitter,if=cooldown.flagellation.remains<=2|fight_remains<=15
     if I.TreacherousTransmitter:IsEquippedAndReady() then
-      if Player:BuffUp(S.FlagellationBuff) or HL.BossFilteredFightRemains("<=", 15) then
+      if S.Flagellation:CooldownRemains() <= 2 or HL.BossFilteredFightRemains("<=", 15) then
         if Cast(I.TreacherousTransmitter, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then
           return "Treacherous Transmitter"
-        end
-      end
-    end
-
-    if I.SkardynsGrace:IsEquippedAndReady() then
-      if Player:BuffUp(S.FlagellationBuff) or HL.BossFilteredFightRemains("<=", 15) then
-        if Cast(I.SkardynsGrace, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then
-          return "Skardyn's Grace"
         end
       end
     end
@@ -895,14 +821,12 @@ local function Items()
       end
     end
 
-    -- actions.items+=/use_item,name=mad_queens_mandate,if=(!talent.lingering_darkness|buff.lingering_darkness.up)
-    -- &(!equipped.treacherous_transmitter|trinket.treacherous_transmitter.cooldown.remains>20)|fight_remains<=15
+    -- actions.items+=/use_item,name=mad_queens_mandate,if=(!talent.lingering_darkness|buff.lingering_darkness.up
+    -- |equipped.treacherous_transmitter)&(!equipped.treacherous_transmitter
+    -- |trinket.treacherous_transmitter.cooldown.remains>20)|fight_remains<=15
     if I.MadQueensMandate:IsEquippedAndReady() then
-      if ((not S.LingeringDarkness:IsAvailable() or Player:BuffUp(S.LingeringDarknessBuff))
-        and ((not I.TreacherousTransmitter:IsEquipped() or I.TreacherousTransmitter:CooldownRemains() > 20) and (not I.SkardynsGrace:IsEquipped() or I.SkardynsGrace:CooldownRemains() > 20)) or HL.BossFilteredFightRemains("<=", 15)) then
-        --and (not I.SkardynsGrace:IsEquipped() or I.SkardynsGrace:CooldownRemains() > 20) or HL.BossFilteredFightRemains("<=", 15)) then
-        --HR.Print("skardyn equipped ? " .. tostring(I.SkardynsGrace:IsEquipped()))
-        --HR.Print("skadyrn CD remains = " .. tostring(I.SkardynsGrace:CooldownRemains()))
+      if (not S.LingeringDarkness:IsAvailable() or Player:BuffUp(S.LingeringDarknessBuff)
+        and (not I.TreacherousTransmitter:IsEquipped() or I.TreacherousTransmitter:CooldownRemains() > 20) or HL.BossFilteredFightRemains("<=", 15)) then
         if Cast(I.MadQueensMandate, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(50)) then
           return "Mad Queens Mandate"
         end
@@ -956,7 +880,7 @@ local function Stealth_CDs (EnergyThreshold)
 
     -- actions.stealth_cds=vanish,if=!talent.invigorating_shadowdust&!talent.subterfuge&combo_points.deficit>=3
     -- &(!dot.rupture.ticking|(buff.shadow_blades.up&buff.symbols_of_death.up)|talent.premeditation|fight_remains<10)
-    if S.Vanish:IsCastable() then
+    if S.Vanish:IsCastable() and (not Player:IsTanking(Target) or Settings.Commons.UseSoloVanish) then
       if not S.InvigoratingShadowdust:IsAvailable() and not S.Subterfuge:IsAvailable() and ComboPointsDeficit >= 3
         and (Target:DebuffDown(S.Rupture) or ((Player:BuffUp(S.ShadowBlades) or S.ShadowBlades:IsReady()) and Player:BuffUp(S.SymbolsofDeath))
         or S.Premeditation:IsAvailable() or HL.BossFilteredFightRemains("<", 10)) then
@@ -970,7 +894,7 @@ local function Stealth_CDs (EnergyThreshold)
     -- actions.stealth_cds+=/vanish,if=!buff.shadow_dance.up&talent.invigorating_shadowdust&talent.deathstalkers_mark
     -- &(combo_points.deficit>1|buff.shadow_blades.up)&(cooldown.flagellation.remains>=60|!talent.flagellation
     -- |fight_remains<=(30*cooldown.vanish.charges))&(cooldown.secret_technique.remains>=10&!raid_event.adds.up)
-    if S.Vanish:IsCastable() then
+    if S.Vanish:IsCastable() and (not Player:IsTanking(Target) or Settings.Commons.UseSoloVanish) then
       if Player:BuffDown(S.ShadowDanceBuff) and S.InvigoratingShadowdust:IsAvailable() and S.DeathStalkersMark:IsAvailable()
         and (ComboPointsDeficit > 1 or Player:BuffUp(S.ShadowBlades) or S.ShadowBlades:IsReady()) and (S.Flagellation:CooldownRemains() >= 60
         or not S.Flagellation:IsAvailable() or HL.BossFilteredFightRemains("<=", 30 * S.Vanish:Charges()))
@@ -1001,7 +925,7 @@ local function Stealth_CDs (EnergyThreshold)
 
     -- actions.stealth_cds+=/vanish,if=!talent.invigorating_shadowdust&talent.subterfuge&combo_points.deficit>=3
     -- &(buff.symbols_of_death.up|cooldown.symbols_of_death.remains>=3)
-    if S.Vanish:IsCastable() then
+    if S.Vanish:IsCastable() and (not Player:IsTanking(Target) or Settings.Commons.UseSoloVanish) then
       if not S.InvigoratingShadowdust:IsAvailable() and not S.Subterfuge:IsAvailable() and ComboPointsDeficit >= 3
         and (Player:BuffUp(S.SymbolsofDeath) or S.SymbolsofDeath:CooldownRemains() >= 3) then
         ShouldReturn = StealthMacro(S.Vanish, EnergyThreshold)
@@ -1197,6 +1121,14 @@ local function APL ()
       return ShouldReturn
     end
 
+    -- actions+=/eviscerate,if=combo_points>=1&!variable.snd_condition
+    if S.Eviscerate:IsReady() and ComboPoints >= 1 and not SnD_Condition() then
+      if Cast(S.Eviscerate, nil, nil, not Target:IsSpellInRange(S.Eviscerate)) then
+        return "Cast Eviscerate"
+      end
+      SetPoolingFinisher(S.Eviscerate)
+    end
+
     -- # Check CDs at first
     -- actions=call_action_list,name=cds
     ShouldReturn = CDs()
@@ -1205,17 +1137,9 @@ local function APL ()
     end
 
     -- actions+=/call_action_list,name=items
-    if CDsON() then
-      ShouldReturn = Items()
-      if ShouldReturn then
-        return "Items: " .. ShouldReturn
-      end
-    end
-    -- actions+=/slice_and_dice,if=combo_points>=1&!variable.snd_condition
-    if S.SliceandDice:IsCastable() and ComboPoints >= 1 and not SnD_Condition() then
-      if S.SliceandDice:IsReady() and Cast(S.SliceandDice) then
-        return "Cast Slice and Dice"
-      end
+    ShouldReturn = Items()
+    if ShouldReturn then
+      return "Items: " .. ShouldReturn
     end
 
     -- # Run fully switches to the Stealthed Rotation (by doing so, it forces pooling if nothing is available).
@@ -1344,7 +1268,7 @@ end
 local function Init ()
   S.Rupture:RegisterAuraTracking()
 
-  HR.Print("Subtlety Rogue rotation has been updated for patch 11.0.2.")
+  HR.Print("Subtlety Rogue rotation has been updated for patch 11.0.5.")
 end
 
 HR.SetAPL(261, APL, Init)
