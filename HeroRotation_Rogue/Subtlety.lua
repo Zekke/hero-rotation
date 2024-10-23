@@ -691,20 +691,21 @@ local function CDs ()
     end
   end
 
+
   -- actions.cds+=/shadow_blades,if=variable.snd_condition&combo_points<=1&(buff.flagellation_buff.up
-  -- |!talent.flagellation)|fight_remains<=20
+  -- |!talent.flagellation)|fight_remains<=16
   if CDsON() and S.ShadowBlades:IsReady() then
-    if SnD_Condition() and EffectiveComboPoints <= 1 and (Player:BuffUp(S.Flagellation) or not S.Flagellation:IsAvailable())
-      or HL.BossFilteredFightRemains("<=", 20) then
+    if SnD_Condition() and ComboPoints <= 1 and (Player:BuffUp(S.Flagellation) or not S.Flagellation:IsAvailable())
+      or HL.BossFilteredFightRemains("<=", 16) then
       if Cast(S.ShadowBlades, Settings.Subtlety.OffGCDasOffGCD.ShadowBlades) then
         return "Cast Shadow Blades"
       end
     end
   end
 
-  -- actions.cds+=/echoing_reprimand,if=variable.snd_condition&combo_points.deficit>=3
-  -- &(!talent.the_rotten|!talent.reverberation|buff.shadow_dance.up)
-  if HR.CDsON() and S.EchoingReprimand:IsCastable() and S.EchoingReprimand:IsAvailable() then
+  -- actions.cds+=/shuriken_tornado,if=variable.snd_condition&buff.symbols_of_death.up&combo_points<=2
+  -- &!buff.premeditation.up&(!talent.flagellation|cooldown.flagellation.remains>20)&spell_targets.shuriken_storm>=3
+  -- Shuriken Tornado with Symbols of Death on 3 and more targets
   if CDsON() and S.ShurikenTornado:IsAvailable() and S.ShurikenTornado:IsReady() then
     if SnD_Condition() and Player:BuffUp(S.SymbolsofDeath) and EffectiveComboPoints <= 2 and not Player:BuffUp(S.PremeditationBuff)
       and (not S.Flagellation:IsAvailable() or S.Flagellation:CooldownRemains() > 20) and MeleeEnemies10yCount >= 3 then
@@ -726,10 +727,12 @@ local function CDs ()
     end
   end
 
-  -- actions.cds+=/vanish,if=buff.shadow_dance.up&talent.invigorating_shadowdust&talent.unseen_blade&(combo_points.deficit>1)
-  -- &(cooldown.flagellation.remains>=60|!talent.flagellation|fight_remains<=(30*cooldown.vanish.charges))
-  -- &(cooldown.secret_technique.remains>=10&!raid_event.adds.up)
+  -- actions.cds+=/goremaws_bite,if=variable.snd_condition&combo_points.deficit>=3
+  -- &(!cooldown.shadow_dance.up|talent.double_dance&buff.shadow_dance.up&!talent.invigorating_shadowdust
+  -- |spell_targets.shuriken_storm<4&!talent.invigorating_shadowdust|talent.the_rotten|raid_event.adds.up)
   -- Goremaws Bite during Shadow Dance if possible.
+  -- actions.cds+=/goremaws_bite,if=variable.snd_condition&combo_points.deficit>=3
+  -- &(!cooldown.shadow_dance.up|talent.double_dance&buff.shadow_dance.up&talent.the_rotten|raid_event.adds.up)
   if HR.CDsON() and S.GoremawsBite:IsAvailable() and S.GoremawsBite:IsReady() then
     if SnD_Condition() and ComboPointsDeficit >= 3 and (not S.ShadowDance:IsReady() or S.DoubleDance:IsAvailable()
       and Player:BuffUp(S.ShadowDanceBuff) and S.TheRotten:IsAvailable()) then
