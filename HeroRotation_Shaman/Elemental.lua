@@ -203,14 +203,14 @@ local function Precombat()
   -- variable,name=spymaster_in_2nd,value=trinket.2.is.spymasters_web
   -- Note: Moved above to variable declarations.
   -- stormkeeper
-  if S.Stormkeeper:IsViable() then
+  if CDsON() and S.Stormkeeper:IsViable() then
     if Cast(S.Stormkeeper, Settings.Elemental.GCDasOffGCD.Stormkeeper) then return "stormkeeper precombat 2"; end
   end
   -- Manually added: Opener abilities
-  if S.StormElemental:IsReady() and (not Shaman.StormElemental.GreaterActive) then
+  if CDsON() and S.StormElemental:IsReady() and (not Shaman.StormElemental.GreaterActive) then
     if Cast(S.StormElemental, Settings.Elemental.GCDasOffGCD.StormElemental) then return "storm_elemental precombat 4"; end
   end
-  if S.Stormkeeper:IsViable() and (not Player:StormkeeperUp()) then
+  if CDsON() and S.Stormkeeper:IsViable() and (not Player:StormkeeperUp()) then
     if Cast(S.Stormkeeper, Settings.Elemental.GCDasOffGCD.Stormkeeper) then return "stormkeeper precombat 6"; end
   end
   if S.PrimordialWave:IsViable() then
@@ -226,15 +226,15 @@ end
 
 local function Aoe()
   -- fire_elemental
-  if S.FireElemental:IsReady() then
+  if CDsON() and S.FireElemental:IsReady() then
     if Cast(S.FireElemental, Settings.Elemental.GCDasOffGCD.FireElemental) then return "fire_elemental aoe 2"; end
   end
   -- storm_elemental
-  if S.StormElemental:IsReady() then
+  if CDsON() and S.StormElemental:IsReady() then
     if Cast(S.StormElemental, Settings.Elemental.GCDasOffGCD.StormElemental) then return "storm_elemental aoe 4"; end
   end
   -- stormkeeper
-  if S.Stormkeeper:IsViable() then
+  if CDsON() and S.Stormkeeper:IsViable() then
     if Cast(S.Stormkeeper, Settings.Elemental.GCDasOffGCD.Stormkeeper) then return "stormkeeper aoe 6"; end
   end
   -- totemic_recall,if=cooldown.liquid_magma_totem.remains>15&(active_dot.flame_shock<(spell_targets.chain_lightning>?6)-2|talent.fire_elemental.enabled)
@@ -275,7 +275,7 @@ local function Aoe()
     end
   end
   -- ascendance (JUST DO IT! https://i.kym-cdn.com/entries/icons/mobile/000/018/147/Shia_LaBeouf__Just_Do_It__Motivational_Speech_(Original_Video_by_LaBeouf__R%C3%B6nkk%C3%B6___Turner)_0-4_screenshot.jpg
-  if S.Ascendance:IsCastable() then
+  if CDsON() and S.Ascendance:IsCastable() then
     if Cast(S.Ascendance, Settings.CommonsOGCD.GCDasOffGCD.Ascendance) then return "ascendance aoe 20"; end
   end
   -- tempest,target_if=min:debuff.lightning_rod.remains,if=!buff.arc_discharge.up&(buff.surge_of_power.up|!talent.surge_of_power.enabled)
@@ -350,15 +350,15 @@ end
 
 local function SingleTarget()
   -- fire_elemental
-  if S.FireElemental:IsCastable() then
+  if CDsON() and S.FireElemental:IsCastable() then
     if Cast(S.FireElemental, Settings.Elemental.GCDasOffGCD.FireElemental) then return "fire_elemental single_target 2"; end
   end
   -- storm_elemental
-  if S.StormElemental:IsCastable() then
+  if CDsON() and S.StormElemental:IsCastable() then
     if Cast(S.StormElemental, Settings.Elemental.GCDasOffGCD.StormElemental) then return "storm_elemental single_target 4"; end
   end
   -- stormkeeper
-  if S.Stormkeeper:IsViable() then
+  if CDsON() and S.Stormkeeper:IsViable() then
     if Cast(S.Stormkeeper, Settings.Elemental.GCDasOffGCD.Stormkeeper) then return "stormkeeper single_target 6"; end
   end
   -- primordial_wave,if=!buff.surge_of_power.up
@@ -370,7 +370,7 @@ local function SingleTarget()
     if Cast(S.AncestralSwiftness, Settings.CommonsOGCD.GCDasOffGCD.AncestralSwiftness) then return "ancestral_swiftness single_target 10"; end
   end
   -- ascendance,if=fight_remains>180-60*talent.first_ascendant.enabled|buff.spymasters_web.up|!(variable.spymaster_in_1st|variable.spymaster_in_2nd)
-  if S.Ascendance:IsCastable() and (FightRemains > 180 - 60 * num(S.FirstAscendant:IsAvailable()) or Player:BuffUp(S.SpymastersWebBuff) or not (VarSpymasterIn1st or VarSpymasterIn2nd)) then
+  if CDsON() and S.Ascendance:IsCastable() and (FightRemains > 180 - 60 * num(S.FirstAscendant:IsAvailable()) or Player:BuffUp(S.SpymastersWebBuff) or not (VarSpymasterIn1st or VarSpymasterIn2nd)) then
     if Cast(S.Ascendance, Settings.CommonsOGCD.GCDasOffGCD.Ascendance) then return "ascendance single_target 12"; end
   end
   -- tempest,if=buff.surge_of_power.up
@@ -547,7 +547,7 @@ local function APL()
         if Cast(S.AncestralCall, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "ancestral_call main 8"; end
       end
     end
-    if Settings.Commons.Enabled.Trinkets then
+    if CDsON() and Settings.Commons.Enabled.Trinkets then
       -- use_item,slot=trinket1,if=!variable.spymaster_in_1st|(fight_remains<65|time<fight_remains&buff.spymasters_report.stack>35)&prev_gcd.1.stormkeeper|buff.ascendance.remains>12&buff.spymasters_report.stack>25|fight_remains<22
       if Trinket1:IsReady() and not VarTrinket1Ex and not Player:IsItemBlacklisted(Trinket1) and (not VarSpymasterIn1st or (BossFightRemains < 65 or HL.CombatTime() < FightRemains and Player:BuffStack(S.SpymastersReportBuff) > 35) and Player:PrevGCDP(1, S.Stormkeeper) or Player:BuffRemains(S.AscendanceBuff) > 12 and Player:BuffStack(S.SpymastersReportBuff) > 25 or BossFightRemains < 22) then
         if Cast(Trinket1, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket1Range)) then return "use_item trinket1 ("..Trinket1:Name()..") main 10"; end
@@ -568,7 +568,7 @@ local function APL()
     -- lightning_shield,if=buff.lightning_shield.down
     -- Note: Handled above.
     -- natures_swiftness
-    if S.NaturesSwiftness:IsCastable() and Player:BuffDown(S.NaturesSwiftness) then
+    if CDsON() and S.NaturesSwiftness:IsCastable() and Player:BuffDown(S.NaturesSwiftness) then
       if Cast(S.NaturesSwiftness, Settings.CommonsOGCD.GCDasOffGCD.NaturesSwiftness) then return "natures_swiftness main 12"; end
     end
     -- invoke_external_buff,name=power_infusion
