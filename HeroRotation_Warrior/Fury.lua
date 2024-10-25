@@ -167,7 +167,7 @@ local function Precombat()
     if Cast(S.BattleShout, Settings.CommonsOGCD.GCDasOffGCD.BattleShout) then return "battle_shout precombat 4"; end
   end
   -- use_item,name=treacherous_transmitter
-  if Settings.Commons.Enabled.Trinkets and I.TreacherousTransmitter:IsEquippedAndReady() then
+  if CDsON() and Settings.Commons.Enabled.Trinkets and I.TreacherousTransmitter:IsEquippedAndReady() then
     if Cast(I.TreacherousTransmitter, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "treacherous_transmitter precombat 6"; end
   end
   -- recklessness,if=!equipped.fyralath_the_dreamrender
