@@ -92,8 +92,10 @@ HR.GUISettings.APL.Warrior = {
       Selected = "Tempered",
     },
     DisplayStyle = {
-      Defensive = "Suggested",
-      LastStand = "Suggested"
+      IgnorePain = "Suggested",
+      LastStand = "Suggested",
+      ShieldBlock = "Suggested",
+      ShieldWall = "Suggested",
     },
     -- {Display OffGCD as OffGCD, ForceReturn}
     OffGCDasOffGCD = {
