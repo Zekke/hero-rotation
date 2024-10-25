@@ -887,13 +887,13 @@ local function APL ()
     -- Opener
     if Everyone.TargetIsValid() then
       -- Precombat CDs
-      if I.ImperfectAscendancySerum:IsEquippedAndReady() then
+      if CDsON() and I.ImperfectAscendancySerum:IsEquippedAndReady() then
         if Cast(I.ImperfectAscendancySerum, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsItemInRange(I.ImperfectAscendancySerum)) then
           return "Imperfect Ascendancy Serum";
         end
       end
       -- actions.precombat+=/adrenaline_rush,precombat_seconds=2,if=talent.improved_adrenaline_rush&talent.keep_it_rolling&talent.loaded_dice
-      if S.AdrenalineRush:IsReady() and S.ImprovedAdrenalineRush:IsAvailable() and S.KeepItRolling:IsAvailable()
+      if CDsON() and S.AdrenalineRush:IsReady() and S.ImprovedAdrenalineRush:IsAvailable() and S.KeepItRolling:IsAvailable()
         and S.LoadedDice:IsAvailable() then
         if Cast(S.AdrenalineRush, Settings.Outlaw.OffGCDasOffGCD.AdrenalineRush) then
           return "Cast Adrenaline Rush (Opener KiR)"
@@ -901,7 +901,7 @@ local function APL ()
       end
       -- actions.precombat+=/roll_the_bones,precombat_seconds=2
       -- Use same extended logic as a normal rotation for between pulls
-      if S.RolltheBones:IsReady() and not Player:DebuffUp(S.Dreadblades) and (RtB_Buffs() == 0 or RtB_Reroll()) then
+      if CDsON() and S.RolltheBones:IsReady() and not Player:DebuffUp(S.Dreadblades) and (RtB_Buffs() == 0 or RtB_Reroll()) then
         if Cast(S.RolltheBones, Settings.Outlaw.GCDasOffGCD.RollTheBones) then
           return "Cast Roll the Bones (Opener)"
         end
@@ -923,7 +923,7 @@ local function APL ()
         if ShouldReturn then
           return "Stealth (Opener): " .. ShouldReturn
         end
-        if S.KeepItRolling:IsAvailable() and S.GhostlyStrike:IsReady() and S.EchoingReprimand:IsAvailable() then
+        if CDsON() and S.KeepItRolling:IsAvailable() and S.GhostlyStrike:IsReady() and S.EchoingReprimand:IsAvailable() then
           if Cast(S.GhostlyStrike, nil, nil, not Target:IsSpellInRange(S.GhostlyStrike)) then
             return "Cast Ghostly Strike KiR (Opener)"
           end
