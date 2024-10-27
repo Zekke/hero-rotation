@@ -386,19 +386,6 @@ local function Finish(ReturnSpellOnly)
     end
   end
 
-  -- actions.finish+=/slice_and_dice,if=buff.slice_and_dice.remains<fight_remains&refreshable
-  -- Note: Added Player:BuffRemains(S.SliceandDice) == 0 to maintain the buff while TTD is invalid (it's mainly for Solo, not an issue in raids)
-  if S.SliceandDice:IsReady() and (HL.FilteredFightRemains(EnemiesBF, ">", Player:BuffRemains(S.SliceandDice), true) or Player:BuffRemains(S.SliceandDice) == 0)
-    and Player:BuffRemains(S.SliceandDice) < (1 + ComboPoints) * 1.8 then
-    if ReturnSpellOnly then
-      return S.SliceandDice
-    else
-      if Cast(S.SliceandDice) then
-        return "Cast Slice and Dice"
-      end
-    end
-  end
-
   if S.ColdBlood:IsReady() and Player:BuffDown(S.ColdBlood) then
     if Cast(S.ColdBlood, Settings.CommonsOGCD.OffGCDasOffGCD.ColdBlood) then
       return "Cast Cold Blood"
@@ -476,6 +463,7 @@ local function SpellQueueMacro (BaseSpell, ReturnSpellOnly)
       -- Outside of stealth could be AR -> Vanish -> BtE so check for this first then fallback into normal finisher.
       if not Player:StealthUp(true, true) then
         local MacroAbilities = StealthCDs(true)
+
         -- Make sure StealthCDs returned a combo which may not happen if targeting something out of range
         if MacroAbilities and MacroAbilities[2] and MacroAbilities[2] ~= "Cast Vanish" then
           local ARMacroTable = { BaseSpell, unpack(MacroAbilities) }
@@ -514,9 +502,10 @@ function StealthCDs (ReturnSpellOnly)
   -- &variable.finish_condition&(!cooldown.between_the_eyes.ready&buff.ruthless_precision.up|buff.adrenaline_rush.remains<3
   -- |buff.supercharge_1.up|buff.supercharge_2.up|cooldown.vanish.full_recharge_time<15|fight_remains<8)
   if S.Vanish:IsReady() and Vanish_DPS_Condition() then
-    if S.UnderhandedUpperhand:IsAvailable() and S.Subterfuge:IsAvailable() and S.Crackshot:IsAvailable() and Player:BuffUp(S.AdrenalineRush)
+    if S.UnderhandedUpperhand:IsAvailable() and S.Subterfuge:IsAvailable() and S.Crackshot:IsAvailable()
+      and (Player:BuffUp(S.AdrenalineRush) or S.AdrenalineRush:IsReady() and ReturnSpellOnly)
       and Finish_Condition() and (not S.BetweentheEyes:IsReady() and Player:BuffUp(S.RuthlessPrecision) or Player:BuffRemains(S.AdrenalineRush) < 3
-      or ChargedComboPoints > 0 or S.Vanish:CooldownRemains() < 15 or HL.BossFilteredFightRemains("<", 8)) then
+      or ChargedComboPoints > 0 or S.Vanish:FullRechargeTime() < 15 or HL.BossFilteredFightRemains("<", 8)) then
       ShouldReturn = SpellQueueMacro(S.Vanish, ReturnSpellOnly)
       if ShouldReturn then
         if ReturnSpellOnly then
