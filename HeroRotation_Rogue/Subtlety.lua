@@ -551,7 +551,7 @@ local function CDs ()
   -- actions.cds+=/potion,if=buff.bloodlust.react|fight_remains<30|buff.flagellation_buff.up
   if Settings.Commons.Enabled.Potions then
     local PotionSelected = Everyone.PotionSelected()
-    if PotionSelected and PotionSelected:IsReady() and Player:BloodlustUp() or HL.BossFilteredFightRemains("<", 30) or Player:BuffUp(S.FlagellationBuff) then
+    if PotionSelected and PotionSelected:IsReady() and (Player:BloodlustUp() or HL.BossFilteredFightRemains("<", 30) or Player:BuffUp(S.FlagellationBuff)) then
       if Cast(PotionSelected, nil, Settings.CommonsDS.DisplayStyle.Potions) then
         return "Cast Potion";
       end

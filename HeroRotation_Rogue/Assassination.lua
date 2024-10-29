@@ -679,7 +679,7 @@ local function ShivUsage ()
   --  actions.shiv+=/variable,name=shiv_kingsbane_condition,value=talent.kingsbane&buff.envenom.up&variable.shiv_condition
   local ShivKingsbaneCondition = S.Kingsbane:IsAvailable() and Player:BuffUp(S.Envenom) and ShivCondition
 
-  if S.Shiv:IsReady() then
+  if CDsON() and S.Shiv:IsReady() then
     -- # Shiv for aoe with Arterial Precision
     -- actions.shiv+=/shiv,if=talent.arterial_precision&variable.shiv_condition&spell_targets.fan_of_knives>=4
     -- &dot.crimson_tempest.ticking
@@ -911,7 +911,7 @@ local function AoE_Dot ()
   -- # Crimson Tempest on 2+ Targets if we have enough energy regen
   -- actions.aoe_dot+=/crimson_tempest,target_if=min:remains,if=spell_targets>=2&variable.dot_finisher_condition
   -- &refreshable&target.time_to_die-remains>6
-  if HR.AoEON() and S.CrimsonTempest:IsReady() and MeleeEnemies10yCount >= 2 and DotFinisherCondition then
+  if HR.AoEON() and S.CrimsonTempest:IsReady() and MeleeEnemies10yCount >= 2 and DotFinisherCondition and Target:DebuffDown(S.CrimsonTempest) then
     for _, CycleUnit in pairs(MeleeEnemies10y) do
       if IsDebuffRefreshable(CycleUnit, S.CrimsonTempest, CrimsonTempestThreshold)
         and CycleUnit:PMultiplier(S.CrimsonTempest) <= 1
@@ -1107,7 +1107,7 @@ local function APL ()
   RuptureDMGThreshold = S.Envenom:Damage() * Settings.Assassination.EnvenomDMGOffset; -- Used to check if Rupture is worth to be casted since it's a finisher.
   GarroteDMGThreshold = S.Mutilate:Damage() * Settings.Assassination.MutilateDMGOffset; -- Used as TTD Not Valid fallback since it's a generator.
   PriorityRotation = UsePriorityRotation()
-  EffectiveCPSpend = mathmax(Player:ComboPointsMax() - 2, 5 * num(S.HandOfFate:IsAvailable()))
+  EffectiveCPSpend = mathmax(Rogue.CPMaxSpend() - 2, 5 * num(S.HandOfFate:IsAvailable()))
 
   -- Defensives
   -- Crimson Vial
