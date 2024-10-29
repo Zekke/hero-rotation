@@ -130,7 +130,6 @@ HL:RegisterForSelfCombatEvent(
   end
   , "SPELL_CAST_SUCCESS"
 )
-]]
 
 HL:RegisterForSelfCombatEvent(
   function(...)
@@ -142,4 +141,4 @@ HL:RegisterForSelfCombatEvent(
     end
   end
   , "SPELL_AURA_APPLIED"
-)
+)]]

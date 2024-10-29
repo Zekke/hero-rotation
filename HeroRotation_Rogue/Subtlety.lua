@@ -865,6 +865,13 @@ local function APL ()
     end
   end
 
+  -- Shadowstep if out of range
+  if Settings.CommonsOGCD.OffGCDasOffGCD.Shadowstep and S.Shadowstep:IsCastable() and not Target:IsInMeleeRange(MeleeRange) and Target:Exists() then
+    if Cast(S.Shadowstep, true, nil, not Target:IsSpellInRange(S.Shadowstep)) then
+      return "Cast Shadowstep"
+    end
+  end
+
   --- Out of Combat
   if not Player:AffectingCombat() then
     -- Stealth
@@ -875,6 +882,7 @@ local function APL ()
         return ShouldReturn
       end
     end
+
     -- Flask
     -- Food
     -- Rune
@@ -901,14 +909,6 @@ local function APL ()
     ShouldReturn = Everyone.Interrupt(S.Kick, Settings.CommonsDS.DisplayStyle.Interrupts, Interrupts)
     if ShouldReturn then
       return ShouldReturn
-    end
-
-    -- actions+=/eviscerate,if=combo_points>=1&!variable.snd_condition
-    if S.Eviscerate:IsReady() and ComboPoints >= 1 and not SnD_Condition() then
-      if Cast(S.Eviscerate, nil, nil, not Target:IsSpellInRange(S.Eviscerate)) then
-        return "Cast Eviscerate"
-      end
-      SetPoolingFinisher(S.Eviscerate)
     end
 
     -- # Check CDs at first

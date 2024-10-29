@@ -164,7 +164,7 @@ HL.AddCoreOverride ("Player.SoulShardsP",
         return min(Shard + 2, 5)
       elseif Player:IsCasting(SpellDemo.ShadowBolt) or Player:IsCasting(SpellDemo.SoulStrike) then
         return min(Shard + 1, 5)
-      elseif Player:IsCasting(SpellDemo.HandofGuldan) or Player:IsCasting(SpellDemo.RuinationAbility) then
+      elseif Player:IsCasting(SpellDemo.HandofGuldan) then
         return max(Shard - 3, 0)
       elseif Player:IsCasting(SpellDemo.CallDreadstalkers) then
         return Shard - 2
@@ -209,7 +209,7 @@ DemoOldSpellIsReady = HL.AddCoreOverride ("Spell.IsReady",
       return BaseCheck and Player:SoulShardsP() >= 1 and not Player:IsCasting(self)
     elseif self == SpellDemo.CallDreadstalkers then
       return BaseCheck and (Player:SoulShardsP() >= 2 or Player:BuffUp(SpellDemo.DemonicCallingBuff)) and not Player:IsCasting(self)
-    elseif self == SpellDemo.SummonDemonicTyrant then
+    elseif self == SpellDemo.SummonDemonicTyrant or self == SpellDemo.RuinationAbility then
       return BaseCheck and not Player:IsCasting(self)
     elseif self == SpellDemo.HandofGuldan then
       return BaseCheck and Player:SoulShardsP() >= 1

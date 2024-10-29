@@ -483,7 +483,8 @@ do
   local SanguineStratagem = Spell(457512)
 
   function Commons.CPMaxSpend()
-    return 5 + (DeeperStratagem:IsAvailable() and 1 or 0) + (DeviousStratagem:IsAvailable() and 1 or 0) + (SecretStratagem:IsAvailable() and 1 or 0) + (SanguineStratagem:IsAvailable() and 1 or 0)
+    return 5 + (DeeperStratagem:IsAvailable() and 1 or 0) + (DeviousStratagem:IsAvailable() and 1 or 0) + (SecretStratagem:IsAvailable() and 1 or 0)
+      + (SanguineStratagem:IsAvailable() and 1 or 0)
   end
 end
 

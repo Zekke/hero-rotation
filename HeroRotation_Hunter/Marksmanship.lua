@@ -164,7 +164,7 @@ local function Precombat()
 end
 
 local function CDs()
-  -- invoke_external_buff,name=power_infusion,if=buff.trueshot.remains>12
+  -- invoke_external_buff,name=power_infusion,if=buff.trueshot.remains>12|fight_remains<13
   -- Note: Not handling external buffs.
   -- berserking,if=buff.trueshot.up|fight_remains<13
   if S.Berserking:IsReady() and (Player:BuffUp(S.TrueshotBuff) or FightRemains < 13) then
@@ -186,8 +186,8 @@ local function CDs()
   if S.LightsJudgment:IsReady() and (Player:BuffDown(S.TrueshotBuff)) then
     if Cast(S.LightsJudgment, Settings.CommonsOGCD.OffGCDasOffGCD.Racials, nil, not Target:IsSpellInRange(S.LightsJudgment)) then return "lights_judgment cds 10"; end
   end
-  -- potion,if=buff.trueshot.up&(buff.bloodlust.up|target.health.pct<20)|fight_remains<26
-  if Settings.Commons.Enabled.Potions and (Player:BuffUp(S.TrueshotBuff) and (Player:BloodlustUp() or Target:HealthPercentage() < 20) or FightRemains < 26) then
+  -- potion,if=buff.trueshot.up&(buff.bloodlust.up|target.health.pct<20)|fight_remains<31
+  if Settings.Commons.Enabled.Potions and (Player:BuffUp(S.TrueshotBuff) and (Player:BloodlustUp() or Target:HealthPercentage() < 20) or FightRemains < 31) then
     local PotionSelected = Everyone.PotionSelected()
     if PotionSelected and PotionSelected:IsReady() then
       if Cast(PotionSelected, nil, Settings.CommonsDS.DisplayStyle.Potions) then return "potion cds 12"; end
@@ -200,57 +200,57 @@ local function CDs()
 end
 
 local function ST()
-  -- steady_shot,if=talent.steady_focus&buff.steady_focus.remains<8
-  if S.SteadyShot:IsCastable() and (S.SteadyFocus:IsAvailable() and Player:BuffRemains(S.SteadyFocusBuff) < 8) then
-    if Cast(S.SteadyShot, nil, nil, not TargetInRange40y) then return "steady_shot st 2"; end
+  -- black_arrow,if=buff.trueshot.down
+  if S.BlackArrow:IsReady() and (Player:BuffDown(S.TrueshotBuff)) then
+    if Cast(S.BlackArrow, nil, nil, not TargetInRange40y) then return "black_arrow st 2"; end
   end
   -- kill_shot,if=buff.razor_fragments.up
   if S.KillShot:IsReady() and (Player:BuffUp(S.RazorFragmentsBuff)) then
     if Cast(S.KillShot, nil, nil, not TargetInRange40y) then return "kill_shot st 4"; end
   end
-  -- black_arrow
-  if S.BlackArrow:IsReady() then
-    if Cast(S.BlackArrow, nil, nil, not TargetInRange40y) then return "black_arrow st 6"; end
+  -- steady_shot,if=talent.steady_focus&buff.steady_focus.remains<execute_time&buff.trueshot.down
+  if S.SteadyShot:IsCastable() and (S.SteadyFocus:IsAvailable() and Player:BuffRemains(S.SteadyFocusBuff) < S.SteadyFocus:ExecuteTime() and Player:BuffDown(S.TrueshotBuff)) then
+    if Cast(S.SteadyShot, nil, nil, not TargetInRange40y) then return "steady_shot st 6"; end
   end
-  -- explosive_shot,if=active_enemies>1
-  if S.ExplosiveShot:IsReady() and (EnemiesCount10ySplash > 1) then
-    if Cast(S.ExplosiveShot, Settings.CommonsOGCD.GCDasOffGCD.ExplosiveShot, nil, not TargetInRange40y) then return "explosive_shot st 8"; end
+  -- volley,if=active_enemies>1|buff.salvo.up
+  if S.Volley:IsReady() and (EnemiesCount10ySplash > 1 or Player:BuffUp(S.SalvoBuff)) then
+    if Cast(S.Volley, Settings.Marksmanship.GCDasOffGCD.Volley, nil, not TargetInRange40y)  then return "volley st 8"; end
   end
-  -- volley
-  if S.Volley:IsReady() then
-    if Cast(S.Volley, Settings.Marksmanship.GCDasOffGCD.Volley, nil, not TargetInRange40y)  then return "volley st 10"; end
+  -- explosive_shot,if=active_enemies>1&buff.trick_shots.down
+  if S.ExplosiveShot:IsReady() and (EnemiesCount10ySplash > 1 and Player:BuffDown(S.TrickShotsBuff)) then
+    if Cast(S.ExplosiveShot, Settings.CommonsOGCD.GCDasOffGCD.ExplosiveShot, nil, not TargetInRange40y) then return "explosive_shot st 10"; end
   end
-  -- rapid_fire,if=talent.lunar_storm&(!cooldown.lunar_storm.remains|cooldown.lunar_storm.remains>5|action.wailing_arrow.ready)|!talent.lunar_storm
-  if S.RapidFire:IsCastable() and (S.LunarStorm:IsAvailable() and (S.LunarStorm:CooldownUp() or S.LunarStorm:CooldownRemains() > 5 or S.WailingArrow:CooldownUp()) or not S.LunarStorm:IsAvailable()) then
-    if Cast(S.RapidFire, Settings.Marksmanship.GCDasOffGCD.RapidFire, nil, not TargetInRange40y) then return "rapid_fire st 12"; end
-  end
-  -- trueshot,if=variable.trueshot_ready
-  if CDsON() and S.Trueshot:IsReady() and (VarTrueshotReady) then
-    if Cast(S.Trueshot, Settings.Marksmanship.OffGCDasOffGCD.Trueshot) then return "trueshot st 14"; end
+  -- trueshot,if=variable.trueshot_ready&talent.multishot
+  if CDsON() and S.Trueshot:IsReady() and (VarTrueshotReady and S.MultiShot:IsAvailable()) then
+    if Cast(S.Trueshot, Settings.Marksmanship.OffGCDasOffGCD.Trueshot) then return "trueshot st 12"; end
   end
   -- multishot,if=buff.salvo.up&!talent.volley
   if S.MultiShot:IsReady() and (Player:BuffUp(S.SalvoBuff) and not S.Volley:IsAvailable()) then
-    if Cast(S.MultiShot, nil, nil, not TargetInRange40y) then return "multishot st 16"; end
+    if Cast(S.MultiShot, nil, nil, not TargetInRange40y) then return "multishot st 14"; end
   end
-  -- wailing_arrow
+  -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=talent.black_arrow&talent.readiness&buff.trueshot.up
+  if S.AimedShot:IsReady() and (S.BlackArrow:IsAvailable() and S.Readiness:IsAvailable() and Player:BuffUp(S.TrueshotBuff)) then
+    if Everyone.CastTargetIf(S.AimedShot, Enemies10ySplash, "min", EvaluateTargetIfFilterAimedShot, nil, not TargetInRange40y) then return "aimed_shot st 16"; end
+  end
+  -- rapid_fire,if=!talent.lunar_storm|(!cooldown.lunar_storm.remains|cooldown.lunar_storm.remains>8|(action.wailing_arrow.ready&talent.readiness)|buff.trueshot.up)
+  if S.RapidFire:IsCastable() and (not S.LunarStorm:IsAvailable() or (S.LunarStorm:CooldownUp() or S.LunarStorm:CooldownRemains() > 8 or (S.WailingArrow:CooldownUp() and S.Readiness:IsAvailable()) or Player:BuffUp(S.TrueshotBuff))) then
+    if Cast(S.RapidFire, Settings.Marksmanship.GCDasOffGCD.RapidFire, nil, not TargetInRange40y) then return "rapid_fire st 18"; end
+  end
+  -- wailing_arrow,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99
   if S.WailingArrow:IsReady() then
-    if Cast(S.WailingArrow, Settings.Marksmanship.GCDasOffGCD.WailingArrow, nil, not TargetInRange40y) then return "wailing_arrow st 18"; end
+    if Everyone.CastTargetIf(S.WailingArrow, Enemies10ySplash, "min", EvaluateTargetIfFilterAimedShot, nil, not TargetInRange40y, Settings.Marksmanship.GCDasOffGCD.WailingArrow) then return "wailing_arrow st 20"; end
   end
-  -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=buff.precise_shots.down|(buff.trueshot.up|full_recharge_time<gcd+cast_time)&(active_enemies<2|!talent.chimaera_shot)|(buff.trick_shots.remains>execute_time&active_enemies>1)
-  if S.AimedShot:IsReady() and (Player:BuffDown(S.PreciseShotsBuff) or (Player:BuffUp(S.TrueshotBuff) or S.AimedShot:FullRechargeTime() < Player:GCD() + S.AimedShot:CastTime()) and (EnemiesCount10ySplash < 2 or not S.ChimaeraShot:IsAvailable()) or (Player:BuffRemains(S.TrickShotsBuff) > S.AimedShot:ExecuteTime() and EnemiesCount10ySplash > 1)) then
-    if Everyone.CastTargetIf(S.AimedShot, Enemies10ySplash, "min", EvaluateTargetIfFilterAimedShot, nil, not TargetInRange40y) then return "aimed_shot st 20"; end
+  -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99
+  if S.AimedShot:IsReady() then
+    if Everyone.CastTargetIf(S.AimedShot, Enemies10ySplash, "min", EvaluateTargetIfFilterAimedShot, nil, not TargetInRange40y) then return "aimed_shot st 22"; end
   end
-  -- steady_shot,if=talent.steady_focus&buff.steady_focus.down&buff.trueshot.down
-  if S.SteadyShot:IsCastable() and (S.SteadyFocus:IsAvailable() and Player:BuffDown(S.SteadyFocusBuff) and Player:BuffDown(S.TrueshotBuff)) then
-    if Cast(S.SteadyShot, nil, nil, not TargetInRange40y) then return "steady_shot st 22"; end
+  -- black_arrow
+  if S.BlackArrow:IsReady() then
+    if Cast(S.BlackArrow, nil, nil, not TargetInRange40y) then return "black_arrow st 24"; end
   end
   -- kill_shot
   if S.KillShot:IsReady() then
-    if Cast(S.KillShot, nil, nil, not TargetInRange40y) then return "kill_shot st 24"; end
-  end
-  -- chimaera_shot,if=buff.precise_shots.up
-  if S.ChimaeraShot:IsReady() and (Player:BuffUp(S.PreciseShotsBuff)) then
-    if Cast(S.ChimaeraShot, nil, nil, not TargetInRange40y) then return "chimaera_shot st 26"; end
+    if Cast(S.KillShot, nil, nil, not TargetInRange40y) then return "kill_shot st 26"; end
   end
   -- multishot,if=buff.precise_shots.up&active_enemies>1&(talent.symphonic_arsenal|talent.small_game_hunter)
   if S.MultiShot:IsReady() and (Player:BuffUp(S.PreciseShotsBuff) and EnemiesCount10ySplash > 1 and (S.SymphonicArsenal:IsAvailable() or S.SmallGameHunter:IsAvailable())) then
@@ -260,88 +260,80 @@ local function ST()
   if S.ArcaneShot:IsReady() and (Player:BuffUp(S.PreciseShotsBuff)) then
     if Cast(S.ArcaneShot, nil, nil, not TargetInRange40y) then return "arcane_shot st 30"; end
   end
-  -- barrage,if=talent.rapid_fire_barrage
-  if S.Barrage:IsReady() and (S.RapidFireBarrage:IsAvailable()) then
-    if Cast(S.Barrage, nil, nil, not TargetInRange40y) then return "barrage st 32"; end
+  -- trueshot,if=variable.trueshot_ready
+  if S.Trueshot:IsReady() and CDsON() and (VarTrueshotReady) then
+    if Cast(S.Trueshot, Settings.Marksmanship.OffGCDasOffGCD.Trueshot, nil, not TargetInRange40y) then return "trueshot st 32"; end
+  end
+  -- volley
+  if S.Volley:IsReady() then
+    if Cast(S.Volley, Settings.Marksmanship.GCDasOffGCD.Volley, nil, not TargetInRange40y)  then return "volley st 34"; end
   end
   -- explosive_shot
   if S.ExplosiveShot:IsReady() then
-    if Cast(S.ExplosiveShot, Settings.CommonsOGCD.GCDasOffGCD.ExplosiveShot, nil, not TargetInRange40y) then return "explosive_shot st 34"; end
-  end
-  -- chimaera_shot,if=focus>cost+action.aimed_shot.cost
-  if S.ChimaeraShot:IsReady() and (Player:FocusP() > S.ChimaeraShot:Cost() + S.AimedShot:Cost()) then
-    if Cast(S.ChimaeraShot, nil, nil, not TargetInRange40y) then return "chimaera_shot st 36"; end
-  end
-  -- multishot,if=focus>cost+action.aimed_shot.cost&active_enemies>1&(talent.symphonic_arsenal|talent.small_game_hunter)
-  if S.MultiShot:IsReady() and (Player:FocusP() > S.MultiShot:Cost() + S.AimedShot:Cost() and EnemiesCount10ySplash > 1 and (S.SymphonicArsenal:IsAvailable() or S.SmallGameHunter:IsAvailable())) then
-    if Cast(S.MultiShot, nil, nil, not TargetInRange40y) then return "multishot st 38"; end
-  end
-  -- arcane_shot,if=focus>cost+action.aimed_shot.cost
-  if S.ArcaneShot:IsReady() and (Player:FocusP() > S.ArcaneShot:Cost() + S.AimedShot:Cost()) then
-    if Cast(S.ArcaneShot, nil, nil, not TargetInRange40y) then return "arcane_shot st 40"; end
-  end
-  -- bag_of_tricks,if=buff.trueshot.down
-  if CDsON() and S.BagofTricks:IsReady() then
-    if Cast(S.BagofTricks, Settings.CommonsOGCD.OffGCDasOffGCD.Racials, nil, not Target:IsSpellInRange(S.BagofTricks)) then return "bag_of_tricks st 42"; end
+    if Cast(S.ExplosiveShot, Settings.CommonsOGCD.GCDasOffGCD.ExplosiveShot, nil, not TargetInRange40y) then return "explosive_shot st 36"; end
   end
   -- steady_shot
   if S.SteadyShot:IsCastable() then
-    if Cast(S.SteadyShot, nil, nil, not TargetInRange40y) then return "steady_shot st 44"; end
+    if Cast(S.SteadyShot, nil, nil, not TargetInRange40y) then return "steady_shot st 38"; end
   end
 end
 
 local function Trickshots()
-  -- steady_shot,if=talent.steady_focus&buff.steady_focus.remains<8
-  if S.SteadyShot:IsCastable() and (S.SteadyFocus:IsAvailable() and Player:BuffRemains(S.SteadyFocusBuff) < 8) then
-    if Cast(S.SteadyShot, nil, nil, not TargetInRange40y) then return "steady_shot trickshots 2"; end
+  -- black_arrow,if=buff.trick_shots.remains>execute_time&buff.razor_fragments.up
+  if S.BlackArrow:IsReady() and (Player:BuffRemains(S.TrickShotsBuff) > S.BlackArrow:ExecuteTime() and Player:BuffUp(S.RazorFragmentsBuff)) then
+    if Cast(S.BlackArrow, nil, nil, not TargetInRange40y) then return "black_arrow trickshots 2"; end
+  end
+  -- steady_shot,if=talent.steady_focus&buff.steady_focus.remains<execute_time&buff.trueshot.down
+  if S.SteadyShot:IsCastable() and (S.SteadyFocus:IsAvailable() and Player:BuffRemains(S.SteadyFocusBuff) < S.SteadyFocus:ExecuteTime() and Player:BuffDown(S.TrueshotBuff)) then
+    if Cast(S.SteadyShot, nil, nil, not TargetInRange40y) then return "steady_shot trickshots 4"; end
   end
   -- explosive_shot
   if S.ExplosiveShot:IsReady() then
-    if Cast(S.ExplosiveShot, Settings.CommonsOGCD.GCDasOffGCD.ExplosiveShot, nil, not TargetInRange40y) then return "explosive_shot trickshots 4"; end
+    if Cast(S.ExplosiveShot, Settings.CommonsOGCD.GCDasOffGCD.ExplosiveShot, nil, not TargetInRange40y) then return "explosive_shot trickshots 6"; end
   end
   -- volley
-  if S.Volley:IsCastable() then
-    if Cast(S.Volley, Settings.Marksmanship.GCDasOffGCD.Volley, nil, not TargetInRange40y) then return "volley trickshots 6"; end
+  if S.Volley:IsReady() then
+    if Cast(S.Volley, Settings.Marksmanship.GCDasOffGCD.Volley, nil, not TargetInRange40y)  then return "volley trickshots 8"; end
   end
-  -- barrage,if=talent.rapid_fire_barrage&buff.trick_shots.remains>=execute_time
-  if S.Barrage:IsReady() and (S.RapidFireBarrage:IsAvailable() and Player:BuffRemains(S.TrickShotsBuff) >= S.Barrage:ExecuteTime()) then
-    if Cast(S.Barrage, nil, nil, not TargetInRange40y) then return "barrage trickshots 8"; end
-  end
-  -- rapid_fire,if=buff.trick_shots.remains>=execute_time
-  if S.RapidFire:IsCastable() and (Player:BuffRemains(S.TrickShotsBuff) >= S.RapidFire:ExecuteTime()) then
-    if Cast(S.RapidFire, Settings.Marksmanship.GCDasOffGCD.RapidFire, nil, not TargetInRange40y) then return "rapid_fire trickshots 10"; end
+  -- black_arrow,if=!talent.razor_fragments&buff.trick_shots.remains>execute_time
+  if S.BlackArrow:IsReady() and (not S.RazorFragments:IsAvailable() and Player:BuffRemains(S.TrickShotsBuff) > S.BlackArrow:ExecuteTime()) then
+    if Cast(S.BlackArrow, nil, nil, not TargetInRange40y) then return "black_arrow trickshots 10"; end
   end
   -- kill_shot,if=buff.razor_fragments.up
   if S.KillShot:IsReady() and (Player:BuffUp(S.RazorFragmentsBuff)) then
     if Cast(S.KillShot, nil, nil, not TargetInRange40y) then return "kill_shot trickshots 12"; end
   end
-  -- black_arrow
-  if S.BlackArrow:IsReady() then
-    if Cast(S.BlackArrow, nil, nil, not TargetInRange40y) then return "black_arrow trickshots 14"; end
-  end
-  -- wailing_arrow,if=buff.precise_shots.down
-  if S.WailingArrow:IsReady() and (Player:BuffDown(S.PreciseShotsBuff)) then
-    if Cast(S.WailingArrow, Settings.Marksmanship.GCDasOffGCD.WailingArrow, nil, not TargetInRange40y) then return "wailing_arrow trickshots 16"; end
-  end
   -- trueshot,if=variable.trueshot_ready
   if S.Trueshot:IsReady() and CDsON() and (VarTrueshotReady) then
-    if Cast(S.Trueshot, Settings.Marksmanship.OffGCDasOffGCD.Trueshot, nil, not TargetInRange40y) then return "trueshot trickshots 18"; end
+    if Cast(S.Trueshot, Settings.Marksmanship.OffGCDasOffGCD.Trueshot, nil, not TargetInRange40y) then return "trueshot trickshots 14"; end
   end
-  -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=buff.trick_shots.remains>=execute_time&buff.precise_shots.down
-  if S.AimedShot:IsReady() and (Player:BuffRemains(S.TrickShotsBuff) >= S.AimedShot:ExecuteTime() and Player:BuffDown(S.PreciseShotsBuff)) then
-    if Everyone.CastTargetIf(S.AimedShot, Enemies10ySplash, "min", EvaluateTargetIfFilterAimedShot, nil, not TargetInRange40y) then return "aimed_shot trickshots 20"; end
+  -- barrage,if=talent.rapid_fire_barrage&buff.trick_shots.remains>execute_time
+  if S.Barrage:IsReady() and (S.RapidFireBarrage:IsAvailable() and Player:BuffRemains(S.TrickShotsBuff) > S.Barrage:ExecuteTime()) then
+    if Cast(S.Barrage, nil, nil, not TargetInRange40y) then return "barrage trickshots 16"; end
   end
-  -- multishot,if=buff.trick_shots.down|buff.precise_shots.up|focus>cost+action.aimed_shot.cost
-  if S.MultiShot:IsReady() and (Player:BuffDown(S.TrickShotsBuff) or Player:BuffUp(S.PreciseShotsBuff) or Player:FocusP() > S.MultiShot:Cost() + S.AimedShot:Cost()) then
-    if Cast(S.MultiShot, nil, nil, not TargetInRange40y) then return "multishot trickshots 22"; end
+  -- rapid_fire,if=buff.trick_shots.remains>execute_time&(!talent.lunar_storm|(!cooldown.lunar_storm.remains|cooldown.lunar_storm.remains>5|(action.wailing_arrow.ready&talent.readiness)|buff.trueshot.up))
+  if S.RapidFire:IsCastable() and (Player:BuffRemains(S.TrickShotsBuff) > S.RapidFire:ExecuteTime() and (not S.LunarStorm:IsAvailable() or (S.LunarStorm:CooldownUp() or S.LunarStorm:CooldownRemains() > 5 or (S.WailingArrow:CooldownUp() and S.Readiness:IsAvailable()) or Player:BuffUp(S.TrueshotBuff)))) then
+    if Cast(S.RapidFire, Settings.Marksmanship.GCDasOffGCD.RapidFire, nil, not TargetInRange40y) then return "rapid_fire trickshots 18"; end
+  end
+  -- wailing_arrow,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99
+  if S.WailingArrow:IsReady() then
+    if Everyone.CastTargetIf(S.WailingArrow, Enemies10ySplash, "min", EvaluateTargetIfFilterAimedShot, nil, not TargetInRange40y, Settings.Marksmanship.GCDasOffGCD.WailingArrow) then return "wailing_arrow trickshots 20"; end
+  end
+  -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=buff.trick_shots.remains>execute_time&buff.precise_shots.down
+  if S.AimedShot:IsReady() and (Player:BuffRemains(S.TrickShotsBuff) > S.AimedShot:ExecuteTime() and Player:BuffDown(S.PreciseShotsBuff)) then
+    if Everyone.CastTargetIf(S.AimedShot, Enemies10ySplash, "min", EvaluateTargetIfFilterAimedShot, nil, not TargetInRange40y) then return "aimed_shot trickshots 22"; end
+  end
+  -- multishot,if=buff.precise_shots.up|buff.trick_shots.down
+  if S.MultiShot:IsReady() and (Player:BuffUp(S.PreciseShotsBuff) or Player:BuffDown(S.TrickShotsBuff)) then
+    if Cast(S.MultiShot, nil, nil, not TargetInRange40y) then return "multishot trickshots 24"; end
   end
   -- bag_of_tricks,if=buff.trueshot.down
-  if S.BagofTricks:IsReady() and (Player:BuffDown(S.Trueshot)) then
-    if Cast(S.BagofTricks, Settings.CommonsOGCD.OffGCDasOffGCD.Racials, nil, not Target:IsSpellInRange(S.BagofTricks)) then return "bag_of_tricks trickshots 24"; end
+  if S.BagofTricks:IsReady() and (Player:BuffDown(S.TrueshotBuff)) then
+    if Cast(S.BagofTricks, Settings.CommonsOGCD.OffGCDasOffGCD.Racials, nil, not Target:IsSpellInRange(S.BagofTricks)) then return "bag_of_tricks trickshots 26"; end
   end
   -- steady_shot
   if S.SteadyShot:IsCastable() then
-    if Cast(S.SteadyShot, nil, nil, not TargetInRange40y) then return "steady_shot trickshots 26"; end
+    if Cast(S.SteadyShot, nil, nil, not TargetInRange40y) then return "steady_shot trickshots 28"; end
   end
 end
 

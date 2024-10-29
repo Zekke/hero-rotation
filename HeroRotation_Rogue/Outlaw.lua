@@ -996,9 +996,6 @@ local function APL ()
       if ShouldReturn then
         return "Finish: " .. ShouldReturn
       end
-      -- run_action_list forces the return
-      Cast(S.PoolEnergy)
-      return "Finish Pooling"
     end
     -- actions+=/call_action_list,name=build
     ShouldReturn = Build()

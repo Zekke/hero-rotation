@@ -50,11 +50,13 @@ local Settings = {
 }
 
 --- ===== Rotation Variables =====
+local VarSanctificationMaxStack = 5
 local ActiveMitigationNeeded
 local IsTanking
 local Enemies8y, Enemies30y
 local EnemiesCount8y, EnemiesCount30y
-local VarSanctificationMaxStack = 5
+local BossFightRemains = 11111
+local FightRemains = 11111
 
 --- ===== Stun Interrupts List =====
 local StunInterrupts = {

@@ -78,6 +78,7 @@ local NotPooling, InCooldowns, PoisonedBleeds, EnergyRegenCombined, EnergyTimeTo
 ClipEnvenom, UpperLimitEnergy, AvoidTea, CDSoon
 
 local TrinketSyncSlot = 0
+local TrinketItem1, TrinketItem2
 local EffectiveCPSpend
 
 -- Equipment
@@ -816,7 +817,7 @@ local function CDs ()
   -- |spell_targets.fan_of_knives>=4&debuff.shiv.remains>=6|fight_remains<=cooldown.thistle_tea.charges*6
   if S.ThistleTea:IsCastable() and not Player:BuffUp(S.ThistleTea) and (Target:DebuffUp(S.Kingsbane) or Target:DebuffRemains(S.ShivDebuff) >= 4) or MeleeEnemies10yCount >= 4
     and Target:DebuffRemains(S.Shiv) >= 6 or HL.BossFilteredFightRemains("<", S.ThistleTea:Charges() * 6) then
-    if HR.Cast(S.ThistleTea, Settings.CommonsOGCD.OffGCDasOffGCD.ThistleTea) then
+    if Cast(S.ThistleTea, Settings.CommonsOGCD.OffGCDasOffGCD.ThistleTea) then
       return "Cast Thistle Tea"
     end
   end
@@ -1123,6 +1124,13 @@ local function APL ()
   if I.BottledFlayedwingToxin:IsEquippedAndReady() and Player:BuffDown(S.FlayedwingToxin) then
     if Cast(I.BottledFlayedwingToxin, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then
       return "Bottled Flayedwing Toxin";
+    end
+  end
+
+  -- Shadowstep if out of range
+  if Settings.CommonsOGCD.OffGCDasOffGCD.Shadowstep and S.Shadowstep:IsCastable() and not TargetInMeleeRange and Target:Exists() then
+    if Cast(S.Shadowstep, true, nil, not Target:IsSpellInRange(S.Shadowstep)) then
+      return "Cast Shadowstep"
     end
   end
 
