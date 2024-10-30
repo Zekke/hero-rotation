@@ -830,7 +830,7 @@ local function APL()
     end
     -- felblade,if=cooldown.blade_dance.remains>=0.5&cooldown.blade_dance.remains<gcd.max
     if S.Felblade:IsCastable() and (S.BladeDance:CooldownRemains() >= 0.5 and S.BladeDance:CooldownRemains() < Player:GCD()) then
-      if Cast(S.Felblade, nil, nil, not IsInRange(15)) then return "felblade main 57"; end
+      if Cast(S.Felblade, nil, nil, not Target:IsSpellInRange(S.Felblade)) then return "felblade main 57"; end
     end
     -- throw_glaive,if=buff.unbound_chaos.down&recharge_time<cooldown.eye_beam.remains&debuff.essence_break.down&(cooldown.eye_beam.remains>8|charges_fractional>1.01)&buff.out_of_range.down&active_enemies>1
     if S.ThrowGlaive:IsReady() and (Player:BuffDown(S.UnboundChaosBuff) and ImmoAbility:Recharge() < S.EyeBeam:CooldownRemains() and Target:DebuffDown(S.EssenceBreakDebuff) and (S.EyeBeam:CooldownRemains() > 8 or ImmoAbility:ChargesFractional() > 1.01) and Target:IsInRange(8) and Enemies8yCount > 1) then

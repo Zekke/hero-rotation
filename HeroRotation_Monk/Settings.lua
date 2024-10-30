@@ -79,6 +79,8 @@ HR.GUISettings.APL.Monk = {
     IgnoreFSK = true,
     IgnoreToK = false,
     ShowFortifyingBrewCD = false,
+    MotCCountThreshold = 5,
+    MotCMinTimeThreshold = 5,
     PotionType = {
       Selected = "Tempered",
     },
@@ -124,6 +126,8 @@ CreatePanelOption("CheckButton", CP_Windwalker, "APL.Monk.Windwalker.ShowFortify
 CreatePanelOption("CheckButton", CP_Windwalker, "APL.Monk.Windwalker.IgnoreToK", "Ignore Touch of Karma", "Enable this setting to allow you to ignore Touch of Karma without stalling the rotation. (NOTE: Touch of Karma will never be suggested if this is enabled)")
 CreatePanelOption("CheckButton", CP_Windwalker, "APL.Monk.Windwalker.IgnoreFSK", "Ignore Flying Serpent Kick", "Enable this setting to allow you to ignore Flying Serpent Kick without stalling the rotation. (NOTE: Flying Serpent Kick will never be suggested if this is enabled)")
 CreatePanelOption("Slider", CP_Windwalker, "APL.Monk.Windwalker.FortifyingBrewHP", {1, 100, 1}, "Fortifying Brew HP Threshold", "Set the HP threshold for when to suggest Fortifying Brew.")
+CreatePanelOption("Slider", CP_Windwalker, "APL.Monk.Windwalker.MotCCountThreshold", {1, 10, 1}, "Mark of the Crane Count Threshold", "Allow the profile to cycle through targets to apply Mark of the Crane is below this number of targets with the debuff applied. Default: 5.")
+CreatePanelOption("Slider", CP_Windwalker, "APL.Monk.Windwalker.MotCMinTimeThreshold", {1, 20, 1}, "Mark of the Crane Min Time Threshold", "Allow the profile to cycle through targets to apply Mark of the Crane if the remaining time on any Mark of the Crane debuff is below this number of seconds. Default: 5.")
 
 -- Brewmaster
 CreatePanelOption("Slider", CP_Brewmaster, "APL.Monk.Brewmaster.ExpelHarmHP", {1, 100, 1}, "Expel Harm HP Threshold", "Set the HP threshold for when to suggest Expel Harm.")

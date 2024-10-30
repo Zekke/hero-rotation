@@ -684,7 +684,7 @@ local function ShivUsage ()
     -- # Shiv for aoe with Arterial Precision
     -- actions.shiv+=/shiv,if=talent.arterial_precision&variable.shiv_condition&spell_targets.fan_of_knives>=4
     -- &dot.crimson_tempest.ticking
-    if S.ArterialPrecision:IsAvailable() and ShivCondition and MeleeEnemies10yCount >= 4 then
+    if S.ArterialPrecision:IsAvailable() and ShivCondition and MeleeEnemies10yCount >= 4 and S.CrimsonTempest:AnyDebuffUp() then
       if Cast(S.Shiv, Settings.Assassination.GCDasOffGCD.Shiv) then
         return "Cast Shiv (Arterial Precision)"
       end
@@ -1029,7 +1029,7 @@ local function Direct ()
   if S.FanofKnives:IsReady() then
     if HR.AoEON() and UseFiller and not PriorityRotation and (MeleeEnemies10yCount >= 3 - BoolToInt(S.MomentumOfDespair:IsAvailable() and S.ThrownPrecision:IsAvailable()))
       or Player:BuffUp(S.ClearTheWitnessesBuff) and not S.ViciousVenoms:IsAvailable() then
-      if CastPooling(S.FanofKnives) then
+      if Cast(S.FanofKnives) then
         return "Cast Fan of Knives"
       end
     end
@@ -1042,7 +1042,7 @@ local function Direct ()
     and UseFiller and MeleeEnemies10yCount >= 3 - BoolToInt(S.MomentumOfDespair:IsAvailable() and S.ThrownPrecision:IsAvailable()) then
     for _, CycleUnit in pairs(MeleeEnemies10y) do
       if not CycleUnit:DebuffUp(S.DeadlyPoisonDebuff, true) and (not PriorityRotation or CycleUnit:DebuffUp(S.Garrote) or CycleUnit:DebuffUp(S.Rupture)) then
-        if CastPooling(S.FanofKnives) then
+        if Cast(S.FanofKnives) then
           return "Cast Fan of Knives (DP Refresh)"
         end
       end
@@ -1286,6 +1286,7 @@ local function Init ()
   S.Deathmark:RegisterAuraTracking()
   S.Sepsis:RegisterAuraTracking()
   S.Garrote:RegisterAuraTracking()
+  S.CrimsonTempest:RegisterAuraTracking()
 
   HR.Print("Assassination Rogue rotation has been updated for patch 11.0.5.")
 end
