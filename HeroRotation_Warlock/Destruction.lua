@@ -673,8 +673,8 @@ local function Cleave()
   if S.Conflagrate:IsCastable() and ((S.RoaringBlaze:IsAvailable() and S.Conflagrate:FullRechargeTime() <= Player:GCD() * 2) or S.Conflagrate:Recharge() <= 8 and (DiabolicRitual() and (VarDRSum) < Player:GCD()) and not VarPoolSoulShards) then
     if Cast(S.Conflagrate, nil, nil, not Target:IsSpellInRange(S.Conflagrate)) then return "conflagrate cleave 10"; end
   end
-  -- shadowburn,if=(cooldown.shadowburn.full_recharge_time<=gcd.max*3|debuff.eradication.remains<=gcd.max&talent.eradication&!action.chaos_bolt.in_flight&!talent.diabolic_ritual)&(talent.conflagration_of_chaos|talent.blistering_atrophy)|fight_remains<=8
-  if S.Shadowburn:IsReady() and ((S.Shadowburn:FullRechargeTime() <= Player:GCD() * 3 or Target:DebuffRemains(S.EradicationDebuff) <= Player:GCD() and S.Eradication:IsAvailable() and not S.ChaosBolt:InFlight() and not S.DiabolicRitual:IsAvailable()) and (S.ConflagrationofChaos:IsAvailable() or S.BlisteringAtrophy:IsAvailable()) or BossFightRemains <= 8) then
+  -- shadowburn,if=(cooldown.shadowburn.full_recharge_time<=gcd.max*3|debuff.eradication.remains<=gcd.max&talent.eradication&!action.chaos_bolt.in_flight&!talent.diabolic_ritual)&(talent.conflagration_of_chaos|talent.blistering_atrophy)&!demonic_art|fight_remains<=8
+  if S.Shadowburn:IsReady() and ((S.Shadowburn:FullRechargeTime() <= Player:GCD() * 3 or Target:DebuffRemains(S.EradicationDebuff) <= Player:GCD() and S.Eradication:IsAvailable() and not S.ChaosBolt:InFlight() and not S.DiabolicRitual:IsAvailable()) and (S.ConflagrationofChaos:IsAvailable() or S.BlisteringAtrophy:IsAvailable()) and not DemonicArt() or BossFightRemains <= 8) then
     if Cast(S.Shadowburn, nil, nil, not Target:IsSpellInRange(S.Shadowburn)) then return "shadowburn cleave 12"; end
   end
   -- chaos_bolt,if=buff.ritual_of_ruin.up

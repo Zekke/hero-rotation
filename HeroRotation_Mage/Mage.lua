@@ -265,10 +265,8 @@ Item.Mage.Fire = MergeTableByKey(Item.Mage.Commons, {
 })
 
 Item.Mage.Frost = MergeTableByKey(Item.Mage.Commons, {
-  -- DF Trinkets
-  BelorrelostheSuncaller                = Item(207172, {13, 14}),
-  -- Other On-Use Items
-  Dreambinder                           = Item(208616, {16}),
+  -- TWW Trinkets
+  BurstofKnowledge                      = Item(231424, {13, 14}),
 })
 
 --[[ Variables

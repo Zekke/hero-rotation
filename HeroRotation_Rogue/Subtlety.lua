@@ -346,10 +346,10 @@ end
 -- # Builders
 local function Build (ReturnSpellOnly, ForceStealth)
   -- actions.build=shadowstrike,cycle_targets=1,if=debuff.find_weakness.remains<=2&variable.targets=2
-  -- &talent.unseen_blade|!used_for_danse&talent.danse_macabre
+  -- &talent.unseen_blade|!used_for_danse&!talent.premeditation
   if S.Shadowstrike:IsReady() and HR.AoEON() and Player:StealthUp(true, false) then
     if MeleeEnemies10yCount == 2 and S.UnseenBlade:IsAvailable()
-      or not Used_For_Danse(S.Shadowstrike) and S.DanseMacabre:IsAvailable() then
+      or not Used_For_Danse(S.Shadowstrike) and not S.Premeditation:IsAvailable() then
       for _, CycleUnit in pairs(MeleeEnemies10y) do
         if CycleUnit:GUID() ~= Target:GUID() and CycleUnit:DebuffRemains(S.FindWeaknessDebuff) <= 2 then
           CastLeftNameplate(CycleUnit, S.Shadowstrike)
@@ -509,11 +509,14 @@ local function CDs ()
   end
 
   -- actions.cds+=/symbols_of_death,if=(buff.symbols_of_death.remains<=3&variable.maintenance&(buff.flagellation_buff.up
-  -- |!talent.flagellation|cooldown.flagellation.remains>=30-15*!talent.death_perception&cooldown.secret_technique.remains<=8
+  -- &cooldown.secret_technique.remains<8|!talent.flagellation|buff.flagellation_persist.up&talent.unseen_blade
+  -- |cooldown.flagellation.remains>=30-15*!talent.death_perception&cooldown.secret_technique.remains<8
   -- |!talent.death_perception)|fight_remains<=15)
   if HR.CDsON() and S.SymbolsofDeath:IsReady() then
-    if (Player:BuffRemains(S.SymbolsofDeath) <= 3 and Maintenance and (Player:BuffUp(S.FlagellationBuff)
-      or not S.Flagellation:IsAvailable() or S.Flagellation:CooldownRemains() >= 30 - 15 * num(S.DeathPerception:IsAvailable())
+    if (Player:BuffRemains(S.SymbolsofDeath) <= 3 and Maintenance and (S.Flagellation:IsReady() or Player:BuffUp(S.FlagellationBuff)
+      and S.SecretTechnique:CooldownRemains() < 8
+      or not S.Flagellation:IsAvailable() or Player:BuffUp(S.FlagellationPersistBuff) and S.UnseenBlade:IsAvailable()
+      or S.Flagellation:CooldownRemains() >= 30 - 15 * num(S.DeathPerception:IsAvailable())
       and S.SecretTechnique:CooldownRemains() <= 8 or not S.DeathPerception:IsAvailable()) or HL.BossFilteredFightRemains("<=", 15)) then
       if Cast(S.SymbolsofDeath, Settings.Subtlety.OffGCDasOffGCD.SymbolsofDeath) then
         return "Cast Symbols of Death"
@@ -523,7 +526,8 @@ local function CDs ()
 
   -- actions.cds+=/shadow_blades,if=variable.maintenance&variable.shd_cp&buff.shadow_dance.up&!buff.premeditation.up
   if HR.CDsON() and S.ShadowBlades:IsReady() then
-    if Maintenance and ShdCp and Player:BuffUp(S.ShadowDanceBuff) and not Player:BuffUp(S.PremeditationBuff) then
+    if Maintenance and ShdCp and Player:BuffUp(S.ShadowDanceBuff) and not Player:BuffUp(S.PremeditationBuff)
+      and (Player:BuffUp(S.FlagellationBuff) or Player:BuffUp(S.FlagellationPersistBuff)) then
       if Cast(S.ShadowBlades, Settings.Subtlety.OffGCDasOffGCD.ShadowBlades) then
         return "Cast Shadow Blades"
       end
@@ -540,7 +544,8 @@ local function CDs ()
   end
 
   -- actions.cds+=/flagellation,if=combo_points>=5|fight_remains<=25
-  if HR.CDsON() and S.Flagellation:IsAvailable() and S.Flagellation:IsReady() then
+  if HR.CDsON() and S.Flagellation:IsAvailable() and S.Flagellation:IsReady()
+    and (S.ShadowBlades:IsReady() or Player:BuffUp(S.ShadowBlades)) then
     if ComboPoints >= 5 or HL.BossFilteredFightRemains("<=", 25) then
       if Cast(S.Flagellation, nil, Settings.CommonsDS.DisplayStyle.Flagellation, not Target:IsSpellInRange(S.Flagellation)) then
         return "Cast Flagellation"

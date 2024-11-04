@@ -22,6 +22,8 @@ local AoEON         = HR.AoEON
 -- Num/Bool Helper Functions
 local num           = HR.Commons.Everyone.num
 local bool          = HR.Commons.Everyone.bool
+-- lua
+local mathmax       = math.max
 -- WoW API
 local Delay         = C_Timer.After
 local GetItemCount  = GetItemCount
@@ -153,11 +155,11 @@ local function CDOpener()
   if S.Evocation:IsCastable() and (S.ArcaneSurge:CooldownRemains() < (Player:GCD() * 3) and S.TouchoftheMagi:CooldownRemains() < (Player:GCD() * 5)) then
     if Cast(S.Evocation, Settings.Arcane.GCDasOffGCD.Evocation) then return "evocation cd_opener 8"; end
   end
-  -- arcane_missiles,if=variable.opener,interrupt_if=tick_time>gcd.remains&buff.aether_attunement.down,interrupt_immediate=1,interrupt_global=1,chain=1,line_cd=30
+  -- arcane_missiles,if=((prev_gcd.1.evocation|prev_gcd.1.arcane_surge)&buff.nether_precision.down)|variable.opener,interrupt_if=tick_time>gcd.remains&buff.aether_attunement.down,interrupt_immediate=1,interrupt_global=1,chain=1,line_cd=30
   if Settings.Arcane.Enabled.ArcaneMissilesInterrupts and Player:IsChanneling(S.ArcaneMissiles) and (S.ArcaneMissiles:TickTime() > Player:GCDRemains() and Player:BuffDown(S.AetherAttunementBuff)) then
     if CastAnnotated(S.StopAM, false, "STOP AM") then return "arcane_missiles interrupt cd_opener 10"; end
   end
-  if S.ArcaneMissiles:IsReady() and S.ArcaneMissiles:TimeSinceLastCast() >= 30 and (VarOpener) then
+  if S.ArcaneMissiles:IsReady() and S.ArcaneMissiles:TimeSinceLastCast() >= 30 and (((Player:PrevGCDP(1, S.Evocation) or Player:PrevGCDP(1, S.ArcaneSurge)) and Player:BuffDown(S.NetherPrecisionBuff)) or VarOpener) then
     if Cast(S.ArcaneMissiles, nil, nil, not Target:IsSpellInRange(S.ArcaneMissiles)) then return "arcane_missiles cd_opener 12"; end
   end
   -- arcane_surge,if=cooldown.touch_of_the_magi.remains<(action.arcane_surge.execute_time+(gcd.max*(buff.arcane_charge.stack=4)))
@@ -182,16 +184,16 @@ local function Spellslinger()
   if S.Supernova:IsCastable() and (Target:DebuffRemains(S.TouchoftheMagiDebuff) <= Player:GCD() and Player:BuffStack(S.UnerringProficiencyBuff) == 30) then
     if Cast(S.Supernova, nil, nil, not Target:IsSpellInRange(S.Supernova)) then return "supernova spellslinger 6"; end
   end
-  -- arcane_blast,if=((debuff.magis_spark_arcane_blast.up|buff.leydrinker.up)&!prev_gcd.1.arcane_blast&buff.nether_precision.up)
-  if S.ArcaneBlast:IsReady() and ((Target:DebuffUp(S.MagisSparkABDebuff) or Player:BuffUp(S.LeydrinkerBuff)) and not Player:PrevGCDP(1, S.ArcaneBlast) and Player:BuffUp(S.NetherPrecisionBuff)) then
+  -- arcane_blast,if=((debuff.magis_spark_arcane_blast.up|(buff.leydrinker.up&buff.arcane_charge.stack=4))&!prev_gcd.1.arcane_blast&buff.nether_precision.up)
+  if S.ArcaneBlast:IsReady() and ((Target:DebuffUp(S.MagisSparkABDebuff) or (Player:BuffUp(S.LeydrinkerBuff) and Player:ArcaneCharges() == 4)) and not Player:PrevGCDP(1, S.ArcaneBlast) and Player:BuffUp(S.NetherPrecisionBuff)) then
     if Cast(S.ArcaneBlast, nil, nil, not Target:IsSpellInRange(S.ArcaneBlast)) then return "arcane_blast spellslinger 8"; end
   end
   -- arcane_barrage,if=(cooldown.touch_of_the_magi.ready)|(buff.arcane_tempo.up&buff.arcane_tempo.remains<gcd.max)|((buff.aethervision.stack=2|buff.intuition.react)&(buff.nether_precision.up|buff.clearcasting.react=0))|(action.arcane_orb.charges>0&buff.arcane_charge.stack=4&buff.clearcasting.stack=0&buff.nether_precision.down&talent.orb_barrage)
   if S.ArcaneBarrage:IsCastable() and ((S.TouchoftheMagi:CooldownUp() and CDsON() and not Settings.Arcane.AllowHoldingTotM) or (Player:BuffUp(S.ArcaneTempoBuff) and Player:BuffRemains(S.ArcaneTempoBuff) < Player:GCD()) or ((Player:BuffStack(S.AethervisionBuff) == 2 or Player:BuffUp(S.IntuitionBuff)) and (Player:BuffUp(S.NetherPrecisionBuff) or Player:BuffDown(S.ClearcastingBuff))) or (S.ArcaneOrb:Charges() > 0 and Player:ArcaneCharges() == 4 and Player:BuffDown(S.ClearcastingBuff) and Player:BuffDown(S.NetherPrecisionBuff) and S.OrbBarrage:IsAvailable())) then
     if Cast(S.ArcaneBarrage, nil, nil, not Target:IsSpellInRange(S.ArcaneBarrage)) then return "arcane_barrage spellslinger 10"; end
   end
-  -- arcane_barrage,if=((buff.arcane_charge.stack=4&buff.nether_precision.up&active_enemies>1&(cooldown.arcane_orb.remains<gcd.max|action.arcane_orb.charges>0))|(buff.aether_attunement.up&talent.high_voltage&buff.clearcasting.react&buff.arcane_charge.stack>1&((target.health.pct<35&active_enemies=2)|active_enemies>2)))&talent.arcing_cleave
-  if S.ArcaneBarrage:IsCastable() and (((Player:ArcaneCharges() == 4 and Player:BuffUp(S.NetherPrecisionBuff) and EnemiesCount8ySplash > 1 and (S.ArcaneOrb:CooldownRemains() < Player:GCD() or S.ArcaneOrb:Charges() > 0)) or (Player:BuffUp(S.AetherAttunementBuff) and S.HighVoltage:IsAvailable() and Player:BuffUp(S.ClearcastingBuff) and Player:ArcaneCharges() > 1 and ((Target:HealthPercentage() < 35 and EnemiesCount8ySplash == 2) or EnemiesCount8ySplash > 2))) and S.ArcingCleave:IsAvailable()) then
+  -- arcane_barrage,if=((buff.arcane_charge.stack=4&buff.nether_precision.up&active_enemies>1&(cooldown.arcane_orb.remains<gcd.max|action.arcane_orb.charges>0))|(buff.arcane_charge.stack=4&talent.reverberate&active_enemies>2)|(buff.aether_attunement.up&talent.high_voltage&buff.clearcasting.react&buff.arcane_charge.stack>1&((target.health.pct<35&active_enemies=2)|active_enemies>2)))&talent.arcing_cleave
+  if S.ArcaneBarrage:IsCastable() and (((Player:ArcaneCharges() == 4 and Player:BuffUp(S.NetherPrecisionBuff) and EnemiesCount8ySplash > 1 and (S.ArcaneOrb:CooldownRemains() < Player:GCD() or S.ArcaneOrb:Charges() > 0)) or (Player:ArcaneCharges() == 4 and S.Reverberate:IsAvailable() and EnemiesCount8ySplash > 2) or (Player:BuffUp(S.AetherAttunementBuff) and S.HighVoltage:IsAvailable() and Player:BuffUp(S.ClearcastingBuff) and Player:ArcaneCharges() > 1 and ((Target:HealthPercentage() < 35 and EnemiesCount8ySplash == 2) or EnemiesCount8ySplash > 2))) and S.ArcingCleave:IsAvailable()) then
     if Cast(S.ArcaneBarrage, nil, nil, not Target:IsSpellInRange(S.ArcaneBarrage)) then return "arcane_barrage spellslinger 12"; end
   end
   -- arcane_missiles,if=(buff.clearcasting.react&buff.nether_precision.down),interrupt_if=tick_time>gcd.remains&buff.aether_attunement.down,interrupt_immediate=1,interrupt_global=1,chain=1
@@ -201,8 +203,8 @@ local function Spellslinger()
   if S.ArcaneMissiles:IsReady() and (Player:BuffUp(S.ClearcastingBuff) and Player:BuffDown(S.NetherPrecisionBuff)) then
     if Cast(S.ArcaneMissiles, nil, nil, not Target:IsSpellInRange(S.ArcaneMissiles)) then return "arcane_missiles spellslinger 16"; end
   end
-  -- arcane_orb,if=buff.arcane_charge.stack<4
-  if S.ArcaneOrb:IsReady() and (Player:ArcaneCharges() < 4) then
+  -- arcane_orb,if=buff.arcane_charge.stack<((5-active_enemies)<?1)
+  if S.ArcaneOrb:IsReady() and (Player:ArcaneCharges() < mathmax(1, 5 - EnemiesCount8ySplash)) then
     if Cast(S.ArcaneOrb, nil, nil, not Target:IsInRange(40)) then return "arcane_orb spellslinger 18"; end
   end
   -- arcane_explosion,if=(talent.reverberate|buff.arcane_charge.stack<1)&active_enemies>=4

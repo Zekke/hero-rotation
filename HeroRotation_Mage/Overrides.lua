@@ -81,6 +81,30 @@ ArcaneOldPlayerArcaneCharges = HL.AddCoreOverride("Player.ArcaneCharges",
   end
 , 62)
 
+local ArcanePlayerBuffUp
+ArcanePlayerBuffUp = HL.AddCoreOverride("Player.BuffUp",
+  function (self, Spell, AnyCaster, Offset)
+    local BaseCheck = ArcanePlayerBuffUp(self, Spell, AnyCaster, Offset)
+    if Spell == SpellArcane.ArcaneSurgeBuff then
+      return BaseCheck or Player:IsCasting(SpellArcane.ArcaneSurge)
+    else
+      return BaseCheck
+    end
+  end
+, 62)
+
+local ArcanePlayerBuffDown
+ArcanePlayerBuffDown = HL.AddCoreOverride("Player.BuffDown",
+  function (self, Spell, AnyCaster, Offset)
+    local BaseCheck = ArcanePlayerBuffDown(self, Spell, AnyCaster, Offset)
+    if Spell == SpellArcane.ArcaneSurgeBuff then
+      return BaseCheck and not Player:IsCasting(SpellArcane.ArcaneSurge)
+    else
+      return BaseCheck
+    end
+  end
+, 62)
+
 -- Fire, ID: 63
 local FirePlayerBuffUp
 FirePlayerBuffUp = HL.AddCoreOverride("Player.BuffUp",

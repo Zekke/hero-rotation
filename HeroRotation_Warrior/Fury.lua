@@ -503,14 +503,6 @@ local function SlayerRAMT()
   if S.Execute:IsReady() and (S.AshenJuggernaut:IsAvailable() and Player:BuffRemains(S.AshenJuggernautBuff) <= Player:GCD() and EnrageUp) then
     if Cast(S.Execute, nil, nil, not TargetInMeleeRange) then return "execute slayer_ra_mt 20"; end
   end
-  -- rampage,if=talent.bladestorm&cooldown.bladestorm.remains<=gcd&!debuff.champions_might.up|!buff.enrage.up
-  if S.Rampage:IsReady() and (S.Bladestorm:IsLearned() and S.Bladestorm:CooldownRemains() <= Player:GCD() and Target:DebuffDown(S.ChampionsMightDebuff) or not EnrageUp) then
-    if Cast(S.Rampage, nil, nil, not TargetInMeleeRange) then return "rampage slayer_ra_mt 22"; end
-  end
-  -- bladestorm,if=buff.enrage.up&cooldown.avatar.remains>=9&buff.enrage.remains>3
-  if CDsON() and S.Bladestorm:IsCastable() and (EnrageUp and S.Avatar:CooldownRemains() >= 9 and Player:BuffRemains(S.EnrageBuff) > 3) then
-    if Cast(S.Bladestorm, Settings.CommonsOGCD.GCDasOffGCD.Bladestorm, nil, not TargetInMeleeRange) then return "bladestorm slayer_ra_mt 24"; end
-  end
   -- onslaught,if=talent.tenderize&buff.brutal_finish.up
   if S.Onslaught:IsReady() and (S.Tenderize:IsAvailable() or Player:BuffUp(S.BrutalFinishBuff)) then
     if Cast(S.Onslaught, nil, nil, not TargetInMeleeRange) then return "onslaught slayer_ra_mt 26"; end

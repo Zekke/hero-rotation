@@ -86,6 +86,7 @@ Spell.Hunter.DarkRanger = {
   -- Talents
   BlackArrowTalent                      = Spell(466932),
   BleakPowder                           = Spell(467911),
+  ShadowHounds                          = Spell(430707),
 }
 
 Spell.Hunter.PackLeader = {

@@ -37,6 +37,7 @@ HR.GUISettings.APL.Shaman = {
       -- Class Specific
       PrimordialWave = "Suggested",
       SpiritwalkersGrace = "SuggestedRight",
+      Tempest = "Suggested",
     },
   },
   CommonsOGCD = {

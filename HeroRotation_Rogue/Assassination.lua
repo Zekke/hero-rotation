@@ -917,8 +917,7 @@ local function AoE_Dot ()
   if HR.AoEON() and S.CrimsonTempest:IsReady() and MeleeEnemies10yCount >= 2 and DotFinisherCondition and Target:DebuffDown(S.CrimsonTempest) then
     for _, CycleUnit in pairs(MeleeEnemies10y) do
       if IsDebuffRefreshable(CycleUnit, S.CrimsonTempest, CrimsonTempestThreshold)
-        and CycleUnit:PMultiplier(S.CrimsonTempest) <= 1
-        and CycleUnit:FilteredTimeToDie(">", 6, -CycleUnit:DebuffRemains(S.CrimsonTempest)) then
+        and CycleUnit:FilteredTimeToDie(">", 6) then
         if Cast(S.CrimsonTempest) then
           return "Cast Crimson Tempest (AoE High Energy)"
         end
@@ -979,25 +978,6 @@ end
 -- # Direct damage abilities
 local function Direct ()
   -- # Direct Damage Abilities
-  -- Envenom at applicable cp if not pooling, capped on amplifying poison stacks, on an animacharged CP, or in aoe.
-  -- actions.direct=envenom,if=!buff.darkest_night.up&combo_points>=variable.effective_spend_cp
-  -- &(variable.not_pooling|debuff.amplifying_poison.stack>=20|!variable.single_target)&!buff.vanish.up
-  if S.Envenom:IsReady() and Player:BuffDown(S.DarkestNightBuff) and ComboPoints >= EffectiveCPSpend
-    and (NotPooling or Target:DebuffStack(S.AmplifyingPoisonDebuff) >= 20 or not SingleTarget)
-    and Player:BuffDown(Rogue.VanishBuffSpell()) then
-    if Cast(S.Envenom, nil, nil, not TargetInMeleeRange) then
-      return "Cast Envenom 1"
-    end
-  end
-
-  -- # Special Envenom handling for Darkest Night
-  -- actions.direct=envenom,if=buff.darkest_night.up&effective_combo_points>=cp_max_spend
-  if S.Envenom:IsReady() and Player:BuffUp(S.DarkestNightBuff) and ComboPoints >= Rogue.CPMaxSpend() then
-    if Cast(S.Envenom, nil, nil, not TargetInMeleeRange) then
-      return "Cast Envenom 2"
-    end
-  end
-
   -- # Check if we should be using a filler
   -- actions.direct+=/variable,name=use_filler,value=combo_points<=variable.effective_spend_cp&!variable.cd_soon
   -- |variable.not_pooling|!variable.single_target
@@ -1021,6 +1001,25 @@ local function Direct ()
   if (S.Ambush:IsReady() or S.AmbushOverride:IsReady()) and (Player:StealthUp(true, true) and UseCausticFiller) then
     if Cast(S.Ambush, nil, nil, not TargetInMeleeRange) then
       return "Cast Ambush (Caustic)"
+    end
+  end
+
+  -- Envenom at applicable cp if not pooling, capped on amplifying poison stacks, on an animacharged CP, or in aoe.
+  -- actions.direct=envenom,if=!buff.darkest_night.up&combo_points>=variable.effective_spend_cp
+  -- &(variable.not_pooling|debuff.amplifying_poison.stack>=20|!variable.single_target)&!buff.vanish.up
+  if S.Envenom:IsReady() and Player:BuffDown(S.DarkestNightBuff) and ComboPoints >= EffectiveCPSpend
+    and (NotPooling or Target:DebuffStack(S.AmplifyingPoisonDebuff) >= 20 or not SingleTarget)
+    and Player:BuffDown(Rogue.VanishBuffSpell()) then
+    if Cast(S.Envenom, nil, nil, not TargetInMeleeRange) then
+      return "Cast Envenom 1"
+    end
+  end
+
+  -- # Special Envenom handling for Darkest Night
+  -- actions.direct=envenom,if=buff.darkest_night.up&effective_combo_points>=cp_max_spend
+  if S.Envenom:IsReady() and Player:BuffUp(S.DarkestNightBuff) and ComboPoints >= Rogue.CPMaxSpend() then
+    if Cast(S.Envenom, nil, nil, not TargetInMeleeRange) then
+      return "Cast Envenom 2"
     end
   end
 

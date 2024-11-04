@@ -38,8 +38,10 @@ local I = Item.Mage.Frost
 -- Create table to exclude above trinkets from On Use function
 local OnUseExcludes = {
   -- TWW Trinkets
+  I.BurstofKnowledge:ID(),
   I.ImperfectAscendancySerum:ID(),
   I.SpymastersWeb:ID(),
+  I.TreacherousTransmitter:ID(),
 }
 
 --- ===== GUI Settings =====
@@ -167,23 +169,33 @@ local function CDs()
     if I.ImperfectAscendancySerum:IsEquippedAndReady() and (Player:BuffRemains(S.IcyVeinsBuff) > 19 or BossFightRemains < 25) then
       if Cast(I.ImperfectAscendancySerum, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "imperfect_ascendancy_serum cds 2"; end
     end
-    -- use_item,name=spymasters_web,if=fight_remains<25|(fight_remains<100|buff.spymasters_report.stack>35)&(!talent.deaths_chill&buff.icy_veins.remains>19|talent.deaths_chill&buff.icy_veins.remains>15&buff.icy_veins.remains<20)
-    if I.SpymastersWeb:IsEquippedAndReady() and (BossFightRemains < 25 or (FightRemains < 100 or Player:BuffStack(S.SpymastersReportBuff) > 35) and (not S.DeathsChill:IsAvailable() and Player:BuffRemains(S.IcyVeinsBuff) > 19 or S.DeathsChill:IsAvailable() and Player:BuffRemains(S.IcyVeinsBuff) > 15 and Player:BuffRemains(S.IcyVeinsBuff) < 20)) then
-      if Cast(I.SpymastersWeb, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "spymasters_web cds 4"; end
+    -- use_item,name=treacherous_transmitter,if=equipped.spymasters_web&(fight_remains<50|cooldown.icy_veins.remains<12)|!equipped.spymasters_web&(fight_remains<30|prev_off_gcd.icy_veins)
+    if I.TreacherousTransmitter:IsEquippedAndReady() and (I.SpymastersWeb:IsEquipped() and (FightRemains < 50 or S.IcyVeins:CooldownRemains() < 12) or not I.SpymastersWeb:IsEquipped() and (FightRemains < 30 or Player:PrevOffGCDP(1, S.IcyVeins))) then
+      if Cast(I.TreacherousTransmitter, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "treacherous_transmitter cds 4"; end
+    end
+    -- do_treacherous_transmitter_task,use_off_gcd=1,if=fight_remains<18|(buff.cryptic_instructions.remains<?buff.realigning_nexus_convergence_divergence.remains<?buff.errant_manaforge_emission.remains)<(action.shifting_power.execute_time+1*talent.ray_of_frost)
+    -- TODO
+    -- use_item,name=burst_of_knowledge,if=buff.icy_veins.remains<21|fight_remains<25
+    if I.BurstofKnowledge:IsEquippedAndReady() and (Player:BuffRemains(S.IcyVeinsBuff) < 21 or FightRemains < 25) then
+      if Cast(I.BurstofKnowledge, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "burst_of_knowledge cds 6"; end
+    end
+    -- use_item,name=spymasters_web,if=fight_remains<22|buff.icy_veins.remains<19&(fight_remains<105|buff.spymasters_report.stack>=32)&(buff.icy_veins.remains>15|equipped.treacherous_transmitter&buff.icy_veins.remains>9)
+    if I.SpymastersWeb:IsEquippedAndReady() and (BossFightRemains < 22 or Player:BuffRemains(S.IcyVeinsBuff) < 19 and (FightRemains < 105 or Player:BuffStack(S.SpymastersReportBuff) >= 32) and (Player:BuffRemains(S.IcyVeinsBuff) > 15 or I.TreacherousTransmitter:IsEquipped() and Player:BuffRemains(S.IcyVeinsBuff) > 9)) then
+      if Cast(I.SpymastersWeb, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "spymasters_web cds 8"; end
     end
   end
-  -- potion,if=prev_off_gcd.icy_veins|fight_remains<60
-  if Settings.Commons.Enabled.Potions and (Player:BuffUp(S.IcyVeinsBuff) or FightRemains < 60) then
+  -- potion,if=fight_remains<35|buff.icy_veins.remains>10&(fight_remains>315|cooldown.icy_veins.remains+12>fight_remains)
+  if Settings.Commons.Enabled.Potions and (FightRemains < 35 or Player:BuffRemains(S.IcyVeinsBuff) > 10 and (FightRemains > 315 or S.IcyVeins:CooldownRemains() + 12 > FightRemains)) then
     local PotionSelected = Everyone.PotionSelected()
     if PotionSelected and PotionSelected:IsReady() then
-      if Cast(PotionSelected, nil, Settings.CommonsDS.DisplayStyle.Potions) then return "potion cds 6"; end
+      if Cast(PotionSelected, nil, Settings.CommonsDS.DisplayStyle.Potions) then return "potion cds 10"; end
     end
   end
   -- flurry,if=time=0&active_enemies<=2
   -- Note: Can't get here at time=0.
-  -- icy_veins
-  if CDsON() and S.IcyVeins:IsCastable() then
-    if Cast(S.IcyVeins, Settings.Frost.GCDasOffGCD.IcyVeins) then return "icy_veins cds 8"; end
+  -- icy_veins,if=buff.icy_veins.remains<gcd.max*2
+  if CDsON() and S.IcyVeins:IsCastable() and (Player:BuffRemains(S.IcyVeinsBuff) < Player:GCD() * 2) then
+    if Cast(S.IcyVeins, Settings.Frost.GCDasOffGCD.IcyVeins) then return "icy_veins cds 12"; end
   end
   -- use_items
   if (Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items) then
@@ -192,7 +204,7 @@ local function CDs()
       local DisplayStyle = Settings.CommonsDS.DisplayStyle.Trinkets
       if ItemSlot ~= 13 and ItemSlot ~= 14 then DisplayStyle = Settings.CommonsDS.DisplayStyle.Items end
       if ((ItemSlot == 13 or ItemSlot == 14) and Settings.Commons.Enabled.Trinkets) or (ItemSlot ~= 13 and ItemSlot ~= 14 and Settings.Commons.Enabled.Items) then
-        if Cast(ItemToUse, nil, DisplayStyle, not Target:IsInRange(ItemRange)) then return "Generic use_items for " .. ItemToUse:Name() .. " cds 10"; end
+        if Cast(ItemToUse, nil, DisplayStyle, not Target:IsInRange(ItemRange)) then return "Generic use_items for " .. ItemToUse:Name() .. " cds 14"; end
       end
     end
   end
@@ -202,23 +214,23 @@ local function CDs()
   if CDsON() then
     -- blood_fury
     if S.BloodFury:IsCastable() then
-      if Cast(S.BloodFury, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "blood_fury cds 12"; end
+      if Cast(S.BloodFury, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "blood_fury cds 16"; end
     end
     -- berserking
     if S.Berserking:IsCastable() then
-      if Cast(S.Berserking, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "berserking cds 14"; end
+      if Cast(S.Berserking, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "berserking cds 18"; end
     end
     -- lights_judgment
     if S.LightsJudgment:IsCastable() then
-      if Cast(S.LightsJudgment, Settings.CommonsOGCD.OffGCDasOffGCD.Racials, nil, not Target:IsSpellInRange(S.LightsJudgment)) then return "lights_judgment cds 16"; end
+      if Cast(S.LightsJudgment, Settings.CommonsOGCD.OffGCDasOffGCD.Racials, nil, not Target:IsSpellInRange(S.LightsJudgment)) then return "lights_judgment cds 20"; end
     end
     -- fireblood
     if S.Fireblood:IsCastable() then
-      if Cast(S.Fireblood, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "fireblood cds 18"; end
+      if Cast(S.Fireblood, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "fireblood cds 22"; end
     end
     -- ancestral_call
     if S.AncestralCall:IsCastable() then
-      if Cast(S.AncestralCall, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "ancestral_call cds 20"; end
+      if Cast(S.AncestralCall, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "ancestral_call cds 24"; end
     end
   end
 end
@@ -506,8 +518,8 @@ local function STAoEBuild()
   if S.FrozenOrb:IsCastable() and (S.Splinterstorm:IsAvailable() or (not S.RayofFrost:IsAvailable() or Player:BuffDown(S.FingersofFrostBuff) and S.RayofFrost:CooldownDown() and Icicles < 5)) then
     if Cast(S.FrozenOrb, Settings.Frost.GCDasOffGCD.FrozenOrb, nil, not Target:IsInRange(40)) then return "frozen_orb st_aoebuild 6"; end
   end
-  -- shifting_power,if=(cooldown.icy_veins.remains>10&cooldown.flurry.remains&(fight_remains>cooldown.icy_veins.remains-6)|talent.frostfire_bolt)&(talent.splinterstorm|(buff.icy_veins.down|!talent.deaths_chill)&cooldown.frozen_orb.remains>10&(!talent.comet_storm|cooldown.comet_storm.remains>10)&(!talent.ray_of_frost|cooldown.ray_of_frost.remains>10)&buff.icicles.react<5)
-  if S.ShiftingPower:IsCastable() and ((S.IcyVeins:CooldownRemains() > 10 and S.Flurry:CooldownDown() and (FightRemains > S.IcyVeins:CooldownRemains() - 6) or S.FrostfireBolt:IsAvailable()) and (S.Splinterstorm:IsAvailable() or (Player:BuffDown(S.IcyVeinsBuff) or not S.DeathsChill:IsAvailable()) and S.FrozenOrb:CooldownRemains() > 10 and (not S.CometStorm:IsAvailable() or S.CometStorm:CooldownRemains() > 10) and (not S.RayofFrost:IsAvailable() or S.RayofFrost:CooldownRemains() > 10) and Icicles < 5)) then
+  -- shifting_power,if=(cooldown.icy_veins.remains>10&cooldown.flurry.remains&(fight_remains+10>cooldown.icy_veins.remains)|talent.frostfire_bolt)&(talent.splinterstorm|(buff.icy_veins.down|!talent.deaths_chill)&cooldown.frozen_orb.remains>10&(!talent.comet_storm|cooldown.comet_storm.remains>10)&(!talent.ray_of_frost|cooldown.ray_of_frost.remains>10)&buff.icicles.react<5)
+  if S.ShiftingPower:IsCastable() and ((S.IcyVeins:CooldownRemains() > 10 and S.Flurry:CooldownDown() and (FightRemains + 10 > S.IcyVeins:CooldownRemains()) or S.FrostfireBolt:IsAvailable()) and (S.Splinterstorm:IsAvailable() or (Player:BuffDown(S.IcyVeinsBuff) or not S.DeathsChill:IsAvailable()) and S.FrozenOrb:CooldownRemains() > 10 and (not S.CometStorm:IsAvailable() or S.CometStorm:CooldownRemains() > 10) and (not S.RayofFrost:IsAvailable() or S.RayofFrost:CooldownRemains() > 10) and Icicles < 5)) then
     if Cast(S.ShiftingPower, nil, Settings.CommonsDS.DisplayStyle.ShiftingPower, not Target:IsInRange(18)) then return "shifting_power st_aoebuild 8"; end
   end
   -- glacial_spike,if=buff.icicles.react=5&(action.flurry.cooldown_react|remaining_winters_chill)
@@ -584,12 +596,12 @@ local function STSS()
   if S.Flurry:IsCastable() and (RemainingWintersChill == 0 and Target:DebuffDown(S.WintersChillDebuff) and (Player:PrevGCDP(1, S.Frostbolt) or Player:PrevGCDP(1, S.GlacialSpike))) then
     if Cast(S.Flurry, Settings.Frost.GCDasOffGCD.Flurry, nil, not Target:IsSpellInRange(S.Flurry)) then return "flurry st_ss 4"; end
   end
-  -- frozen_orb,if=cooldown_react
-  if S.FrozenOrb:IsCastable() then
+  -- frozen_orb,if=cooldown_react&(cooldown.icy_veins.remains>22|buff.icy_veins.up)
+  if S.FrozenOrb:IsCastable() and (S.IcyVeins:CooldownRemains() > 22 or Player:BuffUp(S.IcyVeinsBuff)) then
     if Cast(S.FrozenOrb, Settings.Frost.GCDasOffGCD.FrozenOrb, nil, not Target:IsInRange(40)) then return "frozen_orb st_ss 6"; end
   end
-  -- shifting_power,if=cooldown.icy_veins.remains>10&cooldown.flurry.remains&(fight_remains>cooldown.icy_veins.remains-6)
-  if CDsON() and S.ShiftingPower:IsCastable() and (S.IcyVeins:CooldownRemains() > 10 and S.Flurry:CooldownDown() and (FightRemains > S.IcyVeins:CooldownRemains() - 6)) then
+  -- shifting_power,if=cooldown.icy_veins.remains>10&cooldown.flurry.remains&(fight_remains+10>cooldown.icy_veins.remains)
+  if CDsON() and S.ShiftingPower:IsCastable() and (S.IcyVeins:CooldownRemains() > 10 and S.Flurry:CooldownDown() and (FightRemains + 10 > S.IcyVeins:CooldownRemains())) then
     if Cast(S.ShiftingPower, nil, Settings.CommonsDS.DisplayStyle.ShiftingPower, not Target:IsInRange(18)) then return "shifting_power st_ss 8"; end
   end
   -- glacial_spike,if=buff.icicles.react=5&(action.flurry.cooldown_react|remaining_winters_chill)

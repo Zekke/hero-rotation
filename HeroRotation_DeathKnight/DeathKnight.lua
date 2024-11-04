@@ -189,6 +189,7 @@ Spell.DeathKnight.Frost = MergeTableByKey(Spell.DeathKnight.Commons, {
   -- Buffs
   BonegrinderFrostBuff                  = Spell(377103),
   ColdHeartBuff                         = Spell(281209),
+  GatheringStormBuff                    = Spell(211805),
   KillingMachineBuff                    = Spell(51124),
   PillarofFrostBuff                     = Spell(51271),
   RimeBuff                              = Spell(59052),

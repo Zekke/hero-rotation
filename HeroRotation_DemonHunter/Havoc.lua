@@ -190,17 +190,21 @@ local function Precombat()
   if ImmoAbility:IsCastable() then
     if Cast(ImmoAbility, Settings.Havoc.GCDasOffGCD.ImmolationAura, nil, not IsInMeleeRange(8)) then return "immolation_aura precombat 4"; end
   end
+  -- Manually added: The Hunt
+  if S.TheHunt:IsCastable() then
+    if Cast(S.TheHunt, nil, Settings.CommonsDS.DisplayStyle.TheHunt, not Target:IsInRange(15)) then return "the_hunt precombat 6"; end
+  end
   -- Manually added: Felblade if out of range
   if not IsInMeleeRange(5) and S.Felblade:IsCastable() then
-    if Cast(S.Felblade, nil, nil, not Target:IsSpellInRange(S.Felblade)) then return "felblade precombat 6"; end
+    if Cast(S.Felblade, nil, nil, not Target:IsSpellInRange(S.Felblade)) then return "felblade precombat 8"; end
   end
   -- Manually added: Fel Rush if out of range
   if not IsInMeleeRange(5) and S.FelRush:IsCastable() and (not S.Felblade:IsAvailable() or S.Felblade:CooldownDown() and not Player:PrevGCDP(1, S.Felblade)) then
-    if Cast(S.FelRush, nil, Settings.CommonsDS.DisplayStyle.FelRush, not Target:IsInRange(15)) then return "fel_rush precombat 8"; end
+    if Cast(S.FelRush, nil, Settings.CommonsDS.DisplayStyle.FelRush, not Target:IsInRange(15)) then return "fel_rush precombat 10"; end
   end
   -- Manually added: Demon's Bite/Demon Blades if in melee range
   if IsInMeleeRange(5) and (S.DemonsBite:IsCastable() or S.DemonBlades:IsAvailable()) then
-    if Cast(S.DemonsBite, nil, nil, not IsInMeleeRange(5)) then return "demons_bite or demon_blades precombat 10"; end
+    if Cast(S.DemonsBite, nil, nil, not IsInMeleeRange(5)) then return "demons_bite or demon_blades precombat 12"; end
   end
 end
 

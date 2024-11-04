@@ -280,7 +280,7 @@ local function Aoe()
   end
   -- tempest,target_if=min:debuff.lightning_rod.remains,if=!buff.arc_discharge.up&(buff.surge_of_power.up|!talent.surge_of_power.enabled)
   if S.TempestAbility:IsReady() and (Player:BuffDown(S.ArcDischargeBuff) and (Player:BuffUp(S.SurgeofPowerBuff) or not S.SurgeofPower:IsAvailable())) then
-    if Everyone.CastTargetIf(S.TempestAbility, Enemies10ySplash, "min", EvaluateTargetIfFilterLightningRodRemains, nil, not Target:IsInRange(40)) then return "tempest aoe 22"; end
+    if Everyone.CastTargetIf(S.TempestAbility, Enemies10ySplash, "min", EvaluateTargetIfFilterLightningRodRemains, nil, not Target:IsInRange(40), nil, Settings.CommonsDS.DisplayStyle.Tempest) then return "tempest aoe 22"; end
   end
   -- lightning_bolt,if=buff.stormkeeper.up&buff.surge_of_power.up&spell_targets.chain_lightning=2
   if S.LightningBolt:IsViable() and (Player:StormkeeperUp() and Player:BuffUp(S.SurgeofPowerBuff) and Shaman.ClusterTargets == 2) then
@@ -375,7 +375,7 @@ local function SingleTarget()
   end
   -- tempest,if=buff.surge_of_power.up
   if S.TempestAbility:IsReady() and (Player:BuffUp(S.SurgeofPowerBuff)) then
-    if Cast(S.TempestAbility, nil, nil, not Target:IsInRange(40)) then return "tempest single_target 14"; end
+    if Cast(S.TempestAbility, nil, Settings.CommonsDS.DisplayStyle.Tempest, not Target:IsInRange(40)) then return "tempest single_target 14"; end
   end
   -- lightning_bolt,if=buff.surge_of_power.up
   if S.LightningBolt:IsViable() and (Player:BuffUp(S.SurgeofPowerBuff)) then
@@ -383,7 +383,7 @@ local function SingleTarget()
   end
   -- tempest,if=buff.storm_frenzy.stack=2&!talent.surge_of_power.enabled
   if S.TempestAbility:IsReady() and (Player:BuffStack(S.StormFrenzyBuff) == 2 and not S.SurgeofPower:IsAvailable()) then
-    if Cast(S.TempestAbility, nil, nil, not Target:IsInRange(40)) then return "tempest single_target 18"; end
+    if Cast(S.TempestAbility, nil, Settings.CommonsDS.DisplayStyle.Tempest, not Target:IsInRange(40)) then return "tempest single_target 18"; end
   end
   -- lightning_bolt,if=buff.storm_frenzy.stack=2&!talent.surge_of_power.enabled
   if S.LightningBolt:IsViable() and (Player:BuffStack(S.StormFrenzyBuff) == 2 and not S.SurgeofPower:IsAvailable()) then
@@ -454,7 +454,7 @@ local function SingleTarget()
   end
   -- tempest
   if S.TempestAbility:IsReady() then
-    if Cast(S.TempestAbility, nil, nil, not Target:IsInRange(40)) then return "tempest single_target 50"; end
+    if Cast(S.TempestAbility, nil, Settings.CommonsDS.DisplayStyle.Tempest, not Target:IsInRange(40)) then return "tempest single_target 50"; end
   end
   -- lightning_bolt
   if S.LightningBolt:IsViable() then

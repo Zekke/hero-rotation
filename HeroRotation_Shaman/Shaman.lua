@@ -103,6 +103,11 @@ Spell.Shaman.Totemic = {
   LivelyTotems                          = Spell(445034),
   SurgingTotem                          = Spell(444995),
   TotemicRebound                        = Spell(445025),
+  -- Buffs
+  TotemicReboundBuff                    = Spell(458269),
+  WhirlingAirBuff                       = Spell(453409),
+  WhirlingEarthBuff                     = Spell(453406),
+  WhirlingFireBuff                      = Spell(453405),
 }
 
 Spell.Shaman.Elemental = MergeTableByKey(Spell.Shaman.Commons, {
@@ -163,6 +168,7 @@ Spell.Shaman.Elemental = MergeTableByKey(Spell.Shaman.Elemental, Spell.Shaman.St
 
 Spell.Shaman.Enhancement = MergeTableByKey(Spell.Shaman.Commons, {
   -- Abilities
+  VoltaicBlazeAbility                   = Spell(470057),
   Windstrike                            = Spell(115356),
   -- Talents
   AlphaWolf                             = Spell(198434),
@@ -176,11 +182,13 @@ Spell.Shaman.Enhancement = MergeTableByKey(Spell.Shaman.Commons, {
   ElementalSpirits                      = Spell(262624),
   FeralSpirit                           = Spell(51533),
   FireNova                              = Spell(333974),
+  FlowingSpirits                        = Spell(469314),
   Hailstorm                             = Spell(334195),
   HotHand                               = Spell(201900),
   IceStrike                             = MultiSpell(342240, 470194),
   LashingFlames                         = Spell(334046),
   LavaLash                              = Spell(60103),
+  LegacyoftheFrostWitch                 = Spell(384450),
   MoltenAssault                         = Spell(334033),
   OverflowingMaelstrom                  = Spell(384149),
   RagingMaelstrom                       = Spell(384143),
@@ -191,7 +199,9 @@ Spell.Shaman.Enhancement = MergeTableByKey(Spell.Shaman.Commons, {
   Sundering                             = Spell(197214),
   SwirlingMaelstrom                     = Spell(384359),
   ThorimsInvocation                     = Spell(384444),
+  UnrelentingStorms                     = Spell(470490),
   UnrulyWinds                           = Spell(390288),
+  VoltaicBlaze                          = Spell(470053),
   WindfuryTotem                         = Spell(8512),
   WindfuryWeapon                        = Spell(33757),
   WitchDoctorsAncestry                  = Spell(384447),
@@ -208,6 +218,7 @@ Spell.Shaman.Enhancement = MergeTableByKey(Spell.Shaman.Commons, {
   HailstormBuff                         = Spell(334196),
   HotHandBuff                           = Spell(215785),
   IceStrikeBuff                         = Spell(384357),
+  LegacyoftheFrostWitchBuff             = Spell(384451),
   MaelstromWeaponBuff                   = Spell(344179),
   StormsurgeBuff                        = Spell(201846),
   WindfuryTotemBuff                     = Spell(327942),
