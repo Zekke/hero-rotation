@@ -590,7 +590,9 @@ local function Vanish ()
   -- &(debuff.deathmark.up|cooldown.deathmark.remains<4)&raid_event.adds.in>30
   if S.Vanish:IsCastable() and S.ImprovedGarrote:IsAvailable() and S.Garrote:CooldownUp()
     and (Target:PMultiplier(S.Garrote) <= 1 or IsDebuffRefreshable(Target, S.Garrote))
-    and (Target:DebuffUp(S.Deathmark) or S.Deathmark:CooldownRemains() < 4) then
+    and (Target:DebuffUp(S.Deathmark) or S.Deathmark:CooldownRemains() < 4)
+    and Target:DebuffRemains(S.Kingsbane) <= 6 + 3 * S.Subterfuge:TalentRank()
+    then
     ShouldReturn = StealthMacro(S.Vanish)
     if ShouldReturn then
       return "Cast Vanish (Improved Garrote during Deathmark)" .. ShouldReturn
