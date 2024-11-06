@@ -96,6 +96,7 @@ Spell.DeathKnight.RideroftheApocalypse = {
   ApocalypseNow                         = Spell(444040),
   -- Buffs
   AFeastofSoulsBuff                     = Spell(440861),
+  HungeringThirst                       = Spell(444037),
   MograinesMightBuff                    = Spell(444505),
   -- Debuffs
   TrollbaneSlowDebuff                   = Spell(444834),
@@ -105,6 +106,7 @@ Spell.DeathKnight.Sanlayn = {
   -- Abilities
   VampiricStrikeAction                  = Spell(433895),
   -- Talents
+  FrenziedBloodthirst                   = Spell(434075),
   GiftoftheSanlayn                      = Spell(434152),
   VampiricStrike                        = Spell(433901),
   -- Buffs
@@ -217,7 +219,9 @@ Spell.DeathKnight.Unholy = MergeTableByKey(Spell.DeathKnight.Commons, {
   Epidemic                              = Spell(207317),
   FesteringStrike                       = Spell(85948),
   Festermight                           = Spell(377590),
+  HarbingerofDoom                       = Spell(276023),
   ImprovedDeathCoil                     = Spell(377580),
+  MenacingMagus                         = Spell(455135),
   Morbidity                             = Spell(377592),
   Outbreak                              = Spell(77575),
   Plaguebringer                         = Spell(390175),

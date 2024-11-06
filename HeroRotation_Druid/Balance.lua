@@ -219,8 +219,8 @@ local function EvaluateCycleSunfireAoE(TargetUnit)
 end
 
 local function EvaluateCycleSunfireST(TargetUnit)
-  -- target_if=remains<3
-  return TargetUnit:DebuffRemains(S.SunfireDebuff) < 3
+  -- target_if=remains<3|refreshable&(hero_tree.keeper_of_the_grove&cooldown.force_of_nature.ready|hero_tree.elunes_chosen&variable.cd_condition)
+  return TargetUnit:DebuffRemains(S.SunfireDebuff) < 3 or TargetUnit:DebuffRefreshable(S.SunfireDebuff)
 end
 
 local function EvaluateCycleSunfireST2(TargetUnit)
@@ -303,8 +303,8 @@ local function ST()
   if S.Starfire:IsCastable() and (not VarEnterLunar and VarEclipse and VarEclipseRemains < S.Starfire:CastTime() and not VarCDCondition) then
     if Cast(S.Starfire, nil, nil, not IsInSpellRange) then return "starfire st 4"; end
   end
-  -- sunfire,target_if=remains<3
-  if S.Sunfire:IsCastable() then
+  -- sunfire,target_if=remains<3|refreshable&(hero_tree.keeper_of_the_grove&cooldown.force_of_nature.ready|hero_tree.elunes_chosen&variable.cd_condition)
+  if S.Sunfire:IsCastable() and (Player:HeroTreeID() == 23 and S.ForceofNature:CooldownUp() or Player:HeroTreeID() == 24 and VarCDCondition) then
     if Everyone.CastCycle(S.Sunfire, Enemies10ySplash, EvaluateCycleSunfireST, not Target:IsSpellInRange(S.Sunfire)) then return "sunfire st 6"; end
   end
   -- moonfire,target_if=remains<3&(!talent.treants_of_the_moon|cooldown.force_of_nature.remains>3&!buff.harmony_of_the_grove.up)

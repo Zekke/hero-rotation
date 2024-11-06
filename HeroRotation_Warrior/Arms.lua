@@ -542,8 +542,8 @@ local function SlayerST()
   if S.Warbreaker:IsCastable() then
     if Cast(S.Warbreaker, Settings.Arms.GCDasOffGCD.Warbreaker, nil, not Target:IsInRange(8)) then return "warbreaker slayer_st 12"; end
   end
-  -- execute,if=debuff.marked_for_execution.stack=3|buff.juggernaut.remains<=gcd*3|buff.sudden_death.stack=2|buff.sudden_death.remains<=gcd*3
-  if S.Execute:IsReady() and (Target:DebuffStack(S.MarkedforExecutionDebuff) == 3 or Player:BuffRemains(S.JuggernautBuff) <= Player:GCD() * 3 or Player:BuffStack(S.SuddenDeathBuff) == 2 or Player:BuffRemains(S.SuddenDeathBuff) <= Player:GCD() * 3) then
+  -- execute,if=debuff.marked_for_execution.stack=3|buff.juggernaut.remains<=gcd*3&talent.juggernaut|buff.sudden_death.stack=2|buff.sudden_death.remains<=gcd*3
+  if S.Execute:IsReady() and (Target:DebuffStack(S.MarkedforExecutionDebuff) == 3 or Player:BuffRemains(S.JuggernautBuff) <= Player:GCD() * 3 and S.Juggernaut:IsAvailable() or Player:BuffStack(S.SuddenDeathBuff) == 2 or Player:BuffRemains(S.SuddenDeathBuff) <= Player:GCD() * 3) then
     if Cast(S.Execute, nil, nil, not TargetInMeleeRange) then return "execute slayer_st 14"; end
   end
   -- bladestorm,if=(cooldown.colossus_smash.remains>=gcd*4|cooldown.warbreaker.remains>=gcd*4)|debuff.colossus_smash.remains>=gcd*4
@@ -613,8 +613,8 @@ local function SlayerExecute()
   if S.ColossusSmash:IsCastable() then
     if Cast(S.ColossusSmash, Settings.Arms.GCDasOffGCD.ColossusSmash, nil, not TargetInMeleeRange) then return "colossus_smash slayer_execute 14"; end
   end
-  -- execute,if=buff.juggernaut.remains<=gcd
-  if S.Execute:IsReady() and (Player:BuffRemains(S.JuggernautBuff) <= Player:GCD()) then
+  -- execute,if=buff.juggernaut.remains<=gcd&talent.juggernaut
+  if S.Execute:IsReady() and (Player:BuffRemains(S.JuggernautBuff) <= Player:GCD() and S.Juggernaut:IsAvailable()) then
     if Cast(S.Execute, nil, nil, not TargetInMeleeRange) then return "execute slayer_execute 16"; end
   end
   -- bladestorm,if=debuff.executioners_precision.stack=2&debuff.colossus_smash.remains>4|debuff.executioners_precision.stack=2&cooldown.colossus_smash.remains>15|!talent.executioners_precision

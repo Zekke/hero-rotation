@@ -59,6 +59,7 @@ local VarApocTiming
 local VarPopWounds
 local VarPoolingRunicPower
 local VarSpendRP
+local VarEpidemicTargets
 local VarAbomActive, VarAbomRemains
 local VarApocGhoulActive, VarApocGhoulRemains
 local VarArmyGhoulActive, VarArmyGhoulRemains
@@ -358,25 +359,29 @@ local function AoE()
   if WoundSpender:IsReady() and (Player:BuffUp(S.DeathAndDecayBuff) and S.BurstingSores:IsAvailable() and S.Apocalypse:CooldownRemains() > VarApocTiming) then
     if Everyone.CastTargetIf(WoundSpender, EnemiesMelee, "max", EvaluateTargetIfFilterFWStack, EvaluateTargetIfWoundSpenderAoE, not Target:IsInMeleeRange(5)) then return "wound_spender aoe 4"; end
   end
+  -- death_coil,if=!variable.pooling_runic_power&active_enemies<variable.epidemic_targets
+  if S.DeathCoil:IsReady() and (not VarPoolingRunicPower and EnemiesMeleeCount < VarEpidemicTargets) then
+    if Cast(S.DeathCoil, Settings.Unholy.GCDasOffGCD.DeathCoil, nil, not Target:IsInRange(40)) then return "death_coil aoe 6"; end
+  end
   -- epidemic,if=!variable.pooling_runic_power
   if S.Epidemic:IsReady() and (not VarPoolingRunicPower) then
-    if Cast(S.Epidemic, Settings.Unholy.GCDasOffGCD.Epidemic, nil, not Target:IsInRange(40)) then return "epidemic aoe 6"; end
+    if Cast(S.Epidemic, Settings.Unholy.GCDasOffGCD.Epidemic, nil, not Target:IsInRange(40)) then return "epidemic aoe 8"; end
   end
   -- wound_spender,target_if=debuff.chains_of_ice_trollbane_slow.up
   if WoundSpender:IsReady() then
-    if Everyone.CastCycle(WoundSpender, EnemiesMelee, EvaluateCycleTrollbaneSlow, not Target:IsInMeleeRange(5)) then return "wound_spender aoe 8"; end
+    if Everyone.CastCycle(WoundSpender, EnemiesMelee, EvaluateCycleTrollbaneSlow, not Target:IsInMeleeRange(5)) then return "wound_spender aoe 10"; end
   end
   -- festering_strike,target_if=max:debuff.festering_wound.stack,if=cooldown.apocalypse.remains<variable.apoc_timing|buff.festering_scythe.react
   if FesteringAction:IsReady() and (S.Apocalypse:CooldownRemains() < VarApocTiming or Player:BuffUp(S.FesteringScytheBuff)) then
-    if Everyone.CastTargetIf(FesteringAction, EnemiesMelee, "max", EvaluateTargetIfFilterFWStack, nil, not Target:IsInMeleeRange(FesteringRange)) then return "festering_strike aoe 10"; end
+    if Everyone.CastTargetIf(FesteringAction, EnemiesMelee, "max", EvaluateTargetIfFilterFWStack, nil, not Target:IsInMeleeRange(FesteringRange)) then return "festering_strike aoe 12"; end
   end
   -- festering_strike,target_if=min:debuff.festering_wound.stack,if=debuff.festering_wound.stack<2
   if FesteringAction:IsReady() then
-    if Everyone.CastTargetIf(FesteringAction, EnemiesMelee, "min", EvaluateTargetIfFilterFWStack, EvaluateTargetIfFesteringStrikeAoE, not Target:IsInMeleeRange(FesteringRange)) then return "festering_strike aoe 12"; end
+    if Everyone.CastTargetIf(FesteringAction, EnemiesMelee, "min", EvaluateTargetIfFilterFWStack, EvaluateTargetIfFesteringStrikeAoE, not Target:IsInMeleeRange(FesteringRange)) then return "festering_strike aoe 14"; end
   end
   -- wound_spender,target_if=max:debuff.festering_wound.stack,if=debuff.festering_wound.stack>=1&cooldown.apocalypse.remains>gcd|buff.vampiric_strike.react&dot.virulent_plague.ticking
   if WoundSpender:IsReady() then
-    if Everyone.CastTargetIf(WoundSpender, EnemiesMelee, "max", EvaluateTargetIfFilterFWStack, EvaluateTargetIfWoundSpenderAoE3, not Target:IsInMeleeRange(5)) then return "wound_spender aoe 14"; end
+    if Everyone.CastTargetIf(WoundSpender, EnemiesMelee, "max", EvaluateTargetIfFilterFWStack, EvaluateTargetIfWoundSpenderAoE3, not Target:IsInMeleeRange(5)) then return "wound_spender aoe 16"; end
   end
 end
 
@@ -385,29 +390,37 @@ local function AoEBurst()
   if S.FesteringScytheAction:IsReady() then
     if Cast(S.FesteringScytheAction, nil, nil, not Target:IsInMeleeRange(14)) then return "festering_scythe aoe_burst 2"; end
   end
+  -- death_coil,if=!buff.vampiric_strike.react&active_enemies<variable.epidemic_targets&(!talent.bursting_sores|talent.bursting_sores&death_knight.fwounded_targets<active_enemies&death_knight.fwounded_targets<active_enemies*0.4&buff.sudden_doom.react|buff.sudden_doom.react&(talent.doomed_bidding&talent.menacing_magus|talent.rotten_touch|debuff.death_rot.remains<gcd))
+  if S.DeathCoil:IsReady() and (not S.VampiricStrikeAction:IsLearned() and EnemiesMeleeCount < VarEpidemicTargets and (not S.BurstingSores:IsAvailable() or S.BurstingSores:IsAvailable() and S.FesteringWoundDebuff:AuraActiveCount() < EnemiesMeleeCount and S.FesteringWoundDebuff:AuraActiveCount() < EnemiesMeleeCount * 0.4 and Player:BuffUp(S.SuddenDoomBuff) or Player:BuffUp(S.SuddenDoomBuff) and (S.DoomedBidding:IsAvailable() and S.ManacingMagus:IsAvailable() or S.RottenTouch:IsAvailable() or Target:DebuffRemains(S.DeathRotDebuff) < Player:GCD()))) then
+    if Cast(S.DeathCoil, Settings.Unholy.GCDasOffGCD.DeathCoil, nil, not Target:IsInRange(40)) then return "death_coil aoe_burst 4"; end
+  end
   -- epidemic,if=!buff.vampiric_strike.react&(!talent.bursting_sores|talent.bursting_sores&death_knight.fwounded_targets<active_enemies&death_knight.fwounded_targets<active_enemies*0.4&buff.sudden_doom.react|buff.sudden_doom.react&(buff.a_feast_of_souls.up|debuff.death_rot.remains<gcd|debuff.death_rot.stack<10))
   if S.Epidemic:IsReady() and (not S.VampiricStrikeAction:IsLearned() and (not S.BurstingSores:IsAvailable() or S.BurstingSores:IsAvailable() and S.FesteringWoundDebuff:AuraActiveCount() < ActiveEnemies and S.FesteringWoundDebuff:AuraActiveCount() < ActiveEnemies * 0.4 and Player:BuffUp(S.SuddenDoomBuff) or Player:BuffUp(S.SuddenDoomBuff) and (Player:BuffUp(S.AFeastofSoulsBuff) or Target:DebuffRemains(S.DeathRotDebuff) < Player:GCD() or Target:DebuffStack(S.DeathRotDebuff) < 10))) then
-    if Cast(S.Epidemic, Settings.Unholy.GCDasOffGCD.Epidemic, nil, not Target:IsInRange(40)) then return "epidemic aoe_burst 4"; end
+    if Cast(S.Epidemic, Settings.Unholy.GCDasOffGCD.Epidemic, nil, not Target:IsInRange(40)) then return "epidemic aoe_burst 6"; end
   end
   -- wound_spender,target_if=debuff.chains_of_ice_trollbane_slow.up
   if WoundSpender:IsReady() then
-    if Everyone.CastCycle(WoundSpender, EnemiesMelee, EvaluateCycleTrollbaneSlow, not Target:IsSpellInRange(WoundSpender)) then return "wound_spender aoe_burst 6"; end
+    if Everyone.CastCycle(WoundSpender, EnemiesMelee, EvaluateCycleTrollbaneSlow, not Target:IsSpellInRange(WoundSpender)) then return "wound_spender aoe_burst 8"; end
   end
   -- wound_spender,target_if=max:debuff.festering_wound.stack,if=debuff.festering_wound.stack>=1|buff.vampiric_strike.react
   if WoundSpender:IsReady() then
-    if Everyone.CastTargetIf(WoundSpender, EnemiesMelee, "max", EvaluateTargetIfFilterFWStack, EvaluateTargetIfWoundSpenderAoEBurst, not Target:IsSpellInRange(WoundSpender)) then return "wound_spender aoe_burst 8"; end
+    if Everyone.CastTargetIf(WoundSpender, EnemiesMelee, "max", EvaluateTargetIfFilterFWStack, EvaluateTargetIfWoundSpenderAoEBurst, not Target:IsSpellInRange(WoundSpender)) then return "wound_spender aoe_burst 10"; end
+  end
+  -- death_coil,if=active_enemies<variable.epidemic_targets
+  if S.DeathCoil:IsReady() and (EnemiesMeleeCount < VarEpidemicTargets) then
+    if Cast(S.DeathCoil, Settings.Unholy.GCDasOffGCD.DeathCoil, nil, not Target:IsInRange(40)) then return "death_coil aoe_burst 12"; end
   end
   -- epidemic
   if S.Epidemic:IsReady() then
-    if Cast(S.Epidemic, Settings.Unholy.GCDasOffGCD.Epidemic, nil, not Target:IsInRange(40)) then return "epidemic aoe_burst 10"; end
+    if Cast(S.Epidemic, Settings.Unholy.GCDasOffGCD.Epidemic, nil, not Target:IsInRange(40)) then return "epidemic aoe_burst 14"; end
   end
   -- festering_strike,target_if=min:debuff.festering_wound.stack,if=debuff.festering_wound.stack<=2
   if FesteringAction:IsReady() then
-    if Everyone.CastTargetIf(FesteringAction, EnemiesMelee, "min", EvaluateTargetIfFilterFWStack, EvaluateTargetIfFesteringStrikeAoEBurst, not Target:IsInMeleeRange(FesteringRange)) then return "festering_strike aoe_burst 12"; end
+    if Everyone.CastTargetIf(FesteringAction, EnemiesMelee, "min", EvaluateTargetIfFilterFWStack, EvaluateTargetIfFesteringStrikeAoEBurst, not Target:IsInMeleeRange(FesteringRange)) then return "festering_strike aoe_burst 16"; end
   end
   -- wound_spender,target_if=max:debuff.festering_wound.stack
   if WoundSpender:IsReady() then
-    if Everyone.CastTargetIf(WoundSpender, EnemiesMelee, "max", EvaluateTargetIfFilterFWStack, nil, not Target:IsSpellInRange(WoundSpender)) then return "wound_spender aoe_burst 14"; end
+    if Everyone.CastTargetIf(WoundSpender, EnemiesMelee, "max", EvaluateTargetIfFilterFWStack, nil, not Target:IsSpellInRange(WoundSpender)) then return "wound_spender aoe_burst 18"; end
   end
 end
 
@@ -432,17 +445,25 @@ local function AoESetup()
   if FesteringAction:IsReady() then
     if Everyone.CastTargetIf(FesteringAction, EnemiesMelee, "max", EvaluateTargetIfFilterFWStack, EvaluateTargetIfFesteringStrikeAoESetup2, not Target:IsInMeleeRange(FesteringRange)) then return "festering_strike aoe_setup 10"; end
   end
+  -- death_coil,if=!variable.pooling_runic_power&buff.sudden_doom.react&active_enemies<variable.epidemic_targets
+  if S.DeathCoil:IsReady() and (not VarPoolingRunicPower and Player:BuffUp(S.SuddenDoomBuff) and EnemiesMeleeCount < VarEpidemicTargets) then
+    if Cast(S.DeathCoil, Settings.Unholy.GCDasOffGCD.DeathCoil, nil, not Target:IsInRange(40)) then return "death_coil aoe_setup 12"; end
+  end
   -- epidemic,if=!variable.pooling_runic_power&buff.sudden_doom.react
   if S.Epidemic:IsReady() and (not VarPoolingRunicPower and Player:BuffUp(S.SuddenDoomBuff)) then
-    if Cast(S.Epidemic, Settings.Unholy.GCDasOffGCD.Epidemic, nil, not Target:IsInRange(40)) then return "epidemic aoe_setup 12"; end
+    if Cast(S.Epidemic, Settings.Unholy.GCDasOffGCD.Epidemic, nil, not Target:IsInRange(40)) then return "epidemic aoe_setup 14"; end
   end
   -- festering_strike,target_if=min:debuff.festering_wound.stack,if=cooldown.apocalypse.remains<gcd&debuff.festering_wound.stack=0|death_knight.fwounded_targets<active_enemies
   if FesteringAction:IsReady() then
-    if Everyone.CastTargetIf(FesteringAction, EnemiesMelee, "min", EvaluateTargetIfFilterFWStack, EvaluateTargetIfFesteringStrikeAoESetup3, not Target:IsInMeleeRange(FesteringRange)) then return "festering_strike aoe_setup 14"; end
+    if Everyone.CastTargetIf(FesteringAction, EnemiesMelee, "min", EvaluateTargetIfFilterFWStack, EvaluateTargetIfFesteringStrikeAoESetup3, not Target:IsInMeleeRange(FesteringRange)) then return "festering_strike aoe_setup 16"; end
+  end
+  -- death_coil,if=!variable.pooling_runic_power&active_enemies<variable.epidemic_targets
+  if S.DeathCoil:IsReady() and (not VarPoolingRunicPower and EnemiesMeleeCount < VarEpidemicTargets) then
+    if Cast(S.DeathCoil, Settings.Unholy.GCDasOffGCD.DeathCoil, nil, not Target:IsInRange(40)) then return "death_coil aoe_setup 18"; end
   end
   -- epidemic,if=!variable.pooling_runic_power
   if S.Epidemic:IsReady() and (not VarPoolingRunicPower) then
-    if Cast(S.Epidemic, Settings.Unholy.GCDasOffGCD.Epidemic, nil, not Target:IsInRange(40)) then return "epidemic aoe_setup 16"; end
+    if Cast(S.Epidemic, Settings.Unholy.GCDasOffGCD.Epidemic, nil, not Target:IsInRange(40)) then return "epidemic aoe_setup 20"; end
   end
 end
 
@@ -821,6 +842,8 @@ local function Variables()
   VarPoolingRunicPower = S.VileContagion:IsAvailable() and S.VileContagion:CooldownRemains() < 5 and Player:RunicPower() < 30
   -- variable,name=spend_rp,op=setif,value=1,value_else=0,condition=(!talent.rotten_touch|talent.rotten_touch&!debuff.rotten_touch.up|runic_power.deficit<20)&((talent.improved_death_coil&(active_enemies=2|talent.coil_of_devastation)|rune<3|pet.gargoyle.active|buff.sudden_doom.react|!variable.pop_wounds&debuff.festering_wound.stack>=4))
   VarSpendRP = (not S.RottenTouch:IsAvailable() or S.RottenTouch:IsAvailable() and Target:DebuffDown(S.RottenTouchDebuff) or Player:RunicPowerDeficit() < 20) and (S.ImprovedDeathCoil:IsAvailable() and (ActiveEnemies == 2 or S.CoilofDevastation:IsAvailable()) or Player:Rune() < 3 or VarGargActive or Player:BuffUp(S.SuddenDoomBuff) or not VarPopWounds and FesterStacks >= 4)
+  -- variable,name=epidemic_targets,value=3+talent.improved_death_coil+(talent.frenzied_bloodthirst&buff.essence_of_the_blood_queen.stack>5)+(talent.hungering_thirst&talent.harbinger_of_doom&buff.sudden_doom.up)
+  VarEpidemicTargets = 3 + num(S.ImprovedDeathCoil:IsAvailable()) + num(S.FrenziedBloodthirst:IsAvailable() and Player:BuffStack(S.EssenceoftheBloodQueenBuff) > 5) + num(S.HungeringThirst:IsAvailable() and S.HarbingerofDoom:IsAvailable() and Player:BuffUp(S.SuddenDoomBuff))
 end
 
 --- ===== APL Main =====

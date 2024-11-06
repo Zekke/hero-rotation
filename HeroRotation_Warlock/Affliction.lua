@@ -604,7 +604,7 @@ local function Cleave()
     end
     -- soul_rot,if=(variable.vt_ps_up)&active_dot.agony=2
     if S.SoulRot:IsReady() and (S.AgonyDebuff:AuraActiveCount() == 2) then
-      if Cast(S.SoulRot, nil, nil, not Target:IsSpellInRange(S.SoulRot)) then return "soul_rot cleave 18"; end
+      if Cast(S.SoulRot, nil, Settings.CommonsDS.DisplayStyle.SoulRot, not Target:IsSpellInRange(S.SoulRot)) then return "soul_rot cleave 18"; end
     end
   end
   -- summon_darkglare,if=variable.cd_dots_up
@@ -826,7 +826,7 @@ local function APL()
       end
       -- soul_rot,if=variable.vt_ps_up
       if S.SoulRot:IsReady() then
-        if Cast(S.SoulRot, nil, nil, not Target:IsSpellInRange(S.SoulRot)) then return "soul_rot main 24"; end
+        if Cast(S.SoulRot, nil, Settings.CommonsDS.DisplayStyle.SoulRot, not Target:IsSpellInRange(S.SoulRot)) then return "soul_rot main 24"; end
       end
     end
     -- summon_darkglare,if=variable.cd_dots_up&(debuff.shadow_embrace.stack=debuff.shadow_embrace.max_stack)

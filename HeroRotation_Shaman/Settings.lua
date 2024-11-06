@@ -76,6 +76,7 @@ HR.GUISettings.APL.Shaman = {
     Rotation = "Standard",
     HealWith5Maelstrom = 50,
     HealWithout5Maelstrom = 30,
+    TempestOnMTOnly = false,
     PotionType = {
       Selected = "Tempered",
     },
@@ -122,3 +123,4 @@ CreateARPanelOptions(CP_Enhancement, "APL.Shaman.Enhancement")
 CreatePanelOption("Dropdown", CP_Enhancement, "APL.Shaman.Enhancement.Rotation", {"Standard", "Funnel"}, "Rotation Type", "Select to choose between the Standard or Funnel rotations.")
 CreatePanelOption("Slider", CP_Enhancement, "APL.Shaman.Enhancement.HealWith5Maelstrom", {0, 100, 1}, "Heal Pct with 5 Maelstrom", "Sets the health percentage under which Healing Surge should be suggested with 5 Maelstrom. Set this to 0 to disable healing suggestions.")
 CreatePanelOption("Slider", CP_Enhancement, "APL.Shaman.Enhancement.HealWithout5Maelstrom", {0, 100, 1}, "Heal Pct without 5 Maelstrom", "Sets the health percentage under which Healing Surge should be suggested when below 5 Maelstrom. Set this to 0 to disable healing suggestions.")
+CreatePanelOption("CheckButton", CP_Enhancement, "APL.Shaman.Enhancement.TempestOnMTOnly", "Tempest on Primary Target Only", "Enable this setting to only suggest Tempest casts on your primary target.")

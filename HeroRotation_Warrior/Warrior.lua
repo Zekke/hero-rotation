@@ -127,6 +127,7 @@ Spell.Warrior.Arms = MergeTableByKey(Spell.Warrior.Commons, {
   Dreadnaught                           = Spell(262150),
   ExecutionersPrecision                 = Spell(386634),
   FervorofBattle                        = Spell(202316),
+  Juggernaut                            = Spell(383292),
   Massacre                              = Spell(281001),
   MercilessBonegrinder                  = Spell(383317),
   MortalStrike                          = Spell(12294),
