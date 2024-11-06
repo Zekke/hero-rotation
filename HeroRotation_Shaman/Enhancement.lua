@@ -680,7 +680,8 @@ local function Aoe()
   end
   -- windstrike,target_if=min:debuff.lightning_rod.remains,if=talent.thorims_invocation.enabled&buff.maelstrom_weapon.stack>0&ti_chain_lightning
   if S.Windstrike:IsCastable() and (S.ThorimsInvocation:IsAvailable() and MaelstromStacks > 0 and TIAction == S.ChainLightning) then
-    if Everyone.CastTargetIf(S.Windstrike, EnemiesMelee, "min", EvaluateTargetIfFilterLightningRodRemains, nil, not Target:IsInRange(30)) then return "windstrike aoe 8"; end
+    if Cast(S.Windstrike, nil, nil, not Target:IsInRange(30)) then return "windstrike aoe 8"; end
+    -- if Everyone.CastTargetIf(S.Windstrike, EnemiesMelee, "min", EvaluateTargetIfFilterLightningRodRemains, nil, not Target:IsInRange(30)) then return "windstrike aoe 8"; end
   end
   -- crash_lightning,if=talent.crashing_storms.enabled&((talent.unruly_winds.enabled&active_enemies>=10)|active_enemies>=15)
   if S.CrashLightning:IsReady() and (S.CrashingStorms:IsAvailable() and ((S.UnrulyWinds:IsAvailable() and EnemiesMeleeCount >= 10) or EnemiesMeleeCount >= 15)) then
