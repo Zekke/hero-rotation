@@ -370,7 +370,7 @@ local function Stealthed (ReturnSpellOnly, ForceStealth)
   end
 
   -- actions.stealthed+=/shiv,if=talent.kingsbane&(dot.kingsbane.ticking|cooldown.kingsbane.up)&(!debuff.shiv.up&debuff.shiv.remains<1)&buff.envenom.up
-  if S.Kingsbane:IsAvailable() and Player:BuffUp(S.Envenom) then
+  if CDsON() and S.Kingsbane:IsAvailable() and Player:BuffUp(S.Envenom) then
     if S.Shiv:IsReady() and (Target:DebuffUp(S.Kingsbane) or S.Kingsbane:CooldownUp()) and Target:DebuffDown(S.ShivDebuff) then
       if ReturnSpellOnly then
         return S.Shiv
