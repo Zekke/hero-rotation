@@ -1285,7 +1285,6 @@ end
 
 local function Init ()
   S.Deathmark:RegisterAuraTracking()
-  S.Sepsis:RegisterAuraTracking()
   S.Garrote:RegisterAuraTracking()
   S.CrimsonTempest:RegisterAuraTracking()
 

@@ -120,8 +120,6 @@ S.Eviscerate:RegisterDamageFormula(
       0.176 *
       -- Aura Multiplier (SpellID: 137035)
       1.21 *
-      -- Nightstalker Multiplier
-      (S.Nightstalker:IsAvailable() and Player:StealthUp(true, false) and 1.08 or 1) *
       -- Deeper Stratagem Multiplier
       (S.DeeperStratagem:IsAvailable() and 1.05 or 1) *
       -- Shadow Dance Multiplier
