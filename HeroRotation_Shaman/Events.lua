@@ -15,6 +15,8 @@ local Item = HL.Item
 local GetTime = GetTime
 local C_Timer = C_Timer
 local select = select
+-- WoW Locals
+local Delay = C_Timer.After
 -- File Locals
 HR.Commons.Shaman = {}
 local Shaman = HR.Commons.Shaman
@@ -43,7 +45,7 @@ HL:RegisterForSelfCombatEvent(
     local DestGUID, _, _, _, SpellID = select(8, ...)
     if DestGUID == Player:GUID() and SpellID == 191634 then
       Shaman.LastSKBuff = GetTime()
-      C_Timer.After(0.1, function()
+      Delay(0.1, function()
         if Shaman.LastSKBuff ~= Shaman.LastSKCast then
           Shaman.LastRollingThunderTick = Shaman.LastSKBuff
         end
@@ -59,7 +61,7 @@ HL:RegisterForSelfCombatEvent(
     local SpellID = select(12, ...)
     if SpellID == 262627 then
       Shaman.FeralSpiritCount = Shaman.FeralSpiritCount + 1
-      C_Timer.After(15, function()
+      Delay(15, function()
         Shaman.FeralSpiritCount = Shaman.FeralSpiritCount - 1
       end)
     end
@@ -115,23 +117,23 @@ HL:RegisterForSelfCombatEvent(
     -- Fire Elemental. SpellIDs are without and with Primal Elementalist
     if SpellID == 188592 or SpellID == 118291 then
       Shaman.FireElemental.GreaterActive = true
-      C_Timer.After(30, function()
+      Delay(30, function()
         Shaman.FireElemental.GreaterActive = false
       end)
     elseif SpellID == 462992 or SpellID == 462991 then
       Shaman.FireElemental.LesserActive = true
-      C_Timer.After(15, function()
+      Delay(15, function()
         Shaman.FireElemental.LesserActive = false
       end)
     -- Storm Elemental. SpellIDs are without and with Primal Elementalist
     elseif SpellID == 157299 or SpellID == 157319 then
       Shaman.StormElemental.GreaterActive = true
-      C_Timer.After(30, function()
+      Delay(30, function()
         Shaman.StormElemental.GreaterActive = false
       end)
     elseif SpellID == 462993 or SpellID == 462990 then
       Shaman.StormElemental.LesserActive = true
-      C_Timer.After(15, function()
+      Delay(15, function()
         Shaman.StormElemental.LesserActive = false
       end)
     end

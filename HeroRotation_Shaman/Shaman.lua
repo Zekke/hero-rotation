@@ -104,6 +104,7 @@ Spell.Shaman.Totemic = {
   SurgingTotem                          = Spell(444995),
   TotemicRebound                        = Spell(445025),
   -- Buffs
+  LivelyTotemsBuff                      = Spell(461242),
   TotemicReboundBuff                    = Spell(458269),
   WhirlingAirBuff                       = Spell(453409),
   WhirlingEarthBuff                     = Spell(453406),
@@ -213,6 +214,7 @@ Spell.Shaman.Enhancement = MergeTableByKey(Spell.Shaman.Commons, {
   CrashLightningBuff                    = Spell(187878),
   CLCrashLightningBuff                  = Spell(333964),
   DoomWindsBuff                         = Spell(384352),
+  EarthenWeaponBuff                     = Spell(392375),
   FeralSpiritBuff                       = Spell(333957),
   GatheringStormsBuff                   = Spell(198300),
   HailstormBuff                         = Spell(334196),

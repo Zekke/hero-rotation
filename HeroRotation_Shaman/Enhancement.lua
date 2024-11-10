@@ -584,7 +584,7 @@ local function SingleTotemic()
     if Cast(S.LightningBolt, nil, nil, not Target:IsSpellInRange(S.LightningBolt)) then return "lightning_bolt single_totemic 44"; end
   end
   -- lava_lash,if=buff.hot_hand.up&talent.molten_assault.enabled&pet.searing_totem.active
-  if S.LavaLash:IsReady() and (Player:BuffUp(S.HotHandBuff) and S.MoltenAssault:IsAvailable() and S.SearingTotem:TimeSinceLastCast() < 24) then
+  if S.LavaLash:IsReady() and (Player:BuffUp(S.HotHandBuff) and S.MoltenAssault:IsAvailable() and Player:BuffUp(S.LivelyTotemsBuff)) then
     if Cast(S.LavaLash, nil, nil, not Target:IsSpellInRange(S.LavaLash)) then return "lava_lash single_totemic 46"; end
   end
   -- windstrike
@@ -612,7 +612,7 @@ local function SingleTotemic()
     if Cast(S.IceStrike, nil, nil, not Target:IsSpellInRange(S.IceStrike)) then return "ice_strike single_totemic 58"; end
   end
   -- frost_shock,if=buff.hailstorm.up&pet.searing_totem.active
-  if S.FrostShock:IsReady() and (Player:BuffUp(S.HailstormBuff) and S.SearingTotem:TimeSinceLastCast() < 24) then
+  if S.FrostShock:IsReady() and (Player:BuffUp(S.HailstormBuff) and Player:BuffUp(S.LivelyTotemsBuff)) then
     if Cast(S.FrostShock, nil, nil, not Target:IsSpellInRange(S.FrostShock)) then return "frost_shock single_totemic 60"; end
   end
   -- lava_lash

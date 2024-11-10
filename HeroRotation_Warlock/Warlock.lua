@@ -177,11 +177,10 @@ Spell.Warlock.Demonology = MergeTableByKey(Spell.Warlock.Commons, {
   DemonicCallingBuff                    = Spell(205146),
   DemonicCoreBuff                       = Spell(264173),
   DemonicPowerBuff                      = Spell(265273),
-  DoomDebuff                            = Spell(460553),
   NetherPortalBuff                      = Spell(267218),
   RiteofRuvaraadBuff                    = Spell(409725), -- T30 4pc
   -- Debuffs
-  DoomDebuff                            = Spell(603),
+  DoomDebuff                            = Spell(460553),
   DoomBrandDebuff                       = Spell(423583), -- T31 2pc
   FromtheShadowsDebuff                  = Spell(270569),
 })
