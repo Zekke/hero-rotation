@@ -320,6 +320,129 @@ local function CheckTargetIfTarget(Mode, ModeEvaluation, IfEvaluation)
   return nil
 end
 
+--- ======= CUSTOM =======
+local currentEncounterID = nil
+local currentDifficulty = nil
+
+local function EncounterEventHandler(self, event, encounterID, encounterName, difficulty, raidSize)
+    if event == "ENCOUNTER_START" then
+      currentEncounterID = encounterID
+      currentDifficulty = difficulty
+      --HR.Print("CurrentID = " .. tostring(currentEncounterID))
+      --HR.Print("CurrentDifficulty = " .. tostring(currentDifficulty))
+    elseif event == "ENCOUNTER_END" then
+      currentEncounterID = nil
+      currentDifficulty = nil
+    end
+end
+
+local frame = CreateFrame("Frame")
+frame:RegisterEvent("ENCOUNTER_START")
+frame:RegisterEvent("ENCOUNTER_END")
+frame:SetScript("OnEvent", EncounterEventHandler)
+
+local function CustomDefensives ()
+  local bossSpellName, _, _, startTimeMS, endTimeMS, _, _, _, bossSpellID = UnitCastingInfo("boss1")
+  local bossRemainingCastTime
+
+  if bossSpellName then
+    bossRemainingCastTime = (endTimeMS - (GetTime() * 1000))/1000
+    -- HR.Print("Boss is casting " .. bossSpellName .. " (" .. tostring(bossSpellID) ..") in " .. tostring(bossRemainingCastTime) .. "s.")
+  end
+
+  -- Aggramar(2063)
+  if currentEncounterID == 2063 then
+    if bossSpellName then
+      if bossSpellID == 244693 then
+        if S.Feint:IsCastable() and bossRemainingCastTime < 6 and (Player:BuffDown(S.Feint) and (Player:BuffDown(S.CloakofShadows) or Player:BuffRemains(S.CloakofShadows) < bossRemainingCastTime)) then
+          if Cast(S.Feint, Settings.CommonsOGCD.GCDasOffGCD.Feint) then
+            return "Cast Feint"
+          end
+        end
+      end
+    end
+  end
+
+  -- Mythic(16) / Heroic(15) Ansurek(2922)
+  if currentEncounterID == 2922 and (currentDifficulty == 16 or currentDifficulty == 15) then
+    -- P1
+    -- Casting Liquefy(440899)
+    if bossSpellName then
+      if bossSpellID == 440899 then
+        if S.Feint:IsCastable() and bossRemainingCastTime < 6 and (Player:BuffDown(S.Feint) and (Player:BuffDown(S.CloakofShadows) or Player:BuffRemains(S.CloakofShadows) < bossRemainingCastTime)) then
+          if Cast(S.Feint, Settings.CommonsOGCD.GCDasOffGCD.Feint) then
+            return "Cast Feint (Ansurek's Liquefy)"
+          end
+        end
+      end
+    end
+    -- Casting Silken Tomb(439814)
+    if bossSpellName then
+      if bossSpellID == 439814 then
+        if S.Feint:IsCastable() and bossRemainingCastTime < 2 and (Player:BuffDown(S.Feint) and (Player:BuffDown(S.CloakofShadows) or Player:BuffRemains(S.CloakofShadows) < bossRemainingCastTime)) then
+          if Cast(S.Feint, Settings.CommonsOGCD.GCDasOffGCD.Feint) then
+            return "Cast Feint (Ansurek's Silken Tomb)"
+          end
+        end
+      end
+    end
+      -- Root1 : Vanish
+      -- Root2 : CoS
+      -- Root3 : Gnome
+      -- Root4 : Vanish
+    -- I1
+    -- Casting Wrest(447411)
+    if bossSpellName then
+      if bossSpellID == 447411 then
+        if S.Feint:IsCastable() and bossRemainingCastTime < 2 and (Player:BuffDown(S.Feint) and (Player:BuffDown(S.CloakofShadows) or Player:BuffRemains(S.CloakofShadows) < bossRemainingCastTime)) then
+          if Cast(S.Feint, Settings.CommonsOGCD.GCDasOffGCD.Feint) then
+            return "Cast Feint (Ansurek's Wrest)"
+          end
+        end
+      end
+    end
+    -- P3
+    -- Big aoe Aphotic Communion(449986)
+    if bossSpellName then
+      if bossSpellID == 449986 then
+        if S.Feint:IsCastable() and bossRemainingCastTime < 2 and (Player:BuffDown(S.Feint) and (Player:BuffDown(S.CloakofShadows) or Player:BuffRemains(S.CloakofShadows) < bossRemainingCastTime)) then
+          if Cast(S.Feint, Settings.CommonsOGCD.GCDasOffGCD.Feint) then
+            return "Cast Feint (Aphotic Communion)"
+          end
+        end
+      end
+    end
+  end
+end
+
+local function CustomBurst ()
+-- rupture
+  if S.Rupture:IsReady() and ComboPoints >= 3 and Target:DebuffDown(S.Rupture) then
+    if CastPooling(S.Rupture, nil, nil, not TargetInMeleeRange) then
+      return "Cast Rupture"
+    end
+  end
+-- Deathmark
+  if S.Deathmark:IsReady() then
+    if Cast(S.Deathmark, Settings.Assassination.OffGCDasOffGCD.Deathmark) then
+        return "Cast Deathmark"
+    end
+  end
+-- trinket
+-- shiv
+  --if S.Shiv:IsReady() and (Target:DebuffUp(S.Kingsbane) or S.Kingsbane:CooldownUp()) and Target:DebuffDown(S.ShivDebuff) then
+    --if Cast(S.Shiv, Settings.Assassination.GCDasOffGCD.Shiv) then
+        --return "Cast Shiv"
+    --end
+  --end
+-- kingsbane
+  if S.Kingsbane:IsReady() then
+    if Cast(S.Kingsbane, Settings.Assassination.OffGCDasOffGCD.Kingsbane) then
+        return "Cast Kingsbane"
+    end
+  end
+end
+
 --- ======= ACTION LISTS =======
 local function Racials ()
   -- actions.misc_cds+=/blood_fury,if=debuff.deathmark.up
@@ -371,7 +494,7 @@ local function Stealthed (ReturnSpellOnly, ForceStealth)
 
   -- actions.stealthed+=/shiv,if=talent.kingsbane&(dot.kingsbane.ticking|cooldown.kingsbane.up)&(!debuff.shiv.up&debuff.shiv.remains<1)&buff.envenom.up
   if CDsON() and S.Kingsbane:IsAvailable() and Player:BuffUp(S.Envenom) then
-    if S.Shiv:IsReady() and (Target:DebuffUp(S.Kingsbane) or S.Kingsbane:CooldownUp()) and Target:DebuffDown(S.ShivDebuff) then
+    if S.Shiv:IsReady() and Target:DebuffUp(S.Kingsbane) and Target:DebuffDown(S.ShivDebuff) then
       if ReturnSpellOnly then
         return S.Shiv
       else
@@ -836,7 +959,7 @@ local function CDs ()
   end
 
   -- actions.cds+=/call_action_list,name=vanish,if=!stealthed.all&master_assassin_remains=0
-  if not Player:StealthUp(true, true) and MasterAssassinRemains() <= 0 then
+  if CDsON() and not Player:StealthUp(true, true) and MasterAssassinRemains() <= 0 then
     if ShouldReturn then
       Vanish()
     else
@@ -1112,6 +1235,10 @@ local function APL ()
   EffectiveCPSpend = mathmax(Rogue.CPMaxSpend() - 2, 5 * num(S.HandOfFate:IsAvailable()))
 
   -- Defensives
+  ShouldReturn = CustomDefensives()
+  if ShouldReturn then
+   return ShouldReturn
+  end
   -- Crimson Vial
   ShouldReturn = Rogue.CrimsonVial()
   if ShouldReturn then
@@ -1172,7 +1299,7 @@ local function APL ()
 
     -- # Check to clip envenom
     -- actions+=/variable,name=clip_envenom,value=buff.envenom.up&buff.envenom.remains.1<=1
-    ClipEnvenom = Player:BuffUp(S.Envenom) and Target:DebuffRemains(S.Envenom) <= 1
+    ClipEnvenom = Player:BuffUp(S.Envenom) and Player:BuffRemains(S.Envenom) <= 1
 
     -- # Check upper bounds of energy to begin spending
     -- actions+=/variable,name=upper_limit_energy,value=energy.pct>=(50-10*talent.vicious_venoms.rank)
@@ -1197,6 +1324,13 @@ local function APL ()
     -- actions=/stealth
     -- actions+=/variable,name=single_target,value=spell_targets.fan_of_knives<2
     SingleTarget = MeleeEnemies10yCount < 2
+
+    if (Target:NPCID() == 223318 or Target:NPCID() == 223204) and S.Kingsbane:IsReady() and CDsON() then
+      ShouldReturn = CustomBurst()
+      if ShouldReturn then
+        return ShouldReturn .. " (Custom Burst)"
+      end
+    end
 
     -- actions+=/call_action_list,name=stealthed,if=stealthed.rogue|stealthed.improved_garrote|master_assassin_remains>0
     if Player:StealthUp(true, false) or ImprovedGarroteRemains() > 0 or MasterAssassinRemains() > 0 then
