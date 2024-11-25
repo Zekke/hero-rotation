@@ -484,7 +484,7 @@ local function AoE()
   -- malevolence,if=variable.ps_up&variable.vt_up&variable.sr_up|cooldown.invoke_power_infusion_0.duration>0&cooldown.invoke_power_infusion_0.up&!talent.soul_rot
   -- Note: Not handling invoke_power_infusion_0.
   if S.Malevolence:IsReady() and (VarPSUp and VarVTUp and VarSRUp) then
-    if Cast(S.Malevolence, Settings.Affliction.GCDasOffGCD.Malevolence) then return "malevolence aoe 14"; end
+    if Cast(S.Malevolence, nil, Settings.CommonsDS.DisplayStyle.Malevolence, not Target:IsSpellInRange(S.Malevolence)) then return "malevolence aoe 14"; end
   end
   -- seed_of_corruption,if=((!talent.wither&dot.corruption.remains<5)|(talent.wither&dot.wither.remains<5))&!(action.seed_of_corruption.in_flight|dot.seed_of_corruption.remains>0)
   if S.SeedofCorruption:IsReady() and (((not S.Wither:IsAvailable() and Target:DebuffRemains(S.CorruptionDebuff) < 5) or (S.Wither:IsAvailable() and Target:DebuffRemains(S.WitherDebuff) < 5)) and not (S.SeedofCorruption:InFlight() or Target:DebuffUp(S.SeedofCorruptionDebuff))) then
@@ -600,7 +600,7 @@ local function Cleave()
   if VarVTPSUp and CDsON() then
     -- malevolence,if=variable.vt_ps_up
     if S.Malevolence:IsReady() then
-      if Cast(S.Malevolence, Settings.Affliction.GCDasOffGCD.Malevolence) then return "malevolence cleave 16"; end
+      if Cast(S.Malevolence, nil, Settings.CommonsDS.DisplayStyle.Malevolence, not Target:IsSpellInRange(S.Malevolence)) then return "malevolence cleave 16"; end
     end
     -- soul_rot,if=(variable.vt_ps_up)&active_dot.agony=2
     if S.SoulRot:IsReady() and (S.AgonyDebuff:AuraActiveCount() == 2) then
@@ -822,7 +822,7 @@ local function APL()
     if VarVTPSUp and CDsON() then
       -- malevolence,if=variable.vt_ps_up
       if S.Malevolence:IsReady() then
-        if Cast(S.Malevolence, Settings.Affliction.GCDasOffGCD.Malevolence) then return "malevolence main 22"; end
+        if Cast(S.Malevolence, nil, Settings.CommonsDS.DisplayStyle.Malevolence, not Target:IsSpellInRange(S.Malevolence)) then return "malevolence main 22"; end
       end
       -- soul_rot,if=variable.vt_ps_up
       if S.SoulRot:IsReady() then

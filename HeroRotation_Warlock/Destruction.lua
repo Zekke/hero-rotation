@@ -226,6 +226,11 @@ local function EvaluateTargetIfFilterImmolate(TargetUnit)
   return TargetUnit:DebuffRemains(S.ImmolateDebuff) + 99 * TargetUnit:DebuffRemains(S.HavocDebuff)
 end
 
+local function EvaluateTargetIfFilterTTD(TargetUnit)
+  -- target_if=min:time_to_die
+  return TargetUnit:TimeToDie()
+end
+
 local function EvaluateTargetIfFilterWitherRemains(TargetUnit)
   -- target_if=min:dot.wither.remains+99*debuff.havoc.remains+99*!dot.wither.ticking
   return TargetUnit:DebuffRemains(S.WitherDebuff) + 99 * num(TargetUnit:DebuffUp(S.HavocDebuff)) + 99 * num(TargetUnit:DebuffDown(S.WitherDebuff))
@@ -274,6 +279,12 @@ local function EvaluateTargetIfImmolateHavoc(TargetUnit)
   -- if=(((dot.immolate.refreshable&variable.havoc_immo_time<5.4)&target.time_to_die>5)|((dot.immolate.remains<2&dot.immolate.remains<havoc_remains)|!dot.immolate.ticking|variable.havoc_immo_time<2)&target.time_to_die>11)&soul_shard<4.5
   -- Note: Soul Shard check handled before CastTargetIf call.
   return (((TargetUnit:DebuffRefreshable(S.ImmolateDebuff) and VarHavocImmoTime < 5.4) and TargetUnit:TimeToDie() > 5) or ((TargetUnit:DebuffRemains(S.ImmolateDebuff) < 2 and TargetUnit:DebuffRemains(S.ImmolateDebuff) < VarHavocRemains) or TargetUnit:DebuffDown(S.ImmolateDebuff) or VarHavocImmoTime < 2) and TargetUnit:TimeToDie() > 11)
+end
+
+local function EvaluateTargetIfShadowburn(TargetUnit)
+  -- if=((buff.malevolence.up&((talent.cataclysm&talent.raging_demonfire&active_enemies<=10&fight_remains>=60)|(talent.cataclysm&!talent.raging_demonfire&active_enemies<=8&fight_remains>=60)|active_enemies<=5))|(!talent.wither&talent.cataclysm&active_enemies<=5)|active_enemies<=3)&((cooldown.shadowburn.full_recharge_time<=gcd.max*3|debuff.eradication.remains<=gcd.max&talent.eradication&!action.chaos_bolt.in_flight&!talent.diabolic_ritual)&(talent.conflagration_of_chaos|talent.blistering_atrophy)&time_to_die<5|fight_remains<=8)
+  -- Note: First half handled before CastTargetIf.
+  return (S.Shadowburn:FullRechargeTime() <= Player:GCD() * 3 or TargetUnit:DebuffRemains(S.EradicationDebuff) <= Player:GCD() and S.Eradication:IsAvailable() and not S.ChaosBolt:InFlight() and not S.DiabolicRitual:IsAvailable()) and (S.ConflagrationofChaos:IsAvailable() or S.BlisteringAtrophy:IsAvailable()) and TargetUnit:TimeToDie() < 5 or BossFightRemains <= 8
 end
 
 local function EvaluateTargetIfWitherAoE(TargetUnit)
@@ -334,13 +345,11 @@ local function Precombat()
     if Cast(S.GrimoireofSacrifice, Settings.Destruction.GCDasOffGCD.GrimoireOfSacrifice) then return "grimoire_of_sacrifice precombat 2"; end
   end
   -- snapshot_stats
+  -- cataclysm,if=active_enemies>=2&raid_event.adds.in>15
+  -- Note: Can't check active_enemies during Precombat.
   -- soul_fire
   if S.SoulFire:IsReady() and (not Player:IsCasting(S.SoulFire)) then
     if Cast(S.SoulFire, nil, nil, not Target:IsSpellInRange(S.SoulFire)) then return "soul_fire precombat 4"; end
-  end
-  -- cataclysm,if=raid_event.adds.in>15
-  if S.Cataclysm:IsCastable() then
-    if Cast(S.Cataclysm, Settings.Destruction.GCDasOffGCD.Cataclysm, nil, not Target:IsInRange(40)) then return "cataclysm precombat 6"; end
   end
   -- incinerate
   if S.Incinerate:IsCastable() and (not Player:IsCasting(S.Incinerate)) then
@@ -440,12 +449,12 @@ local function Havoc()
   if S.Shadowburn:IsReady() and (VarHavocRemains <= Player:GCD() * 3) then
     if Cast(S.Shadowburn, nil, nil, not Target:IsSpellInRange(S.Shadowburn)) then return "shadowburn havoc 16"; end
   end
-  -- chaos_bolt,if=cast_time<havoc_remains&(active_enemies<=2-(talent.inferno-talent.improved_chaos_bolt-talent.cataclysm)*talent.wither+(talent.cataclysm&talent.improved_chaos_bolt)*!talent.wither)
-  if S.ChaosBolt:IsReady() and (S.ChaosBolt:CastTime() < VarHavocRemains and (EnemiesCount8ySplash <= 2 - (num(S.Inferno:IsAvailable()) - num(S.ImprovedChaosBolt:IsAvailable()) - num(S.Cataclysm:IsAvailable())) * num(S.Wither:IsAvailable()) + num(S.Cataclysm:IsAvailable() and S.ImprovedChaosBolt:IsAvailable()) * num(not S.Wither:IsAvailable()))) then
+  -- chaos_bolt,if=cast_time<havoc_remains&((!talent.improved_chaos_bolt&active_enemies<=2)|(talent.improved_chaos_bolt&((talent.wither&talent.inferno&active_enemies<=2)|(((talent.wither&talent.cataclysm)|(!talent.wither&talent.inferno))&active_enemies<=3)|(!talent.wither&talent.cataclysm&active_enemies<=4))))
+  if S.ChaosBolt:IsReady() and (S.ChaosBolt:CastTime() < VarHavocRemains and ((not S.ImprovedChaosBolt:IsAvailable() and EnemiesCount8ySplash <= 2) or (S.ImprovedChaosBolt:IsAvailable() and ((S.Wither:IsAvailable() and S.Inferno:IsAvailable() and EnemiesCount8ySplash <= 2) or (((S.Wither:IsAvailable() and S.Cataclysm:IsAvailable()) or (not S.Wither:IsAvailable() and S.Inferno:IsAvailable())) and EnemiesCount8ySplash <= 3) or (not S.Wither:IsAvailable() and S.Cataclysm:IsAvailable() and EnemiesCount8ySplash <= 4))))) then
     if Cast(S.ChaosBolt, nil, nil, not Target:IsSpellInRange(S.ChaosBolt)) then return "chaos_bolt havoc 18"; end
   end
-  -- rain_of_fire,if=active_enemies>=3-talent.wither
-  if S.RainofFire:IsReady() and (EnemiesCount8ySplash >= 3 - num(S.Wither:IsAvailable())) then
+  -- rain_of_fire,if=active_enemies>=3
+  if S.RainofFire:IsReady() and (EnemiesCount8ySplash >= 3) then
     if Cast(S.RainofFire, nil, nil, not Target:IsSpellInRange(S.Conflagrate)) then return "rain_of_fire havoc 20"; end
   end
   -- channel_demonfire,if=soul_shard<4.5
@@ -477,7 +486,7 @@ local function Aoe()
   end
   -- malevolence,if=cooldown.summon_infernal.remains>=55&soul_shard<4.7&(active_enemies<=3+active_dot.wither|time>30)
   if S.Malevolence:IsReady() and (S.SummonInfernal:CooldownRemains() >= 55 and SoulShards < 4.7 and (EnemiesCount8ySplash <= 3 + S.WitherDebuff:AuraActiveCount() or HL.CombatTime() > 30)) then
-    if Cast(S.Malevolence, nil, nil, not Target:IsSpellInRange(S.Malevolence)) then return "malevolence aoe 2"; end
+    if Cast(S.Malevolence, nil, Settings.CommonsDS.DisplayStyle.Malevolence, not Target:IsSpellInRange(S.Malevolence)) then return "malevolence aoe 2"; end
   end
   -- rain_of_fire,if=demonic_art
   if S.RainofFire:IsReady() and (DemonicArt()) then
@@ -497,8 +506,8 @@ local function Aoe()
   if CDsON() and S.DimensionalRift:IsCastable() and (SoulShards < 4.7 and (S.DimensionalRift:Charges() > 2 or FightRemains < S.DimensionalRift:Cooldown())) then
     if Cast(S.DimensionalRift, Settings.Destruction.GCDasOffGCD.DimensionalRift, nil, not Target:IsSpellInRange(S.DimensionalRift)) then return "dimensional_rift aoe 8"; end
   end
-  -- rain_of_fire,if=!talent.inferno&soul_shard>=(4.5-0.1*active_dot.immolate)|soul_shard>=(3.5-0.1*active_dot.immolate)|buff.ritual_of_ruin.up
-  if S.RainofFire:IsReady() and (not S.Inferno:IsAvailable() and SoulShards >= (4.5 - 0.1 * S.ImmolateDebuff:AuraActiveCount()) or SoulShards >= (3.5 - 0.1 * S.ImmolateDebuff:AuraActiveCount()) or Player:BuffUp(S.RitualofRuinBuff)) then
+  -- rain_of_fire,if=!talent.inferno&soul_shard>=(4.5-0.1*(active_dot.immolate+active_dot.wither))|soul_shard>=(3.5-0.1*(active_dot.immolate+active_dot.wither))|buff.ritual_of_ruin.up
+  if S.RainofFire:IsReady() and (not S.Inferno:IsAvailable() and SoulShards >= (4.5 - 0.1 * (S.ImmolateDebuff:AuraActiveCount() + S.WitherDebuff:AuraActiveCount())) or SoulShards >= (3.5 - 0.1 * (S.ImmolateDebuff:AuraActiveCount() + S.WitherDebuff:AuraActiveCount())) or Player:BuffUp(S.RitualofRuinBuff)) then
     if Cast(S.RainofFire, nil, nil, not Target:IsSpellInRange(S.Conflagrate)) then return "rain_of_fire aoe 10"; end
   end
   -- wither,target_if=min:dot.wither.remains+99*debuff.havoc.remains+99*!dot.wither.ticking,if=dot.wither.refreshable&(!talent.cataclysm.enabled|cooldown.cataclysm.remains>dot.wither.remains)&(!talent.raging_demonfire|cooldown.channel_demonfire.remains>remains|time<5)&(active_dot.wither<=4|time>15)&target.time_to_die>18
@@ -509,13 +518,13 @@ local function Aoe()
   if S.ChannelDemonfire:IsReady() and (Target:DebuffRemains(S.ImmolateDebuff) + Target:DebuffRemains(S.WitherDebuff) > ChannelDemonfireCastTime() and S.RagingDemonfire:IsAvailable()) then
     if Cast(S.ChannelDemonfire, nil, nil, not Target:IsInRange(40)) then return "channel_demonfire aoe 14"; end
   end
-  -- shadowburn,if=(active_enemies<4+(talent.cataclysm+4*talent.cataclysm)*talent.wither)&((cooldown.shadowburn.full_recharge_time<=gcd.max*3|debuff.eradication.remains<=gcd.max&talent.eradication&!action.chaos_bolt.in_flight&!talent.diabolic_ritual)&(talent.conflagration_of_chaos|talent.blistering_atrophy)&(active_enemies<5+(talent.wither&talent.cataclysm)+havoc_active)|fight_remains<=8)
-  if S.Shadowburn:IsReady() and ((EnemiesCount8ySplash < 4 + (num(S.Cataclysm:IsAvailable()) + 4 * num(S.Cataclysm:IsAvailable())) * num(S.Wither:IsAvailable())) and ((S.Shadowburn:FullRechargeTime() <= Player:GCD() * 3 or Target:DebuffRemains(S.EradicationDebuff) <= Player:GCD() and S.Eradication:IsAvailable() and not S.ChaosBolt:InFlight() and not S.DiabolicRitual:IsAvailable()) and (S.ConflagrationofChaos:IsAvailable() or S.BlisteringAtrophy:IsAvailable()) and (EnemiesCount8ySplash < 5 + num(S.Wither:IsAvailable() and S.Cataclysm:IsAvailable()) + num(VarHavocActive)) or BossFightRemains <= 8)) then
+  -- shadowburn,if=((buff.malevolence.up&((talent.cataclysm&talent.raging_demonfire&active_enemies<=10&fight_remains>=60)|(talent.cataclysm&!talent.raging_demonfire&active_enemies<=8&fight_remains>=60)|active_enemies<=5))|(!talent.wither&talent.cataclysm&active_enemies<=5)|active_enemies<=3)&((cooldown.shadowburn.full_recharge_time<=gcd.max*3|debuff.eradication.remains<=gcd.max&talent.eradication&!action.chaos_bolt.in_flight&!talent.diabolic_ritual)&(talent.conflagration_of_chaos|talent.blistering_atrophy)|fight_remains<=8)
+  if S.Shadowburn:IsReady() and (((Player:BuffUp(S.MalevolenceBuff) and ((S.Cataclysm:IsAvailable() and S.RagingDemonfire:IsAvailable() and EnemiesCount8ySplash <= 10 and FightRemains >= 60) or (S.Cataclysm:IsAvailable() and not S.RagingDemonfire:IsAvailable() and EnemiesCount8ySplash <= 8 and FightRemains >= 60) or EnemiesCount8ySplash <= 5)) or (not S.Wither:IsAvailable() and S.Cataclysm:IsAvailable() and EnemiesCount8ySplash <= 5) or EnemiesCount8ySplash <= 3) and ((S.Shadowburn:FullRechargeTime() <= Player:GCD() * 3 or Target:DebuffRemains(S.EradicationDebuff) <= Player:GCD() and S.Eradication:IsAvailable() and not S.ChaosBolt:InFlight() and not S.DiabolicRitual:IsAvailable()) and (S.ConflagrationofChaos:IsAvailable() or S.BlisteringAtrophy:IsAvailable()) or BossFightRemains <= 8)) then
     if Cast(S.Shadowburn, nil, nil, not Target:IsSpellInRange(S.Shadowburn)) then return "shadowburn aoe 16"; end
   end
-  -- shadowburn,target_if=min:time_to_die,if=(active_enemies<4+(talent.cataclysm+4*talent.cataclysm)*talent.wither)&((cooldown.shadowburn.full_recharge_time<=gcd.max*3|debuff.eradication.remains<=gcd.max&talent.eradication&!action.chaos_bolt.in_flight&!talent.diabolic_ritual)&(talent.conflagration_of_chaos|talent.blistering_atrophy)&(active_enemies<5+(talent.wither&talent.cataclysm)+havoc_active)&time_to_die<5|fight_remains<=8)
-  if S.Shadowburn:IsReady() and ((EnemiesCount8ySplash < 4 + (num(S.Cataclysm:IsAvailable()) + 4 * num(S.Cataclysm:IsAvailable())) * num(S.Wither:IsAvailable())) and ((S.Shadowburn:FullRechargeTime() <= Player:GCD() * 3 or Target:DebuffRemains(S.EradicationDebuff) <= Player:GCD() and S.Eradication:IsAvailable() and not S.ChaosBolt:InFlight() and not S.DiabolicRitual:IsAvailable()) and (S.ConflagrationofChaos:IsAvailable() or S.BlisteringAtrophy:IsAvailable()) and (EnemiesCount8ySplash < 5 + num(S.Wither:IsAvailable() and S.Cataclysm:IsAvailable()) + num(VarHavocActive)) and Target:TimeToDie() < 5 or FightRemains <= 8)) then
-    if Cast(S.Shadowburn, nil, nil, not Target:IsSpellInRange(S.Shadowburn)) then return "shadowburn aoe 18"; end
+  -- shadowburn,target_if=min:time_to_die,if=((buff.malevolence.up&((talent.cataclysm&talent.raging_demonfire&active_enemies<=10&fight_remains>=60)|(talent.cataclysm&!talent.raging_demonfire&active_enemies<=8&fight_remains>=60)|active_enemies<=5))|(!talent.wither&talent.cataclysm&active_enemies<=5)|active_enemies<=3)&((cooldown.shadowburn.full_recharge_time<=gcd.max*3|debuff.eradication.remains<=gcd.max&talent.eradication&!action.chaos_bolt.in_flight&!talent.diabolic_ritual)&(talent.conflagration_of_chaos|talent.blistering_atrophy)&time_to_die<5|fight_remains<=8)
+  if S.Shadowburn:IsReady() and (((Player:BuffUp(S.MalevolenceBuff) and ((S.Cataclysm:IsAvailable() and S.RagingDemonfire:IsAvailable() and EnemiesCount8ySplash <= 10 and FightRemains >= 60) or (S.Cataclysm:IsAvailable() and not S.RagingDemonfire:IsAvailable() and EnemiesCount8ySplash <= 8 and FightRemains >= 60) or EnemiesCount8ySplash <= 5)) or (not S.Wither:IsAvailable() and S.Cataclysm:IsAvailable() and EnemiesCount8ySplash <= 5) or EnemiesCount8ySplash <= 3)) then
+    if Everyone.CastTargetIf(S.Shadowburn, Enemies8ySplash, "min", EvaluateTargetIfFilterTTD, EvaluateTargetIfShadowburn, not Target:IsSpellInRange(S.Shadowburn)) then return "shadowburn aoe 18"; end
   end
   -- ruination
   if S.RuinationAbility:IsReady() then
@@ -633,7 +642,7 @@ local function Cleave()
   VarPoolSoulShards = (S.Havoc:CooldownRemains() <= 5) or S.Mayhem:IsAvailable()
   -- malevolence,if=(!cooldown.summon_infernal.up|!talent.summon_infernal)
   if S.Malevolence:IsReady() and (S.SummonInfernal:CooldownDown() or not S.SummonInfernal:IsAvailable()) then
-    if Cast(S.Malevolence, nil, nil, not Target:IsSpellInRange(S.Malevolence)) then return "malevolence cleave 2"; end
+    if Cast(S.Malevolence, nil, Settings.CommonsDS.DisplayStyle.Malevolence, not Target:IsSpellInRange(S.Malevolence)) then return "malevolence cleave 2"; end
   end
   -- havoc,target_if=min:((-target.time_to_die)<?-15)+dot.immolate.remains+99*(self.target=target),if=(!cooldown.summon_infernal.up|!talent.summon_infernal)&target.time_to_die>8
   if S.Havoc:IsCastable() and (S.SummonInfernal:CooldownDown() or not S.SummonInfernal:IsAvailable()) then
@@ -854,7 +863,7 @@ local function APL()
     end
     -- malevolence,if=cooldown.summon_infernal.remains>=55
     if S.Malevolence:IsReady() and (S.SummonInfernal:CooldownRemains() >= 55) then
-      if Cast(S.Malevolence, nil, nil, not Target:IsSpellInRange(S.Malevolence)) then return "malevolence main 2"; end
+      if Cast(S.Malevolence, nil, Settings.CommonsDS.DisplayStyle.Malevolence, not Target:IsSpellInRange(S.Malevolence)) then return "malevolence main 2"; end
     end
     -- wait,sec=((buff.diabolic_ritual_mother_of_chaos.remains+buff.diabolic_ritual_overlord.remains+buff.diabolic_ritual_pit_lord.remains)),if=(diabolic_ritual&(buff.diabolic_ritual_mother_of_chaos.remains+buff.diabolic_ritual_overlord.remains+buff.diabolic_ritual_pit_lord.remains)<gcd.max*0.25)&soul_shard>2
     -- TODO: Add wait?

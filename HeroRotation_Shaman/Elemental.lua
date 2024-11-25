@@ -241,8 +241,8 @@ local function Aoe()
   if S.TotemicRecall:IsCastable() and (S.LiquidMagmaTotem:CooldownRemains() > 15 and (S.FlameShockDebuff:AuraActiveCount() < (mathmin(Shaman.ClusterTargets, 6) - 2) or S.FireElemental:IsAvailable())) then
     if Cast(S.TotemicRecall, Settings.CommonsOGCD.GCDasOffGCD.TotemicRecall) then return "totemic_recall aoe 8"; end
   end
-  -- liquid_magma_totem
-  if S.LiquidMagmaTotem:IsReady() then
+  -- liquid_magma_totem,if=cooldown.ascendance.remains>15&!buff.ascendance.up
+  if S.LiquidMagmaTotem:IsReady() and (S.Ascendance:CooldownRemains() > 15 and Player:BuffDown(S.AscendanceBuff)) then
     if Cast(S.LiquidMagmaTotem, Settings.Elemental.GCDasOffGCD.LiquidMagmaTotem, nil, not Target:IsInRange(40)) then return "liquid_magma_totem aoe 10"; end
   end
   -- primordial_wave,target_if=min:dot.flame_shock.remains,if=buff.surge_of_power.up|!talent.surge_of_power.enabled|maelstrom<60-5*talent.eye_of_the_storm.enabled
@@ -253,30 +253,30 @@ local function Aoe()
   if S.AncestralSwiftness:IsReady() then
     if Cast(S.AncestralSwiftness, Settings.CommonsOGCD.GCDasOffGCD.AncestralSwiftness) then return "ancestral_swiftness aoe 14"; end
   end
+  -- ascendance (JUST DO IT! https://i.kym-cdn.com/entries/icons/mobile/000/018/147/Shia_LaBeouf__Just_Do_It__Motivational_Speech_(Original_Video_by_LaBeouf__R%C3%B6nkk%C3%B6___Turner)_0-4_screenshot.jpg
+  if CDsON() and S.Ascendance:IsCastable() then
+    if Cast(S.Ascendance, Settings.CommonsOGCD.GCDasOffGCD.Ascendance) then return "ascendance aoe 16"; end
+  end
   if S.FlameShock:IsCastable() then
     local Lowest, BestTarget = LowestFlameShock(Enemies10ySplash)
     if BestTarget:DebuffRefreshable(S.FlameShockDebuff) then
       -- flame_shock,target_if=refreshable,if=buff.surge_of_power.up&dot.flame_shock.remains<target.time_to_die-16&active_dot.flame_shock<(spell_targets.chain_lightning>?6)&!talent.liquid_magma_totem.enabled
       if Player:BuffUp(S.SurgeofPowerBuff) and Lowest < BestTarget:TimeToDie() - 16 and S.FlameShockDebuff:AuraActiveCount() < mathmin(Shaman.ClusterTargets, 6) and not S.LiquidMagmaTotem:IsAvailable() then
         if Target:GUID() == BestTarget:GUID() then
-          if Cast(S.FlameShock, nil, nil, not Target:IsSpellInRange(S.FlameShock)) then return "flame_shock aoe main-target 16"; end
-        else
-          if CastLeftNameplate(BestTarget, S.FlameShock) then return "flame_shock aoe off-target 16"; end
-        end
-      end
-      -- flame_shock,target_if=refreshable,if=talent.fire_elemental.enabled&(buff.surge_of_power.up|!talent.surge_of_power.enabled)&dot.flame_shock.remains<target.time_to_die-5&(active_dot.flame_shock<6|dot.flame_shock.remains>0)
-      if S.FireElemental:IsAvailable() and (Player:BuffUp(S.SurgeofPowerBuff) or not S.SurgeofPower:IsAvailable()) and BestTarget:DebuffRemains(S.FlameShockDebuff) < BestTarget:TimeToDie() - 5 and (S.FlameShockDebuff:AuraActiveCount() < 6 or BestTarget:DebuffRemains(S.FlameShockDebuff) > 0) then
-        if Target:GUID() == BestTarget:GUID() then
           if Cast(S.FlameShock, nil, nil, not Target:IsSpellInRange(S.FlameShock)) then return "flame_shock aoe main-target 18"; end
         else
           if CastLeftNameplate(BestTarget, S.FlameShock) then return "flame_shock aoe off-target 18"; end
         end
       end
+      -- flame_shock,target_if=refreshable,if=talent.fire_elemental.enabled&(buff.surge_of_power.up|!talent.surge_of_power.enabled)&dot.flame_shock.remains<target.time_to_die-5&(active_dot.flame_shock<6|dot.flame_shock.remains>0)
+      if S.FireElemental:IsAvailable() and (Player:BuffUp(S.SurgeofPowerBuff) or not S.SurgeofPower:IsAvailable()) and BestTarget:DebuffRemains(S.FlameShockDebuff) < BestTarget:TimeToDie() - 5 and (S.FlameShockDebuff:AuraActiveCount() < 6 or BestTarget:DebuffRemains(S.FlameShockDebuff) > 0) then
+        if Target:GUID() == BestTarget:GUID() then
+          if Cast(S.FlameShock, nil, nil, not Target:IsSpellInRange(S.FlameShock)) then return "flame_shock aoe main-target 20"; end
+        else
+          if CastLeftNameplate(BestTarget, S.FlameShock) then return "flame_shock aoe off-target 20"; end
+        end
+      end
     end
-  end
-  -- ascendance (JUST DO IT! https://i.kym-cdn.com/entries/icons/mobile/000/018/147/Shia_LaBeouf__Just_Do_It__Motivational_Speech_(Original_Video_by_LaBeouf__R%C3%B6nkk%C3%B6___Turner)_0-4_screenshot.jpg
-  if CDsON() and S.Ascendance:IsCastable() then
-    if Cast(S.Ascendance, Settings.CommonsOGCD.GCDasOffGCD.Ascendance) then return "ascendance aoe 20"; end
   end
   -- tempest,target_if=min:debuff.lightning_rod.remains,if=!buff.arc_discharge.up&(buff.surge_of_power.up|!talent.surge_of_power.enabled)
   if S.TempestAbility:IsReady() and (Player:BuffDown(S.ArcDischargeBuff) and (Player:BuffUp(S.SurgeofPowerBuff) or not S.SurgeofPower:IsAvailable())) then
@@ -326,8 +326,8 @@ local function Aoe()
   if S.EarthShock:IsReady() and (S.EchoesofGreatSundering:IsAvailable() and Player:BuffDown(S.EchoesofGreatSunderingBuff) and (S.LightningRodDebuff:AuraActiveCount() == 0 or VarMaelstrom > VarMaelCap - 30 or (Player:StormkeeperUp() and Shaman.ClusterTargets >= 6 or S.TempestAbility:IsReady()) and S.SurgeofPower:IsAvailable())) then
     if Everyone.CastTargetIf(S.EarthShock, Enemies10ySplash, "min", EvaluateTargetIfFilterLightningRodRemains, nil, not Target:IsSpellInRange(S.EarthShock)) then return "earth_shock aoe 44"; end
   end
-  -- icefury,if=talent.fusion_of_elements.enabled&!(buff.fusion_of_elements_nature.up|buff.fusion_of_elements_fire.up)
-  if S.Icefury:IsViable() and (S.FusionofElements:IsAvailable() and not (Player:BuffUp(S.FusionofElementsNature) or Player:BuffUp(S.FusionofElementsFire))) then
+  -- icefury,if=talent.fusion_of_elements.enabled&!(buff.fusion_of_elements_nature.up|buff.fusion_of_elements_fire.up)&(cooldown.primordial_wave.remains<5|((spell_targets.chain_lightning=2|(!spell_targets.chain_lightning>=5&talent.echoes_of_great_sundering.enabled&!buff.echoes_of_great_sundering_eb.up))&talent.elemental_blast.enabled))
+  if S.Icefury:IsViable() and (S.FusionofElements:IsAvailable() and not (Player:BuffUp(S.FusionofElementsNature) or Player:BuffUp(S.FusionofElementsFire)) and (S.PrimordialWave:CooldownRemains() < 5 or ((Enemies10ySplash == 2 or (Enemies10ySplash < 5 and S.EchoesofGreatSundering:IsAvailable() and not Player:BuffUp(S.EchoesofGreatSunderingBuff))) and S.ElementalBlast:IsAvailable()))) then
     if Cast(S.Icefury, nil, nil, not Target:IsSpellInRange(S.Icefury)) then return "icefury aoe 46"; end
   end
   -- lava_burst,target_if=dot.flame_shock.remains>2,if=talent.master_of_the_elements.enabled&!buff.master_of_the_elements.up&!buff.ascendance.up&talent.fire_elemental.enabled

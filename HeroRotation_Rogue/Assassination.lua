@@ -64,6 +64,11 @@ local OnUseExcludeTrinkets = {
   I.TreacherousTransmitter:ID(),
 }
 
+local CrimsonTempestIgnoreNPCs = {
+  219739, -- infest spawn, rasha'nan
+  220626, -- parasites ovi'nax
+}
+
 -- Enemies
 local MeleeRange, AoERange, TargetInMeleeRange, TargetInAoERange
 local Enemies30y, MeleeEnemies10y, MeleeEnemies10yCount, MeleeEnemies5y
@@ -538,7 +543,7 @@ local function Stealthed (ReturnSpellOnly, ForceStealth)
       return TargetUnit:DebuffRemains(S.Rupture)
     end
     local function RuptureIfFunc(TargetUnit)
-      return ComboPoints >= EffectiveCPSpend and Player:BuffUp(S.IndiscriminateCarnageBuff) and TargetUnit:DebuffRefreshable(S.Rupture)
+      return ComboPoints >= EffectiveCPSpend and (Player:BuffUp(S.IndiscriminateCarnageBuff) or ForceStealth) and TargetUnit:DebuffRefreshable(S.Rupture)
         and (not EnergyRegenSaturated or not ScentSaturated or TargetUnit:DebuffDown(S.Rupture))
         and Target:TimeToDie() > 15
     end
@@ -548,7 +553,7 @@ local function Stealthed (ReturnSpellOnly, ForceStealth)
         if ReturnSpellOnly then
           return S.Rupture
         else
-          if IndiscriminateCarnageRemains() > 0 and Settings.Assassination.ShowIndiscriminateCarnageOnMainIcon then
+          if (IndiscriminateCarnageRemains() > 0 or ForceStealth) and Settings.Assassination.ShowIndiscriminateCarnageOnMainIcon then
             if Cast(S.Rupture, nil, nil, not TargetInMeleeRange) then
               return "Cast Rupture (Stealth Indiscriminate Carnage)"
             end
@@ -579,7 +584,7 @@ local function Stealthed (ReturnSpellOnly, ForceStealth)
     end
     local function GarroteIfFunc(TargetUnit)
       return (TargetUnit:PMultiplier(S.Garrote) <= 1 or TargetUnit:DebuffRemains(S.Garrote) < 12
-        or (IndiscriminateCarnageRemains() > 0 and S.Garrote:AuraActiveCount() < MeleeEnemies10yCount)) and not SingleTarget
+        or ((IndiscriminateCarnageRemains() > 0 or ForceStealth) and S.Garrote:AuraActiveCount() < MeleeEnemies10yCount)) and not SingleTarget
         and (TargetUnit:FilteredTimeToDie(">", 2, -TargetUnit:DebuffRemains(S.Garrote)) or TargetUnit:TimeToDieIsNotValid())
         and Rogue.CanDoTUnit(TargetUnit, GarroteDMGThreshold)
     end
@@ -587,9 +592,9 @@ local function Stealthed (ReturnSpellOnly, ForceStealth)
       local TargetIfUnit = CheckTargetIfTarget("min", GarroteTargetIfFunc, GarroteIfFunc)
       if TargetIfUnit and TargetIfUnit:GUID() ~= Target:GUID() then
         if ReturnSpellOnly then
-          return S.Rupture
+          return S.Garrote
         else
-          if IndiscriminateCarnageRemains() > 0 and Settings.Assassination.ShowIndiscriminateCarnageOnMainIcon then
+          if (IndiscriminateCarnageRemains() > 0 or ForceStealth) and Settings.Assassination.ShowIndiscriminateCarnageOnMainIcon then
             if Cast(S.Garrote, nil, nil, not TargetInMeleeRange) then
               return "Cast Garrote (Improved Garrote Carnage)"
             end
@@ -819,19 +824,23 @@ local function ShivUsage ()
     -- actions.shiv+=/shiv,if=!talent.lightweight_shiv.enabled&variable.shiv_kingsbane_condition
     -- &(dot.kingsbane.ticking&dot.kingsbane.remains<8|!dot.kingsbane.ticking&cooldown.kingsbane.remains>=20)
     -- &(!talent.crimson_tempest.enabled|variable.single_target|dot.crimson_tempest.ticking)
-    if not S.LightweightShiv:IsAvailable() and ShivKingsbaneCondition
+    if not S.LightweightShiv:IsAvailable() then
+      if ShivKingsbaneCondition
       and (Target:DebuffUp(S.Kingsbane) and Target:DebuffRemains(S.Kingsbane) < 8 or not Target:DebuffUp(S.Kingsbane) and S.Kingsbane:CooldownRemains() >= 20)
       and (not S.CrimsonTempest:IsAvailable() or SingleTarget or Target:DebuffUp(S.CrimsonTempest)) then
-      if Cast(S.Shiv, Settings.Assassination.GCDasOffGCD.Shiv) then
-        return "Cast Shiv (Kingsbane)"
+        if Cast(S.Shiv, Settings.Assassination.GCDasOffGCD.Shiv) then
+          return "Cast Shiv (Kingsbane)"
+        end
       end
     end
 
     -- actions.shiv+=/shiv,if=talent.lightweight_shiv.enabled&variable.shiv_kingsbane_condition
     -- &(dot.kingsbane.ticking|cooldown.kingsbane.remains<=1)
-    if S.LightweightShiv:IsAvailable() and ShivKingsbaneCondition and (Target:DebuffUp(S.Kingsbane) or S.Kingsbane:CooldownRemains() <= 1) then
-      if Cast(S.Shiv, Settings.Assassination.GCDasOffGCD.Shiv) then
-        return "Cast Shiv (Kingsbane Lightweight)"
+    if S.LightweightShiv:IsAvailable() then
+      if ShivKingsbaneCondition and (Target:DebuffUp(S.Kingsbane) or S.Kingsbane:CooldownRemains() <= 1) then
+        if Cast(S.Shiv, Settings.Assassination.GCDasOffGCD.Shiv) then
+          return "Cast Shiv (Kingsbane Lightweight)"
+        end
       end
     end
 
@@ -974,7 +983,7 @@ local function CDs ()
   -- actions.cds+=/cold_blood,use_off_gcd=1,if=(buff.fatebound_coin_tails.stack>0&buff.fatebound_coin_heads.stack>0)
   -- |debuff.shiv.up&(cooldown.deathmark.remains>50|!talent.inevitabile_end&effective_combo_points>=variable.effective_spend_cp)
   if S.ColdBlood:IsReady() and Player:DebuffDown(S.ColdBlood) then
-    if (Player:BuffStack(S.FateboundCoinTails) > 0 or Player:BuffStack(S.FateboundCoinHeads) > 0)
+    if (Player:BuffStack(S.FateboundCoinTails) > 0 and Player:BuffStack(S.FateboundCoinHeads) > 0)
       or Target:DebuffUp(S.ShivDebuff) and (S.Deathmark:CooldownRemains() > 50 or not S.InevitabileEnd:IsAvailable() and ComboPoints >= EffectiveCPSpend) then
       if Cast(S.ColdBlood, Settings.CommonsOGCD.OffGCDasOffGCD.ColdBlood) then
         return "Cast Cold Blood"
@@ -1023,7 +1032,7 @@ local function Core_Dot()
   -- &target.time_to_die-remains>8&buff.momentum_of_despair.remains>6&variable.single_target
   if S.CrimsonTempest:IsReady() and ComboPoints >= EffectiveCPSpend and IsDebuffRefreshable(Target, S.CrimsonTempest)
     and Target:TimeToDie() > 8 and Player:BuffRemains(S.MomentumOfDespair) > 6 and SingleTarget then
-    if Cast(S.CrimsonTempest) then
+    if Cast(S.CrimsonTempest, Settings.Assassination.GCDasOffGCD.CrimsonTempest) then
       return "Crimson Tempest with Momentum of Despair"
     end
   end
@@ -1040,8 +1049,8 @@ local function AoE_Dot ()
   if HR.AoEON() and S.CrimsonTempest:IsReady() and MeleeEnemies10yCount >= 2 and DotFinisherCondition and Target:DebuffDown(S.CrimsonTempest) then
     for _, CycleUnit in pairs(MeleeEnemies10y) do
       if IsDebuffRefreshable(CycleUnit, S.CrimsonTempest, CrimsonTempestThreshold)
-        and CycleUnit:FilteredTimeToDie(">", 6) then
-        if Cast(S.CrimsonTempest) then
+        and CycleUnit:FilteredTimeToDie(">", 6) and not ValueIsInArray(CrimsonTempestIgnoreNPCs, CycleUnit:NPCID()) then
+        if Cast(S.CrimsonTempest, Settings.Assassination.GCDasOffGCD.CrimsonTempest) then
           return "Cast Crimson Tempest (AoE High Energy)"
         end
       end
@@ -1232,7 +1241,7 @@ local function APL ()
   RuptureDMGThreshold = S.Envenom:Damage() * Settings.Assassination.EnvenomDMGOffset; -- Used to check if Rupture is worth to be casted since it's a finisher.
   GarroteDMGThreshold = S.Mutilate:Damage() * Settings.Assassination.MutilateDMGOffset; -- Used as TTD Not Valid fallback since it's a generator.
   PriorityRotation = UsePriorityRotation()
-  EffectiveCPSpend = mathmax(Rogue.CPMaxSpend() - 2, 5 * num(S.HandOfFate:IsAvailable()))
+  EffectiveCPSpend = mathmax(Player:ComboPointsMax() - 2, 5 * num(S.HandOfFate:IsAvailable()))
 
   -- Defensives
   ShouldReturn = CustomDefensives()
@@ -1299,7 +1308,7 @@ local function APL ()
 
     -- # Check to clip envenom
     -- actions+=/variable,name=clip_envenom,value=buff.envenom.up&buff.envenom.remains.1<=1
-    ClipEnvenom = Player:BuffUp(S.Envenom) and Player:BuffRemains(S.Envenom) <= 1
+    ClipEnvenom = Player:BuffUp(S.Envenom)
 
     -- # Check upper bounds of energy to begin spending
     -- actions+=/variable,name=upper_limit_energy,value=energy.pct>=(50-10*talent.vicious_venoms.rank)

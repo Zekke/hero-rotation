@@ -89,6 +89,7 @@ Spell.Paladin.Lightsmith = {
   SacredWeapon                         = Spell(432472),
   -- Talents
   BlessedAssurance                     = Spell(433015),
+  HammerandAnvil                       = Spell(433718),
   HolyArmaments                        = Spell(432459),
   RiteofAdjuration                     = Spell(433583),
   RiteofSanctification                 = Spell(433568),
@@ -106,6 +107,7 @@ Spell.Paladin.Templar = {
   Hammerfall                           = Spell(432463),
   LightsDeliverance                    = Spell(425518),
   LightsGuidance                       = Spell(427445),
+  ShaketheHeavens                      = Spell(431533),
   -- Buffs
   LightsDeliveranceBuff                = Spell(433674),
   ShaketheHeavensBuff                  = Spell(431536),
@@ -128,6 +130,7 @@ Spell.Paladin.Protection = MergeTableByKey(Spell.Paladin.Commons, {
   InmostLight                           = Spell(405757),
   MomentofGlory                         = Spell(327193),
   Redoubt                               = Spell(280373),
+  RefiningFire                          = Spell(469883),
   RighteousProtector                    = Spell(204074),
   Sentinel                              = Spell(389539),
   -- Buffs

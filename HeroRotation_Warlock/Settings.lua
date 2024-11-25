@@ -32,6 +32,7 @@ HR.GUISettings.APL.Warlock = {
       Potions = "Suggested",
       Trinkets = "Suggested",
       -- Class Specific
+      Malevolence = "Suggested",
       SoulRot = "Suggested",
     },
   },

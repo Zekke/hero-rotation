@@ -120,6 +120,7 @@ Spell.Warrior.Arms = MergeTableByKey(Spell.Warrior.Commons, {
   Execute                               = MultiSpell(163201, 281000),
   Whirlwind                             = Spell(1680),
   -- Talents
+  Battlelord                            = Spell(386630),
   BlademastersTorment                   = Spell(390138),
   Bloodletting                          = Spell(383154),
   Cleave                                = Spell(845),

@@ -110,6 +110,7 @@ Spell.Rogue.Commons = {
   LingeringDarkness       = Spell(457056),
   LingeringDarknessBuff   = Spell(457273),
   MarkedforDeath          = Spell(137619),
+  MeanStreak              = Spell(453428),
   MomentumOfDespair       = Spell(457067),
   Nightstalker            = Spell(14062),
   ResoundingClarity       = Spell(381622),

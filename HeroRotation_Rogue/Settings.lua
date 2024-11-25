@@ -68,6 +68,7 @@ HR.GUISettings.APL.Rogue = {
       Selected = "Tempered",
     },
     GCDasOffGCD = {
+      CrimsonTempest = false,
       Exsanguinate = false,
       Kingsbane = false,
       Shiv = false,
@@ -115,6 +116,7 @@ HR.GUISettings.APL.Rogue = {
     },
     GCDasOffGCD = {
       ShurikenTornado = false,
+      SecretTechnique = false,
     },
     OffGCDasOffGCD = {
       SymbolsofDeath = true,

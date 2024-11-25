@@ -269,8 +269,8 @@ local function Finish (ReturnSpellOnly, ForceStealth)
       if ReturnSpellOnly then
         return S.SecretTechnique
       end
-      if CastPooling(S.SecretTechnique, nil, not Target:IsSpellInRange(S.SecretTechnique)) then
-        return "Cast SecretTechnique"
+      if Cast(S.SecretTechnique, Settings.Subtlety.GCDasOffGCD.SecretTechnique) then
+        return "Cast Secret Technique"
       end
   end
 
@@ -309,7 +309,7 @@ local function Finish (ReturnSpellOnly, ForceStealth)
       if ReturnSpellOnly then
         return S.BlackPowder
       else
-        if CastPooling(S.BlackPowder, nil, not Target:IsSpellInRange(S.BlackPowder)) then
+        if CastPooling(S.BlackPowder, nil, not TargetInAoERange) then
           return "Cast BlackPowder"
         end
       end
@@ -368,14 +368,16 @@ local function Build (ReturnSpellOnly, ForceStealth)
 
   -- actions.build+=/shuriken_storm,if=talent.deathstalkers_mark&!buff.premeditation.up&variable.targets>=(2+3*buff.shadow_dance.up)
   -- |buff.clear_the_witnesses.up&!buff.symbols_of_death.up|buff.flawless_form.up&variable.targets>=3&!variable.stealth
-  if S.ShurikenStorm:IsReady() and HR.AoEON() and S.DeathStalkersMark:IsAvailable() and not Player:BuffUp(S.PremeditationBuff)
-    and MeleeEnemies10yCount >= (2 + 3 * num(Player:BuffUp(S.ShadowDanceBuff))) or Player:BuffUp(S.ClearTheWitnessesBuff)
-    and not Player:BuffUp(S.SymbolsofDeath) or Player:BuffUp(S.FlawlessFormBuff) and MeleeEnemies10yCount >= 3 and not Stealth then
-    if ReturnSpellOnly then
-      return S.ShurikenStorm
-    else
-      if CastPooling(S.ShurikenStorm) then
-        return "Cast ShurikenStorm"
+  if S.ShurikenStorm:IsReady() and not ForceStealth and HR.AoEON() then
+    if S.DeathStalkersMark:IsAvailable() and not Player:BuffUp(S.PremeditationBuff)
+      and MeleeEnemies10yCount >= (2 + 3 * num(Player:BuffUp(S.ShadowDanceBuff))) or Player:BuffUp(S.ClearTheWitnessesBuff)
+      and not Player:BuffUp(S.SymbolsofDeath) or Player:BuffUp(S.FlawlessFormBuff) and MeleeEnemies10yCount >= 3 and not Stealth then
+      if ReturnSpellOnly then
+        return S.ShurikenStorm
+      else
+        if CastPooling(S.ShurikenStorm) then
+          return "Cast ShurikenStorm"
+        end
       end
     end
   end
@@ -389,7 +391,7 @@ local function Build (ReturnSpellOnly, ForceStealth)
       if ReturnSpellOnly then
         return S.ShurikenTornado
       else
-        if CastPooling(S.ShurikenTornado) then
+        if Cast(S.ShurikenTornado, Settings.Subtlety.GCDasOffGCD.ShurikenTornado) then
           return "Cast ShurikenTornado"
         end
       end

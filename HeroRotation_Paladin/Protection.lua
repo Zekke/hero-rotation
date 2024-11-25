@@ -194,57 +194,21 @@ local function Cooldowns()
   end
 end
 
-local function HammerofLight()
-  -- hammer_of_light,if=(buff.blessing_of_dawn.stack>0|!talent.of_dusk_and_dawn.enabled)|spell_targets.shield_of_the_righteous>=5
-  if S.HammerofLight:IsReady() and ((Player:BuffUp(S.BlessingofDawnBuff) or not S.OfDuskandDawn:IsAvailable()) or EnemiesCount8y >= 5) then
-    if Cast(S.HammerofLight, Settings.Protection.GCDasOffGCD.EyeOfTyr, nil, not Target:IsInRange(12)) then return "hammer_of_light hammer_of_light 2"; end
-  end
-  -- eye_of_tyr,if=hpg_to_2dawn=5|!talent.of_dusk_and_dawn.enabled
-  if S.EyeofTyr:IsCastable() and (HPGTo2Dawn() == 5 or not S.OfDuskandDawn:IsAvailable()) then
-    if Cast(S.EyeofTyr, Settings.Protection.GCDasOffGCD.EyeOfTyr, nil, not Target:IsInMeleeRange(8)) then return "eye_of_tyr hammer_of_light 4"; end
-  end
-  -- shield_of_the_righteous,if=hpg_to_2dawn=4
-  if S.ShieldoftheRighteous:IsReady() and (HPGTo2Dawn() == 4) then
-    if Cast(S.ShieldoftheRighteous, nil, Settings.Protection.DisplayStyle.ShieldOfTheRighteous) then return "shield_of_the_righteous standard 6"; end
-  end
-  -- eye_of_tyr,if=hpg_to_2dawn=1|buff.blessing_of_dawn.stack>0
-  if S.EyeofTyr:IsCastable() and (HPGTo2Dawn() == 1 or Player:BuffUp(S.BlessingofDawnBuff)) then
-    if Cast(S.EyeofTyr, Settings.Protection.GCDasOffGCD.EyeOfTyr, nil, not Target:IsInMeleeRange(8)) then return "eye_of_tyr hammer_of_light 8"; end
-  end
-  -- hammer_of_wrath
-  if S.HammerofWrath:IsReady() then
-    if Cast(S.HammerofWrath, Settings.CommonsOGCD.GCDasOffGCD.HammerOfWrath, nil, not Target:IsSpellInRange(S.HammerofWrath)) then return "hammer_of_wrath hammer_of_light 10"; end
-  end
-  -- judgment
-  if S.Judgment:IsReady() then
-    if Cast(S.Judgment, nil, nil, not Target:IsSpellInRange(S.Judgment)) then return "judgment hammer_of_light 12"; end
-  end
-  -- blessed_hammer
-  if S.BlessedHammer:IsCastable() then
-    if Cast(S.BlessedHammer, nil, nil, not Target:IsInMeleeRange(5)) then return "blessed_hammer hammer_of_light 14"; end
-  end
-  -- hammer_of_the_righteous
-  if S.HammeroftheRighteous:IsCastable() then
-    if Cast(S.HammeroftheRighteous, nil, nil, not Target:IsInMeleeRange(5)) then return "hammer_of_the_righteous hammer_of_light 16"; end
-  end
-  -- crusader_strike
-  if S.CrusaderStrike:IsCastable() then
-    if Cast(S.CrusaderStrike, nil, nil, not Target:IsInMeleeRange(5)) then return "crusader_strike hammer_of_light 18"; end
-  end
-  -- divine_toll
-  if CDsON() and S.DivineToll:IsReady() then
-    if Cast(S.DivineToll, nil, Settings.CommonsDS.DisplayStyle.DivineToll, not Target:IsInRange(30)) then return "divine_toll hammer_of_light 20"; end
-  end
-end
-
 local function Standard()
-  -- call_action_list,name=hammer_of_light,if=talent.lights_guidance.enabled&(cooldown.eye_of_tyr.remains<2|buff.hammer_of_light_ready.up)&(!talent.redoubt.enabled|buff.redoubt.stack>=2|!talent.bastion_of_light.enabled)&!buff.hammer_of_light_free.up
-  if S.LightsGuidance:IsAvailable() and (S.EyeofTyr:CooldownRemains() < 2 or S.HammerofLight:IsLearned()) and (not S.Redoubt:IsAvailable() or Player:BuffStack(S.RedoubtBuff) >= 2 or not S.BastionofLight:IsAvailable()) and S.HammerofLight:Cost() > 0 then
-    local ShouldReturn = HammerofLight(); if ShouldReturn then return ShouldReturn; end
+  -- judgment,target_if=charges>=2|full_recharge_time<=gcd.max
+  if S.Judgment:IsReady() and (S.Judgment:Charges() >= 2 or S.Judgment:FullRechargeTime() <= Player:GCD()) then
+    if Cast(S.Judgment, nil, nil, not Target:IsSpellInRange(S.Judgment)) then return "judgment standard 2"; end
   end
-  -- hammer_of_light,if=buff.hammer_of_light_free.remains<2|buff.shake_the_heavens.duration<1|!buff.shake_the_heavens.up|cooldown.eye_of_tyr.remains<1.5|fight_remains<2
+  -- hammer_of_light,if=buff.hammer_of_light_free.remains<2|buff.shake_the_heavens.remains<1|!buff.shake_the_heavens.up|cooldown.eye_of_tyr.remains<1.5|fight_remains<2
   if S.HammerofLight:IsReady() and (Player:BuffRemains(S.LightsDeliveranceBuff) < 2 or Player:BuffRemains(S.ShaketheHeavensBuff) < 1 or Player:BuffDown(S.ShaketheHeavensBuff) or S.EyeofTyr:CooldownRemains() < 1.5 or BossFightRemains < 2) then
-    if Cast(S.HammerofLight, Settings.Protection.GCDasOffGCD.EyeOfTyr, nil, not Target:IsInRange(12)) then return "hammer_of_light standard 2"; end
+    if Cast(S.HammerofLight, Settings.Protection.GCDasOffGCD.EyeOfTyr, nil, not Target:IsInRange(12)) then return "hammer_of_light standard 4"; end
+  end
+  -- eye_of_tyr,if=(hpg_to_2dawn=5|!talent.of_dusk_and_dawn.enabled)&talent.lights_guidance.enabled
+  -- eye_of_tyr,if=(hpg_to_2dawn=1|buff.blessing_of_dawn.stack>0)&talent.lights_guidance.enabled
+  -- Note: Combining both lines into one.
+  -- Note: Ignoring CDsON if spec'd Templar Hero Tree.
+  if (CDsON() or S.LightsGuidance:IsAvailable()) and S.EyeofTyr:IsCastable() and (S.LightsGuidance:IsAvailable() and ((HPGTo2Dawn() == 5 or not S.OfDuskandDawn:IsAvailable()) or (HPGTo2Dawn() == 1 or Player:BuffStack(S.BlessingofDawnBuff) > 0))) then
+    if Cast(S.EyeofTyr, Settings.Protection.GCDasOffGCD.EyeOfTyr, nil, not Target:IsInMeleeRange(8)) then return "eye_of_tyr standard 6"; end
   end
   -- shield_of_the_righteous,if=(!talent.righteous_protector.enabled|cooldown.righteous_protector_icd.remains=0)&!buff.hammer_of_light_ready.up
   local RighteousProtectorICD = 999
@@ -253,33 +217,29 @@ local function Standard()
     RighteousProtectorICD = mathmax(0, 1 - mathmin(S.ShieldoftheRighteous:TimeSinceLastCast(), S.WordofGlory:TimeSinceLastCast()))
   end
   if S.ShieldoftheRighteous:IsReady() and ((not S.RighteousProtector:IsAvailable() or RighteousProtectorICD == 0) and not S.HammerofLight:IsLearned()) then
-    if Cast(S.ShieldoftheRighteous, nil, Settings.Protection.DisplayStyle.ShieldOfTheRighteous) then return "shield_of_the_righteous standard 4"; end
-  end
-  -- holy_armaments,if=next_armament=sacred_weapon&(!buff.sacred_weapon.up|(buff.sacred_weapon.remains<6&!buff.avenging_wrath.up&cooldown.avenging_wrath.remains<=30))
-  if S.SacredWeapon:IsCastable() and (Player:BuffDown(S.SacredWeaponBuff) or (Player:BuffRemains(S.SacredWeaponBuff) < 6 and Player:BuffDown(S.AvengingWrathBuff) and S.AvengingWrath:CooldownRemains() <= 30)) then
-    if Cast(S.SacredWeapon, nil, Settings.CommonsDS.DisplayStyle.HolyArmaments) then return "holy_armaments standard 6"; end
+    if Cast(S.ShieldoftheRighteous, nil, Settings.Protection.DisplayStyle.ShieldOfTheRighteous) then return "shield_of_the_righteous standard 8"; end
   end
   -- judgment,target_if=min:debuff.judgment.remains,if=spell_targets.shield_of_the_righteous>3&buff.bulwark_of_righteous_fury.stack>=3&holy_power<3
   if S.Judgment:IsReady() and (EnemiesCount8y > 3 and Player:BuffStack(S.BulwarkofRighteousFuryBuff) >= 3 and Player:HolyPower() < 3) then
-    if Everyone.CastTargetIf(S.Judgment, Enemies30y, "min", EvaluateTargetIfFilterJudgment, nil, not Target:IsSpellInRange(S.Judgment)) then return "judgment standard 8"; end
+    if Everyone.CastTargetIf(S.Judgment, Enemies30y, "min", EvaluateTargetIfFilterJudgment, nil, not Target:IsSpellInRange(S.Judgment)) then return "judgment standard 10"; end
   end
   -- avengers_shield,if=!buff.bulwark_of_righteous_fury.up&talent.bulwark_of_righteous_fury.enabled&spell_targets.shield_of_the_righteous>=3
   if S.AvengersShield:IsCastable() and (Player:BuffDown(S.BulwarkofRighteousFuryBuff) and S.BulwarkofRighteousFury:IsAvailable() and EnemiesCount8y >= 3) then
-    if Cast(S.AvengersShield, nil, nil, not Target:IsSpellInRange(S.AvengersShield)) then return "avengers_shield standard 16"; end
+    if Cast(S.AvengersShield, nil, nil, not Target:IsSpellInRange(S.AvengersShield)) then return "avengers_shield standard 12"; end
   end
   if Player:BuffUp(S.BlessedAssuranceBuff) and EnemiesCount8y < 3 and Player:BuffDown(S.AvengingWrathBuff) then
     -- hammer_of_the_righteous,if=buff.blessed_assurance.up&spell_targets.shield_of_the_righteous<3&!buff.avenging_wrath.up
     if S.HammeroftheRighteous:IsCastable() then
-      if Cast(S.HammeroftheRighteous, nil, nil, not Target:IsInMeleeRange(5)) then return "hammer_of_the_righteous standard 12"; end
+      if Cast(S.HammeroftheRighteous, nil, nil, not Target:IsInMeleeRange(5)) then return "hammer_of_the_righteous standard 14"; end
     end
     -- blessed_hammer,if=buff.blessed_assurance.up&spell_targets.shield_of_the_righteous<3&!buff.avenging_wrath.up
     if S.BlessedHammer:IsCastable() then
-      if Cast(S.BlessedHammer, nil, nil, not Target:IsInMeleeRange(5)) then return "blessed_hammer standard 10"; end
+      if Cast(S.BlessedHammer, nil, nil, not Target:IsInMeleeRange(5)) then return "blessed_hammer standard 16"; end
     end
   end
   -- crusader_strike,if=buff.blessed_assurance.up&spell_targets.shield_of_the_righteous<2&!buff.avenging_wrath.up
   if S.CrusaderStrike:IsCastable() and (Player:BuffUp(S.BlessedAssuranceBuff) and EnemiesCount8y < 2 and Player:BuffDown(S.AvengingWrathBuff)) then
-    if Cast(S.CrusaderStrike, nil, nil, not Target:IsInMeleeRange(5)) then return "crusader_strike standard 14"; end
+    if Cast(S.CrusaderStrike, nil, nil, not Target:IsInMeleeRange(5)) then return "crusader_strike standard 18"; end
   end
   -- judgment,target_if=min:debuff.judgment.remains,if=charges>=2|full_recharge_time<=gcd.max
   if S.Judgment:IsReady() and (S.Judgment:Charges() >= 2 or S.Judgment:FullRechargeTime() <= Player:GCD() + 0.25) then
@@ -287,66 +247,83 @@ local function Standard()
   end
   -- consecration,if=buff.divine_guidance.stack=5
   if S.Consecration:IsCastable() and (Player:BuffStack(S.DivineGuidanceBuff) == 5) then
-    if Cast(S.Consecration) then return "consecration standard 30"; end
+    if Cast(S.Consecration) then return "consecration standard 22"; end
+  end
+  -- holy_armaments,if=next_armament=sacred_weapon&(!buff.sacred_weapon.up|(buff.sacred_weapon.remains<6&!buff.avenging_wrath.up&cooldown.avenging_wrath.remains<=30))
+  if S.SacredWeapon:IsCastable() and (Player:BuffDown(S.SacredWeaponBuff) or (Player:BuffRemains(S.SacredWeaponBuff) < 6 and Player:BuffDown(S.AvengingWrathBuff) and S.AvengingWrath:CooldownRemains() <= 30)) then
+    if Cast(S.SacredWeapon, nil, Settings.CommonsDS.DisplayStyle.HolyArmaments) then return "holy_armaments standard 24"; end
   end
   -- hammer_of_wrath
   if S.HammerofWrath:IsReady() then
-    if Cast(S.HammerofWrath, Settings.CommonsOGCD.GCDasOffGCD.HammerOfWrath, nil, not Target:IsSpellInRange(S.HammerofWrath)) then return "hammer_of_wrath standard 18"; end
-  end
-  -- holy_armaments,if=next_armament=holy_bulwark&charges=2
-  if S.HolyBulwark:IsCastable() and (S.HolyBulwark:Charges() == 2) then
-    if Cast(S.HolyBulwark, nil, Settings.CommonsDS.DisplayStyle.HolyArmaments) then return "holy_armaments standard 22"; end
+    if Cast(S.HammerofWrath, Settings.CommonsOGCD.GCDasOffGCD.HammerOfWrath, nil, not Target:IsSpellInRange(S.HammerofWrath)) then return "hammer_of_wrath standard 26"; end
   end
   -- divine_toll,if=(!raid_event.adds.exists|raid_event.adds.in>10)
   if CDsON() and S.DivineToll:IsReady() then
-    if Cast(S.DivineToll, nil, Settings.CommonsDS.DisplayStyle.DivineToll, not Target:IsInRange(30)) then return "divine_toll standard 24"; end
+    if Cast(S.DivineToll, nil, Settings.CommonsDS.DisplayStyle.DivineToll, not Target:IsInRange(30)) then return "divine_toll standard 28"; end
+  end
+  -- avengers_shield,if=talent.refining_fire.enabled&talent.lights_guidance.enabled
+  if S.AvengersShield:IsCastable() and (S.RefiningFire:IsAvailable() and S.LightsGuidance:IsAvailable()) then
+    if Cast(S.AvengersShield, nil, nil, not Target:IsSpellInRange(S.AvengersShield)) then return "avengers_shield standard 30"; end
+  end
+  -- judgment,target_if=min:debuff.judgment.remains,if=(buff.avenging_wrath.up&talent.hammer_and_anvil.enabled)
+  if S.Judgment:IsReady() and (Player:BuffUp(S.AvengingWrathBuff) and S.HammerandAnvil:IsAvailable()) then
+    if Everyone.CastTargetIf(S.Judgment, Enemies30y, "min", EvaluateTargetIfFilterJudgment, nil, not Target:IsSpellInRange(S.Judgment)) then return "judgment standard 32"; end
+  end
+  -- holy_armaments,if=next_armament=holy_bulwark&charges=2
+  if S.HolyBulwark:IsCastable() and (S.HolyBulwark:Charges() == 2) then
+    if Cast(S.HolyBulwark, nil, Settings.CommonsDS.DisplayStyle.HolyArmaments) then return "holy_armaments standard 34"; end
   end
   -- judgment,target_if=min:debuff.judgment.remains
   if S.Judgment:IsReady() then
-    if Everyone.CastTargetIf(S.Judgment, Enemies30y, "min", EvaluateTargetIfFilterJudgment, nil, not Target:IsSpellInRange(S.Judgment)) then return "judgment standard 26"; end
+    if Everyone.CastTargetIf(S.Judgment, Enemies30y, "min", EvaluateTargetIfFilterJudgment, nil, not Target:IsSpellInRange(S.Judgment)) then return "judgment standard 36"; end
   end
-  if Player:BuffUp(S.BlessedAssuranceBuff) and EnemiesCount8y < 3 then
-    -- hammer_of_the_righteous,if=buff.blessed_assurance.up&spell_targets.shield_of_the_righteous<3
+  -- avengers_shield,if=!buff.shake_the_heavens.up&talent.shake_the_heavens.enabled
+  if S.AvengersShield:IsCastable() and (Player:BuffDown(S.ShaketheHeavensBuff) and S.ShaketheHeavens:IsAvailable()) then
+    if Cast(S.AvengersShield, nil, nil, not Target:IsSpellInRange(S.AvengersShield)) then return "avengers_shield standard 38"; end
+  end
+  if (Player:BuffUp(S.BlessedAssuranceBuff) and EnemiesCount8y < 3) or Player:BuffUp(S.ShaketheHeavensBuff) then
+    -- hammer_of_the_righteous,if=(buff.blessed_assurance.up&spell_targets.shield_of_the_righteous<3)|buff.shake_the_heavens.up
     if S.HammeroftheRighteous:IsCastable() then
-      if Cast(S.HammeroftheRighteous, nil, nil, not Target:IsInMeleeRange(5)) then return "hammer_of_the_righteous standard 12"; end
+      if Cast(S.HammeroftheRighteous, nil, nil, not Target:IsInMeleeRange(5)) then return "hammer_of_the_righteous standard 40"; end
     end
-    -- blessed_hammer,if=buff.blessed_assurance.up&spell_targets.shield_of_the_righteous<3
+    -- blessed_hammer,if=buff.blessed_assurance.up&spell_targets.shield_of_the_righteous<3&!buff.avenging_wrath.up
     if S.BlessedHammer:IsCastable() then
-      if Cast(S.BlessedHammer, nil, nil, not Target:IsInMeleeRange(5)) then return "blessed_hammer standard 10"; end
+      if Cast(S.BlessedHammer, nil, nil, not Target:IsInMeleeRange(5)) then return "blessed_hammer standard 42"; end
     end
+    -- blessed_hammer,if=(buff.blessed_assurance.up&spell_targets.shield_of_the_righteous<3)|buff.shake_the_heavens.up
   end
-  -- crusader_strike,if=buff.blessed_assurance.up&spell_targets.shield_of_the_righteous<2
-  if S.CrusaderStrike:IsCastable() and (Player:BuffUp(S.BlessedAssuranceBuff) and EnemiesCount8y < 2) then
-    if Cast(S.CrusaderStrike, nil, nil, not Target:IsInMeleeRange(5)) then return "crusader_strike standard 14"; end
+  -- crusader_strike,if=(buff.blessed_assurance.up&spell_targets.shield_of_the_righteous<2)|buff.shake_the_heavens.up
+  if S.CrusaderStrike:IsCastable() and ((Player:BuffUp(S.BlessedAssuranceBuff) and EnemiesCount8y < 2) or Player:BuffUp(S.ShaketheHeavensBuff)) then
+    if Cast(S.CrusaderStrike, nil, nil, not Target:IsInMeleeRange(5)) then return "crusader_strike standard 44"; end
   end
   -- avengers_shield,if=!talent.lights_guidance.enabled
   if S.AvengersShield:IsCastable() and (not S.LightsGuidance:IsAvailable()) then
-    if Cast(S.AvengersShield, nil, nil, not Target:IsSpellInRange(S.AvengersShield)) then return "avengers_shield standard 28"; end
+    if Cast(S.AvengersShield, nil, nil, not Target:IsSpellInRange(S.AvengersShield)) then return "avengers_shield standard 46"; end
   end
   -- consecration,if=!consecration.up
   if S.Consecration:IsCastable() and (Player:BuffDown(S.ConsecrationBuff)) then
-    if Cast(S.Consecration) then return "consecration standard 30"; end
+    if Cast(S.Consecration) then return "consecration standard 48"; end
   end
   -- eye_of_tyr,if=(talent.inmost_light.enabled&raid_event.adds.in>=45|spell_targets.shield_of_the_righteous>=3)&!talent.lights_deliverance.enabled
   -- Note: Ignoring CDsON if spec'd Templar Hero Tree.
   if (CDsON() or S.LightsGuidance:IsAvailable()) and S.EyeofTyr:IsCastable() and ((S.InmostLight:IsAvailable() and EnemiesCount8y == 1 or EnemiesCount8y >= 3) and not S.LightsDeliverance:IsAvailable()) then
-    if Cast(S.EyeofTyr, Settings.Protection.GCDasOffGCD.EyeOfTyr, nil, not Target:IsInMeleeRange(8)) then return "eye_of_tyr standard 32"; end
+    if Cast(S.EyeofTyr, Settings.Protection.GCDasOffGCD.EyeOfTyr, nil, not Target:IsInMeleeRange(8)) then return "eye_of_tyr standard 50"; end
   end
   -- holy_armaments,if=next_armament=holy_bulwark
   if S.HolyBulwark:IsCastable() then
-    if Cast(S.HolyBulwark, nil, Settings.CommonsDS.DisplayStyle.HolyArmaments) then return "holy_armaments standard 34"; end
+    if Cast(S.HolyBulwark, nil, Settings.CommonsDS.DisplayStyle.HolyArmaments) then return "holy_armaments standard 52"; end
   end
   -- blessed_hammer
   if S.BlessedHammer:IsCastable() then
-    if Cast(S.BlessedHammer, nil, nil, not Target:IsInMeleeRange(5)) then return "blessed_hammer standard 36"; end
+    if Cast(S.BlessedHammer, nil, nil, not Target:IsInMeleeRange(5)) then return "blessed_hammer standard 54"; end
   end
   -- hammer_of_the_righteous
   if S.HammeroftheRighteous:IsCastable() then
-    if Cast(S.HammeroftheRighteous, nil, nil, not Target:IsInMeleeRange(5)) then return "hammer_of_the_righteous standard 38"; end
+    if Cast(S.HammeroftheRighteous, nil, nil, not Target:IsInMeleeRange(5)) then return "hammer_of_the_righteous standard 56"; end
   end
   -- crusader_strike
   if S.CrusaderStrike:IsCastable() then
-    if Cast(S.CrusaderStrike, nil, nil, not Target:IsInMeleeRange(5)) then return "crusader_strike standard 40"; end
+    if Cast(S.CrusaderStrike, nil, nil, not Target:IsInMeleeRange(5)) then return "crusader_strike standard 58"; end
   end
   -- word_of_glory,if=buff.shining_light_free.up&(talent.blessed_assurance.enabled|(talent.lights_guidance.enabled&cooldown.hammerfall_icd.remains=0))
   if S.WordofGlory:IsReady() and (Player:BuffUp(S.ShiningLightFreeBuff) and (S.BlessedAssurance:IsAvailable() or (S.LightsGuidance:IsAvailable() and HammerfallICD() == 0))) then
@@ -354,24 +331,24 @@ local function Standard()
     if Player:HealthPercentage() > 90 and Player:IsInParty() and not Player:IsInRaid() then
       for _, Char in pairs(Unit.Party) do
         if Char:Exists() and Char:IsInRange(40) and Char:HealthPercentage() <= 80 then
-          if HR.CastAnnotated(S.WordofGlory, false, Char:Name()) then return "word_of_glory standard party 42"; end
+          if HR.CastAnnotated(S.WordofGlory, false, Char:Name()) then return "word_of_glory standard party 60"; end
         end
       end
       -- Nobody in the party needs it. We might as well heal ourselves for the extra block chance.
-      if Cast(S.WordofGlory, Settings.Protection.GCDasOffGCD.WordOfGlory) then return "word_of_glory standard self 44"; end
+      if Cast(S.WordofGlory, Settings.Protection.GCDasOffGCD.WordOfGlory) then return "word_of_glory standard self 62"; end
     else
       -- We're either solo, in a raid, or injured. Heal ourselves.
-      if Cast(S.WordofGlory, Settings.Protection.GCDasOffGCD.WordOfGlory) then return "word_of_glory standard self 46"; end
+      if Cast(S.WordofGlory, Settings.Protection.GCDasOffGCD.WordOfGlory) then return "word_of_glory standard self 64"; end
     end
   end
   -- avengers_shield
   if S.AvengersShield:IsCastable() then
-    if Cast(S.AvengersShield, nil, nil, not Target:IsSpellInRange(S.AvengersShield)) then return "avengers_shield standard 48"; end
+    if Cast(S.AvengersShield, nil, nil, not Target:IsSpellInRange(S.AvengersShield)) then return "avengers_shield standard 66"; end
   end
   -- eye_of_tyr,if=!talent.lights_deliverance.enabled
   -- Note: Ignoring CDsON if spec'd Templar Hero Tree.
   if (CDsON() or S.LightsGuidance:IsAvailable()) and S.EyeofTyr:IsCastable() and (not S.LightsDeliverance:IsAvailable()) then
-    if Cast(S.EyeofTyr, Settings.Protection.GCDasOffGCD.EyeOfTyr, nil, not Target:IsInMeleeRange(8)) then return "eye_of_tyr standard 50"; end
+    if Cast(S.EyeofTyr, Settings.Protection.GCDasOffGCD.EyeOfTyr, nil, not Target:IsInMeleeRange(8)) then return "eye_of_tyr standard 68"; end
   end
   -- word_of_glory,if=buff.shining_light_free.up
   if S.WordofGlory:IsReady() and (Player:BuffUp(S.ShiningLightFreeBuff)) then
@@ -379,23 +356,23 @@ local function Standard()
     if Player:HealthPercentage() > 90 and Player:IsInParty() and not Player:IsInRaid() then
       for _, Char in pairs(Unit.Party) do
         if Char:Exists() and Char:IsInRange(40) and Char:HealthPercentage() <= 80 then
-          if HR.CastAnnotated(S.WordofGlory, false, Char:Name()) then return "word_of_glory standard party 52"; end
+          if HR.CastAnnotated(S.WordofGlory, false, Char:Name()) then return "word_of_glory standard party 70"; end
         end
       end
       -- Nobody in the party needs it. We might as well heal ourselves for the extra block chance.
-      if Cast(S.WordofGlory, Settings.Protection.GCDasOffGCD.WordOfGlory) then return "word_of_glory standard self 54"; end
+      if Cast(S.WordofGlory, Settings.Protection.GCDasOffGCD.WordOfGlory) then return "word_of_glory standard self 72"; end
     else
       -- We're either solo, in a raid, or injured. Heal ourselves.
-      if Cast(S.WordofGlory, Settings.Protection.GCDasOffGCD.WordOfGlory) then return "word_of_glory standard self 56"; end
+      if Cast(S.WordofGlory, Settings.Protection.GCDasOffGCD.WordOfGlory) then return "word_of_glory standard self 74"; end
     end
   end
   -- arcane_torrent,if=holy_power<5
   if CDsON() and S.ArcaneTorrent:IsCastable() and (Player:HolyPower() < 5) then
-    if Cast(S.ArcaneTorrent, Settings.CommonsOGCD.OffGCDasOffGCD.Racials, nil, not Target:IsInRange(8)) then return "arcane_torrent standard 58"; end
+    if Cast(S.ArcaneTorrent, Settings.CommonsOGCD.OffGCDasOffGCD.Racials, nil, not Target:IsInRange(8)) then return "arcane_torrent standard 76"; end
   end
   -- consecration
   if S.Consecration:IsCastable() then
-    if Cast(S.Consecration) then return "consecration standard 60"; end
+    if Cast(S.Consecration) then return "consecration standard 78"; end
   end
 end
 
