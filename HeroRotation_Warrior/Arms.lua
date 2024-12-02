@@ -223,7 +223,7 @@ local function ColossusST()
   end
   -- demolish
   if S.Demolish:IsCastable() then
-    if Cast(S.Demolish, nil, nil, not TargetInMeleeRange) then return "demolish colossus_st 18"; end
+    if Cast(S.Demolish, nil, Settings.CommonsDS.DisplayStyle.Demolish, not TargetInMeleeRange) then return "demolish colossus_st 18"; end
   end
   -- skullsplitter
   if S.Skullsplitter:IsCastable() then
@@ -290,7 +290,7 @@ local function ColossusExecute()
   end
   -- demolish,if=debuff.colossus_smash.up
   if S.Demolish:IsCastable() and (Target:DebuffUp(S.ColossusSmashDebuff)) then
-    if Cast(S.Demolish, nil, nil, not TargetInMeleeRange) then return "demolish colossus_execute 20"; end
+    if Cast(S.Demolish, nil, Settings.CommonsDS.DisplayStyle.Demolish, not TargetInMeleeRange) then return "demolish colossus_execute 20"; end
   end
   -- mortal_strike,if=debuff.executioners_precision.stack=2&!dot.ravager.remains&(buff.lethal_blows.stack=2|!set_bonus.tww1_4pc&!talent.battlelord)|!talent.executioners_precision
   if S.MortalStrike:IsReady() and (Target:DebuffStack(S.ExecutionersPrecisionDebuff) == 2 and Target:DebuffDown(S.RavagerDebuff) and (Player:BuffStack(S.LethalBlowsBuff) == 2 or not Player:HasTier("TWW1", 4) and not S.Battlelord:IsAvailable()) and not S.ExecutionersPrecision:IsAvailable()) then
@@ -377,7 +377,7 @@ local function ColossusSweep()
   end
   -- demolish,if=buff.sweeping_strikes.up&debuff.colossus_smash.up
   if S.Demolish:IsCastable() and (Player:BuffUp(S.SweepingStrikesBuff) and Target:DebuffUp(S.ColossusSmashDebuff)) then
-    if Cast(S.Demolish, nil, nil, not TargetInMeleeRange) then return "demolish colossus_sweep 24"; end
+    if Cast(S.Demolish, nil, Settings.CommonsDS.DisplayStyle.Demolish, not TargetInMeleeRange) then return "demolish colossus_sweep 24"; end
   end
   -- execute,if=buff.sweeping_strikes.up
   if S.Execute:IsReady() and (Player:BuffUp(S.SweepingStrikesBuff)) then
@@ -397,7 +397,7 @@ local function ColossusSweep()
   end
   -- demolish,if=debuff.colossus_smash.up
   if S.Demolish:IsCastable() and (Target:DebuffUp(S.ColossusSmashDebuff)) then
-    if Cast(S.Demolish, nil, nil, not TargetInMeleeRange) then return "demolish colossus_sweep 34"; end
+    if Cast(S.Demolish, nil, Settings.CommonsDS.DisplayStyle.Demolish, not TargetInMeleeRange) then return "demolish colossus_sweep 34"; end
   end
   -- thunder_clap,if=dot.rend.remains<=8&buff.sweeping_strikes.down
   if S.ThunderClap:IsReady() and (Target:DebuffRemains(S.RendDebuff) < 8 and Player:BuffDown(S.SweepingStrikesBuff)) then
@@ -468,7 +468,7 @@ local function ColossusAoE()
   end
   -- demolish,if=buff.colossal_might.stack>=6&talent.dreadnaught|buff.colossal_might.stack=10&talent.strength_of_arms
   if S.Demolish:IsCastable() and (Player:BuffStack(S.ColossalMightBuff) >= 6 and S.Dreadnaught:IsAvailable() or Player:BuffStack(S.ColossalMightBuff) == 10 and S.StrengthofArms:IsAvailable()) then
-    if Cast(S.Demolish, nil, nil, not TargetInMeleeRange) then return "demolish colossus_aoe 23"; end
+    if Cast(S.Demolish, nil, Settings.CommonsDS.DisplayStyle.Demolish, not TargetInMeleeRange) then return "demolish colossus_aoe 23"; end
   end
   -- overpower,if=talent.dreadnaught
   if S.Overpower:IsCastable() and (S.Dreadnaught:IsAvailable()) then

@@ -122,6 +122,7 @@ Spell.Monk.Windwalker = MergeTableByKey(Spell.Monk.Commons, {
   FlyingSerpentKickLand                 = Spell(115057),
   SpinningCraneKick                     = Spell(101546),
   -- Talents
+  CourageousImpulse                     = Spell(451495),
   CraneVortex                           = Spell(388848),
   EnergyBurst                           = Spell(451498),
   GaleForce                             = Spell(451580),

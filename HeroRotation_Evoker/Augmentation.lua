@@ -67,7 +67,6 @@ local FoMEmpowerMod = (S.FontofMagic:IsAvailable()) and 0.8 or 1
 local FlameAbility = S.ChronoFlames:IsLearned() and S.ChronoFlames or S.LivingFlame
 local BossFightRemains = 11111
 local FightRemains = 11111
-local VarEssenceBurstMaxStacks = 2
 local VarSpamHeal
 local VarMinOpenerDelay
 local VarOpenerDelay
@@ -130,8 +129,8 @@ local function SetTrinketVariables()
   VarTrinket1Ex = T1.Excluded
   VarTrinket2Ex = T2.Excluded
 
-  VarTrinket1Exclude = VarTrinket1ID == I.RubyWhelpShell:ID() or VarTrinket1ID == I.WhisperingIncarnateIcon:ID() or VarTrinket1ID == I.OvinaxsMercurialEgg:ID()
-  VarTrinket2Exclude = VarTrinket2ID == I.RubyWhelpShell:ID() or VarTrinket2ID == I.WhisperingIncarnateIcon:ID() or VarTrinket2ID == I.OvinaxsMercurialEgg:ID()
+  VarTrinket1Exclude = VarTrinket1ID == I.RubyWhelpShell:ID() or VarTrinket1ID == I.WhisperingIncarnateIcon:ID() or VarTrinket1ID == I.OvinaxsMercurialEgg:ID() or VarTrinket1ID == I.AberrantSpellforge:ID()
+  VarTrinket2Exclude = VarTrinket2ID == I.RubyWhelpShell:ID() or VarTrinket2ID == I.WhisperingIncarnateIcon:ID() or VarTrinket2ID == I.OvinaxsMercurialEgg:ID() or VarTrinket1ID == I.AberrantSpellforge:ID()
 
   VarTrinket1Manual = VarTrinket1ID == I.NymuesUnravelingSpindle:ID() or VarTrinket1ID == I.SpymastersWeb:ID() or VarTrinket1ID == I.TreacherousTransmitter:ID()
   VarTrinket2Manual = VarTrinket2ID == I.NymuesUnravelingSpindle:ID() or VarTrinket2ID == I.SpymastersWeb:ID() or VarTrinket2ID == I.TreacherousTransmitter:ID()
@@ -357,6 +356,19 @@ local function AllyCount()
   return Count
 end
 
+--- ===== CastTargetIf Filter Functions =====
+local function EvaluateTargetIfFilterBombardments(TargetUnit)
+  -- target_if=max:debuff.bombardments.remains
+  return TargetUnit:DebuffRemains(S.BombardmentsDebuff)
+end
+
+--- ===== CastTargetIf Functions =====
+local function EvaluateTargetIfLF(TargetUnit)
+  -- if=talent.mass_eruption&buff.mass_eruption_stacks.up&!buff.imminent_destruction.up&buff.essence_burst.stack<buff.essence_burst.max_stack&essence.deficit>1&(buff.ebon_might_self.remains>=6|cooldown.ebon_might.remains<=6)&debuff.bombardments.remains<action.eruption.execute_time&(talent.pupil_of_alexstrasza|active_enemies=1)
+  -- Note: All but debuff check handled before CastTargetIf.
+  return TargetUnit:DebuffRemains(S.BombardmentsDebuff) < S.Eruption:ExecuteTime()
+end
+
 --- ===== Rotation Functions =====
 local function Precombat()
   -- flask
@@ -368,8 +380,8 @@ local function Precombat()
   -- variable,name=opener_delay,value=variable.minimum_opener_delay,if=!talent.interwoven_threads
   -- variable,name=opener_delay,value=variable.minimum_opener_delay+variable.opener_delay,if=talent.interwoven_threads
   -- variable,name=opener_cds_detected,op=reset,default=0
-  -- variable,name=trinket_1_exclude,value=trinket.1.is.ruby_whelp_shell|trinket.1.is.whispering_incarnate_icon|trinket.1.is.ovinaxs_mercurial_egg
-  -- variable,name=trinket_2_exclude,value=trinket.2.is.ruby_whelp_shell|trinket.2.is.whispering_incarnate_icon|trinket.2.is.ovinaxs_mercurial_egg
+  -- variable,name=trinket_1_exclude,value=trinket.1.is.ruby_whelp_shell|trinket.1.is.whispering_incarnate_icon|trinket.1.is.ovinaxs_mercurial_egg|trinket.1.is.aberrant_spellforge
+  -- variable,name=trinket_2_exclude,value=trinket.2.is.ruby_whelp_shell|trinket.2.is.whispering_incarnate_icon|trinket.2.is.ovinaxs_mercurial_egg|trinket.2.is.aberrant_spellforge
   -- variable,name=trinket_1_manual,value=trinket.1.is.nymues_unraveling_spindle|trinket.1.is.spymasters_web|trinket.1.is.treacherous_transmitter
   -- variable,name=trinket_2_manual,value=trinket.2.is.nymues_unraveling_spindle|trinket.2.is.spymasters_web|trinket.2.is.treacherous_transmitter
   -- variable,name=trinket_1_ogcd_cast,value=trinket.1.is.beacon_to_the_beyond
@@ -603,11 +615,14 @@ local function APL()
     if S.ImminentDestruction:IsAvailable() then
       VarPoolForID = VarEonsRemains < 8 and Player:EssenceDeficit() >= 1 and  Player:BuffDown(S.EssenceBurstBuff)
     end
-    -- prescience,target_if=min:debuff.prescience.remains+1000*(target=self&active_allies>2)+1000*target.spec.augmentation,if=(full_recharge_time<=gcd.max*3|cooldown.ebon_might.remains<=gcd.max*3&(buff.ebon_might_self.remains-gcd.max*3)<=buff.ebon_might_self.duration*variable.ebon_might_pandemic_threshold|fight_remains<=30)|variable.eons_remains<=8|talent.anachronism&buff.imminent_destruction.up&essence<1&!cooldown.fire_breath.up&!cooldown.upheaval.up
+    -- prescience,target_if=min:(debuff.prescience.remains-200*(target.role.attack|target.role.spell|target.role.dps)+50*target.spec.augmentation),if=((full_recharge_time<=gcd.max*3|cooldown.ebon_might.remains<=gcd.max*3&(buff.ebon_might_self.remains-gcd.max*3)<=buff.ebon_might_self.duration*variable.ebon_might_pandemic_threshold|fight_remains<=30)|variable.eons_remains<=8|talent.anachronism&buff.imminent_destruction.up&essence<1&!cooldown.fire_breath.up&!cooldown.upheaval.up)&debuff.prescience.remains<gcd.max*2
     -- Note: Not handling target_if, as user will have to decide on a target.
+    -- TODO: Handle debuff.prescience.remains.
     if S.Prescience:IsCastable() and PrescienceCheck() and ((S.Prescience:FullRechargeTime() <= Player:GCD() * 3 or S.EbonMight:CooldownRemains() <= Player:GCD() * 3 and (Player:BuffRemains(S.EbonMightSelfBuff) - Player:GCD() * 3) <= EMSelfBuffDuration() * VarEbonMightPandemicThreshold or BossFightRemains <= 30) or VarEonsRemains <= 8 or S.Anachronism:IsAvailable() and Player:BuffUp(S.ImminentDestructionBuff) and Player:Essence() < 1 and S.FireBreath:CooldownDown() and S.Upheaval:CooldownDown()) then
       if Cast(S.Prescience, nil, Settings.Augmentation.DisplayStyle.AugBuffs) then return "prescience main 4"; end
     end
+    -- prescience,target_if=min:(debuff.prescience.remains-200*(target.spec.augmentation|target.role.tank)),if=full_recharge_time<=gcd.max*3&debuff.prescience.remains<gcd.max*2&(target.spec.augmentation|target.role.tank)
+    -- Note: Skipping this line, as it appears to only be for tanks and other Augs. We can't handle specific prescience targets.
     -- hover,use_off_gcd=1,if=gcd.remains>=0.5&(!raid_event.movement.exists&(trinket.1.is.ovinaxs_mercurial_egg|trinket.2.is.ovinaxs_mercurial_egg)|raid_event.movement.in<=6)
     -- Note: Not handling hover.
     -- potion,if=variable.eons_remains<=0|fight_remains<=30
@@ -640,16 +655,10 @@ local function APL()
     if S.TipTheScales:IsReady() and (S.ThreadsofFate:IsAvailable() and (Player:PrevGCD(1, S.BreathofEons) or BossFightRemains <= 30)) then
       if Cast(S.TipTheScales, Settings.CommonsOGCD.GCDasOffGCD.TipTheScales, nil, not Target:IsInRange(50)) then return "tip_the_scales main 10"; end
     end
-    -- tip_the_scales,if=talent.threads_of_fate&(!cooldown.breath_of_eons.up|time>10)
-    if S.TipTheScales:IsReady() and (S.ThreadsofFate:IsAvailable() and (S.BreathofEons:CooldownDown() or HL.CombatTime() > 10)) then
-      if Cast(S.TipTheScales, Settings.CommonsOGCD.GCDasOffGCD.TipTheScales, nil, not Target:IsInRange(50)) then return "tip_the_scales main 12"; end
-    end
     -- call_action_list,name=fb,if=cooldown.time_skip.up&talent.time_skip&!talent.interwoven_threads
     if S.TimeSkip:IsAvailable() and S.TimeSkip:CooldownUp() and not S.InterwovenThreads:IsAvailable() then
       local ShouldReturn = FB(); if ShouldReturn then return ShouldReturn; end
     end
-    -- actions+=/cancel_buff,name=tip_the_scales,if=cooldown.fire_breath.remains>=gcd.max*2&cooldown.upheaval.remains>=gcd.max*2|cooldown.fire_breath.up&cooldown.upheaval.remains>=12&talent.molten_embers
-    -- TODO: Confirm the above is intended, as it's in the APL as a comment. Handle the above as needed.
     -- upheaval,target_if=target.time_to_die>duration+0.2,empower_to=1,if=buff.ebon_might_self.remains>duration&cooldown.time_skip.up&talent.time_skip&!talent.interwoven_threads
     -- Note: Adding 0.5s buffer to empower time to account for player latency.
     if S.Upheaval:IsCastable() and (Player:BuffRemains(S.EbonMightSelfBuff) > Player:EmpowerCastTime(1) + 0.5 and S.TimeSkip:IsAvailable() and S.TimeSkip:CooldownUp() and not S.InterwovenThreads:IsAvailable()) then
@@ -681,16 +690,26 @@ local function APL()
       if Cast(S.TimeSkip, Settings.Augmentation.GCDasOffGCD.TimeSkip) then return "time_skip main 24"; end
     end
     -- emerald_blossom,if=talent.dream_of_spring&buff.essence_burst.up&(variable.spam_heal=2|variable.spam_heal=1&!buff.ancient_flame.up&talent.ancient_flame)&(buff.ebon_might_self.up|essence.deficit=0|buff.essence_burst.stack=buff.essence_burst.max_stack&cooldown.ebon_might.remains>4)
-    if S.EmeraldBlossom:IsReady() and (S.DreamofSpring:IsAvailable() and Player:BuffUp(S.EssenceBurstBuff) and (VarSpamHeal == 2 or VarSpamHeal == 1 and Player:BuffDown(S.AncientFlameBuff) and S.AncientFlame:IsAvailable()) and (Player:BuffUp(S.EbonMightSelfBuff) or Player:EssenceDeficit() == 0 or Player:BuffStack(S.EssenceBurstBuff) == VarEssenceBurstMaxStacks and S.EbonMight:CooldownRemains() > 4)) then
+    if S.EmeraldBlossom:IsReady() and (S.DreamofSpring:IsAvailable() and Player:BuffUp(S.EssenceBurstBuff) and (VarSpamHeal == 2 or VarSpamHeal == 1 and Player:BuffDown(S.AncientFlameBuff) and S.AncientFlame:IsAvailable()) and (Player:BuffUp(S.EbonMightSelfBuff) or Player:EssenceDeficit() == 0 or Player:EssenceBurst() == Player:MaxEssenceBurst() and S.EbonMight:CooldownRemains() > 4)) then
       if Cast(S.EmeraldBlossom, Settings.Augmentation.GCDasOffGCD.EmeraldBlossom) then return "emerald_blossom main 26"; end
     end
-    -- eruption,if=(buff.ebon_might_self.remains>execute_time|essence.deficit=0|buff.essence_burst.stack=buff.essence_burst.max_stack&cooldown.ebon_might.remains>4)&!variable.pool_for_id
-    if S.Eruption:IsReady() and ((Player:BuffRemains(S.EbonMightSelfBuff) > S.Eruption:ExecuteTime() or Player:EssenceDeficit() == 0 or Player:BuffStack(S.EssenceBurstBuff) == VarEssenceBurstMaxStacks and S.EbonMight:CooldownRemains() > 4) and not VarPoolForID) then
-      if Cast(S.Eruption, nil, nil, not Target:IsInRange(25)) then return "eruption main 28"; end
+    -- living_flame,target_if=max:debuff.bombardments.remains,if=talent.mass_eruption&buff.mass_eruption_stacks.up&!buff.imminent_destruction.up&buff.essence_burst.stack<buff.essence_burst.max_stack&essence.deficit>1&(buff.ebon_might_self.remains>=6|cooldown.ebon_might.remains<=6)&debuff.bombardments.remains<action.eruption.execute_time&(talent.pupil_of_alexstrasza|active_enemies=1)
+    if S.LivingFlame:IsReady() and (S.MassEruption:IsAvailable() and Player:BuffUp(S.MassEruptionBuff) and Player:BuffDown(S.ImminentDestructionBuff) and Player:EssenceBurst() < Player:MaxEssenceBurst() and Player:EssenceDeficit() > 1 and (Player:BuffRemains(S.EbonMightSelfBuff) >= 6 or S.EbonMight:CooldownRemains() <= 6) and (S.PupilofAlexstrasza:IsAvailable() or EnemiesCount8ySplash == 1)) then
+      if Everyone.CastTargetIf(S.LivingFlame, Enemies8ySplash, "max", EvaluateTargetIfFilterBombardments, EvaluateTargetIfLF, not Target:IsSpellInRange(S.LivingFlame)) then return "living_flame main 28"; end
+    end
+    -- azure_strike,target_if=max:debuff.bombardments.remains,if=talent.mass_eruption&buff.mass_eruption_stacks.up&!buff.imminent_destruction.up&buff.essence_burst.stack<buff.essence_burst.max_stack&essence.deficit>1&(buff.ebon_might_self.remains>=6|cooldown.ebon_might.remains<=6)&debuff.bombardments.remains<action.eruption.execute_time&(talent.echoing_strike&active_enemies>1)
+    -- Note: CTI function is not a typo. Uses the same check as LF above.
+    if S.AzureStrike:IsReady() and (S.MassEruption:IsAvailable() and Player:BuffUp(S.MassEruptionBuff) and Player:BuffDown(S.ImminentDestructionBuff) and Player:EssenceBurst() < Player:MaxEssenceBurst() and Player:EssenceDeficit() > 1 and (Player:BuffRemains(S.EbonMightSelfBuff) >= 6 or S.EbonMight:CooldownRemains() <= 6) and (S.EchoingStrike:IsAvailable() and EnemiesCount8ySplash > 1)) then
+      if Everyone.CastTargetIf(S.AzureStrike, Enemies8ySplash, "max", EvaluateTargetIfFilterBombardments, EvaluateTargetIfLF, not Target:IsSpellInRange(S.AzureStrike)) then return "azure_strike main 30"; end
+    end
+    -- eruption,target_if=min:debuff.bombardments.remains,if=(buff.ebon_might_self.remains>execute_time|essence.deficit=0|buff.essence_burst.stack=buff.essence_burst.max_stack&cooldown.ebon_might.remains>4)&!variable.pool_for_id
+    -- Note: Ignoring target_if, as it will hit everything in the area of the primary target.
+    if S.Eruption:IsReady() and ((Player:BuffRemains(S.EbonMightSelfBuff) > S.Eruption:ExecuteTime() or Player:EssenceDeficit() == 0 or Player:EssenceBurst() == Player:MaxEssenceBurst() and S.EbonMight:CooldownRemains() > 4) and not VarPoolForID) then
+      if Cast(S.Eruption, nil, nil, not Target:IsInRange(25)) then return "eruption main 32"; end
     end
     -- blistering_scales,target_if=target.role.tank,if=!evoker.scales_up&buff.ebon_might_self.down
     if S.BlisteringScales:IsReady() and (BlisteringScalesCheck() == 0 and Player:BuffDown(S.EbonMightSelfBuff)) then
-      if Cast(S.BlisteringScales, nil, Settings.Augmentation.DisplayStyle.AugBuffs) then return "blistering_scales main 30"; end
+      if Cast(S.BlisteringScales, nil, Settings.Augmentation.DisplayStyle.AugBuffs) then return "blistering_scales main 34"; end
     end
     -- run_action_list,name=filler
     local ShouldReturn = Filler(); if ShouldReturn then return ShouldReturn; end

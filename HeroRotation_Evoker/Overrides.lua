@@ -70,6 +70,18 @@ HL.AddCoreOverride ("Player.EssenceTimeToX",
   end
 , 1467)
 
+HL.AddCoreOverride ("Player.EssenceBurst",
+  function()
+    return Player:BuffStack(SpellDeva.EssenceBurstBuff)
+  end
+, 1467)
+
+HL.AddCoreOverride ("Player.MaxEssenceBurst",
+  function()
+    return (SpellDeva.EssenceAttunement:IsAvailable()) and 2 or 1
+  end
+, 1467)
+
 -- Preservation, ID: 1468
 
 -- Augmentation, ID: 1473
@@ -179,5 +191,17 @@ HL.AddCoreOverride ("Player.EssenceTimeToX",
     local TimeToOneEssence = 1 / Regen
     local LastUpdate = Cache.Persistent.Player.LastPowerUpdate
     return ((Amount - Essence) * TimeToOneEssence) - (GetTime() - LastUpdate)
+  end
+, 1473)
+
+HL.AddCoreOverride ("Player.EssenceBurst",
+  function()
+    return Player:BuffStack(SpellAug.EssenceBurstBuff)
+  end
+, 1473)
+
+HL.AddCoreOverride ("Player.MaxEssenceBurst",
+  function()
+    return 2
   end
 , 1473)

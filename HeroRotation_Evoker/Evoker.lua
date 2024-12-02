@@ -113,6 +113,7 @@ Spell.Evoker.Augmentation = MergeTableByKey(Spell.Evoker.Commons, {
   BreathofEons                          = MultiSpell(403631,442204),
   DreamofSpring                         = Spell(414969),
   EbonMight                             = Spell(395152),
+  EchoingStrike                         = Spell(410784),
   Eruption                              = Spell(395160),
   FontofMagic                           = Spell(408083),
   ImminentDestruction                   = Spell(459537),

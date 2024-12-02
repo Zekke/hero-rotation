@@ -247,14 +247,14 @@ end
 
 local function Trinket_Sync_Slot()
   -- actions.precombat+=/variable,name=trinket_sync_slot,value=1,if=trinket.1.has_stat.any_dps
-  -- &(!trinket.2.has_stat.any_dps|trinket.1.cooldown.duration>=trinket.2.cooldown.duration)
+  -- &(!trinket.2.has_stat.any_dps|trinket.1.is.treacherous_transmitter|trinket.1.cooldown.duration>=trinket.2.cooldown.duration)
   -- actions.precombat+=/variable,name=trinket_sync_slot,value=2,if=trinket.2.has_stat.any_dps
   -- &(!trinket.1.has_stat.any_dps|trinket.2.cooldown.duration>trinket.1.cooldown.duration)
   local TrinketSyncSlot = 0
 
-  if trinket1:HasStatAnyDps() and (not trinket2:HasStatAnyDps() or trinket1:Cooldown() >= trinket1:Cooldown()) then
+  if trinket1:HasStatAnyDps() and (not trinket2:HasStatAnyDps() or trinket1:ID() == I.TreacherousTransmitter:ID() or trinket1:Cooldown() >= trinket2:Cooldown()) then
     TrinketSyncSlot = 1
-  elseif trinket2:HasStatAnyDps() and (not trinket1:HasStatAnyDps() or trinket2:Cooldown() > trinket2:Cooldown()) then
+  elseif trinket2:HasStatAnyDps() and (not trinket1:HasStatAnyDps() or trinket2:Cooldown() > trinket1:Cooldown()) then
     TrinketSyncSlot = 2
   end
 
@@ -301,10 +301,21 @@ local function Finish (ReturnSpellOnly, ForceStealth)
   end
 
   -- # Direct Damage Finisher
-  --actions.finish+=/black_powder,if=!variable.priority_rotation&variable.maintenance&variable.targets>=2
-  -- &!buff.flawless_form.up&!buff.darkest_night.up
-  if S.BlackPowder:IsReady() then
-    if not PriorityRotation and Maintenance and MeleeEnemies10yCount >= 2 and not Player:BuffUp(S.FlawlessFormBuff)
+  -- actions.finish+=/coup_de_grace,if=debuff.fazed.up
+  if S.CoupDeGrace:IsCastable() and Target:DebuffUp(S.FazedDebuff) then
+    if ReturnSpellOnly then
+      return S.CoupDeGrace
+    else
+      if CastPooling(S.CoupDeGrace, nil, not Target:IsSpellInRange(S.CoupDeGrace)) then
+        return "Cast Coup De Grace"
+      end
+    end
+  end
+
+  -- actions.finish+=/black_powder,if=!variable.priority_rotation&variable.maintenance&variable.targets>=2+3*buff.flawless_form.up
+  -- &!buff.darkest_night.up
+  if S.BlackPowder:IsCastable() then
+    if not PriorityRotation and Maintenance and MeleeEnemies10yCount >= 2 + 3 * num(Player:BuffUp(S.FlawlessFormBuff))
       and not Player:BuffUp(S.DarkestNightBuff) then
       if ReturnSpellOnly then
         return S.BlackPowder
@@ -312,17 +323,6 @@ local function Finish (ReturnSpellOnly, ForceStealth)
         if CastPooling(S.BlackPowder, nil, not TargetInAoERange) then
           return "Cast BlackPowder"
         end
-      end
-    end
-  end
-
-  -- actions.finish+=/coup_de_grace,if=debuff.fazed.up
-  if S.CoupDeGrace:IsCastable() and Target:DebuffUp(S.FazedDebuff) then
-    if ReturnSpellOnly then
-      return S.CoupDeGrace
-    else
-      if CastPooling(S.CoupDeGrace, nil, not Target:IsSpellInRange(S.CoupDeGrace)) then
-        return "Cast CoupDeGrace"
       end
     end
   end
@@ -356,22 +356,14 @@ local function Build (ReturnSpellOnly, ForceStealth)
     end
   end
 
-  if S.Rupture:IsReady() and not SkipRupture then
-    if HR.AoEON() and not PriorityRotation and MeleeEnemies10yCount >= 2 then
-      local function Evaluate_Rupture_Target(TargetUnit)
-        return Everyone.CanDoTUnit(TargetUnit, RuptureDMGThreshold)
-          and TargetUnit:DebuffRefreshable(S.Rupture, RuptureThreshold)
-      end
-      SuggestCycleDoT(S.Rupture, Evaluate_Rupture_Target, (2 * ComboPoints), MeleeEnemies5y)
-    end
-  end
-
   -- actions.build+=/shuriken_storm,if=talent.deathstalkers_mark&!buff.premeditation.up&variable.targets>=(2+3*buff.shadow_dance.up)
   -- |buff.clear_the_witnesses.up&!buff.symbols_of_death.up|buff.flawless_form.up&variable.targets>=3&!variable.stealth
+  -- |talent.unseen_blade&buff.the_rotten.stack=1&variable.targets>=5&buff.shadow_dance.up
   if S.ShurikenStorm:IsReady() and not ForceStealth and HR.AoEON() then
     if S.DeathStalkersMark:IsAvailable() and not Player:BuffUp(S.PremeditationBuff)
       and MeleeEnemies10yCount >= (2 + 3 * num(Player:BuffUp(S.ShadowDanceBuff))) or Player:BuffUp(S.ClearTheWitnessesBuff)
-      and not Player:BuffUp(S.SymbolsofDeath) or Player:BuffUp(S.FlawlessFormBuff) and MeleeEnemies10yCount >= 3 and not Stealth then
+      and not Player:BuffUp(S.SymbolsofDeath) or Player:BuffUp(S.FlawlessFormBuff) and MeleeEnemies10yCount >= 3 and not Stealth
+      or S.UnseenBlade:IsAvailable() and Player:BuffStack(S.TheRottenBuff) == 1 and MeleeEnemies10yCount >= 5 and Player:BuffUp(S.ShadowDanceBuff) then
       if ReturnSpellOnly then
         return S.ShurikenStorm
       else
@@ -490,9 +482,9 @@ end
 
 -- # Cooldowns
 local function CDs ()
-  -- actions.cds=cold_blood,if=cooldown.secret_technique.up&buff.shadow_dance.up&combo_points>=6&variable.secret
+  -- actions.cds=cold_blood,if=cooldown.secret_technique.up&buff.shadow_dance.up&combo_points>=6&variable.secret&buff.flagellation_persist.up
   if HR.CDsON() and S.ColdBlood:IsReady() and S.SecretTechnique:IsReady() and Player:BuffUp(S.ShadowDanceBuff)
-    and ComboPoints >= 6 and Secret then
+    and ComboPoints >= 6 and Secret and Player:BuffUp(S.FlagellationPersistBuff) then
     if Cast(S.ColdBlood, Settings.CommonsOGCD.OffGCDasOffGCD.ColdBlood) then
       return "Cast Cold Blood"
     end
@@ -545,6 +537,8 @@ local function CDs ()
 
   -- actions.cds+=/flagellation,if=combo_points>=5|fight_remains<=25
   if HR.CDsON() and S.Flagellation:IsAvailable() and S.Flagellation:IsReady()
+    and (S.ShadowDance:IsReady() or Player:BuffUp(S.ShadowDanceBuff))
+    and (S.SymbolsofDeath:IsReady() or Player:BuffUp(S.SymbolsofDeath))
     and (S.ShadowBlades:IsReady() or Player:BuffUp(S.ShadowBlades)) then
     if ComboPoints >= 5 or HL.BossFilteredFightRemains("<=", 25) then
       if Cast(S.Flagellation, nil, Settings.CommonsDS.DisplayStyle.Flagellation, not Target:IsSpellInRange(S.Flagellation)) then

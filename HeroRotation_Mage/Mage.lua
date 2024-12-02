@@ -106,6 +106,7 @@ Spell.Mage.Arcane = MergeTableByKey(Spell.Mage.Commons, {
   ArcaneSurge                           = Spell(365350),
   ArcaneTempo                           = Spell(383980),
   ArcingCleave                          = Spell(231564),
+  ChargedOrb                            = Spell(384651),
   Enlightened                           = Spell(321387),
   Evocation                             = Spell(12051),
   HighVoltage                           = Spell(461248),
@@ -167,6 +168,7 @@ Spell.Mage.Fire = MergeTableByKey(Spell.Mage.Commons, {
   SearingTouch                          = Spell(269644),
   SpontaneousCombustion                 = Spell(451875),
   SunKingsBlessing                      = Spell(383886),
+  UnleashedInferno                      = Spell(416506),
   -- Buffs
   CombustionBuff                        = Spell(190319),
   FeeltheBurnBuff                       = Spell(383395),
@@ -208,6 +210,7 @@ Spell.Mage.Frost = MergeTableByKey(Spell.Mage.Commons, {
   RayofFrost                            = Spell(205021),
   SlickIce                              = Spell(382144),
   SplinteringCold                       = Spell(379049),
+  SplinteringRay                        = Spell(418733),
   -- Pet Abilities
   Freeze                                = Spell(33395), --splash, 8
   -- Buffs

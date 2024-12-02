@@ -446,6 +446,10 @@ local function DefaultAoE()
   if S.RisingSunKick:IsReady() and (Player:BuffUp(S.PressurePointBuff) and S.FistsofFury:CooldownRemains() > 2) then
     if MotCCastSwitcher(S.RisingSunKick, Enemies8y, "min", EvaluateTargetIfFilterMarkoftheCrane, nil, 5) then return "rising_sun_kick default_aoe 30"; end
   end
+  -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=talent.shadowboxing_treads&talent.courageous_impulse&combo_strike&buff.bok_proc.stack=2
+  if S.BlackoutKick:IsReady() and (S.ShadowboxingTreads:IsAvailable() and S.CourageousImpulse:IsAvailable() and ComboStrike(S.BlackoutKick) and Player:BuffStack(S.BlackoutKickBuff) == 2) then
+    if MotCCastSwitcher(S.BlackoutKick, Enemies8y, "min", EvaluateTargetIfFilterMarkoftheCrane, nil, 5) then return "blackout_kick default_aoe 31"; end
+  end
   -- spinning_crane_kick,target_if=max:target.time_to_die,if=combo_strike&buff.dance_of_chiji.up&spinning_crane_kick.max
   -- spinning_crane_kick,target_if=max:target.time_to_die,if=combo_strike&buff.ordered_elements.up&talent.crane_vortex&active_enemies>2&spinning_crane_kick.max
   -- Note: Combining both lines and using Cast instead of CastTargetIf, since SCK hits all targets in range anyway.
@@ -473,6 +477,10 @@ local function DefaultAoE()
   -- Note: Combining both lines.
   if S.BlackoutKick:IsReady() and ((ComboStrike(S.BlackoutKick) and S.FistsofFury:CooldownDown() and (Player:BuffStack(S.TeachingsoftheMonasteryBuff) > 3 or Player:BuffUp(S.OrderedElementsBuff)) and (S.ShadowboxingTreads:IsAvailable() or Player:BuffUp(S.BlackoutKickBuff))) or (ComboStrike(S.BlackoutKick) and S.FistsofFury:CooldownUp() and Player:Chi() < 3)) then
     if MotCCastSwitcher(S.BlackoutKick, Enemies8y, "min", EvaluateTargetIfFilterMarkoftheCrane, nil, 5) then return "blackout_kick default_aoe 40"; end
+  end
+  -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=talent.shadowboxing_treads&talent.courageous_impulse&combo_strike&buff.bok_proc.up
+  if S.BlackoutKick:IsReady() and (S.ShadowboxingTreads:IsAvailable() and S.CourageousImpulse:IsAvailable() and ComboStrike(S.BlackoutKick) and Player:BuffUp(S.BlackoutKickBuff)) then
+    if MotCCastSwitcher(S.BlackoutKick, Enemies8y, "min", EvaluateTargetIfFilterMarkoftheCrane, nil, 5) then return "blackout_kick default_aoe 41"; end
   end
   -- spinning_crane_kick,if=combo_strike&(chi>3|energy>55)
   if S.SpinningCraneKick:IsReady() and (ComboStrike(S.SpinningCraneKick) and (Player:Chi() > 3 or Player:Energy() > 55)) then
@@ -636,15 +644,22 @@ local function DefaultCleave()
       if Cast(S.RisingSunKick, nil, nil, not Target:IsInMeleeRange(5)) then return "rising_sun_kick default_cleave 44"; end
     end
   end
+  -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=talent.shadowboxing_treads&talent.courageous_impulse&combo_strike&buff.bok_proc.stack=2
+  if S.BlackoutKick:IsReady() and (S.ShadowboxingTreads:IsAvailable() and S.CourageousImpulse:IsAvailable() and ComboStrike(S.BlackoutKick) and Player:BuffStack(S.BlackoutKickBuff) == 2) then
+    if MotCCastSwitcher(S.BlackoutKick, Enemies8y, "min", EvaluateTargetIfFilterMarkoftheCrane, nil, 5) then return "blackout_kick default_cleave 45"; end
+  end
   -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=buff.teachings_of_the_monastery.stack=4&!talent.knowledge_of_the_broken_temple&talent.shadowboxing_treads&active_enemies<3
   if S.BlackoutKick:IsReady() and (Player:BuffStack(S.TeachingsoftheMonasteryBuff) == 4 and not S.KnowledgeoftheBrokenTemple:IsAvailable() and S.ShadowboxingTreads:IsAvailable() and EnemiesCount8y < 3) then
     if MotCCastSwitcher(S.BlackoutKick, Enemies8y, "min", EvaluateTargetIfFilterMarkoftheCrane, nil, 5) then return "blackout_kick default_cleave 46"; end
   end
   -- spinning_crane_kick,target_if=max:target.time_to_die,if=combo_strike&buff.dance_of_chiji.up
-  -- spinning_crane_kick,target_if=max:target.time_to_die,if=combo_strike&buff.ordered_elements.up&talent.crane_vortex&active_enemies>2
-  -- Note: Combining both lines and using Cast instead of CastTargetIf, since SCK hits all viable targets.
-  if S.SpinningCraneKick:IsReady() and ((ComboStrike(S.SpinningCraneKick) and Player:BuffUp(S.DanceofChijiBuff)) or (ComboStrike(S.SpinningCraneKick) and Player:BuffUp(S.OrderedElementsBuff) and S.CraneVortex:IsAvailable() and EnemiesCount8y > 2)) then
+  -- Note: Using Cast instead of CastTargetIf, since SCK hits all viable targets.
+  if S.SpinningCraneKick:IsReady() and (ComboStrike(S.SpinningCraneKick) and Player:BuffUp(S.DanceofChijiBuff)) then
     if Cast(S.SpinningCraneKick, nil, nil, not Target:IsInMeleeRange(8)) then return "spinning_crane_kick default_cleave 48"; end
+  end
+  -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=talent.shadowboxing_treads&talent.courageous_impulse&combo_strike&buff.bok_proc.up
+  if S.BlackoutKick:IsReady() and (S.ShadowboxingTreads:IsAvailable() and S.CourageousImpulse:IsAvailable() and ComboStrike(S.BlackoutKick) and Player:BuffUp(S.BlackoutKickBuff)) then
+    if MotCCastSwitcher(S.BlackoutKick, Enemies8y, "min", EvaluateTargetIfFilterMarkoftheCrane, nil, 5) then return "blackout_kick default_cleave 49"; end
   end
   -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&energy.time_to_max<=gcd.max*3&talent.flurry_strikes&active_enemies<5
   -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&chi.deficit>=2&(!buff.ordered_elements.up|energy.time_to_max<=gcd.max*3)
@@ -818,6 +833,10 @@ local function DefaultST()
   -- spinning_crane_kick,if=buff.dance_of_chiji.stack=2&combo_strike
   if S.SpinningCraneKick:IsReady() and (Player:BuffStack(S.DanceofChijiBuff) == 2 and ComboStrike(S.SpinningCraneKick)) then
     if Cast(S.SpinningCraneKick, nil, nil, not Target:IsInMeleeRange(8)) then return "spinning_crane_kick default_st 48"; end
+  end
+  -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=talent.courageous_impulse&combo_strike&buff.bok_proc.stack=2
+  if S.BlackoutKick:IsReady() and (S.CourageousImpulse:IsAvailable() and ComboStrike(S.BlackoutKick) and Player:BuffStack(S.BlackoutKickBuff) == 2) then
+    if MotCCastSwitcher(S.BlackoutKick, Enemies8y, "min", EvaluateTargetIfFilterMarkoftheCrane, nil, 5) then return "blackout_kick default_st 49"; end
   end
   -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&buff.ordered_elements.up&cooldown.rising_sun_kick.remains>1&cooldown.fists_of_fury.remains>2
   if S.BlackoutKick:IsReady() and (ComboStrike(S.BlackoutKick) and Player:BuffUp(S.OrderedElementsBuff) and S.RisingSunKick:CooldownRemains() > 1 and S.FistsofFury:CooldownRemains() > 2) then

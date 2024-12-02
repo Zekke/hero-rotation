@@ -35,6 +35,7 @@ HR.GUISettings.APL.Warrior = {
       -- Class Specific
       ChampionsSpear = "Suggested",
       Charge = "Suggested",
+      Demolish = "Suggested",
       HeroicLeap = "Suggested",
       OdynsFury = "Suggested",
     },
@@ -103,7 +104,6 @@ HR.GUISettings.APL.Warrior = {
     },
     GCDasOffGCD = {
       Avatar = false,
-      Demolish = false,
       DemoralizingShout = false,
       Shockwave = true,
       ThunderousRoar = false,

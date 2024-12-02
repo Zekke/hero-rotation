@@ -60,7 +60,6 @@ local Settings = {
 
 --- ===== Rotation Variables =====
 local DeepBreathAbility = S.DeepBreathManeuverability:IsLearned() and S.DeepBreathManeuverability or S.DeepBreath
-local MaxEssenceBurstStack = (S.EssenceAttunement:IsAvailable()) and 2 or 1
 local MaxBurnoutStack = 2
 local PlayerHaste = Player:SpellHaste()
 local VarR1CastTime = PlayerHaste
@@ -170,10 +169,6 @@ HL:RegisterForEvent(function()
   SetTrinketVariables()
 end, "PLAYER_EQUIPMENT_CHANGED")
 
-HL:RegisterForEvent(function()
-  MaxEssenceBurstStack = (S.EssenceAttunement:IsAvailable()) and 2 or 1
-end, "SPELLS_CHANGED", "LEARNED_SPELL_IN_TAB")
-
 -- Reset variables after fights
 HL:RegisterForEvent(function()
   VarHasExternalPI = false
@@ -197,7 +192,7 @@ local function InFirestorm()
 end
 
 local function LessThanMaxEssenceBurst()
-  return (Player:BuffStack(S.EssenceBurstBuff) < MaxEssenceBurstStack)
+  return (Player:EssenceBurst() < Player:MaxEssenceBurst())
 end
 
 --- ===== CastTargetIf Filter Functions =====
@@ -458,11 +453,11 @@ local function ST()
     if CastPooling(S.Pool, S.EternitySurge:CooldownRemains()) then return "Wait for ES()"; end
   end
   -- living_flame,if=buff.dragonrage.up&buff.dragonrage.remains<(buff.essence_burst.max_stack-buff.essence_burst.stack)*gcd.max&buff.burnout.up
-  if S.LivingFlame:IsCastable() and (VarDragonrageUp and VarDragonrageRemains < (MaxEssenceBurstStack - Player:BuffStack(S.EssenceBurstBuff)) * Player:GCD() and Player:BuffUp(S.BurnoutBuff)) then
+  if S.LivingFlame:IsCastable() and (VarDragonrageUp and VarDragonrageRemains < (Player:MaxEssenceBurst() - Player:EssenceBurst()) * Player:GCD() and Player:BuffUp(S.BurnoutBuff)) then
     if Cast(S.LivingFlame, nil, nil, not Target:IsInRange(25)) then return "living_flame st 12"; end
   end
   -- azure_strike,if=buff.dragonrage.up&buff.dragonrage.remains<(buff.essence_burst.max_stack-buff.essence_burst.stack)*gcd.max
-  if S.AzureStrike:IsCastable() and (VarDragonrageUp and VarDragonrageRemains < (MaxEssenceBurstStack - Player:BuffStack(S.EssenceBurstBuff)) * Player:GCD()) then
+  if S.AzureStrike:IsCastable() and (VarDragonrageUp and VarDragonrageRemains < (Player:MaxEssenceBurst() - Player:EssenceBurst()) * Player:GCD()) then
     if Cast(S.AzureStrike, nil, nil, not Target:IsInRange(25)) then return "azure_strike st 14"; end
   end
   -- engulf,if=dot.fire_breath_damage.ticking&(!talent.enkindle|dot.enkindle.ticking&(prev_gcd.1.disintegrate|prev_gcd.1.engulf|prev_gcd.2.disintegrate|!talent.fan_the_flames|active_enemies>1))&(!talent.ruby_embers|dot.living_flame_damage.ticking)&(!talent.shattering_star|debuff.shattering_star_debuff.up)&cooldown.dragonrage.remains>=27
