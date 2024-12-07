@@ -369,8 +369,8 @@ local function SingleTarget()
   if S.AncestralSwiftness:IsReady() then
     if Cast(S.AncestralSwiftness, Settings.CommonsOGCD.GCDasOffGCD.AncestralSwiftness) then return "ancestral_swiftness single_target 10"; end
   end
-  -- ascendance,if=(buff.spymasters_web.up|!(variable.spymaster_in_1st|variable.spymaster_in_2nd))&(buff.stormkeeper.up&cooldown.stormkeeper.remains>40|!talent.fury_of_the_storms)&(buff.primordial_wave.up|!talent.primordial_wave)
-  if CDsON() and S.Ascendance:IsCastable() and ((Player:BuffUp(S.SpymastersWebBuff) or not (VarSpymasterIn1st or VarSpymasterIn2nd)) and (Player:StormkeeperUp() and S.Stormkeeper:CooldownRemains() > 40 or not S.FuryoftheStorms:IsAvailable()) and (Player:BuffUp(S.PrimordialWaveBuff) or not S.PrimordialWave:IsAvailable())) then
+  -- ascendance,if=(time<10|buff.spymasters_web.up|!(variable.spymaster_in_1st|variable.spymaster_in_2nd))&(buff.stormkeeper.up&cooldown.stormkeeper.remains>40|!talent.fury_of_the_storms)&(buff.primordial_wave.up|!talent.primordial_wave)
+  if CDsON() and S.Ascendance:IsCastable() and ((HL.CombatTime() < 10 or Player:BuffUp(S.SpymastersWebBuff) or not (VarSpymasterIn1st or VarSpymasterIn2nd)) and (Player:StormkeeperUp() and S.Stormkeeper:CooldownRemains() > 40 or not S.FuryoftheStorms:IsAvailable()) and (Player:BuffUp(S.PrimordialWaveBuff) or not S.PrimordialWave:IsAvailable())) then
     if Cast(S.Ascendance, Settings.CommonsOGCD.GCDasOffGCD.Ascendance) then return "ascendance single_target 12"; end
   end
   -- tempest,if=buff.surge_of_power.up

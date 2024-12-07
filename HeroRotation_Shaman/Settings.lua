@@ -115,12 +115,12 @@ CreateARPanelOptions(CP_ShamanDS, "APL.Shaman.CommonsDS")
 CreateARPanelOptions(CP_ShamanOGCD, "APL.Shaman.CommonsOGCD")
 
 -- Elemental
-CreatePanelOption("CheckButton", CP_Elemental, "APL.Shaman.Elemental.IgnoreMovement", "Ignore Movement", "Enable to have the addon ignore movement as a condition of whether spells are viable to cast.")
 CreateARPanelOptions(CP_Elemental, "APL.Shaman.Elemental")
+CreatePanelOption("CheckButton", CP_Elemental, "APL.Shaman.Elemental.IgnoreMovement", "Ignore Movement", "Enable to have the addon ignore movement as a condition of whether spells are viable to cast.")
 
 -- Enhancement
-CreateARPanelOptions(CP_Enhancement, "APL.Shaman.Enhancement")
 CreatePanelOption("Dropdown", CP_Enhancement, "APL.Shaman.Enhancement.Rotation", {"Standard", "Funnel"}, "Rotation Type", "Select to choose between the Standard or Funnel rotations.")
+CreateARPanelOptions(CP_Enhancement, "APL.Shaman.Enhancement")
+CreatePanelOption("CheckButton", CP_Enhancement, "APL.Shaman.Enhancement.TempestOnMTOnly", "Tempest on Primary Target Only", "Enable this setting to only suggest Tempest casts on your primary target.")
 CreatePanelOption("Slider", CP_Enhancement, "APL.Shaman.Enhancement.HealWith5Maelstrom", {0, 100, 1}, "Heal Pct with 5 Maelstrom", "Sets the health percentage under which Healing Surge should be suggested with 5 Maelstrom. Set this to 0 to disable healing suggestions.")
 CreatePanelOption("Slider", CP_Enhancement, "APL.Shaman.Enhancement.HealWithout5Maelstrom", {0, 100, 1}, "Heal Pct without 5 Maelstrom", "Sets the health percentage under which Healing Surge should be suggested when below 5 Maelstrom. Set this to 0 to disable healing suggestions.")
-CreatePanelOption("CheckButton", CP_Enhancement, "APL.Shaman.Enhancement.TempestOnMTOnly", "Tempest on Primary Target Only", "Enable this setting to only suggest Tempest casts on your primary target.")
