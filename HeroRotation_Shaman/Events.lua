@@ -59,9 +59,18 @@ HL:RegisterForSelfCombatEvent(
 HL:RegisterForSelfCombatEvent(
   function (...)
     local SpellID = select(12, ...)
-    if SpellID == 262627 then
+    if SpellID == 262627 or SpellID == 426516 then
+      -- Note: 262627 is the spell ID for Feral Spirit
+      -- Note: 426516 is the spell ID for the extra wolf from Rolling Thunder or TWW S1 4pc
       Shaman.FeralSpiritCount = Shaman.FeralSpiritCount + 1
       Delay(15, function()
+        Shaman.FeralSpiritCount = Shaman.FeralSpiritCount - 1
+      end)
+    end
+    if SpellID == 469332 then
+      -- Note: 469332 is the spell ID for wolf summoned by Flowing Spirits
+      Shaman.FeralSpiritCount = Shaman.FeralSpiritCount + 1
+      Delay(8, function()
         Shaman.FeralSpiritCount = Shaman.FeralSpiritCount - 1
       end)
     end

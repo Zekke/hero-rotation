@@ -74,10 +74,12 @@ Spell.Priest.Archon = {
   -- Talents
   EmpoweredSurges             = Spell(453799),
   PerfectedForm               = Spell(453917),
+  PowerSurge                  = Spell(453109),
 }
 
 Spell.Priest.Voidweaver = {
   -- Abilities
+  VoidBlastAbility            = Spell(450983),
   VoidWraithAbility           = Spell(451235),
   -- Talents
   DepthofShadows              = Spell(451308),

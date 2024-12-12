@@ -189,7 +189,7 @@ function HR.Cast(Object, OffGCD, DisplayStyle, OutofRange, CustomTime)
   if OffGCD or DisplayStyle == "Cooldown" then
     -- If this is the second cooldown, check to ensure we don't have a duplicate icon in the first slot
     if HR.CastOffGCDOffset == 1 or (HR.CastOffGCDOffset == 2 and HR.SmallIconFrame:GetIcon(1) ~= ObjectTexture) then
-      HR.SmallIconFrame:ChangeIcon(HR.CastOffGCDOffset, ObjectTexture, Keybind, OutofRange)
+      HR.SmallIconFrame:ChangeIcon(HR.CastOffGCDOffset, ObjectTexture, Keybind, OutofRange, Object:ID())
       HR.CastOffGCDOffset = HR.CastOffGCDOffset + 1
       Object.LastDisplayTime = GetTime()
       return false
@@ -288,7 +288,7 @@ function HR.CastLeftCommon(Object)
   local Texture = HR.GetTexture(Object)
   local Keybind = not HR.GUISettings.General.HideKeyBinds and HL.Action.TextureHotKey(Texture)
   FlashIcon(Object)
-  HR.LeftIconFrame:ChangeIcon(Texture, Keybind)
+  HR.LeftIconFrame:ChangeIcon(Texture, Keybind, Object:ID())
   HR.CastLeftOffset = HR.CastLeftOffset + 1
   Object.LastDisplayTime = GetTime()
 end
