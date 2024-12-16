@@ -144,6 +144,11 @@ Spell.Priest.Shadow = MergeTableByKey(Spell.Priest.Commons, {
 Spell.Priest.Shadow = MergeTableByKey(Spell.Priest.Shadow, Spell.Priest.Archon)
 Spell.Priest.Shadow = MergeTableByKey(Spell.Priest.Shadow, Spell.Priest.Voidweaver)
 
+Spell.Priest.Holy = MergeTableByKey(Spell.Priest.Commons, {
+HolyWordChastise              = Spell(88625),
+HolyFire                      = Spell(14914),
+})
+
 -- Items
 if not Item.Priest then Item.Priest = {} end
 Item.Priest.Shadow = {
