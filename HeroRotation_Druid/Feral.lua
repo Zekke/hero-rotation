@@ -162,10 +162,9 @@ S.AdaptiveSwarm:RegisterInFlight()
 
 --- ===== PMultiplier Registrations =====
 local function ComputeRakePMultiplier()
-  return Player:StealthUp(true, true) and 1.6 or 1
+  return (Player:StealthUp(true, true) or S.Prowl:TimeSinceLastRemovedOnPlayer() < 1) and 1.6 or 1
 end
 S.Rake:RegisterPMultiplier(S.RakeDebuff, ComputeRakePMultiplier)
-
 
 local function ComputeRipPMultiplier()
   local Mult = 1

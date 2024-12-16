@@ -1355,7 +1355,7 @@ local function APL ()
     --- !!!! ---
     if S.PoisonedKnife:IsCastable() and Target:IsInRange(30) and not Player:StealthUp(true, true)
       and MeleeEnemies10yCount == 0 and Player:EnergyTimeToMax() <= Player:GCD() * 1.5 then
-      if Cast(S.PoisonedKnife) then
+      if Cast(S.PoisonedKnife, Settings.Assassination.GCDasOffGCD.PoisonedKnife) then
         return "Cast Poisoned Knife"
       end
     end

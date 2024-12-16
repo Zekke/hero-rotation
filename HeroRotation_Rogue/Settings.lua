@@ -72,6 +72,7 @@ HR.GUISettings.APL.Rogue = {
       Exsanguinate = false,
       Kingsbane = false,
       Shiv = false,
+      PoisonedKnife = true,
     },
     OffGCDasOffGCD = {
       Deathmark = true,
