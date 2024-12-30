@@ -39,16 +39,14 @@ HR.GUISettings.APL.Rogue = {
       Potions = "Suggested",
       Trinkets = "Suggested",
       -- Class Specific
-      EchoingReprimand = "Suggested",
       Flagellation = "Suggested",
       Stealth = "Main Icon",
-      Sepsis = "Suggested",
+      Shadowstep = "Suggested",
+      CrimsonVial = "Suggested",
     },
   },
   CommonsOGCD = {
     GCDasOffGCD = {
-      EchoingReprimand = true,
-      CrimsonVial = true,
       Feint = true,
     },
     OffGCDasOffGCD = {
@@ -57,7 +55,6 @@ HR.GUISettings.APL.Rogue = {
       ThistleTea = true,
       ColdBlood = true,
       Sprint = true,
-      Shadowstep = true,
     }
   },
   Assassination = {
@@ -96,7 +93,6 @@ HR.GUISettings.APL.Rogue = {
       BladeRush = false,
       KeepItRolling = false,
       RollTheBones = false,
-      Sepsis = false,
     },
     OffGCDasOffGCD = {
       GhostlyStrike = false,

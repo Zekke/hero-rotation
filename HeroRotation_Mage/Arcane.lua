@@ -215,13 +215,17 @@ local function Spellslinger()
   if S.ArcaneExplosion:IsReady() and ((S.Reverberate:IsAvailable() or Player:ArcaneCharges() < 1) and EnemiesCount8ySplash >= 4) then
     if CastAE(S.ArcaneExplosion) then return "arcane_explosion spellslinger 20"; end
   end
+  -- arcane_barrage,if=buff.arcane_charge.stack=4&target.health.pct<35&buff.nether_precision.down&talent.orb_barrage&talent.arcane_bombardment&talent.arcing_cleave&active_enemies>2
+  if S.ArcaneBarrage:IsReady() and (Player:ArcaneCharges() == 4 and Target:HealthPercentage() < 35 and Player:BuffDown(S.NetherPrecisionBuff) and S.OrbBarrage:IsAvailable() and S.ArcaneBombardment:IsAvailable() and S.ArcingCleave:IsAvailable() and EnemiesCount8ySplash > 2) then
+    if Cast(S.ArcaneBarrage, nil, nil, not Target:IsSpellInRange(S.ArcaneBarrage)) then return "arcane_barrage spellslinger 22"; end
+  end
   -- arcane_blast
   if S.ArcaneBlast:IsReady() then
-    if Cast(S.ArcaneBlast, nil, nil, not Target:IsSpellInRange(S.ArcaneBlast)) then return "arcane_blast spellslinger 22"; end
+    if Cast(S.ArcaneBlast, nil, nil, not Target:IsSpellInRange(S.ArcaneBlast)) then return "arcane_blast spellslinger 24"; end
   end
   -- arcane_barrage
   if S.ArcaneBarrage:IsCastable() then
-    if Cast(S.ArcaneBarrage, nil, nil, not Target:IsSpellInRange(S.ArcaneBarrage)) then return "arcane_barrage spellslinger 24"; end
+    if Cast(S.ArcaneBarrage, nil, nil, not Target:IsSpellInRange(S.ArcaneBarrage)) then return "arcane_barrage spellslinger 26"; end
   end
 end
 

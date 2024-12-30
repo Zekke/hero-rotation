@@ -371,7 +371,7 @@ do
 
   function Commons.CrimsonVial()
     if CrimsonVial:IsCastable() and Player:HealthPercentage() <= Settings.Commons.CrimsonVialHP then
-      if HR.Cast(CrimsonVial, Settings.CommonsOGCD.GCDasOffGCD.CrimsonVial) then return "Cast Crimson Vial (Defensives)" end
+      if HR.Cast(CrimsonVial, nil, Settings.CommonsDS.DisplayStyle.CrimsonVial) then return "Cast Crimson Vial (Defensives)" end
     end
 
     return false

@@ -129,30 +129,22 @@ Spell.DeathKnight.Blood = MergeTableByKey(Spell.DeathKnight.Commons, {
   Consumption                           = Spell(274156),
   DancingRuneWeapon                     = Spell(49028),
   DeathsCaress                          = Spell(195292),
-  GorefiendsGrasp                       = Spell(108199),
   HeartStrike                           = Spell(206930),
   Heartbreaker                          = Spell(221536),
-  InsatiableBlade                       = Spell(377637),
   Marrowrend                            = Spell(195182),
-  RapidDecomposition                    = Spell(194662),
-  RelishinBlood                         = Spell(317610),
   RuneTap                               = Spell(194679),
-  SanguineGround                        = Spell(391458),
-  ShatteringBone                        = Spell(377640),
-  TighteningGrasp                       = Spell(206970),
   Tombstone                             = Spell(219809),
   VampiricBlood                         = Spell(55233),
   -- Buffs
   BoneShieldBuff                        = Spell(195181),
   CoagulopathyBuff                      = Spell(391481),
   ConsumptionBuff                       = Spell(274156),
-  CrimsonScourgeBuff                    = Spell(81141),
   DancingRuneWeaponBuff                 = Spell(81256),
   HemostasisBuff                        = Spell(273947),
   IceboundFortitudeBuff                 = Spell(48792),
+  LuckoftheDrawBuff                     = Spell(1218601), -- TWW S2 2P
   RuneTapBuff                           = Spell(194679),
   VampiricBloodBuff                     = Spell(55233),
-  VampiricStrengthBuff                  = Spell(408356), -- Tier 30 4pc
 })
 Spell.DeathKnight.Blood = MergeTableByKey(Spell.DeathKnight.Blood, Spell.DeathKnight.Deathbringer)
 Spell.DeathKnight.Blood = MergeTableByKey(Spell.DeathKnight.Blood, Spell.DeathKnight.Sanlayn)
@@ -170,7 +162,6 @@ Spell.DeathKnight.Frost = MergeTableByKey(Spell.DeathKnight.Commons, {
   ChillStreak                           = Spell(305392),
   ColdHeart                             = Spell(281208),
   EnduringStrength                      = Spell(377190),
-  FrigidExecutioner                     = Spell(377073),
   Frostscythe                           = Spell(207230),
   FrostwyrmsFury                        = Spell(279302),
   GatheringStorm                        = Spell(194912),
@@ -196,6 +187,8 @@ Spell.DeathKnight.Frost = MergeTableByKey(Spell.DeathKnight.Commons, {
   PillarofFrostBuff                     = Spell(51271),
   RimeBuff                              = Spell(59052),
   UnleashedFrenzyBuff                   = Spell(376907),
+  WinningStreakBuff                     = Spell(1217897), -- TWW S2 2P
+  WinningStreakFSBuff                   = Spell(1217956), -- TWW S2 4P
   -- Debuffs
   RazoriceDebuff                        = Spell(51714)
 })
@@ -215,7 +208,6 @@ Spell.DeathKnight.Unholy = MergeTableByKey(Spell.DeathKnight.Commons, {
   DarkTransformation                    = Spell(63560),
   Defile                                = Spell(152280),
   DoomedBidding                         = Spell(455386),
-  EbonFever                             = Spell(207269),
   Epidemic                              = Spell(207317),
   FesteringStrike                       = Spell(85948),
   Festermight                           = Spell(377590),
@@ -236,7 +228,6 @@ Spell.DeathKnight.Unholy = MergeTableByKey(Spell.DeathKnight.Commons, {
   VileContagion                         = Spell(390279),
   -- Buffs
   CommanderoftheDeadBuff                = Spell(390260),
-  DefileBuff                            = Spell(218100),
   FesteringScytheBuff                   = Spell(458123),
   FestermightBuff                       = Spell(377591),
   RunicCorruptionBuff                   = Spell(51460),
@@ -245,6 +236,8 @@ Spell.DeathKnight.Unholy = MergeTableByKey(Spell.DeathKnight.Commons, {
   DeathRotDebuff                        = Spell(377540),
   FesteringWoundDebuff                  = Spell(194310),
   RottenTouchDebuff                     = Spell(390276),
+  -- TWW2 Effects
+  WinningStreakBuff                     = Spell(1216813), -- TWW S2 2P
 })
 Spell.DeathKnight.Unholy = MergeTableByKey(Spell.DeathKnight.Unholy, Spell.DeathKnight.RideroftheApocalypse)
 Spell.DeathKnight.Unholy = MergeTableByKey(Spell.DeathKnight.Unholy, Spell.DeathKnight.Sanlayn)

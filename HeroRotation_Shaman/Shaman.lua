@@ -17,6 +17,9 @@ local Item       = HL.Item
 local MergeTableByKey = HL.Utils.MergeTableByKey
 -- HeroRotation
 local HR         = HeroRotation
+-- Temporary until 11.1
+local GetBuildInfo = GetBuildInfo
+local TOCNum       = select(4, GetBuildInfo())
 
 --- ============================ CONTENT ============================
 
@@ -117,7 +120,7 @@ Spell.Shaman.Elemental = MergeTableByKey(Spell.Shaman.Commons, {
   Earthquake                            = MultiSpell(61882,462620),
   FireElemental                         = Spell(198067),
   -- Talents
-  Ascendance                            = Spell(114050),
+  Ascendance                            = Spell(114050), -- Changes to 1219480 in 11.1
   EchoChamber                           = Spell(382032),
   EchooftheElements                     = Spell(333919),
   EchoesofGreatSundering                = Spell(384087),
@@ -148,12 +151,13 @@ Spell.Shaman.Elemental = MergeTableByKey(Spell.Shaman.Commons, {
   SwellingMaelstrom                     = Spell(384359),
   ThunderstrikeWard                     = Spell(462757),
   -- Buffs
-  AscendanceBuff                        = Spell(114050),
+  AscendanceBuff                        = Spell(114050), -- Changes to 1219480 in 11.1
   EchoesofGreatSunderingBuff            = Spell(384088),
   FluxMeltingBuff                       = Spell(381777),
   FusionofElementsFire                  = Spell(462843),
   FusionofElementsNature                = Spell(462841),
   IcefuryBuff                           = Spell(210714),
+  JackpotBuff                           = Spell(1218612), -- TWW S2 4pc
   LavaSurgeBuff                         = Spell(77762),
   MagmaChamberBuff                      = Spell(381933),
   MasteroftheElementsBuff               = Spell(260734),
@@ -168,6 +172,12 @@ Spell.Shaman.Elemental = MergeTableByKey(Spell.Shaman.Commons, {
 })
 Spell.Shaman.Elemental = MergeTableByKey(Spell.Shaman.Elemental, Spell.Shaman.Farseer)
 Spell.Shaman.Elemental = MergeTableByKey(Spell.Shaman.Elemental, Spell.Shaman.Stormbringer)
+
+-- Safety in case the 11.1 update isn't done immediately
+if TOCNum > 110007 then
+  Spell.Shaman.Elemental.Ascendance = Spell(1219480)
+  Spell.Shaman.Elemental.AscendanceBuff = Spell(1219480)
+end
 
 Spell.Shaman.Enhancement = MergeTableByKey(Spell.Shaman.Commons, {
   -- Abilities

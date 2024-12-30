@@ -123,8 +123,6 @@ AffOldBuffRemains = HL.AddCoreOverride ("Player.BuffRemains",
     local BaseCheck = AffOldBuffRemains(self, Spell, AnyCaster, BypassRecovery)
     if Spell == SpellAffli.SoulRot then
       if not Warlock.SoulRotBuffUp then return 0 end
-      --local SoulRotBuffLength = (Player:HasTier(31, 2)) and 12 or 8
-      -- Note: Appears the 2pc is currently bugged. Buff is removed after 8 seconds regardless.
       local SoulRotBuffLength = 8
       local Remains = SoulRotBuffLength - (GetTime() - Warlock.SoulRotAppliedTime)
       return (Remains > 0) and Remains or 0

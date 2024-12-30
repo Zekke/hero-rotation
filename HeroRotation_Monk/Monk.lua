@@ -165,6 +165,8 @@ Spell.Monk.Windwalker = MergeTableByKey(Spell.Monk.Commons, {
   MarkoftheCraneDebuff                  = Spell(228287),
   -- Tier 31 Effects
   BlackoutReinforcementBuff             = Spell(424454),
+  -- TWW2 Effects
+  CashoutBuff                           = Spell(1216498), -- TWW2 4pc
 })
 Spell.Monk.Windwalker = MergeTableByKey(Spell.Monk.Windwalker, Spell.Monk.ConduitoftheCelestials)
 Spell.Monk.Windwalker = MergeTableByKey(Spell.Monk.Windwalker, Spell.Monk.ShadoPan)
@@ -213,6 +215,8 @@ Spell.Monk.Brewmaster = MergeTableByKey(Spell.Monk.Commons, {
   HeavyStagger                          = Spell(124273),
   ModerateStagger                       = Spell(124274),
   LightStagger                          = Spell(124275),
+  -- TWW2 Effects
+  OpportunisticStrikeBuff               = Spell(1217999), -- TWW2 4pc
 })
 Spell.Monk.Brewmaster = MergeTableByKey(Spell.Monk.Brewmaster, Spell.Monk.MasterofHarmony)
 Spell.Monk.Brewmaster = MergeTableByKey(Spell.Monk.Brewmaster, Spell.Monk.ShadoPan)

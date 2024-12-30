@@ -292,7 +292,7 @@ local function PrescienceCheck()
         end
       end
     end
-    if DPSBuffOne == 0 or DPSBuffTwo == 0 or Player:HasTier(31, 2) and DPSBuffOne > PrescienceCD and DPSBuffTwo > PrescienceCD and TankBuff == 0 then
+    if DPSBuffOne == 0 or DPSBuffTwo == 0 then
       return true
     end
     return false

@@ -142,6 +142,7 @@ Spell.Warrior.Arms = MergeTableByKey(Spell.Warrior.Commons, {
   Warbreaker                            = Spell(262161),
   -- Buffs
   CollateralDamageBuff                  = Spell(334783),
+  HedgedBetsBuff                        = Spell(1216556), -- TWW S2 4pc
   JuggernautBuff                        = Spell(383290),
   LethalBlowsBuff                       = Spell(455485), -- TWW S1 4pc
   MartialProwessBuff                    = Spell(7384),
@@ -149,6 +150,7 @@ Spell.Warrior.Arms = MergeTableByKey(Spell.Warrior.Commons, {
   StrikeVulnerabilitiesBuff             = Spell(394173),
   SuddenDeathBuff                       = Spell(52437),
   SweepingStrikesBuff                   = Spell(260708),
+  WinningStreakBuff                     = Spell(1216552), -- TWW S2 2pc
   -- Debuffs
   ColossusSmashDebuff                   = Spell(208086),
   DeepWoundsDebuff                      = Spell(262115),
@@ -192,12 +194,14 @@ Spell.Warrior.Fury = MergeTableByKey(Spell.Warrior.Commons, {
   BloodcrazeBuff                        = Spell(393951),
   CrushingBlowBuff                      = Spell(396752),
   DancingBladesBuff                     = Spell(391688),
+  DoubleDownBTBuff                      = Spell(1216565), -- TWW S2 4pc Bloodthirst
+  DoubleDownRBBuff                      = Spell(1216569), -- TWW S2 4pc Raging Blow
   EnrageBuff                            = Spell(184362),
-  FuriousBloodthirstBuff                = Spell(423211), -- T31 2pc
   MeatCleaverBuff                       = Spell(85739),
   RecklessnessBuff                      = Spell(1719),
   SlaughteringStrikesBuff               = Spell(393931),
   SuddenDeathBuff                       = Spell(280776),
+  WinningStreakBuff                     = Spell(1216561), -- TWW S2 2pc
   -- Debuffs
   GushingWoundDebuff                    = Spell(385042),
   OdynsFuryDebuff                       = Spell(385060),
@@ -236,9 +240,8 @@ Spell.Warrior.Protection = MergeTableByKey(Spell.Warrior.Commons, {
   UnstoppableForce                      = Spell(275336),
   -- Buffs
   AvatarBuff                            = Spell(401150),
-  EarthenTenacityBuff                   = Spell(410218), -- T30 4P
-  FervidBuff                            = Spell(425517), -- T31 2P
   LastStandBuff                         = Spell(12975),
+  LuckoftheDrawBuff                     = Spell(1218163), -- TWW S2 4pc
   RallyingCryBuff                       = Spell(97463),
   RevengeBuff                           = Spell(5302),
   SeeingRedBuff                         = Spell(386486),
@@ -246,7 +249,6 @@ Spell.Warrior.Protection = MergeTableByKey(Spell.Warrior.Commons, {
   ShieldWallBuff                        = Spell(871),
   SuddenDeathBuff                       = Spell(52437),
   ViolentOutburstBuff                   = Spell(386478),
-  VanguardsDeterminationBuff            = Spell(394056), -- T29 2P
   -- Debuffs
   RendDebuff                            = Spell(388539),
 })

@@ -815,8 +815,8 @@ local function APL ()
   end
 
   -- Shadowstep if out of range
-  if Settings.CommonsOGCD.OffGCDasOffGCD.Shadowstep and S.Shadowstep:IsCastable() and not Target:IsInMeleeRange(MeleeRange) and Target:Exists() then
-    if Cast(S.Shadowstep, true, nil, not Target:IsSpellInRange(S.Shadowstep)) then
+  if S.Shadowstep:IsCastable() and not Target:IsInMeleeRange(MeleeRange) and Target:Exists() then
+    if Cast(S.Shadowstep, nil, Settings.CommonsDS.DisplayStyle.Shadowstep, not Target:IsSpellInRange(S.Shadowstep)) then
       return "Cast Shadowstep"
     end
   end

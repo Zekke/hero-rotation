@@ -209,7 +209,7 @@ local function ST()
     if Cast(S.KillShot, nil, nil, not TargetInRange40y) then return "kill_shot st 4"; end
   end
   -- steady_shot,if=talent.steady_focus&buff.steady_focus.remains<execute_time&buff.trueshot.down
-  if S.SteadyShot:IsCastable() and (S.SteadyFocus:IsAvailable() and Player:BuffRemains(S.SteadyFocusBuff) < S.SteadyFocus:ExecuteTime() and Player:BuffDown(S.TrueshotBuff)) then
+  if S.SteadyShot:IsCastable() and (S.SteadyFocus:IsAvailable() and Player:BuffRemains(S.SteadyFocusBuff) < S.SteadyShot:ExecuteTime() and Player:BuffDown(S.TrueshotBuff)) then
     if Cast(S.SteadyShot, nil, nil, not TargetInRange40y) then return "steady_shot st 6"; end
   end
   -- volley,if=active_enemies>1|buff.salvo.up
@@ -284,7 +284,7 @@ local function Trickshots()
     if Cast(S.BlackArrow, nil, nil, not TargetInRange40y) then return "black_arrow trickshots 2"; end
   end
   -- steady_shot,if=talent.steady_focus&buff.steady_focus.remains<execute_time&buff.trueshot.down
-  if S.SteadyShot:IsCastable() and (S.SteadyFocus:IsAvailable() and Player:BuffRemains(S.SteadyFocusBuff) < S.SteadyFocus:ExecuteTime() and Player:BuffDown(S.TrueshotBuff)) then
+  if S.SteadyShot:IsCastable() and (S.SteadyFocus:IsAvailable() and Player:BuffRemains(S.SteadyFocusBuff) < S.SteadyShot:ExecuteTime() and Player:BuffDown(S.TrueshotBuff)) then
     if Cast(S.SteadyShot, nil, nil, not TargetInRange40y) then return "steady_shot trickshots 4"; end
   end
   -- explosive_shot
