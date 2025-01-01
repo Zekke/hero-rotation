@@ -138,7 +138,7 @@ local function RtB_Buffs ()
     Cache.APLVar.RtB_Buffs.Normal = 0
     Cache.APLVar.RtB_Buffs.Shorter = 0
     Cache.APLVar.RtB_Buffs.Longer = 0
-    Cache.APLVar.RtB_Buffs.MinRemains = 0
+    Cache.APLVar.RtB_Buffs.MinRemains = 9999
     Cache.APLVar.RtB_Buffs.MaxRemains = 0
     local RtBRemains = Rogue.RtBRemains()
     for i = 1, #RtB_BuffsList do
@@ -181,6 +181,7 @@ local function RtB_Buffs ()
       print("shorter: ", Cache.APLVar.RtB_Buffs.Shorter)
       print("normal: ", Cache.APLVar.RtB_Buffs.Normal)
       print("longer: ", Cache.APLVar.RtB_Buffs.Longer)
+      print("min remains: ", Cache.APLVar.RtB_Buffs.MinRemains)
       print("max remains: ", Cache.APLVar.RtB_Buffs.MaxRemains)
     end
   end
