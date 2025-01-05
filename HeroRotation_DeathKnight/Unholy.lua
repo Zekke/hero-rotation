@@ -430,7 +430,7 @@ local function AoESetup()
     if Cast(S.FesteringScytheAction, nil, nil, not Target:IsInMeleeRange(14)) then return "festering_scythe aoe_setup 2"; end
   end
   -- any_dnd,if=!death_and_decay.ticking&(!talent.bursting_sores&!talent.vile_contagion|death_knight.fwounded_targets=active_enemies|death_knight.fwounded_targets>=8|raid_event.adds.exists&raid_event.adds.remains<=11&raid_event.adds.remains>5|!buff.death_and_decay.up&talent.defile)
-  if AnyDnD:IsReady() and (not Player:DnDTicking() and (not S.BurstingSores:IsAvailable() and not S.VileContagion:IsAvailable() or S.FesteringWoundDebuff:AuraActiveCount() == ActiveEnemies or S.FesteringWoundDebuff:AuraActiveCount() >= 8 or Player:BuffUp(S.DeathAndDecayBuff) and S.Defile:IsAvailable())) then
+  if AnyDnD:IsReady() and Target:IsInMeleeRange(5) and (not Player:DnDTicking() and (not S.BurstingSores:IsAvailable() and not S.VileContagion:IsAvailable() or S.FesteringWoundDebuff:AuraActiveCount() == ActiveEnemies or S.FesteringWoundDebuff:AuraActiveCount() >= 8 or Player:BuffUp(S.DeathAndDecayBuff) and S.Defile:IsAvailable())) then
     if Cast(AnyDnD, Settings.CommonsOGCD.GCDasOffGCD.DeathAndDecay) then return "any_dnd aoe_setup 4"; end
   end
   -- wound_spender,target_if=debuff.chains_of_ice_trollbane_slow.up
@@ -477,7 +477,7 @@ local function CDs()
     if Cast(S.UnholyAssault, Settings.Unholy.GCDasOffGCD.UnholyAssault, nil, not Target:IsInMeleeRange(5)) then return "unholy_assault cds 4"; end
   end
   -- apocalypse,if=variable.st_planning|fight_remains<20
-  if S.Apocalypse:IsReady() and (VarSTPlanning or BossFightRemains < 20) then
+  if S.Apocalypse:IsReady() and Target:DebuffUp(S.FesteringWoundDebuff) and (VarSTPlanning or BossFightRemains < 20) then
     if Cast(S.Apocalypse, Settings.Unholy.GCDasOffGCD.Apocalypse, nil, not Target:IsInMeleeRange(5)) then return "apocalypse cds 6"; end
   end
   -- outbreak,target_if=target.time_to_die>dot.virulent_plague.remains&dot.virulent_plague.ticks_remain<5,if=(dot.virulent_plague.refreshable|talent.superstrain&(dot.frost_fever.refreshable|dot.blood_plague.refreshable))&(!talent.unholy_blight|talent.plaguebringer)&(!talent.raise_abomination|talent.raise_abomination&cooldown.raise_abomination.remains>dot.virulent_plague.ticks_remain*3)
@@ -603,7 +603,7 @@ end
 
 local function Cleave()
   -- any_dnd,if=!death_and_decay.ticking
-  if AnyDnD:IsReady() and (not Player:DnDTicking()) then
+  if AnyDnD:IsReady() and Target:IsInMeleeRange(5) and (not Player:DnDTicking()) then
     if Cast(AnyDnD, Settings.CommonsOGCD.GCDasOffGCD.DeathAndDecay) then return "any_dnd cleave 2"; end
   end
   -- death_coil,if=!variable.pooling_runic_power
@@ -665,7 +665,7 @@ local function SanFishing()
     if Cast(S.AntiMagicShell, Settings.CommonsOGCD.GCDasOffGCD.AntiMagicShell) then return "antimagic_shell san_fishing 2"; end
   end
   -- any_dnd,if=!buff.death_and_decay.up&!buff.vampiric_strike.react
-  if AnyDnD:IsReady() and (Player:BuffDown(S.DeathAndDecayBuff) and not S.VampiricStrikeAction:IsLearned()) then
+  if AnyDnD:IsReady() and Target:IsInMeleeRange(5) and (Player:BuffDown(S.DeathAndDecayBuff) and not S.VampiricStrikeAction:IsLearned()) then
     if Cast(AnyDnD, Settings.CommonsOGCD.GCDasOffGCD.DeathAndDecay) then return "any_dnd san_fishing 4"; end
   end
   -- death_coil,if=buff.sudden_doom.react&talent.doomed_bidding
@@ -692,7 +692,7 @@ end
 
 local function SanST()
   -- any_dnd,if=!death_and_decay.ticking&talent.unholy_ground&cooldown.dark_transformation.remains<5
-  if AnyDnD:IsReady() and (Player:BuffDown(S.DeathAndDecayBuff) and S.UnholyGround:IsAvailable() and S.DarkTransformation:CooldownRemains() < 5) then
+  if AnyDnD:IsReady() and Target:IsInMeleeRange(5) and (Player:BuffDown(S.DeathAndDecayBuff) and S.UnholyGround:IsAvailable() and S.DarkTransformation:CooldownRemains() < 5) then
     if Cast(AnyDnD, Settings.CommonsOGCD.GCDasOffGCD.DeathAndDecay) then return "any_dnd san_st 1"; end
   end
   -- death_coil,if=buff.sudden_doom.react&buff.gift_of_the_sanlayn.remains&(talent.doomed_bidding|talent.rotten_touch)|rune<3&!buff.runic_corruption.up
@@ -777,7 +777,7 @@ local function ST()
     if Cast(WoundSpender, nil, nil, not Target:IsSpellInRange(WoundSpender)) then return "wound_spender st 4"; end
   end
   -- any_dnd,if=talent.unholy_ground&!buff.death_and_decay.up&(pet.apoc_ghoul.active|pet.abomination.active|pet.gargoyle.active)
-  if AnyDnD:IsReady() and (S.UnholyGround:IsAvailable() and Player:BuffDown(S.DeathAndDecayBuff) and (VarApocGhoulActive or VarAbomActive or VarGargActive)) then
+  if AnyDnD:IsReady() and Target:IsInMeleeRange(5) and (S.UnholyGround:IsAvailable() and Player:BuffDown(S.DeathAndDecayBuff) and (VarApocGhoulActive or VarAbomActive or VarGargActive)) then
     if Cast(AnyDnD, Settings.CommonsOGCD.GCDasOffGCD.DeathAndDecay) then return "any_dnd st 6"; end
   end
   -- death_coil,if=!variable.pooling_runic_power&variable.spend_rp|fight_remains<10
@@ -932,7 +932,7 @@ local function APL()
       local ShouldReturn = SanTrinkets(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=trinkets,if=!talent.vampiric_strike
-    if (Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items) and not S.VampiricStrike:IsAvailable() then
+    if CDsON() and (Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items) and not S.VampiricStrike:IsAvailable() then
       local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=racials
