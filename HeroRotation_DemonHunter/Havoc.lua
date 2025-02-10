@@ -506,7 +506,7 @@ local function Opener()
   -- vengeful_retreat,use_off_gcd=1,if=talent.initiative&(buff.initiative.down|talent.restless_hunter&buff.initiative.remains<=0.1)&time>4&((talent.essence_break&!talent.restless_hunter&cooldown.metamorphosis.remains&cooldown.eye_beam.remains)|(talent.essence_break&talent.restless_hunter&(buff.demonsurge_annihilation.down|prev_gcd.1.death_sweep)&(cooldown.eye_beam.remains|debuff.essence_break.up)&buff.metamorphosis.up)|!talent.essence_break)
   -- Note: Added 0.5s to Initiative buff check to account for player latency.
   if S.VengefulRetreat:IsCastable() and (S.Initiative:IsAvailable() and (Player:BuffDown(S.InitiativeBuff) or S.RestlessHunter:IsAvailable() and Player:BuffRemains(S.InitiativeBuff) <= 0.6) and CombatTime > 4 and ((S.EssenceBreak:IsAvailable() and not S.RestlessHunter:IsAvailable() and S.Metamorphosis:CooldownDown() and S.EyeBeam:CooldownDown()) or (S.EssenceBreak:IsAvailable() and S.RestlessHunter:IsAvailable() and (not Player:Demonsurge("Annihilation") or Player:PrevGCD(1, S.DeathSweep)) and (S.EyeBeam:CooldownDown() or Target:DebuffUp(S.EssenceBreakDebuff)) and Player:BuffUp(S.MetamorphosisBuff)) or not S.EssenceBreak:IsAvailable())) then
-    if S.Metamorphosis:IsCastable() then
+    if S.Metamorphosis:IsCastable() and false then
       if HR.CastQueue(S.VengefulRetreat, S.Metamorphosis) then return "vengeful_retreat and metamorphosis opener 6"; end
     else
       if Cast(S.VengefulRetreat, Settings.Havoc.OffGCDasOffGCD.VengefulRetreat) then return "vengeful_retreat opener 8"; end

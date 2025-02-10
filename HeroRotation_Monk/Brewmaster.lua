@@ -258,7 +258,7 @@ local function APL()
       if Cast(S.ChiBurst, nil, nil, not Target:IsInRange(40)) then return "chi_burst main 10"; end
     end
     -- weapons_of_order
-    if S.WeaponsofOrder:IsReady() then
+    if CDsON() and S.WeaponsofOrder:IsReady() then
       if Cast(S.WeaponsofOrder) then return "weapons_of_order main 12"; end
     end
     -- rising_sun_kick,if=!talent.fluidity_of_motion.enabled

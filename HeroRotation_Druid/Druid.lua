@@ -52,6 +52,7 @@ Spell.Druid.Commons = {
   PrimalFury                            = Spell(159286),
   ProtectorofthePack                    = Spell(378986),
   Rake                                  = Spell(1822),
+  Rejuvenation                          = Spell(774),
   Renewal                               = Spell(108238),
   Rip                                   = Spell(1079),
   SkullBash                             = Spell(106839),
@@ -63,6 +64,7 @@ Spell.Druid.Commons = {
   ThrashCat                             = Spell(106830),
   Typhoon                               = Spell(132469),
   WildCharge                            = MultiSpell(16979,49376),
+  WildGrowth                            = Spell(48438),
   -- Buffs
   FrenziedRegenerationBuff              = Spell(22842),
   HeartoftheWildBuff                    = Spell(319454),
@@ -275,6 +277,25 @@ Spell.Druid.Guardian = MergeTableByKey(Spell.Druid.Commons, {
 Spell.Druid.Guardian = MergeTableByKey(Spell.Druid.Guardian, Spell.Druid.DruidoftheClaw)
 Spell.Druid.Guardian = MergeTableByKey(Spell.Druid.Guardian, Spell.Druid.ElunesChosen)
 
+Spell.Druid.Restoration = MergeTableByKey(Spell.Druid.Commons, {
+  -- Abilities
+  Lifebloom                             = Spell(188550),
+  Swiftmend                             = Spell(18562),
+  Swipe                                 = Spell(106785),
+  -- Talents
+  CenarionWard                          = Spell(102351),
+  Efflorescence                         = Spell(145205),
+  Ironbark                              = Spell(10342),
+  GroveGuardians                        = Spell(102693),
+  NaturesSwiftness                      = Spell(132158),
+  -- Buffs
+  Clearcasting                          = Spell(16870),
+  RejuvenationGermination               = Spell(155777),
+
+})
+Spell.Druid.Restoration = MergeTableByKey(Spell.Druid.Restoration, Spell.Druid.Wildstalker)
+Spell.Druid.Restoration = MergeTableByKey(Spell.Druid.Restoration, Spell.Druid.KeeperoftheGrove)
+
 -- Items
 if not Item.Druid then Item.Druid = {} end
 Item.Druid.Commons = {
@@ -301,4 +322,13 @@ Item.Druid.Feral = MergeTableByKey(Item.Druid.Commons, {
 })
 
 Item.Druid.Guardian = MergeTableByKey(Item.Druid.Commons, {
+})
+
+Item.Druid.Restoration = MergeTableByKey(Item.Druid.Commons, {
+  -- TWW Trinkets
+  AberrantSpellforge                    = Item(212451, {13, 14}),
+  ArakaraSacbrood                       = Item(219314, {13, 14}),
+  SignetofthePriory                     = Item(219308, {13, 14}),
+  SpymastersWeb                         = Item(220202, {13, 14}),
+  TreacherousTransmitter                = Item(221023, {13, 14}),
 })

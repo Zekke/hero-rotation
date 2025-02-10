@@ -562,6 +562,9 @@ local function APL()
   end
 
   if Everyone.TargetIsValid() then
+    if Player:BuffUp(S.BearForm) then
+      if HR.CastAnnotated(S.Pool, false, "WAIT") then return "Pool Resources"; end
+    end
     -- Precombat
     if not Player:AffectingCombat() and Player:BuffDown(S.TravelForm) then
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end

@@ -544,7 +544,11 @@ local function Stealthed (ReturnSpellOnly, ForceStealth)
   -- # Rupture during Indiscriminate Carnage
   -- actions.stealthed+=/rupture,target_if=effective_combo_points>=variable.effective_spend_cp&buff.indiscriminate_carnage.up
   -- &refreshable&(!variable.regen_saturated|!variable.scent_saturation|!dot.rupture.ticking)&target.time_to_die>15
-  if S.Rupture:IsCastable() or ForceStealth then
+  -- &((active_dot.rupture<spell_targets.fan_of_knives&active_dot.rupture<5&(debuff.deathmark.up|cooldown.deathmark.ready))|debuff.deathmark.down&!cooldown.deathmark.ready)
+  --HR.Print("Active rupture : " .. S.Rupture:AuraActiveCount() .. "/" .. MeleeEnemies10yCount)
+  if (S.Rupture:IsCastable() or ForceStealth)
+  and ((S.Rupture:AuraActiveCount() < MeleeEnemies10yCount and S.Rupture:AuraActiveCount() < 5 and (S.Deathmark:AnyDebuffUp() or S.Deathmark:IsReady())) or (not S.Deathmark:AnyDebuffUp() and not S.Deathmark:IsReady()) or not CDsON())
+  then
     local function RuptureTargetIfFunc(TargetUnit)
       return TargetUnit:DebuffRemains(S.Rupture)
     end
@@ -1438,6 +1442,7 @@ local function Init ()
   S.Deathmark:RegisterAuraTracking()
   S.Garrote:RegisterAuraTracking()
   S.CrimsonTempest:RegisterAuraTracking()
+  S.Rupture:RegisterAuraTracking()
 
   HR.Print("Assassination Rogue rotation has been updated for patch 11.0.5.")
 end

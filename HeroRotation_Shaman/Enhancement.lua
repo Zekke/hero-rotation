@@ -224,6 +224,48 @@ local function EvaluateCycleFlameShock(TargetUnit)
   return TargetUnit:DebuffRefreshable(S.FlameShockDebuff)
 end
 
+--- ======= CUSTOM =======
+local currentEncounterID = nil
+local currentDifficulty = nil
+
+local function EncounterEventHandler(self, event, encounterID, encounterName, difficulty, raidSize)
+    if event == "ENCOUNTER_START" then
+      currentEncounterID = encounterID
+      currentDifficulty = difficulty
+      --HR.Print("CurrentID = " .. tostring(currentEncounterID))
+      --HR.Print("CurrentDifficulty = " .. tostring(currentDifficulty))
+    elseif event == "ENCOUNTER_END" then
+      currentEncounterID = nil
+      currentDifficulty = nil
+    end
+end
+
+local function AoEBurstCustomCondition ()
+  local bossSpellName, _, _, startTimeMS, endTimeMS, _, _, _, bossSpellID = UnitCastingInfo("boss1")
+  local bossRemainingCastTime
+  EnemiesMelee = Player:GetEnemiesInMeleeRange(10)
+  EnemiesMeleeCount = #EnemiesMelee
+
+  if bossSpellName then
+    bossRemainingCastTime = (endTimeMS - (GetTime() * 1000))/1000
+    -- HR.Print("Boss is casting " .. bossSpellName .. " (" .. tostring(bossSpellID) ..") in " .. tostring(bossRemainingCastTime) .. "s.")
+  end
+
+  HR.Print("Enemies = " .. EnemiesMeleeCount)
+
+  -- Rashanan(2918)
+  if currentEncounterID == 2918 then
+    return EnemiesMeleeCount > 1
+  end
+
+  -- Ovinax(2919)
+  if currentEncounterID == 2919 then
+    return EnemiesMeleeCount > 1 or HL.CombatTime() < 10
+  end
+
+  return true
+end
+
 --- ===== Rotation Functions =====
 local function Precombat()
   -- flask
@@ -496,7 +538,7 @@ end
 
 local function SingleTotemic()
   -- surging_totem
-  if CDsON() and S.SurgingTotem:IsReady() then
+  if S.SurgingTotem:IsReady() then
     if Cast(S.SurgingTotem) then return "surging_totem single_totemic 2"; end
   end
   -- ascendance,if=ti_lightning_bolt&pet.surging_totem.remains>4&(buff.totemic_rebound.stack>=3|buff.maelstrom_weapon.stack>0)
@@ -504,11 +546,11 @@ local function SingleTotemic()
     if Cast(S.Ascendance, Settings.CommonsOGCD.GCDasOffGCD.Ascendance) then return "ascendance single_totemic 4"; end
   end
   -- doom_winds,if=raid_event.adds.in>=action.doom_winds.cooldown&!talent.elemental_spirits.enabled&buff.legacy_of_the_frost_witch.up
-  if S.DoomWinds:IsReady() and (not S.ElementalSpirits:IsAvailable() and Player:BuffUp(S.LegacyoftheFrostWitchBuff)) then
+  if AoEBurstCustomCondition() and S.DoomWinds:IsReady() and (not S.ElementalSpirits:IsAvailable() and Player:BuffUp(S.LegacyoftheFrostWitchBuff)) then
     if Cast(S.DoomWinds, Settings.Enhancement.GCDasOffGCD.DoomWinds, nil, not Target:IsInMeleeRange(5)) then return "doom_winds single_totemic 6"; end
   end
   -- sundering,if=buff.ascendance.up&pet.surging_totem.active&talent.earthsurge.enabled&buff.legacy_of_the_frost_witch.up&buff.totemic_rebound.stack>=5&buff.earthen_weapon.stack>=2
-  if S.Sundering:IsReady() and (Player:BuffUp(S.AscendanceBuff) and TotemFinder(S.SurgingTotem) and S.Earthsurge:IsAvailable() and Player:BuffUp(S.LegacyoftheFrostWitchBuff) and Player:BuffStack(S.TotemicReboundBuff) >= 5 and Player:BuffStack(S.EarthenWeaponBuff) >= 2) then
+  if AoEBurstCustomCondition() and S.Sundering:IsReady() and (Player:BuffUp(S.AscendanceBuff) and TotemFinder(S.SurgingTotem) and S.Earthsurge:IsAvailable() and Player:BuffUp(S.LegacyoftheFrostWitchBuff) and Player:BuffStack(S.TotemicReboundBuff) >= 5 and Player:BuffStack(S.EarthenWeaponBuff) >= 2) then
     if Cast(S.Sundering, Settings.Enhancement.GCDasOffGCD.Sundering, nil, not Target:IsInMeleeRange(11)) then return "sundering single_totemic 8"; end
   end
   -- crash_lightning,if=talent.unrelenting_storms.enabled&talent.alpha_wolf.enabled&alpha_wolf_min_remains=0&buff.earthen_weapon.stack>=8
@@ -520,7 +562,7 @@ local function SingleTotemic()
     if Cast(S.Windstrike, nil, nil, not Target:IsInRange(30)) then return "windstrike single_totemic 12"; end
   end
   -- sundering,if=buff.legacy_of_the_frost_witch.up&cooldown.ascendance.remains>=10&pet.surging_totem.active&buff.totemic_rebound.stack>=3&!buff.ascendance.up
-  if S.Sundering:IsReady() and (Player:BuffUp(S.LegacyoftheFrostWitchBuff) and S.Ascendance:CooldownRemains() >= 10 and TotemFinder(S.SurgingTotem) and Player:BuffStack(S.TotemicReboundBuff) >= 3 and Player:BuffDown(S.AscendanceBuff)) then
+  if AoEBurstCustomCondition() and S.Sundering:IsReady() and (Player:BuffUp(S.LegacyoftheFrostWitchBuff) and S.Ascendance:CooldownRemains() >= 10 and TotemFinder(S.SurgingTotem) and Player:BuffStack(S.TotemicReboundBuff) >= 3 and Player:BuffDown(S.AscendanceBuff)) then
     if Cast(S.Sundering, Settings.Enhancement.GCDasOffGCD.Sundering, nil, not Target:IsInMeleeRange(11)) then return "sundering single_totemic 14"; end
   end
   -- primordial_wave,if=!dot.flame_shock.ticking&talent.molten_assault.enabled&(raid_event.adds.in>action.primordial_wave.cooldown|raid_event.adds.in<6)
@@ -624,7 +666,7 @@ local function SingleTotemic()
     if Cast(S.ElementalBlast, nil, nil, not Target:IsSpellInRange(S.ElementalBlast)) then return "elemental_blast single_totemic 64"; end
   end
   -- doom_winds,if=raid_event.adds.in>=action.doom_winds.cooldown&talent.elemental_spirits.enabled
-  if S.DoomWinds:IsReady() and (S.ElementalSpirits:IsAvailable()) then
+  if AoEBurstCustomCondition() and S.DoomWinds:IsReady() and (S.ElementalSpirits:IsAvailable()) then
     if Cast(S.DoomWinds, Settings.Enhancement.GCDasOffGCD.DoomWinds, nil, not Target:IsInMeleeRange(5)) then return "doom_winds single_totemic 66"; end
   end
   -- flame_shock,if=!ticking&!talent.voltaic_blaze.enabled
@@ -851,7 +893,7 @@ end
 
 local function AoeTotemic()
   -- surging_totem
-  if CDsON() and S.SurgingTotem:IsReady() then
+  if S.SurgingTotem:IsReady() then
     if Cast(S.SurgingTotem) then return "surging_totem aoe_totemic 2"; end
   end
   -- ascendance,if=ti_chain_lightning
@@ -871,7 +913,7 @@ local function AoeTotemic()
     if Cast(S.LightningBolt, nil, nil, not Target:IsSpellInRange(S.LightningBolt)) then return "lightning_bolt aoe_totemic 10"; end
   end
   -- doom_winds,if=!talent.elemental_spirits.enabled&(buff.legacy_of_the_frost_witch.up|!talent.legacy_of_the_frost_witch.enabled)
-  if S.DoomWinds:IsCastable() and (not S.ElementalSpirits:IsAvailable() and (Player:BuffUp(S.LegacyoftheFrostWitchBuff) or not S.LegacyoftheFrostWitch:IsAvailable())) then
+  if CDsON() and S.DoomWinds:IsCastable() and (not S.ElementalSpirits:IsAvailable() and (Player:BuffUp(S.LegacyoftheFrostWitchBuff) or not S.LegacyoftheFrostWitch:IsAvailable())) then
     if Cast(S.DoomWinds, Settings.Enhancement.GCDasOffGCD.DoomWinds, nil, not Target:IsInMeleeRange(5)) then return "doom_winds aoe_totemic 12"; end
   end
   -- lava_lash,if=talent.molten_assault.enabled&(talent.primordial_wave.enabled|talent.fire_nova.enabled)&dot.flame_shock.ticking&(active_dot.flame_shock<active_enemies)&active_dot.flame_shock<6
@@ -895,7 +937,7 @@ local function AoeTotemic()
     if Cast(S.FeralSpirit, Settings.Enhancement.GCDasOffGCD.FeralSpirit) then return "feral_spirit aoe_totemic 22"; end
   end
   -- doom_winds,if=buff.legacy_of_the_frost_witch.up|!talent.legacy_of_the_frost_witch.enabled
-  if S.DoomWinds:IsCastable() and (Player:BuffUp(S.LegacyoftheFrostWitchBuff) or not S.LegacyoftheFrostWitch:IsAvailable()) then
+  if CDsON() and S.DoomWinds:IsCastable() and (Player:BuffUp(S.LegacyoftheFrostWitchBuff) or not S.LegacyoftheFrostWitch:IsAvailable()) then
     if Cast(S.DoomWinds, Settings.Enhancement.GCDasOffGCD.DoomWinds, nil, not Target:IsInMeleeRange(5)) then return "doom_winds aoe_totemic 24"; end
   end
   -- crash_lightning,if=buff.doom_winds.up|!buff.crash_lightning.up|(talent.alpha_wolf.enabled&feral_spirit.active&alpha_wolf_min_remains=0)
