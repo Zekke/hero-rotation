@@ -168,9 +168,11 @@ Spell.Druid.Balance = MergeTableByKey(Spell.Druid.Commons, {
   -- Buffs
   BOATArcaneBuff                        = Spell(394050),
   BOATNatureBuff                        = Spell(394049),
-  CABuff                                = Spell(383410),
+  CABuff1                               = Spell(194223),
+  CABuff2                               = Spell(383410),
   DreamstateBuff                        = Spell(450346),
-  IncarnationBuff                       = Spell(390414),
+  IncarnationBuff1                      = Spell(102560),
+  IncarnationBuff2                      = Spell(390414),
   PAPBuff                               = Spell(393961),
   RattledStarsBuff                      = Spell(393955),
   SolsticeBuff                          = Spell(343648),
@@ -288,6 +290,7 @@ Spell.Druid.Restoration = MergeTableByKey(Spell.Druid.Commons, {
   Ironbark                              = Spell(10342),
   GroveGuardians                        = Spell(102693),
   NaturesSwiftness                      = Spell(132158),
+  Photosynthesis                        = Spell(274902),
   -- Buffs
   Clearcasting                          = Spell(16870),
   RejuvenationGermination               = Spell(155777),

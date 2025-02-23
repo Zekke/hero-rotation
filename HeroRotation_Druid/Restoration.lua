@@ -213,7 +213,7 @@ local function HealParty()
     end
   end
 
-  if S.Lifebloom:IsCastable() and Target:BuffDown(S.Lifebloom) and CountBuff(S.Lifebloom) < 2 then
+  if S.Lifebloom:IsCastable() and Target:BuffDown(S.Lifebloom) and CountBuff(S.Lifebloom) < (1 + num(S.Photosynthesis:IsAvailable())) then
     if Cast(S.Lifebloom) then return "Lifebloom"; end
   end
   if S.Regrowth:IsCastable() and Target:BuffDown(S.Lifebloom) and Player:BuffUp(S.Clearcasting) then
@@ -338,8 +338,8 @@ local function APL()
     -- Manually added: Pool, if nothing else to do.
     if HR.CastAnnotated(S.Pool, false, "WAIT") then return "Pool Resources"; end
   end
-
-  if Everyone.TargetIsFriendly() and IsInGroup() then
+  --and IsInGroup()
+  if Everyone.TargetIsFriendly() then
     ShouldReturn = HealParty()
     if ShouldReturn then return "Heal: " .. ShouldReturn end
   end

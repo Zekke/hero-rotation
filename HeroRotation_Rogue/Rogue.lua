@@ -135,6 +135,8 @@ Spell.Rogue.Commons = {
   WithoutATrace           = Spell(382513),
   -- Trinkets
   BlazingSoul             = Spell(426898),
+  RecklessIncubation      = Spell(449595), --Ovi'nax's Mercurial Egg Secondary stats buff
+  DeliberateIncubation    = Spell(449578), --Ovi'nax's Mercurial Egg Main stats buff
   -- Misc
   PoolEnergy              = Spell(999910),
 }
@@ -336,7 +338,8 @@ Item.Rogue.Outlaw = {
   BottledFlayedwingToxin   = Item(178742, {13, 14}),
   ImperfectAscendancySerum = Item(225654, {13, 14}),
   MadQueensMandate         = Item(212454, {13, 14}),
-  ScrollOfMomentum         = Item(226539, {13, 14})
+  ScrollOfMomentum         = Item(226539, {13, 14}),
+  OvinaxsMercurialEgg       = Item(220305, {13, 14})
 }
 
 Item.Rogue.Subtlety = {

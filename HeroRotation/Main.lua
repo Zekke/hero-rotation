@@ -362,7 +362,7 @@ local EnabledRotation = {
   [66]    = "HeroRotation_Paladin",       -- Protection
   [70]    = "HeroRotation_Paladin",       -- Retribution
   -- Priest
-  --[256]   = "HeroRotation_Priest",        -- Discipline
+  [256]   = "HeroRotation_Priest",        -- Discipline
   [257]   = "HeroRotation_Priest",        -- Holy
   [258]   = "HeroRotation_Priest",        -- Shadow
   -- Rogue

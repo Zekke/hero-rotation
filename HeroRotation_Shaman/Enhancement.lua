@@ -240,27 +240,94 @@ local function EncounterEventHandler(self, event, encounterID, encounterName, di
     end
 end
 
-local function AoEBurstCustomCondition ()
+local function CombatTiming(timer, minTime, maxTime)
+  return (timer >= minTime and timer <= maxTime)
+end
+
+local function DelayForAdds(TimeToKill, Timer, addTimers, coolDown)
+  local nextAddTimer = nil
+  for _, addTime in ipairs(addTimers) do
+    if addTime > Timer then
+      nextAddTimer = addTime
+      break
+    end
+  end
+
+  if not nextAddTimer or (nextAddTimer - Timer > coolDown) or (TimeToKill < nextAddTimer - Timer) then
+    return false
+  end
+    
+  return true
+end
+
+local function SunderingCustomCondition ()
   local bossSpellName, _, _, startTimeMS, endTimeMS, _, _, _, bossSpellID = UnitCastingInfo("boss1")
   local bossRemainingCastTime
   EnemiesMelee = Player:GetEnemiesInMeleeRange(10)
   EnemiesMeleeCount = #EnemiesMelee
+  local combatTime = HL.CombatTime()
+  local TTK = Target:TimeToDie()
 
   if bossSpellName then
     bossRemainingCastTime = (endTimeMS - (GetTime() * 1000))/1000
     -- HR.Print("Boss is casting " .. bossSpellName .. " (" .. tostring(bossSpellID) ..") in " .. tostring(bossRemainingCastTime) .. "s.")
   end
 
-  HR.Print("Enemies = " .. EnemiesMeleeCount)
+  --HR.Print("Enemies = " .. EnemiesMeleeCount)
+  --HR.Print("CombatTime = " .. combatTime)
 
   -- Rashanan(2918)
+  local RashananMythicAddTimers = {25, 85, 215, 235, 280, 305}
+  local RashananHeroicAddTimers = {65, 150, 228, 258, 278}
   if currentEncounterID == 2918 then
-    return EnemiesMeleeCount > 1
+    -- Mythic(16)
+    if currentDifficulty == 16 then
+      return not DelayForAdds(TTK, combatTime, RashananMythicAddTimers, 30) 
+    end
+    -- Heroic (15)
+    if currentDifficulty == 15 then
+      return not DelayForAdds(TTK, combatTime, RashananHeroicAddTimers, 30)
+    end
   end
 
   -- Ovinax(2919)
   if currentEncounterID == 2919 then
-    return EnemiesMeleeCount > 1 or HL.CombatTime() < 10
+    return HL.CombatTime() < 10 or TTK < 15
+  end
+
+  return true
+end
+
+local function DoomWindsCustomCondition ()
+  local bossSpellName, _, _, startTimeMS, endTimeMS, _, _, _, bossSpellID = UnitCastingInfo("boss1")
+  local bossRemainingCastTime
+  EnemiesMelee = Player:GetEnemiesInMeleeRange(10)
+  EnemiesMeleeCount = #EnemiesMelee
+  local combatTime = HL.CombatTime()
+  local TTK = Target:TimeToDie()
+
+  if bossSpellName then
+    bossRemainingCastTime = (endTimeMS - (GetTime() * 1000))/1000
+    -- HR.Print("Boss is casting " .. bossSpellName .. " (" .. tostring(bossSpellID) ..") in " .. tostring(bossRemainingCastTime) .. "s.")
+  end
+
+  -- Rashanan(2918)
+  local RashananMythicAddTimers = {25, 85, 215, 235, 280, 305}
+  local RashananHeroicAddTimers = {65, 150, 228, 258, 278}
+  if currentEncounterID == 2918 then
+    -- Mythic(16)
+    if currentDifficulty == 16 then
+      return not DelayForAdds(TTK, combatTime, RashananMythicAddTimers, 60) or bossSpellID == 455373
+    end
+    -- Heroic (15)
+    if currentDifficulty == 15 then
+      return not DelayForAdds(TTK, combatTime, RashananHeroicAddTimers, 60) or bossSpellID == 455373
+    end
+  end
+
+  -- Ovinax(2919)
+  if currentEncounterID == 2919 then
+    return HL.CombatTime() < 10 or TTK < 15
   end
 
   return true
@@ -546,11 +613,11 @@ local function SingleTotemic()
     if Cast(S.Ascendance, Settings.CommonsOGCD.GCDasOffGCD.Ascendance) then return "ascendance single_totemic 4"; end
   end
   -- doom_winds,if=raid_event.adds.in>=action.doom_winds.cooldown&!talent.elemental_spirits.enabled&buff.legacy_of_the_frost_witch.up
-  if AoEBurstCustomCondition() and S.DoomWinds:IsReady() and (not S.ElementalSpirits:IsAvailable() and Player:BuffUp(S.LegacyoftheFrostWitchBuff)) then
+  if DoomWindsCustomCondition() and S.DoomWinds:IsReady() and (not S.ElementalSpirits:IsAvailable() and Player:BuffUp(S.LegacyoftheFrostWitchBuff)) then
     if Cast(S.DoomWinds, Settings.Enhancement.GCDasOffGCD.DoomWinds, nil, not Target:IsInMeleeRange(5)) then return "doom_winds single_totemic 6"; end
   end
   -- sundering,if=buff.ascendance.up&pet.surging_totem.active&talent.earthsurge.enabled&buff.legacy_of_the_frost_witch.up&buff.totemic_rebound.stack>=5&buff.earthen_weapon.stack>=2
-  if AoEBurstCustomCondition() and S.Sundering:IsReady() and (Player:BuffUp(S.AscendanceBuff) and TotemFinder(S.SurgingTotem) and S.Earthsurge:IsAvailable() and Player:BuffUp(S.LegacyoftheFrostWitchBuff) and Player:BuffStack(S.TotemicReboundBuff) >= 5 and Player:BuffStack(S.EarthenWeaponBuff) >= 2) then
+  if SunderingCustomCondition() and S.Sundering:IsReady() and (Player:BuffUp(S.AscendanceBuff) and TotemFinder(S.SurgingTotem) and S.Earthsurge:IsAvailable() and Player:BuffUp(S.LegacyoftheFrostWitchBuff) and Player:BuffStack(S.TotemicReboundBuff) >= 5 and Player:BuffStack(S.EarthenWeaponBuff) >= 2) then
     if Cast(S.Sundering, Settings.Enhancement.GCDasOffGCD.Sundering, nil, not Target:IsInMeleeRange(11)) then return "sundering single_totemic 8"; end
   end
   -- crash_lightning,if=talent.unrelenting_storms.enabled&talent.alpha_wolf.enabled&alpha_wolf_min_remains=0&buff.earthen_weapon.stack>=8
@@ -562,7 +629,7 @@ local function SingleTotemic()
     if Cast(S.Windstrike, nil, nil, not Target:IsInRange(30)) then return "windstrike single_totemic 12"; end
   end
   -- sundering,if=buff.legacy_of_the_frost_witch.up&cooldown.ascendance.remains>=10&pet.surging_totem.active&buff.totemic_rebound.stack>=3&!buff.ascendance.up
-  if AoEBurstCustomCondition() and S.Sundering:IsReady() and (Player:BuffUp(S.LegacyoftheFrostWitchBuff) and S.Ascendance:CooldownRemains() >= 10 and TotemFinder(S.SurgingTotem) and Player:BuffStack(S.TotemicReboundBuff) >= 3 and Player:BuffDown(S.AscendanceBuff)) then
+  if SunderingCustomCondition() and S.Sundering:IsReady() and (Player:BuffUp(S.LegacyoftheFrostWitchBuff) and S.Ascendance:CooldownRemains() >= 10 and TotemFinder(S.SurgingTotem) and Player:BuffStack(S.TotemicReboundBuff) >= 3 and Player:BuffDown(S.AscendanceBuff)) then
     if Cast(S.Sundering, Settings.Enhancement.GCDasOffGCD.Sundering, nil, not Target:IsInMeleeRange(11)) then return "sundering single_totemic 14"; end
   end
   -- primordial_wave,if=!dot.flame_shock.ticking&talent.molten_assault.enabled&(raid_event.adds.in>action.primordial_wave.cooldown|raid_event.adds.in<6)
@@ -666,7 +733,7 @@ local function SingleTotemic()
     if Cast(S.ElementalBlast, nil, nil, not Target:IsSpellInRange(S.ElementalBlast)) then return "elemental_blast single_totemic 64"; end
   end
   -- doom_winds,if=raid_event.adds.in>=action.doom_winds.cooldown&talent.elemental_spirits.enabled
-  if AoEBurstCustomCondition() and S.DoomWinds:IsReady() and (S.ElementalSpirits:IsAvailable()) then
+  if DoomWindsCustomCondition() and S.DoomWinds:IsReady() and (S.ElementalSpirits:IsAvailable()) then
     if Cast(S.DoomWinds, Settings.Enhancement.GCDasOffGCD.DoomWinds, nil, not Target:IsInMeleeRange(5)) then return "doom_winds single_totemic 66"; end
   end
   -- flame_shock,if=!ticking&!talent.voltaic_blaze.enabled

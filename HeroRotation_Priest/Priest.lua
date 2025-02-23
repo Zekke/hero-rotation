@@ -148,6 +148,16 @@ Spell.Priest.Holy = MergeTableByKey(Spell.Priest.Commons, {
 HolyWordChastise              = Spell(88625),
 HolyFire                      = Spell(14914),
 })
+Spell.Priest.Holy = MergeTableByKey(Spell.Priest.Holy, Spell.Priest.Archon)
+--Spell.Priest.Holy = MergeTableByKey(Spell.Priest.Holy, Spell.Priest.Oracle)
+
+Spell.Priest.Discipline = MergeTableByKey(Spell.Priest.Commons, {
+Penance                       = Spell(47540),
+PurgetheWicked                = Spell(204197),
+Atonement                     = Spell(194384),
+})
+Spell.Priest.Holy = MergeTableByKey(Spell.Priest.Holy, Spell.Priest.Voidweaver)
+--Spell.Priest.Holy = MergeTableByKey(Spell.Priest.Holy, Spell.Priest.Oracle)
 
 -- Items
 if not Item.Priest then Item.Priest = {} end

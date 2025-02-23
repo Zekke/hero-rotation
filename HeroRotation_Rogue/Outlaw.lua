@@ -55,7 +55,8 @@ local I = Item.Rogue.Outlaw
 local OnUseExcludes = {
   I.BottledFlayedwingToxin:ID(),
   I.ImperfectAscendancySerum:ID(),
-  I.MadQueensMandate:ID()
+  I.MadQueensMandate:ID(),
+  I.OvinaxsMercurialEgg:ID()
 }
 
 -- Trinkets
@@ -873,6 +874,11 @@ local function CDs ()
   end
 
   if Settings.Commons.Enabled.Trinkets then
+    if I.OvinaxsMercurialEgg:IsEquippedAndReady() and Player:BuffStack(S.DeliberateIncubation) == 20 then
+      if Cast(I.OvinaxsMercurialEgg, nil, Settings.CommonsDS.DisplayStyle.Trinkets, nil) then
+        return "Ovi'nax's Mercurial Egg"
+      end
+    end
     -- # Default conditions for usable items.
     -- actions.cds+=/use_items,slots=trinket1,if=debuff.between_the_eyes.up|trinket.1.has_stat.any_dps|fight_remains<=20
     -- actions.cds+=/use_items,slots=trinket2,if=debuff.between_the_eyes.up|trinket.2.has_stat.any_dps|fight_remains<=20

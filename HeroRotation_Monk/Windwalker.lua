@@ -158,7 +158,8 @@ end
 
 local function MotCCastSwitcher(SpellToCast, Enemies, Mode, ETIF, ETI, Range)
   if MotCCount < mathmin(Settings.Windwalker.MotCCountThreshold, EnemiesCount8y) or MotCMinTime < Settings.Windwalker.MotCMinTimeThreshold then
-    return Everyone.CastTargetIf(SpellToCast, Enemies, Mode, ETIF, ETI, not Target:IsInMeleeRange(Range))
+    Everyone.CastTargetIf(SpellToCast, Enemies, Mode, ETIF, ETI, not Target:IsInMeleeRange(Range))
+    return Cast(SpellToCast, nil, nil, not Target:IsInMeleeRange(Range))
   else
     return Cast(SpellToCast, nil, nil, not Target:IsInMeleeRange(Range))
   end
