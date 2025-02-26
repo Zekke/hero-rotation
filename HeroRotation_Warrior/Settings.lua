@@ -33,17 +33,18 @@ HR.GUISettings.APL.Warrior = {
       Potions = "Suggested",
       Trinkets = "Suggested",
       -- Class Specific
+      BattleShout = "Suggested",
       ChampionsSpear = "Suggested",
       Charge = "Suggested",
       Demolish = "Suggested",
       HeroicLeap = "Suggested",
       OdynsFury = "Suggested",
+      VictoryRush = "Main Icon",
     },
   },
   CommonsOGCD = {
     -- {Display OffGCD as OffGCD, ForceReturn}
     GCDasOffGCD = {
-      BattleShout = true,
       Bladestorm = false,
       Ravager = false,
     },
@@ -63,6 +64,8 @@ HR.GUISettings.APL.Warrior = {
       IgnorePain = false,
       Ravager = false,
       Shockwave = true,
+      Skullsplitter = false,
+      SweepingStrikes = false,
       ThunderousRoar = false,
       Warbreaker = false,
     },

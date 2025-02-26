@@ -162,7 +162,7 @@ local function Precombat()
   -- Note: Moved the above variables to declarations and PLAYER_EQUIPMENT_CHANGED.
   -- Manually added: Group buff check
   if S.BattleShout:IsCastable() and Everyone.GroupBuffMissing(S.BattleShoutBuff) then
-    if Cast(S.BattleShout, Settings.CommonsOGCD.GCDasOffGCD.BattleShout) then return "battle_shout precombat 2"; end
+    if Cast(S.BattleShout, nil, Settings.CommonsDS.DisplayStyle.BattleShout) then return "battle_shout precombat 2"; end
   end
   -- battle_stance,toggle=on
   if S.BattleStance:IsCastable() and Player:BuffDown(S.BattleStance) then
@@ -171,7 +171,7 @@ local function Precombat()
   -- Manually added: pre-pull
   if TargetInMeleeRange then
     if S.Skullsplitter:IsCastable() then
-      if Cast(S.Skullsplitter, nil, nil, not TargetInMeleeRange) then return "skullsplitter precombat 8"; end
+      if Cast(S.Skullsplitter, Settings.Arms.GCDasOffGCD.Skullsplitter, nil, not TargetInMeleeRange) then return "skullsplitter precombat 8"; end
     end
     if CDsON() and S.ColossusSmash:IsCastable() then
       if Cast(S.ColossusSmash, Settings.Arms.GCDasOffGCD.ColossusSmash, nil, not TargetInMeleeRange) then return "colossus_smash precombat 10"; end
@@ -227,7 +227,7 @@ local function ColossusST()
   end
   -- skullsplitter
   if S.Skullsplitter:IsCastable() then
-    if Everyone.CastTargetIf(S.Skullsplitter, Enemies8y, "min", EvaluateTargetIfFilterLowestHP, nil, not Target:IsInMeleeRange(8)) then return "sweeping_strikes colossus_st 20"; end
+    if Everyone.CastTargetIf(S.Skullsplitter, Enemies8y, "min", EvaluateTargetIfFilterLowestHP, nil, not Target:IsInMeleeRange(8), Settings.Arms.GCDasOffGCD.Skullsplitter) then return "skullsplitter colossus_st 20"; end
   end
   -- overpower,if=charges=2
   if S.Overpower:IsCastable() and (S.Overpower:Charges() == 2) then
@@ -254,7 +254,7 @@ end
 local function ColossusExecute()
   -- sweeping_strikes,if=active_enemies=2
   if S.SweepingStrikes:IsCastable() and (EnemiesCount8y == 2) then
-    if Cast(S.SweepingStrikes) then return "sweeping_strikes colossus_execute 2"; end
+    if Cast(S.SweepingStrikes, Settings.Arms.GCDasOffGCD.SweepingStrikes) then return "sweeping_strikes colossus_execute 2"; end
   end
   -- rend,if=dot.rend.remains<=gcd&!talent.bloodletting
   if S.Rend:IsCastable() and (Target:DebuffRemains(S.RendDebuff) <= Player:GCD() and not S.Bloodletting:IsAvailable()) then
@@ -286,7 +286,7 @@ local function ColossusExecute()
   end
   -- skullsplitter,if=rage<85
   if S.Skullsplitter:IsCastable() and (Player:Rage() < 85) then
-    if Cast(S.Skullsplitter, nil, nil, not Target:IsInMeleeRange(8)) then return "skullsplitter colossus_execute 18"; end
+    if Cast(S.Skullsplitter, Settings.Arms.GCDasOffGCD.Skullsplitter, nil, not Target:IsInMeleeRange(8)) then return "skullsplitter colossus_execute 18"; end
   end
   -- demolish,if=debuff.colossus_smash.up
   if S.Demolish:IsCastable() and (Target:DebuffUp(S.ColossusSmashDebuff)) then
@@ -310,7 +310,7 @@ local function ColossusExecute()
   end
   -- skullsplitter
   if S.Skullsplitter:IsCastable() then
-    if Everyone.CastTargetIf(S.Skullsplitter, Enemies8y, "min", EvaluateTargetIfFilterLowestHP, nil, not Target:IsInMeleeRange(8)) then return "sweeping_strikes colossus_execute 30"; end
+    if Everyone.CastTargetIf(S.Skullsplitter, Enemies8y, "min", EvaluateTargetIfFilterLowestHP, nil, not Target:IsInMeleeRange(8), Settings.Arms.GCDasOffGCD.Skullsplitter) then return "skullsplitter colossus_execute 30"; end
   end
   -- overpower
   if S.Overpower:IsCastable() then
@@ -333,7 +333,7 @@ end
 local function ColossusSweep()
   -- sweeping_strikes
   if CDsON() and S.SweepingStrikes:IsCastable() then
-    if Everyone.CastTargetIf(S.SweepingStrikes, Enemies8y, "min", EvaluateTargetIfFilterLowestHP, nil, not Target:IsInMeleeRange(8)) then return "sweeping_strikes colossus_sweep 2"; end
+    if Everyone.CastTargetIf(S.SweepingStrikes, Enemies8y, "min", EvaluateTargetIfFilterLowestHP, nil, not Target:IsInMeleeRange(8), Settings.Arms.GCDasOffGCD.SweepingStrikes) then return "sweeping_strikes colossus_sweep 2"; end
   end
   -- rend,if=dot.rend.remains<=gcd&buff.sweeping_strikes.up
   if S.Rend:IsCastable() and (Target:DebuffRemains(S.RendDebuff) <= Player:GCD() and Player:BuffUp(S.SweepingStrikesBuff)) then
@@ -369,7 +369,7 @@ local function ColossusSweep()
   end
   -- skullsplitter,if=buff.sweeping_strikes.up
   if S.Skullsplitter:IsCastable() and (Player:BuffUp(S.SweepingStrikesBuff)) then
-    if Everyone.CastTargetIf(S.Skullsplitter, Enemies8y, "min", EvaluateTargetIfFilterLowestHP, nil, not Target:IsInMeleeRange(8)) then return "sweeping_strikes colossus_sweep 20"; end
+    if Everyone.CastTargetIf(S.Skullsplitter, Enemies8y, "min", EvaluateTargetIfFilterLowestHP, nil, not Target:IsInMeleeRange(8), Settings.Arms.GCDasOffGCD.Skullsplitter) then return "skullsplitter colossus_sweep 20"; end
   end
   -- overpower,if=buff.sweeping_strikes.up
   if S.Overpower:IsCastable() and (Player:BuffUp(S.SweepingStrikesBuff)) then
@@ -440,7 +440,7 @@ local function ColossusAoE()
   end
   -- sweeping_strikes
   if CDsON() and S.SweepingStrikes:IsCastable() then
-    if Everyone.CastTargetIf(S.SweepingStrikes, Enemies8y, "min", EvaluateTargetIfFilterLowestHP, nil, not Target:IsInMeleeRange(8)) then return "sweeping_strikes colossus_aoe 10"; end
+    if Everyone.CastTargetIf(S.SweepingStrikes, Enemies8y, "min", EvaluateTargetIfFilterLowestHP, nil, not Target:IsInMeleeRange(8), Settings.Arms.GCDasOffGCD.SweepingStrikes) then return "sweeping_strikes colossus_aoe 10"; end
   end
   -- ravager
   if CDsON() and S.Ravager:IsCastable() then
@@ -480,7 +480,7 @@ local function ColossusAoE()
   end
   -- skullsplitter,if=buff.sweeping_strikes.up
   if S.Skullsplitter:IsCastable() and (Player:BuffUp(S.SweepingStrikesBuff)) then
-    if Cast(S.Skullsplitter, nil, nil, not Target:IsInMeleeRange(8)) then return "sweeping_strikes colossus_aoe 28"; end
+    if Cast(S.Skullsplitter, Settings.Arms.GCDasOffGCD.Skullsplitter, nil, not Target:IsInMeleeRange(8)) then return "skullsplitter colossus_aoe 28"; end
   end
   -- execute,if=buff.sweeping_strikes.up
   if S.Execute:IsReady() and (Player:BuffUp(S.SweepingStrikesBuff)) then
@@ -504,7 +504,7 @@ local function ColossusAoE()
   end
   -- skullsplitter
   if S.Skullsplitter:IsCastable() then
-    if Cast(S.Skullsplitter, nil, nil, not Target:IsInMeleeRange(8)) then return "sweeping_strikes colossus_aoe 40"; end
+    if Cast(S.Skullsplitter, Settings.Arms.GCDasOffGCD.Skullsplitter, nil, not Target:IsInMeleeRange(8)) then return "skullsplitter colossus_aoe 40"; end
   end
   -- execute
   if S.Execute:IsReady() then
@@ -521,6 +521,10 @@ local function ColossusAoE()
 end
 
 local function SlayerST()
+  -- From below: Force StormBolt to the top while Bladestorm is up, as it's the only spell able to be cast.
+  if S.StormBolt:IsCastable() and (Player:BuffUp(S.Bladestorm)) then
+    if Cast(S.StormBolt, nil, nil, not Target:IsInRange(20)) then return "storm_bolt slayer_st 1"; end
+  end
   -- rend,if=dot.rend.remains<=gcd
   if S.Rend:IsCastable() and (Target:DebuffRemains(S.RendDebuff) <= Player:GCD()) then
     if Cast(S.Rend, nil, nil, not TargetInMeleeRange) then return "rend slayer_st 2"; end
@@ -563,7 +567,7 @@ local function SlayerST()
   end
   -- skullsplitter
   if S.Skullsplitter:IsCastable() then
-    if Cast(S.Skullsplitter, nil, nil, not Target:IsInMeleeRange(8)) then return "sweeping_strikes slayer_st 22"; end
+    if Cast(S.Skullsplitter, Settings.Arms.GCDasOffGCD.Skullsplitter, nil, not Target:IsInMeleeRange(8)) then return "skullsplitter slayer_st 22"; end
   end
   -- overpower
   if S.Overpower:IsCastable() then
@@ -588,9 +592,13 @@ local function SlayerST()
 end
 
 local function SlayerExecute()
+  -- From below: Force StormBolt to the top while Bladestorm is up, as it's the only spell able to be cast.
+  if S.StormBolt:IsCastable() and (Player:BuffUp(S.Bladestorm)) then
+    if Cast(S.StormBolt, nil, nil, not Target:IsInRange(20)) then return "storm_bolt slayer_execute 1"; end
+  end
   -- sweeping_strikes,if=active_enemies=2
   if S.SweepingStrikes:IsCastable() and (EnemiesCount8y == 2) then
-    if Cast(S.SweepingStrikes) then return "sweeping_strikes slayer_execute 2"; end
+    if Cast(S.SweepingStrikes, Settings.Arms.GCDasOffGCD.SweepingStrikes) then return "sweeping_strikes slayer_execute 2"; end
   end
   -- rend,if=dot.rend.remains<=gcd&!talent.bloodletting
   if S.Rend:IsCastable() and (Target:DebuffRemains(S.RendDebuff) <= Player:GCD() and not S.Bloodletting:IsAvailable()) then
@@ -626,7 +634,7 @@ local function SlayerExecute()
   end
   -- skullsplitter,if=rage<85
   if S.Skullsplitter:IsCastable() and (Player:Rage() < 85) then
-    if Cast(S.Skullsplitter, nil, nil, not Target:IsInMeleeRange(8)) then return "sweeping_strikes slayer_execute 22"; end
+    if Cast(S.Skullsplitter, Settings.Arms.GCDasOffGCD.Skullsplitter, nil, not Target:IsInMeleeRange(8)) then return "skullsplitter slayer_execute 22"; end
   end
   -- mortal_strike,if=dot.rend.remains<2|(debuff.executioners_precision.stack=2&buff.lethal_blows.stack=2)
   if S.MortalStrike:IsReady() and (Target:DebuffRemains(S.RendDebuff) < 2 or (Target:DebuffStack(S.ExecutionersPrecisionDebuff) == 2 and Player:BuffStack(S.LethalBlowsBuff) == 2)) then
@@ -655,13 +663,17 @@ local function SlayerExecute()
 end
 
 local function SlayerSweep()
+  -- From below: Force StormBolt to the top while Bladestorm is up, as it's the only spell able to be cast.
+  if S.StormBolt:IsCastable() and (Player:BuffUp(S.Bladestorm)) then
+    if Cast(S.StormBolt, nil, nil, not Target:IsInRange(20)) then return "storm_bolt slayer_sweep 1"; end
+  end
   -- thunderous_roar
   if CDsON() and S.ThunderousRoar:IsCastable() then
     if Cast(S.ThunderousRoar, Settings.Arms.GCDasOffGCD.ThunderousRoar, nil, not Target:IsInMeleeRange(12)) then return "thunderous_roar slayer_sweep 2"; end
   end
   -- sweeping_strikes
   if CDsON() and S.SweepingStrikes:IsCastable() then
-    if Cast(S.SweepingStrikes) then return "sweeping_strikes slayer_sweep 4"; end
+    if Cast(S.SweepingStrikes, Settings.Arms.GCDasOffGCD.SweepingStrikes) then return "sweeping_strikes slayer_sweep 4"; end
   end
   -- rend,if=dot.rend.remains<=gcd
   if S.Rend:IsCastable() and (Target:DebuffRemains(S.RendDebuff) <= Player:GCD()) then
@@ -685,7 +697,7 @@ local function SlayerSweep()
   end
   -- skullsplitter,if=buff.sweeping_strikes.up
   if S.Skullsplitter:IsCastable() and (Player:BuffUp(S.SweepingStrikesBuff)) then
-    if Cast(S.Skullsplitter, nil, nil, not Target:IsInMeleeRange(8)) then return "sweeping_strikes slayer_sweep 16"; end
+    if Cast(S.Skullsplitter, Settings.Arms.GCDasOffGCD.Skullsplitter, nil, not Target:IsInMeleeRange(8)) then return "skullsplitter slayer_sweep 16"; end
   end
   -- execute,if=debuff.marked_for_execution.stack=3
   if S.Execute:IsReady() and (Target:DebuffStack(S.MarkedforExecutionDebuff) == 3) then
@@ -738,13 +750,17 @@ local function SlayerSweep()
 end
 
 local function SlayerAoE()
+  -- From below: Force StormBolt to the top while Bladestorm is up, as it's the only spell able to be cast.
+  if S.StormBolt:IsCastable() and (Player:BuffUp(S.Bladestorm)) then
+    if Cast(S.StormBolt, nil, nil, not Target:IsInRange(20)) then return "storm_bolt slayer_aoe 1"; end
+  end
   -- thunder_clap,if=!dot.rend.remains
   if S.ThunderClap:IsReady() and (Target:DebuffDown(S.RendDebuff)) then
     if Cast(S.ThunderClap, nil, nil, not TargetInMeleeRange) then return "thunder_clap slayer_aoe 2"; end
   end
   -- sweeping_strikes
   if CDsON() and S.SweepingStrikes:IsCastable() then
-    if Cast(S.SweepingStrikes) then return "sweeping_strikes slayer_aoe 4"; end
+    if Cast(S.SweepingStrikes, Settings.Arms.GCDasOffGCD.SweepingStrikes) then return "sweeping_strikes slayer_aoe 4"; end
   end
   -- thunderous_roar
   if CDsON() and S.ThunderousRoar:IsCastable() then
@@ -804,7 +820,7 @@ local function SlayerAoE()
   end
   -- skullsplitter,if=buff.sweeping_strikes.up
   if S.Skullsplitter:IsCastable() and (Player:BuffUp(S.SweepingStrikesBuff)) then
-    if Cast(S.Skullsplitter, nil, nil, not Target:IsInMeleeRange(8)) then return "sweeping_strikes slayer_aoe 34"; end
+    if Cast(S.Skullsplitter, Settings.Arms.GCDasOffGCD.Skullsplitter, nil, not Target:IsInMeleeRange(8)) then return "skullsplitter slayer_aoe 34"; end
   end
   -- overpower
   if S.Overpower:IsCastable() then
@@ -828,7 +844,7 @@ local function SlayerAoE()
   end
   -- skullsplitter
   if S.Skullsplitter:IsCastable() then
-    if Cast(S.Skullsplitter, nil, nil, not Target:IsInMeleeRange(8)) then return "sweeping_strikes slayer_aoe 46"; end
+    if Cast(S.Skullsplitter, Settings.Arms.GCDasOffGCD.Skullsplitter, nil, not Target:IsInMeleeRange(8)) then return "skullsplitter slayer_aoe 46"; end
   end
   -- slam
   if S.Slam:IsReady() then
@@ -848,19 +864,19 @@ local function Trinkets()
       if Cast(I.TreacherousTransmitter, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "treacherous_transmitter trinkets 2"; end
     end
     -- use_item,slot=trinket1,if=variable.trinket_1_buffs&!variable.trinket_1_manual&(!buff.avatar.up&trinket.1.cast_time>0|!trinket.1.cast_time>0)&buff.avatar.up&(variable.trinket_2_exclude|!trinket.2.has_cooldown|trinket.2.cooldown.remains|variable.trinket_priority=1)|trinket.1.proc.any_dps.duration>=fight_remains
-    if Trinket1:IsReady() and not VarTrinket1Ex and not Player:IsItemBlacklisted(Trinket1) and (VarTrinket1Buffs and not VarTrinket1Manual and (Player:BuffDown(S.AvatarBuff) and VarTrinket1CastTime > 0 or VarTrinket1CastTime == 0) and Player:BuffUp(S.AvatarBuff) and (VarTrinket2Exclude or not Trinket2:HasCooldown() or VarTrinket2CD or VarTrinketPriority == 1) or Trinket1:BuffDuration() >= FightRemains) then
+    if Trinket1 and Trinket1:IsReady() and not VarTrinket1Ex and not Player:IsItemBlacklisted(Trinket1) and (VarTrinket1Buffs and not VarTrinket1Manual and (Player:BuffDown(S.AvatarBuff) and VarTrinket1CastTime > 0 or VarTrinket1CastTime == 0) and Player:BuffUp(S.AvatarBuff) and (VarTrinket2Exclude or not Trinket2:HasCooldown() or VarTrinket2CD or VarTrinketPriority == 1) or Trinket1:BuffDuration() >= FightRemains) then
       if Cast(Trinket1, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket1Range)) then return "use_item for "..Trinket1:Name().." trinkets 4"; end
     end
     -- use_item,slot=trinket2,if=variable.trinket_2_buffs&!variable.trinket_2_manual&(!buff.avatar.up&trinket.2.cast_time>0|!trinket.2.cast_time>0)&buff.avatar.up&(variable.trinket_1_exclude|!trinket.1.has_cooldown|trinket.1.cooldown.remains|variable.trinket_priority=2)|trinket.2.proc.any_dps.duration>=fight_remains
-    if Trinket2:IsReady() and not VarTrinket2Ex and not Player:IsItemBlacklisted(Trinket2) and (VarTrinket2Buffs and not VarTrinket2Manual and (Player:BuffDown(S.AvatarBuff) and VarTrinket2CastTime > 0 or VarTrinket2CastTime == 0) and Player:BuffUp(S.AvatarBuff) and (VarTrinket1Exclude or not Trinket1:HasCooldown() or VarTrinket1CD or VarTrinketPriority == 2) or Trinket2:BuffDuration() >= FightRemains) then
+    if Trinket2 and Trinket2:IsReady() and not VarTrinket2Ex and not Player:IsItemBlacklisted(Trinket2) and (VarTrinket2Buffs and not VarTrinket2Manual and (Player:BuffDown(S.AvatarBuff) and VarTrinket2CastTime > 0 or VarTrinket2CastTime == 0) and Player:BuffUp(S.AvatarBuff) and (VarTrinket1Exclude or not Trinket1:HasCooldown() or VarTrinket1CD or VarTrinketPriority == 2) or Trinket2:BuffDuration() >= FightRemains) then
       if Cast(Trinket2, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket2Range)) then return "use_item for "..Trinket2:Name().." trinkets 6"; end
     end
     -- use_item,use_off_gcd=1,slot=trinket1,if=!variable.trinket_1_buffs&(trinket.1.cast_time>0&!buff.avatar.up|!trinket.1.cast_time>0)&!variable.trinket_1_manual&(!variable.trinket_1_buffs&(trinket.2.cooldown.remains|!variable.trinket_2_buffs)|(trinket.1.cast_time>0&!buff.avatar.up|!trinket.1.cast_time>0)|cooldown.avatar.remains_expected>20)
-    if Trinket1:IsReady() and not VarTrinket1Ex and not Player:IsItemBlacklisted(Trinket1) and (not VarTrinket1Buffs and (VarTrinket1CastTime > 0 and Player:BuffDown(S.AvatarBuff) or VarTrinket1CastTime == 0) and not VarTrinket1Manual and (not VarTrinket1Buffs and (VarTrinket2CD or not VarTrinket2Buffs) or (VarTrinket1CastTime > 0 and Player:BuffDown(S.AvatarBuff) or VarTrinket1CastTime == 0) or S.Avatar:CooldownRemains() > 20)) then
+    if Trinket1 and Trinket1:IsReady() and not VarTrinket1Ex and not Player:IsItemBlacklisted(Trinket1) and (not VarTrinket1Buffs and (VarTrinket1CastTime > 0 and Player:BuffDown(S.AvatarBuff) or VarTrinket1CastTime == 0) and not VarTrinket1Manual and (not VarTrinket1Buffs and (VarTrinket2CD or not VarTrinket2Buffs) or (VarTrinket1CastTime > 0 and Player:BuffDown(S.AvatarBuff) or VarTrinket1CastTime == 0) or S.Avatar:CooldownRemains() > 20)) then
       if Cast(Trinket1, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket1Range)) then return "use_item for "..Trinket1:Name().." trinkets 8"; end
     end
     -- use_item,use_off_gcd=1,slot=trinket2,if=!variable.trinket_2_buffs&(trinket.2.cast_time>0&!buff.avatar.up|!trinket.2.cast_time>0)&!variable.trinket_2_manual&(!variable.trinket_2_buffs&(trinket.1.cooldown.remains|!variable.trinket_1_buffs)|(trinket.2.cast_time>0&!buff.avatar.up|!trinket.2.cast_time>0)|cooldown.avatar.remains_expected>20)
-    if Trinket2:IsReady() and not VarTrinket2Ex and not Player:IsItemBlacklisted(Trinket2) and (not VarTrinket2Buffs and (VarTrinket2CastTime > 0 and Player:BuffDown(S.AvatarBuff) or VarTrinket2CastTime == 0) and not VarTrinket2Manual and (not VarTrinket2Buffs and (VarTrinket1CD or not VarTrinket1Buffs) or (VarTrinket2CastTime > 0 and Player:BuffDown(S.AvatarBuff) or VarTrinket2CastTime == 0) or S.Avatar:CooldownRemains() > 20)) then
+    if Trinket2 and Trinket2:IsReady() and not VarTrinket2Ex and not Player:IsItemBlacklisted(Trinket2) and (not VarTrinket2Buffs and (VarTrinket2CastTime > 0 and Player:BuffDown(S.AvatarBuff) or VarTrinket2CastTime == 0) and not VarTrinket2Manual and (not VarTrinket2Buffs and (VarTrinket1CD or not VarTrinket1Buffs) or (VarTrinket2CastTime > 0 and Player:BuffDown(S.AvatarBuff) or VarTrinket2CastTime == 0) or S.Avatar:CooldownRemains() > 20)) then
       if Cast(Trinket2, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket2Range)) then return "use_item for "..Trinket2:Name().." trinkets 10"; end
     end
   end
@@ -911,15 +927,15 @@ local function APL()
     end
     -- Manually added: battle_shout during combat
     if S.BattleShout:IsCastable() and Settings.Commons.ShoutDuringCombat and Everyone.GroupBuffMissing(S.BattleShoutBuff) then
-      if Cast(S.BattleShout, Settings.CommonsOGCD.GCDasOffGCD.BattleShout) then return "battle_shout main 2"; end
+      if Cast(S.BattleShout, nil, Settings.CommonsDS.DisplayStyle.BattleShout) then return "battle_shout main 2"; end
     end
     -- Manually added: VR/IV
     if Player:HealthPercentage() < Settings.Commons.VictoryRushHP then
       if S.VictoryRush:IsReady() then
-        if Cast(S.VictoryRush, nil, nil, not TargetInMeleeRange) then return "victory_rush heal"; end
+        if Cast(S.VictoryRush, nil, Settings.CommonsDS.DisplayStyle.VictoryRush, not TargetInMeleeRange) then return "victory_rush heal"; end
       end
       if S.ImpendingVictory:IsReady() then
-        if Cast(S.ImpendingVictory, nil, nil, not TargetInMeleeRange) then return "impending_victory heal"; end
+        if Cast(S.ImpendingVictory, nil, Settings.CommonsDS.DisplayStyle.VictoryRush, not TargetInMeleeRange) then return "impending_victory heal"; end
       end
     end
     -- charge,if=time<=0.5|movement.distance>5

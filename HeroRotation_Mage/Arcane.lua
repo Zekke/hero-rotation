@@ -26,15 +26,14 @@ local bool          = HR.Commons.Everyone.bool
 local mathmax       = math.max
 -- WoW API
 local Delay         = C_Timer.After
-local GetItemCount  = GetItemCount
 
 --- ============================ CONTENT ===========================
 --- ======= APL LOCALS =======
 -- luacheck: max_line_length 9999
 
 -- Define S/I for spell and item arrays
-local S = Spell.Mage.Arcane;
-local I = Item.Mage.Arcane;
+local S = Spell.Mage.Arcane
+local I = Item.Mage.Arcane
 
 -- Create table to exclude above trinkets from On Use function
 local OnUseExcludes = {
@@ -50,14 +49,14 @@ local OnUseExcludes = {
 }
 
 --- ===== GUI Settings =====
-local Everyone = HR.Commons.Everyone;
+local Everyone = HR.Commons.Everyone
 local Settings = {
   General = HR.GUISettings.General,
   Commons = HR.GUISettings.APL.Mage.Commons,
   CommonsDS = HR.GUISettings.APL.Mage.CommonsDS,
   CommonsOGCD = HR.GUISettings.APL.Mage.CommonsOGCD,
   Arcane = HR.GUISettings.APL.Mage.Arcane
-};
+}
 
 --- ===== InFlight Registrations =====
 S.ArcaneBlast:RegisterInFlight()

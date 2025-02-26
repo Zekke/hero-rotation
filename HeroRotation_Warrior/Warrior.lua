@@ -142,11 +142,11 @@ Spell.Warrior.Arms = MergeTableByKey(Spell.Warrior.Commons, {
   Warbreaker                            = Spell(262161),
   -- Buffs
   CollateralDamageBuff                  = Spell(334783),
-  HedgedBetsBuff                        = Spell(1216556), -- TWW S2 4pc
   JuggernautBuff                        = Spell(383290),
   LethalBlowsBuff                       = Spell(455485), -- TWW S1 4pc
   MartialProwessBuff                    = Spell(7384),
   MercilessBonegrinderBuff              = Spell(383316),
+  PayThemBackBuff                       = Spell(1216556), -- TWW S2 4pc
   StrikeVulnerabilitiesBuff             = Spell(394173),
   SuddenDeathBuff                       = Spell(52437),
   SweepingStrikesBuff                   = Spell(260708),
@@ -218,6 +218,7 @@ Spell.Warrior.Protection = MergeTableByKey(Spell.Warrior.Commons, {
   -- Talents
   Avatar                                = Spell(401150),
   BarbaricTraining                      = Spell(390675),
+  Bloodsurge                            = Spell(384361),
   Bolster                               = Spell(280001),
   BoomingVoice                          = Spell(202743),
   ChampionsBulwark                      = Spell(386328),

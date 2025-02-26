@@ -191,7 +191,7 @@ local function Bear()
   -- Note: Handled in Defensives().
   -- lunar_beam
   if CDsON() and S.LunarBeam:IsReady() then
-      if Cast(S.LunarBeam) then return "lunar_beam bear 10"; end
+      if Cast(S.LunarBeam, Settings.Guardian.GCDasOffGCD.LunarBeam) then return "lunar_beam bear 10"; end
     end
   -- convoke_the_spirits,if=(talent.wildpower_surge.enabled&buff.cat_form.up&buff.feline_potential.up)|!talent.wildpower_surge.enabled
   if CDsON() and S.ConvoketheSpirits:IsCastable() then
@@ -375,11 +375,11 @@ local function APL()
     -- auto_attack,if=!buff.prowl.up
     if CDsON() and Settings.Commons.Enabled.Trinkets then
       -- use_item,slot=trinket1
-      if Trinket1:IsReady() then
+      if Trinket1 and Trinket1:IsReady() then
         if Cast(Trinket1, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket1Range)) then return "use_item trinket1 ("..tostring(Trinket1:Name())..") main 4"; end
       end
       -- use_item,slot=trinket2
-      if Trinket2:IsReady() then
+      if Trinket2 and Trinket2:IsReady() then
         if Cast(Trinket2, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket2Range)) then return "use_item trinket2 ("..tostring(Trinket2:Name())..") main 6"; end
       end
     end

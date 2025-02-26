@@ -138,6 +138,7 @@ Spell.DemonHunter.Havoc = MergeTableByKey(Spell.DemonHunter.Commons, {
   UnboundChaos                          = Spell(347461),
   -- Buffs
   ChaosTheoryBuff                       = Spell(390195),
+  ExergyBuff                            = Spell(208628),
   FelBarrageBuff                        = Spell(258925),
   FuriousGazeBuff                       = Spell(343312),
   InertiaBuff                           = Spell(427641),
@@ -145,8 +146,10 @@ Spell.DemonHunter.Havoc = MergeTableByKey(Spell.DemonHunter.Commons, {
   InnerDemonBuff                        = Spell(390145),
   MetamorphosisBuff                     = Spell(162264),
   MomentumBuff                          = Spell(208628),
+  NecessarySacrificeBuff                = Spell(1217055), -- TWW S2 4pc Buff
   TacticalRetreatBuff                   = Spell(389890),
   UnboundChaosBuff                      = Spell(347462),
+  WinningStreakBuff                     = Spell(1220706), -- TWW S2 2pc Buff
   -- Debuffs
   BurningWoundDebuff                    = Spell(391191),
   EssenceBreakDebuff                    = Spell(320338),

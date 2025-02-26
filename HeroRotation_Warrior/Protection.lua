@@ -116,7 +116,7 @@ local function Precombat()
   -- snapshot_stats
   -- Manually added: Group buff check
   if S.BattleShout:IsCastable() and Everyone.GroupBuffMissing(S.BattleShoutBuff) then
-    if Cast(S.BattleShout, Settings.CommonsOGCD.GCDasOffGCD.BattleShout) then return "battle_shout precombat 2"; end
+    if Cast(S.BattleShout, nil, Settings.CommonsDS.DisplayStyle.BattleShout) then return "battle_shout precombat 2"; end
   end
   -- battle_stance,toggle=on
   -- Note: Not suggesting a stance. Up to the user whether to be in Battle or Defensive.
@@ -272,15 +272,15 @@ local function APL()
     end
     -- Manually added: battle_shout during combat
     if S.BattleShout:IsCastable() and Settings.Commons.ShoutDuringCombat and Everyone.GroupBuffMissing(S.BattleShoutBuff) then
-      if Cast(S.BattleShout, Settings.CommonsOGCD.GCDasOffGCD.BattleShout) then return "battle_shout precombat"; end
+      if Cast(S.BattleShout, nil, Settings.CommonsDS.DisplayStyle.BattleShout) then return "battle_shout precombat"; end
     end
     -- Manually added: VR/IV
     if Player:HealthPercentage() < Settings.Commons.VictoryRushHP then
       if S.VictoryRush:IsReady() then
-        if Cast(S.VictoryRush) then return "victory_rush defensive"; end
+        if Cast(S.VictoryRush, nil, Settings.CommonsDS.DisplayStyle.VictoryRush, not TargetInMeleeRange) then return "victory_rush defensive"; end
       end
       if S.ImpendingVictory:IsReady() then
-        if Cast(S.ImpendingVictory) then return "impending_victory defensive"; end
+        if Cast(S.ImpendingVictory, nil, Settings.CommonsDS.DisplayStyle.VictoryRush, not TargetInMeleeRange) then return "impending_victory defensive"; end
       end
     end
     -- Interrupt
