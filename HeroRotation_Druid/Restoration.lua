@@ -205,7 +205,7 @@ local function HealParty()
     if S.Swiftmend:IsCastable() and Target:BuffUp(S.Regrowth) then
       if Cast(S.Swiftmend) then return "Swiftmend (Emergency)"; end
     end
-    if S.NaturesSwiftness:IsCastable() then
+    if S.NaturesSwiftness:IsCastable() and Player:BuffDown(S.NaturesSwiftness) then
       if Cast(S.NaturesSwiftness) then return "Nature's Swiftness (Emergency)"; end
     end
     if S.Regrowth:IsCastable() then
@@ -252,7 +252,7 @@ local function HealRaid()
   if S.Regrowth:IsCastable() and Target:HealthPercentage() < 50 and Player:BuffUp(S.NaturesSwiftness) then
     if Cast(S.Regrowth) then return "Regrowth (Nature's Swiftness)"; end
   end
-  if S.NaturesSwiftness:IsCastable() and Target:HealthPercentage() < 50 then
+  if S.NaturesSwiftness:IsCastable() and Player:BuffDown(S.NaturesSwiftness) and Target:HealthPercentage() < 50 then
     if Cast(S.NaturesSwiftness) then return "Nature's Swiftness"; end
   end
 
