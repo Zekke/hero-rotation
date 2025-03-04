@@ -612,6 +612,11 @@ local function SingleTotemic()
   if CDsON() and S.Ascendance:IsCastable() and (TIAction == S.LightningBolt and TotemFinder(S.SurgingTotem, true) > 4 and (Player:BuffStack(S.TotemicReboundBuff) >= 3 or MaelstromStacks > 0)) then
     if Cast(S.Ascendance, Settings.CommonsOGCD.GCDasOffGCD.Ascendance) then return "ascendance single_totemic 4"; end
   end
+  HR.Print("Maelstrom Stacks = " .. MaelstromStacks)
+  -- primordial_storm,if=(buff.maelstrom_weapon.stack>=10)&(buff.legacy_of_the_frost_witch.up|!talent.legacy_of_the_frost_witch.enabled)&(cooldown.doom_winds.remains>=15|buff.doom_winds.up)
+  if S.PrimordialStorm:IsCastable() and MaelstromStacks >= 10 and (Player:BuffUp(S.LegacyoftheFrostWitchBuff) or not S.LegacyoftheFrostWitch:IsAvailable()) and (S.DoomWinds:CooldownRemains() >= 15 or Player:BuffUp(S.DoomWindsBuff) then
+    if Cast(S.PrimordialStorm, nil, Settings.CommonsDS.DisplayStyle.PrimordialWave, not Target:IsSpellInRange(S.PrimordialStorm)) then return "primordial_storm single_totemic"; end
+  end
   -- doom_winds,if=raid_event.adds.in>=action.doom_winds.cooldown&!talent.elemental_spirits.enabled&buff.legacy_of_the_frost_witch.up
   if DoomWindsCustomCondition() and S.DoomWinds:IsReady() and (not S.ElementalSpirits:IsAvailable() and Player:BuffUp(S.LegacyoftheFrostWitchBuff)) then
     if Cast(S.DoomWinds, Settings.Enhancement.GCDasOffGCD.DoomWinds, nil, not Target:IsInMeleeRange(5)) then return "doom_winds single_totemic 6"; end

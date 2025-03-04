@@ -204,6 +204,7 @@ Spell.Shaman.Enhancement = MergeTableByKey(Spell.Shaman.Commons, {
   LegacyoftheFrostWitch                 = Spell(384450),
   MoltenAssault                         = Spell(334033),
   OverflowingMaelstrom                  = Spell(384149),
+  PrimordialStorm                       = Spell(1218090),
   RagingMaelstrom                       = Spell(384143),
   StaticAccumulation                    = Spell(384411),
   Stormblast                            = Spell(319930),
