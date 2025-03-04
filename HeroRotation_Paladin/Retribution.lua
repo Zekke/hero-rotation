@@ -280,19 +280,19 @@ local function Finishers()
     if Cast(S.HammerofLight, Settings.Retribution.GCDasOffGCD.WakeOfAshes, nil, not Target:IsInRange(12)) then return "hammer_of_light finishers 2"; end
   end
   -- divine_hammer,if=holy_power=5
-  if S.DivineHammer:IsCastable() and (HolyPower == 5) then
+  if CDsON() and S.DivineHammer:IsCastable() and (HolyPower == 5) then
     if Cast(S.DivineHammer, nil, nil, not Target:IsInRange(8)) then return "divine_hammer finishers 4"; end
   end
-  -- divine_storm,if=variable.ds_castable&!buff.hammer_of_light_ready.up&(!talent.crusade|cooldown.crusade.remains>gcd*3|buff.crusade.up&buff.crusade.stack<10|talent.radiant_glory)&(!buff.divine_hammer.up|cooldown.divine_hammer.remains>110&holy_power>=4)
-  if S.DivineStorm:IsReady() and (VarDSCastable and not S.HammerofLight:IsReady() and (Settings.Retribution.DisableCrusadeAWCDCheck or not S.Crusade:IsAvailable() or S.Crusade:CooldownRemains() > PlayerGCD * 3 or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10 or S.RadiantGlory:IsAvailable()) and (not Paladin.DivineHammerActive or S.DivineHammer:CooldownRemains() > 110 and HolyPower >= 4)) then
+  -- divine_storm,if=variable.ds_castable&!buff.hammer_of_light_ready.up&(!talent.crusade|cooldown.crusade.remains>gcd*3|buff.crusade.up&buff.crusade.stack<10|talent.radiant_glory)&(cooldown.divine_hammer.remains|buff.divine_hammer.up|!talent.divine_hammer)
+  if S.DivineStorm:IsReady() and (VarDSCastable and not S.HammerofLight:IsReady() and (Settings.Retribution.DisableCrusadeAWCDCheck or not S.Crusade:IsAvailable() or S.Crusade:CooldownRemains() > PlayerGCD * 3 or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10 or S.RadiantGlory:IsAvailable()) and (S.DivineHammer:CooldownRemains() > 0 or Player:BuffUp(S.DivineHammer) or not S.DivineHammer:IsAvailable()) and HolyPower >= 4) then
     if Cast(S.DivineStorm, nil, nil, not Target:IsInRange(8)) then return "divine_storm finishers 6" end
   end
-  -- justicars_vengeance,if=(!talent.crusade|cooldown.crusade.remains>gcd*3|buff.crusade.up&buff.crusade.stack<10|talent.radiant_glory)&!buff.hammer_of_light_ready.up&(!buff.divine_hammer.up|cooldown.divine_hammer.remains>110&holy_power>=4)
-  if S.JusticarsVengeance:IsReady() and ((Settings.Retribution.DisableCrusadeAWCDCheck or not S.Crusade:IsAvailable() or S.Crusade:CooldownRemains() > PlayerGCD * 3 or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10 or S.RadiantGlory:IsAvailable()) and not S.HammerofLight:IsReady() and (not Paladin.DivineHammerActive or S.DivineHammer:CooldownRemains() > 110 and HolyPower >= 4)) then
+  -- justicars_vengeance,if=(!talent.crusade|cooldown.crusade.remains>gcd*3|buff.crusade.up&buff.crusade.stack<10|talent.radiant_glory)&!buff.hammer_of_light_ready.up&(cooldown.divine_hammer.remains|buff.divine_hammer.up|!talent.divine_hammer)
+  if S.JusticarsVengeance:IsReady() and ((Settings.Retribution.DisableCrusadeAWCDCheck or not S.Crusade:IsAvailable() or S.Crusade:CooldownRemains() > PlayerGCD * 3 or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10 or S.RadiantGlory:IsAvailable()) and not S.HammerofLight:IsReady() and (S.DivineHammer:CooldownRemains() > 0 or Player:BuffUp(S.DivineHammer) or not S.DivineHammer:IsAvailable()) and HolyPower >= 4) then
     if Cast(S.JusticarsVengeance, nil, nil, not Target:IsSpellInRange(S.JusticarsVengeance)) then return "justicars_vengeance finishers 8"; end
   end
-  -- templars_verdict,if=(!talent.crusade|cooldown.crusade.remains>gcd*3|buff.crusade.up&buff.crusade.stack<10|talent.radiant_glory)&!buff.hammer_of_light_ready.up&(!buff.divine_hammer.up|cooldown.divine_hammer.remains>110&holy_power>=4)
-  if VerdictSpell:IsReady() and ((Settings.Retribution.DisableCrusadeAWCDCheck or not S.Crusade:IsAvailable() or S.Crusade:CooldownRemains() > PlayerGCD * 3 or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10 or S.RadiantGlory:IsAvailable()) and not S.HammerofLight:IsReady() and (not Paladin.DivineHammerActive or S.DivineHammer:CooldownRemains() > 110 and HolyPower >= 4)) then
+  -- templars_verdict,if=(!talent.crusade|cooldown.crusade.remains>gcd*3|buff.crusade.up&buff.crusade.stack<10|talent.radiant_glory)&!buff.hammer_of_light_ready.up&(cooldown.divine_hammer.remains|buff.divine_hammer.up|!talent.divine_hammer)
+  if VerdictSpell:IsReady() and ((Settings.Retribution.DisableCrusadeAWCDCheck or not S.Crusade:IsAvailable() or S.Crusade:CooldownRemains() > PlayerGCD * 3 or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10 or S.RadiantGlory:IsAvailable()) and not S.HammerofLight:IsReady() and (S.DivineHammer:CooldownRemains() > 0 or Player:BuffUp(S.DivineHammer) or not S.DivineHammer:IsAvailable()) and HolyPower >= 4) then
     if Cast(VerdictSpell, nil, nil, not Target:IsSpellInRange(VerdictSpell)) then return "either verdict finishers 10" end
   end
 end
