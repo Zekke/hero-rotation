@@ -287,16 +287,20 @@ Spell.Druid.Guardian = MergeTableByKey(Spell.Druid.Guardian, Spell.Druid.ElunesC
 
 Spell.Druid.Restoration = MergeTableByKey(Spell.Druid.Commons, {
   -- Abilities
+  Wrath                                 = Spell(5176),
   Lifebloom                             = Spell(188550),
   Swiftmend                             = Spell(18562),
   Swipe                                 = Spell(106785),
   -- Talents
+  Abundance                             = Spell(207640),
   CenarionWard                          = Spell(102351),
   Efflorescence                         = Spell(145205),
+  Flourish                              = Spell(197721),
   Ironbark                              = Spell(10342),
   GroveGuardians                        = Spell(102693),
   NaturesSwiftness                      = Spell(132158),
   Photosynthesis                        = Spell(274902),
+  SouloftheForest                       = Spell(114108),
   -- Buffs
   Clearcasting                          = Spell(16870),
   RejuvenationGermination               = Spell(155777),

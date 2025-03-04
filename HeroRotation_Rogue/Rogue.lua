@@ -137,6 +137,7 @@ Spell.Rogue.Commons = {
   BlazingSoul             = Spell(426898),
   RecklessIncubation      = Spell(449595), --Ovi'nax's Mercurial Egg Secondary stats buff
   DeliberateIncubation    = Spell(449578), --Ovi'nax's Mercurial Egg Main stats buff
+  EtherealPowerlink       = Spell(449954),
   -- Misc
   PoolEnergy              = Spell(999910),
 }

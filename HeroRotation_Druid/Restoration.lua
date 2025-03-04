@@ -235,7 +235,62 @@ local function HealParty()
   end
 end
 
-local function DPS()
+local function HealRaid()
+  if S.Efflorescence:IsCastable() and Player:BuffDown(S.Efflorescence) then
+    if Cast(S.Efflorescence) then return "Efflorescence"; end
+  end
+
+  if S.Lifebloom:IsCastable() and (Target:BuffDown(S.Lifebloom) or Target:BuffRemains(S.Lifebloom) < 4.5) and CountBuff(S.Lifebloom) < (1 + num(S.Photosynthesis:IsAvailable())) then
+    if Cast(S.Lifebloom) then return "Lifebloom"; end
+  end
+
+  if S.Regrowth:IsCastable() and Player:BuffUp(S.Clearcasting) and Target:HealthPercentage() < 90 then
+    if Cast(S.Regrowth) then return "Regrowth (Clearcasting)"; end
+  end
+
+  --Emergency
+  if S.Regrowth:IsCastable() and Target:HealthPercentage() < 50 and Player:BuffUp(S.NaturesSwiftness) then
+    if Cast(S.Regrowth) then return "Regrowth (Nature's Swiftness)"; end
+  end
+  if S.NaturesSwiftness:IsCastable() and Target:HealthPercentage() < 50 then
+    if Cast(S.NaturesSwiftness) then return "Nature's Swiftness"; end
+  end
+
+  --Ramp
+  if CDsON() then
+    if S.GroveGuardians:IsCastable() then
+      if Cast(S.GroveGuardians) then return "Grove Guardians"; end
+    end
+    if S.ConvoketheSpirits:IsCastable() then
+      if Cast(S.ConvoketheSpirits) then return "Convoke the Spirits"; end
+    end
+    if S.Flourish:IsCastable() then
+      if Cast(S.Flourish) then return "Flourish"; end
+    end
+  end
+
+  if S.Regrowth:IsCastable() and Target:HealthPercentage() < 90 and Player:BuffStack(S.Abundance) >= 12 then
+    if Cast(S.Regrowth) then return "Regrowth"; end
+  end
+
+  --Setup Ramp
+  if S.WildGrowth:IsCastable() and Player:BuffUp(S.SouloftheForest) then
+    if Cast(S.WildGrowth) then return "Wild Growth"; end
+  end
+  if S.Swiftmend:IsCastable() and Target:BuffUp(S.Rejuvenation) and Target:BuffUp(S.RejuvenationGermination) then
+    if Cast(S.Swiftmend) then return "Swiftmend"; end
+  end
+  if S.Rejuvenation:IsCastable() and (Target:BuffDown(S.Rejuvenation) or Target:BuffDown(S.RejuvenationGermination)) then
+    if Cast(S.Rejuvenation) then return "Rejuvenation"; end
+  end
+
+  if S.Regrowth:IsCastable() and Target:HealthPercentage() < 90 then
+    if Cast(S.Regrowth) then return "Regrowth"; end
+  end
+
+end
+
+local function DPSParty()
   if Player:BuffUp(S.CatForm) then
     if ComboPoints >= 5 then
       if S.Rip:IsReady() and Target:TimeToDie() >= 8 and Target:DebuffDown(S.RipDebuff) then
@@ -266,6 +321,44 @@ local function DPS()
       if Cast(S.GroveGuardians) then return "Grove Guardians max charges"; end
     end
   end
+end
+
+local function DPSRaid()
+  if Player:BuffUp(S.CatForm) then
+    if ComboPoints >= 5 then
+      if S.Rip:IsReady() and Target:TimeToDie() >= 8 and Target:DebuffDown(S.RipDebuff) then
+        if Cast(S.Rip, nil, nil, not IsInMeleeRange) then return "rip"; end
+      end
+      if S.FerociousBite:IsReady() then
+        if CastPooling(S.FerociousBite, Player:EnergyTimeToX(50)) then return "ferocious_bite"; end
+      end
+    end
+    if S.Rake:IsReady() and Target:TimeToDie() >= 10 and (Target:DebuffDown(S.RakeDebuff) or Target:DebuffRemains(S.RakeDebuff) < 4) then
+      if Cast(S.Rake, nil, nil, not IsInMeleeRange) then return "rake"; end
+    end
+    if S.Swipe:IsReady() and EnemiesCount8y >= 5 then
+      if Cast(S.Swipe, nil, nil, not IsInMeleeRange) then return "swipe"; end
+    end
+    if S.Shred:IsReady() then
+      if Cast(S.Shred, nil, nil, not IsInMeleeRange) then return "shred"; end
+    end
+  end
+  if Player:BuffDown(S.CatForm) then
+    if S.Moonfire:IsReady() and Target:DebuffDown(S.MoonfireDebuff) then
+      if Cast(S.Moonfire, nil, nil, not IsInSpellRange) then return "moonfire"; end
+    end
+    if S.Starsurge:IsReady() then
+      if Cast(S.Starsurge, nil, nil, not IsInSpellRange) then return "Starsurge"; end
+    end
+    if S.Wrath:IsReady() then
+      if Cast(S.Wrath, nil, nil, not IsInSpellRange) then return "wrath"; end
+    end
+  end
+end
+
+local function DPS()
+  if IsInRaid() then return DPSRaid(); end
+  return DPSParty();
 end
 
 --- ===== APL Main =====
@@ -338,10 +431,14 @@ local function APL()
     -- Manually added: Pool, if nothing else to do.
     if HR.CastAnnotated(S.Pool, false, "WAIT") then return "Pool Resources"; end
   end
-  --and IsInGroup()
   if Everyone.TargetIsFriendly() then
-    ShouldReturn = HealParty()
-    if ShouldReturn then return "Heal: " .. ShouldReturn end
+    if IsInRaid() then
+      ShouldReturn = HealRaid()
+      if ShouldReturn then return "HealRaid: " .. ShouldReturn end
+    elseif IsInGroup() then
+      ShouldReturn = HealParty()
+      if ShouldReturn then return "HealParty: " .. ShouldReturn end
+    end
   end
 end
 

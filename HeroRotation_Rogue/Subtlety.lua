@@ -623,13 +623,17 @@ end
 local function Items()
   if Settings.Commons.Enabled.Trinkets then
     -- actions.items=use_item,name=treacherous_transmitter,if=cooldown.flagellation.remains<=2|fight_remains<=15
-    if I.TreacherousTransmitter:IsEquippedAndReady() then
+    if I.TreacherousTransmitter:IsEquippedAndReady() and CDsON() then
       if S.Flagellation:CooldownRemains() <= 2 or S.Flagellation:IsReady() or Player:BuffUp(S.FlagellationBuff) or Player:BuffUp(S.FlagellationPersistBuff)
       or HL.BossFilteredFightRemains("<=", 15) then
         if Cast(I.TreacherousTransmitter, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then
           return "Treacherous Transmitter"
         end
       end
+    end
+
+    if I.TreacherousTransmitter:CooldownRemains() >= 75 and Player:BuffDown(S.EtherealPowerlink) and Player:BuffUp(S.ShadowDanceBuff) then
+      if HR.CastAnnotated(S.PoolEnergy, false, "DO TASK") then return "Do transmitter task"; end
     end
 
     --actions.items+=/use_item,name=imperfect_ascendancy_serum,use_off_gcd=1,if=dot.rupture.ticking&buff.flagellation_buff.up
