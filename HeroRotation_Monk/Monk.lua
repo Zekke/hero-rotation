@@ -43,6 +43,8 @@ Spell.Monk.Commons = {
   QuakingPalm                           = Spell(107079),
   RocketBarrage                         = Spell(69041),
   Shadowmeld                            = Spell(58984),
+  -- External Buffs
+  PowerInfusion                         = Spell(10060),
   -- Abilities
   CracklingJadeLightning                = Spell(117952),
   ExpelHarm                             = Spell(322101),
@@ -134,8 +136,10 @@ Spell.Monk.Windwalker = MergeTableByKey(Spell.Monk.Commons, {
   InnerPeace                            = Spell(397768),
   InvokeXuenTheWhiteTiger               = Spell(123904),
   KnowledgeoftheBrokenTemple            = Spell(451529),
+  LastEmperorsCapacitor                 = Spell(392989),
   MemoryoftheMonastery                  = Spell(454969),
   OrderedElements                       = Spell(451463),
+  PoweroftheThunderKing                 = Spell(459809),
   RevolvingWhirl                        = Spell(451524),
   SequencedStrikes                      = Spell(451515),
   ShadowboxingTreads                    = Spell(392982),
@@ -229,18 +233,11 @@ Item.Monk.Commons = {
 }
 
 Item.Monk.Windwalker = MergeTableByKey(Item.Monk.Commons, {
-  -- DF Trinkets
-  AlgetharPuzzleBox                     = Item(193701, {13, 14}),
-  BeacontotheBeyond                     = Item(203963, {13, 14}),
-  DragonfireBombDispenser               = Item(202610, {14, 14}),
-  EruptingSpearFragment                 = Item(193769, {13, 14}),
-  ManicGrieftorch                       = Item(194308, {13, 14}),
   -- TWW Trinkets
   ImperfectAscendancySerum              = Item(225654, {13, 14}),
+  JunkmaestrosMegaMagnet                = Item(230189, {13, 14}),
   MadQueensMandate                      = Item(212454, {13, 14}),
   TreacherousTransmitter                = Item(221023, {13, 14}),
-  -- Other On-Use Items
-  Djaruun                               = Item(202569, {16}),
 })
 
 Item.Monk.Brewmaster = MergeTableByKey(Item.Monk.Commons, {

@@ -43,18 +43,11 @@ local I = Item.Monk.Windwalker
 
 -- Create table to exclude above trinkets from On Use function
 local OnUseExcludes = {
-  -- DF Trinkets
-  I.AlgetharPuzzleBox:ID(),
-  I.BeacontotheBeyond:ID(),
-  I.DragonfireBombDispenser:ID(),
-  I.EruptingSpearFragment:ID(),
-  I.ManicGrieftorch:ID(),
   -- TWW Trinkets
   I.ImperfectAscendancySerum:ID(),
+  I.JunkmaestrosMegaMagnet:ID(),
   I.MadQueensMandate:ID(),
   I.TreacherousTransmitter:ID(),
-  -- DF Other Items
-  I.Djaruun:ID(),
 }
 
 --- ===== GUI Settings =====
@@ -230,44 +223,22 @@ end
 
 local function Trinkets()
   if Settings.Commons.Enabled.Trinkets then
-    -- algethar_puzzle_box,if=(pet.xuen_the_white_tiger.active|!talent.invoke_xuen_the_white_tiger)&!buff.storm_earth_and_fire.up|fight_remains<25
-    if I.AlgetharPuzzleBox:IsEquippedAndReady() and ((Monk.Xuen.Active or not S.InvokeXuenTheWhiteTiger:IsAvailable()) and Player:BuffDown(S.StormEarthAndFireBuff) or BossFightRemains < 25) then
-      if Cast(I.AlgetharPuzzleBox, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "algethar_puzzle_box trinkets 2"; end
-    end
-    -- erupting_spear_fragment,if=buff.storm_earth_and_fire.up
-    if I.EruptingSpearFragment:IsEquippedAndReady() and (Player:BuffUp(S.StormEarthAndFireBuff)) then
-      if Cast(I.EruptingSpearFragment, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(40)) then return "erupting_spear_fragment trinkets 4"; end
-    end
-    -- use_item,manic_grieftorch,if=!trinket.1.has_use_buff&!trinket.2.has_use_buff&!buff.storm_earth_and_fire.up&!pet.xuen_the_white_tiger.active|(trinket.1.has_use_buff|trinket.2.has_use_buff)&cooldown.invoke_xuen_the_white_tiger.remains>30|fight_remains<5
-    if I.ManicGrieftorch:IsEquippedAndReady() and (not Trinket1:HasUseBuff() and not Trinket2:HasUseBuff() and Player:BuffDown(S.StormEarthAndFireBuff) and not Monk.Xuen.Active or (Trinket1:HasUseBuff() or Trinket2:HasUseBuff()) and S.InvokeXuenTheWhiteTiger:CooldownRemains() > 30 or BossFightRemains < 5) then
-      if Cast(I.ManicGrieftorch, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "manic_grieftorch trinkets 6"; end
-    end
-    -- beacon_to_the_beyond,if=!trinket.1.has_use_buff&!trinket.2.has_use_buff&!buff.storm_earth_and_fire.up&!pet.xuen_the_white_tiger.active|(trinket.1.has_use_buff|trinket.2.has_use_buff)&cooldown.invoke_xuen_the_white_tiger.remains>30|fight_remains<10
-    if I.BeacontotheBeyond:IsEquippedAndReady() and (not Trinket1:HasUseBuff() and not Trinket2:HasUseBuff() and Player:BuffDown(S.StormEarthAndFireBuff) and not Monk.Xuen.Active or (Trinket1:HasUseBuff() or Trinket2:HasUseBuff()) and S.InvokeXuenTheWhiteTiger:CooldownRemains() > 30 or BossFightRemains < 10) then
-      if Cast(I.BeacontotheBeyond, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(45)) then return "beacon_to_the_beyond trinkets 8"; end
-    end
-  end
-  -- djaruun_pillar_of_the_elder_flame,if=cooldown.fists_of_fury.remains<2&cooldown.invoke_xuen_the_white_tiger.remains>10|fight_remains<12
-  if Settings.Commons.Enabled.Items and I.Djaruun:IsEquippedAndReady() and (S.FistsofFury:CooldownRemains() < 2 and S.InvokeXuenTheWhiteTiger:CooldownRemains() > 10 or BossFightRemains < 12) then
-    if Cast(I.Djaruun, nil, Settings.CommonsDS.DisplayStyle.Items, not Target:IsInRange(100)) then return "djaruun_pillar_of_the_elder_flame trinkets 10"; end
-  end
-  if Settings.Commons.Enabled.Trinkets then
-    -- dragonfire_bomb_dispenser,if=!trinket.1.has_use_buff&!trinket.2.has_use_buff|(trinket.1.has_use_buff|trinket.2.has_use_buff)&cooldown.invoke_xuen_the_white_tiger.remains>10|fight_remains<10
-    if I.DragonfireBombDispenser:IsEquippedAndReady() and (not Trinket1:HasUseBuff() and not Trinket2:HasUseBuff() or (Trinket1:HasUseBuff() or Trinket2:HasUseBuff()) and S.InvokeXuenTheWhiteTiger:CooldownRemains() > 10 or BossFightRemains < 10) then
-      if Cast(I.DragonfireBombDispenser, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(46)) then return "dragonfire_bomb_dispenser trinkets 12"; end
-    end
     -- imperfect_ascendancy_serum,use_off_gcd=1,if=pet.xuen_the_white_tiger.active
     if I.ImperfectAscendancySerum:IsEquippedAndReady() and (Monk.Xuen.Active) then
-      if Cast(I.ImperfectAscendancySerum, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "imperfect_ascendancy_serum trinkets 14"; end
+      if Cast(I.ImperfectAscendancySerum, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "imperfect_ascendancy_serum trinkets 2"; end
     end
     -- mad_queens_mandate,target_if=min:time_to_die,if=!trinket.1.has_use_buff&!trinket.2.has_use_buff|(trinket.1.has_use_buff|trinket.2.has_use_buff)&cooldown.invoke_xuen_the_white_tiger.remains>30
     if I.MadQueensMandate:IsEquippedAndReady() and (not Trinket1:HasUseBuff() and not Trinket2:HasUseBuff() or (Trinket1:HasUseBuff() or Trinket2:HasUseBuff()) and S.InvokeXuenTheWhiteTiger:CooldownRemains() > 30) then
-      if Everyone.CastTargetIf(I.MadQueensMandate, Enemies8y, "min", EvaluateTargetIfFilterTTD, nil, not Target:IsInRange(50)) then return "mad_queens_mandate trinkets 15"; end
+      if Everyone.CastTargetIf(I.MadQueensMandate, Enemies8y, "min", EvaluateTargetIfFilterTTD, nil, not Target:IsInRange(50)) then return "mad_queens_mandate trinkets 4"; end
     end
     -- treacherous_transmitter,if=!fight_style.dungeonslice&(cooldown.invoke_xuen_the_white_tiger.remains<4|talent.xuens_bond&pet.xuen_the_white_tiger.active)|fight_style.dungeonslice&((fight_style.DungeonSlice&active_enemies=1&(time<10|talent.xuens_bond&talent.celestial_conduit)|!fight_style.dungeonslice|active_enemies>1)&cooldown.storm_earth_and_fire.ready&(target.time_to_die>14&!fight_style.dungeonroute|target.time_to_die>22)&(active_enemies>2|debuff.acclamation.up|!talent.ordered_elements&time<5)&(chi>2&talent.ordered_elements|chi>5|chi>3&energy<50|energy<50&active_enemies=1|prev.tiger_palm&!talent.ordered_elements&time<5)|fight_remains<30)|buff.invokers_delight.up
     local DungeonSlice = Player:IsInDungeonArea()
     if I.TreacherousTransmitter:IsEquippedAndReady() and (not DungeonSlice and (S.InvokeXuenTheWhiteTiger:CooldownRemains() < 4 or S.XuensBond:IsAvailable() and Monk.Xuen.Active) or DungeonSlice and ((DungeonSlice and EnemiesCount8y == 1 and (HL.CombatTime() < 10 or S.XuensBond:IsAvailable() and S.CelestialConduit:IsAvailable()) or not DungeonSlice or EnemiesCount8y > 1) and S.StormEarthAndFire:CooldownUp() and (Target:TimeToDie() > 14 and not DungeonSlice or Target:TimeToDie() > 22) and (EnemiesCount8y > 2 or Target:DebuffUp(S.AcclamationDebuff) or not S.OrderedElements:IsAvailable() and HL.CombatTime() < 5) and (Player:Chi() > 2 and S.OrderedElements:IsAvailable() or Player:Chi() > 5 or Player:Chi() > 3 and Player:Energy() < 50 or Player:Energy() < 50 and EnemiesCount8y == 1 or Player:PrevGCD(1, S.TigerPalm) and not S.OrderedElements:IsAvailable() and HL.CombatTime() < 5) or BossFightRemains < 30) or Player:BuffUp(S.InvokersDelightBuff)) then
-      if Cast(I.TreacherousTransmitter, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "treacherous_transmitter trinkets 16"; end
+      if Cast(I.TreacherousTransmitter, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "treacherous_transmitter trinkets 6"; end
+    end
+    -- junkmaestros_mega_magnet,if=!trinket.1.has_use_buff&!trinket.2.has_use_buff|(trinket.1.has_use_buff|trinket.2.has_use_buff)&cooldown.invoke_xuen_the_white_tiger.remains>30|fight_remains<5
+    if I.JunkmaestrosMegaMagnet:IsEquippedAndReady() and (not Trinket1:HasUseBuff() and not Trinket2:HasUseBuff() or (Trinket1:HasUseBuff() or Trinket2:HasUseBuff()) and S.InvokeXuenTheWhiteTiger:CooldownRemains() > 30 or BossFightRemains < 5) then
+      if Cast(I.JunkmaestrosMegaMagnet, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(50)) then return "junkmaestros_mega_magnet trinkets 8"; end
     end
     -- ITEM_STAT_BUFF,if=pet.xuen_the_white_tiger.active
     if Trinket1 and Trinket1:IsReady() and not VarTrinket1Ex and not Player:IsItemBlacklisted(Trinket1) and Trinket1:HasUseBuff() and (Monk.Xuen.Active) then
@@ -289,62 +260,135 @@ local function Trinkets()
 end
 
 local function Cooldowns()
+  -- Define VarSefCondition for SEF usage
+  local VarSefCondition = (not Player:BuffUp(S.StormEarthAndFireBuff) and (not Player:IsInDungeonArea() and Target:TimeToDie() > 15 or Player:IsInDungeonArea() and Target:TimeToDie() > 15) and 
+    (not S.InvokeXuenTheWhiteTiger:IsAvailable() or S.InvokeXuenTheWhiteTiger:CooldownRemains() > 30 or Monk.Xuen.Active))
+  
   -- invoke_external_buff,name=power_infusion,if=pet.xuen_the_white_tiger.active&(!buff.bloodlust.up|buff.bloodlust.up&cooldown.strike_of_the_windlord.remains)
-  -- Note: Not handling external buffs.
-  -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=(target.time_to_die>14&!fight_style.dungeonroute|target.time_to_die>22)&!cooldown.invoke_xuen_the_white_tiger.remains&(chi<5&!talent.ordered_elements|chi<3)&(combo_strike|!talent.hit_combo)
-  if S.TigerPalm:IsReady() and (S.InvokeXuenTheWhiteTiger:CooldownUp() and (Player:Chi() < 5 and not S.OrderedElements:IsAvailable() or Player:Chi() < 3) and (ComboStrike(S.TigerPalm) or not S.HitCombo:IsAvailable())) then
-     if MotCCastSwitcher(S.TigerPalm, Enemies8y, "min", EvaluateTargetIfFilterMarkoftheCrane, EvaluateTargetIfTigerPalmCDs, 5) then return "tiger_palm cooldowns 2"; end
+  -- We track if Power Infusion is available but players need to coordinate with priests for manual usage
+  
+  -- storm_earth_and_fire,target_if=max:target.time_to_die,if=fight_style.dungeonroute&buff.invokers_delight.remains>15&(active_enemies>2|!talent.ordered_elements|cooldown.rising_sun_kick.remains)
+  if S.StormEarthAndFire:IsCastable() and (Player:IsInDungeonArea() and Player:BuffRemains(S.InvokersDelightBuff) > 15 and (EnemiesCount8y > 2 or not S.OrderedElements:IsAvailable() or S.RisingSunKick:CooldownDown())) then
+    if Cast(S.StormEarthAndFire, Settings.Windwalker.OffGCDasOffGCD.StormEarthAndFire) then return "storm_earth_and_fire cooldowns dungeonroute 2"; end
   end
-  -- invoke_xuen_the_white_tiger,target_if=max:target.time_to_die,if=(fight_style.DungeonSlice&active_enemies=1&(time<10|talent.xuens_bond&talent.celestial_conduit)|!fight_style.dungeonslice|active_enemies>1)&cooldown.storm_earth_and_fire.ready&(target.time_to_die>14&!fight_style.dungeonroute|target.time_to_die>22)&(active_enemies>2|debuff.acclamation.up|!talent.ordered_elements&time<5)&(chi>2&talent.ordered_elements|chi>5|chi>3&energy<50|energy<50&active_enemies=1|prev.tiger_palm&!talent.ordered_elements&time<5)|fight_remains<30
-  if S.InvokeXuenTheWhiteTiger:IsCastable() and ((Player:IsInDungeonArea() and EnemiesCount8y == 1 and (HL.CombatTime() < 10 or S.XuensBond:IsAvailable() and S.CelestialConduit:IsAvailable()) or not Player:IsInDungeonArea() or EnemiesCount8y > 1) and S.StormEarthAndFire:CooldownUp() and (Player:Chi() > 2 and S.OrderedElements:IsAvailable() or Player:Chi() > 5 or Player:Chi() > 3 and Player:Energy() < 50 or Player:Energy() < 50 and EnemiesCount8y == 1 or Player:PrevGCD(1, S.TigerPalm) and not S.OrderedElements:IsAvailable() and HL.CombatTime() < 5) or BossFightRemains < 30) then
-    if Everyone.CastTargetIf(S.InvokeXuenTheWhiteTiger, Enemies8y, "max", EvaluateTargetIfFilterTTD, EvaluateTargetIfInvokeXuenCDs, not Target:IsInRange(40), Settings.Windwalker.GCDasOffGCD.InvokeXuenTheWhiteTiger) then return "invoke_xuen_the_white_tiger cooldowns 4"; end
+  
+  -- slicing_winds,if=talent.celestial_conduit&variable.sef_condition
+  if S.SlicingWinds:IsReady() and (S.CelestialConduit:IsAvailable() and VarSefCondition) then
+    if Cast(S.SlicingWinds, nil, nil, not Target:IsInRange(40)) then return "slicing_winds cooldowns 4"; end
   end
-  -- storm_earth_and_fire,target_if=max:target.time_to_die,if=(target.time_to_die>14&!fight_style.dungeonroute|target.time_to_die>22)&(active_enemies>2|cooldown.rising_sun_kick.remains|!talent.ordered_elements)&((buff.invokers_delight.remains>10&!buff.bloodlust.up|buff.bloodlust.up&cooldown.storm_earth_and_fire.full_recharge_time<1)|cooldown.storm_earth_and_fire.full_recharge_time<cooldown.invoke_xuen_the_white_tiger.remains&!buff.bloodlust.up&(active_enemies>1|cooldown.strike_of_the_windlord.remains<2&(talent.flurry_strikes|buff.heart_of_the_jade_serpent.up))&(chi>3|chi>1&talent.ordered_elements)|cooldown.storm_earth_and_fire.full_recharge_time<10&(chi>3|chi>1&talent.ordered_elements))|fight_remains<30|prev.invoke_xuen_the_white_tiger|buff.invokers_delight.remains>10&fight_style.dungeonslice&(cooldown.rising_sun_kick.remains|!talent.ordered_elements|active_enemies>2)
-  if S.StormEarthAndFire:IsCastable() and ((Target:TimeToDie() > 14 and not Player:IsInDungeonArea() or Target:TimeToDie() > 22) and (EnemiesCount8y > 2 or S.RisingSunKick:CooldownDown() or not S.OrderedElements:IsAvailable()) and ((Player:BuffRemains(S.InvokersDelightBuff) > 10 and Player:BloodlustDown() or Player:BloodlustUp() and S.StormEarthAndFire:FullRechargeTime() < 1) or S.StormEarthAndFire:FullRechargeTime() < S.InvokeXuenTheWhiteTiger:CooldownRemains() and Player:BloodlustDown() and (EnemiesCount8y > 1 or S.StrikeoftheWindlord:CooldownRemains() < 2 and (S.FlurryStrikes:IsAvailable() or Player:BuffUp(S.HeartoftheJadeSerpentBuff))) and (Player:Chi() > 3 or Player:Chi() > 1 and S.OrderedElements:IsAvailable()) or S.StormEarthAndFire:FullRechargeTime() < 10 and (Player:Chi() > 3 or Player:Chi() > 1 and S.OrderedElements:IsAvailable())) or BossFightRemains < 30 or Player:PrevGCD(1, S.InvokeXuenTheWhiteTiger) or Player:BuffRemains(S.InvokersDelightBuff) > 10 and Player:IsInDungeonArea() and (S.RisingSunKick:CooldownDown() or not S.OrderedElements:IsAvailable() or EnemiesCount8y > 2)) then
-    if Cast(S.StormEarthAndFire, Settings.Windwalker.OffGCDasOffGCD.StormEarthAndFire) then return "storm_earth_and_fire cooldowns 6"; end
+  
+  -- tiger_palm,if=(target.time_to_die>14&!fight_style.dungeonroute|target.time_to_die>22)&!cooldown.invoke_xuen_the_white_tiger.remains&(chi<5&!talent.ordered_elements|chi<3)&(combo_strike|!talent.hit_combo)
+  if S.TigerPalm:IsReady() and ((Target:TimeToDie() > 14 and not Player:IsInDungeonArea() or Target:TimeToDie() > 22) and S.InvokeXuenTheWhiteTiger:CooldownUp() and (Player:Chi() < 5 and not S.OrderedElements:IsAvailable() or Player:Chi() < 3) and (ComboStrike(S.TigerPalm) or not S.HitCombo:IsAvailable())) then
+     if MotCCastSwitcher(S.TigerPalm, Enemies8y, "min", EvaluateTargetIfFilterMarkoftheCrane, nil, 5) then return "tiger_palm cooldowns 6"; end
   end
+  
+  -- invoke_xuen_the_white_tiger,target_if=max:target.time_to_die,if=variable.xuen_condition&!fight_style.dungeonslice&!fight_style.dungeonroute|variable.xuen_dungeonslice_condition&fight_style.Dungeonslice|variable.xuen_dungeonroute_condition&fight_style.dungeonroute
+  if S.InvokeXuenTheWhiteTiger:IsCastable() then
+    local DungeonSlice = Player:IsInDungeonArea()
+    -- Main Xuen condition for raid/world content - checks enemy count, SEF status, and various resources
+    local VarXuenCondition = (not DungeonSlice and not Player:IsInDungeonArea() or EnemiesCount8y > 1) and 
+      S.StormEarthAndFire:CooldownUp() and (Target:TimeToDie() > 14 and not Player:IsInDungeonArea() or Target:TimeToDie() > 22) and 
+      (EnemiesCount8y > 2 or Target:DebuffUp(S.AcclamationDebuff) or not S.OrderedElements:IsAvailable() and HL.CombatTime() < 5) and 
+      (Player:Chi() > 2 and S.OrderedElements:IsAvailable() or Player:Chi() > 5 or Player:Chi() > 3 and Player:Energy() < 50 or 
+      Player:Energy() < 50 and EnemiesCount8y == 1 or Player:PrevGCD(1, S.TigerPalm) and not S.OrderedElements:IsAvailable() and 
+      HL.CombatTime() < 5) or BossFightRemains < 30 or Player:IsInDungeonArea() and S.CelestialConduit:IsAvailable() and Target:TimeToDie() > 14
+    
+    -- Specialized condition for dungeon slice (Mythic+ optimization)
+    local VarXuenDungeonsliceCondition = EnemiesCount8y == 1 and 
+      (HL.CombatTime() < 10 or S.XuensBond:IsAvailable() and S.CelestialConduit:IsAvailable() and Target:TimeToDie() > 14) or 
+      EnemiesCount8y > 1 and S.StormEarthAndFire:CooldownUp() and Target:TimeToDie() > 14 and 
+      (EnemiesCount8y > 2 or Target:DebuffUp(S.AcclamationDebuff) or not S.OrderedElements:IsAvailable() and HL.CombatTime() < 5) and 
+      ((Player:Chi() > 2 and not S.OrderedElements:IsAvailable() or S.OrderedElements:IsAvailable() or 
+      not S.OrderedElements:IsAvailable() and Player:Energy() < 50) or S.SequencedStrikes:IsAvailable() and 
+      S.EnergyBurst:IsAvailable() and S.RevolvingWhirl:IsAvailable()) or BossFightRemains < 30 or 
+      EnemiesCount8y > 3 and Target:TimeToDie() > 5 or DungeonSlice and HL.CombatTime() > 50 and Target:TimeToDie() > 1 and S.XuensBond:IsAvailable()
+      
+      -- Special condition for dungeon routes (Mythic+ paths with tracked pulls)
+      local VarXuenDungeonrouteCondition = S.StormEarthAndFire:CooldownUp() and 
+        (EnemiesCount8y > 1 and S.StormEarthAndFire:CooldownUp() and Target:TimeToDie() > 22 and 
+        (EnemiesCount8y > 2 or Target:DebuffUp(S.AcclamationDebuff) or not S.OrderedElements:IsAvailable() and HL.CombatTime() < 5) and 
+        ((Player:Chi() > 2 and not S.OrderedElements:IsAvailable() or S.OrderedElements:IsAvailable() or 
+        not S.OrderedElements:IsAvailable() and Player:Energy() < 50) or S.SequencedStrikes:IsAvailable() and 
+        S.EnergyBurst:IsAvailable() and S.RevolvingWhirl:IsAvailable()) or BossFightRemains < 30 or 
+        EnemiesCount8y > 3 and Target:TimeToDie() > 15 or HL.CombatTime() > 50 and 
+        (Target:TimeToDie() > 10 and S.XuensBond:IsAvailable() or Target:TimeToDie() > 20)) or 
+        Player:BuffRemains(S.StormEarthAndFireBuff) > 5
+      
+    if (VarXuenCondition and not DungeonSlice and not Player:IsInDungeonArea() or 
+        VarXuenDungeonsliceCondition and DungeonSlice or 
+        VarXuenDungeonrouteCondition and Player:IsInDungeonArea()) then
+      if Everyone.CastTargetIf(S.InvokeXuenTheWhiteTiger, Enemies8y, "max", EvaluateTargetIfFilterTTD, nil, not Target:IsInRange(40), Settings.Windwalker.GCDasOffGCD.InvokeXuenTheWhiteTiger) then return "invoke_xuen_the_white_tiger cooldowns 8"; end
+    end
+  end
+  
+  -- storm_earth_and_fire,target_if=max:target.time_to_die,if=variable.sef_condition&!fight_style.dungeonroute|variable.sef_dungeonroute_condition&fight_style.dungeonroute
+  if S.StormEarthAndFire:IsCastable() then
+    local VarSefDungeonrouteCondition = HL.CombatTime() < 50 and Target:TimeToDie() > 10 and 
+      (Player:BloodlustUp() or EnemiesCount8y > 2 or S.StrikeoftheWindlord:CooldownRemains() < 2 or 
+      S.LastEmperorsCapacitor:IsAvailable() and Player:BuffStack(S.TheEmperorsCapacitorBuff) > 17) or 
+      Target:TimeToDie() > 10 and (S.StormEarthAndFire:FullRechargeTime() < S.InvokeXuenTheWhiteTiger:CooldownRemains() or 
+      S.InvokeXuenTheWhiteTiger:CooldownRemains() < 30 and (S.StormEarthAndFire:FullRechargeTime() < 30 or 
+      S.StormEarthAndFire:FullRechargeTime() < 40 and S.FlurryStrikes:IsAvailable())) and 
+      (S.SequencedStrikes:IsAvailable() and S.EnergyBurst:IsAvailable() and 
+      S.RevolvingWhirl:IsAvailable() or S.FlurryStrikes:IsAvailable() or Player:Chi() > 3 or Player:Energy() < 50) and 
+      (EnemiesCount8y > 2 or not S.OrderedElements:IsAvailable() or S.RisingSunKick:CooldownDown()) and 
+      not S.FlurryStrikes:IsAvailable() or Target:TimeToDie() > 10 and S.FlurryStrikes:IsAvailable() and 
+      (EnemiesCount8y > 2 or not S.OrderedElements:IsAvailable() or S.RisingSunKick:CooldownDown()) and 
+      (S.LastEmperorsCapacitor:IsAvailable() and Player:BuffStack(S.TheEmperorsCapacitorBuff) > 17 and 
+      S.StormEarthAndFire:FullRechargeTime() < S.InvokeXuenTheWhiteTiger:CooldownRemains() and 
+      S.InvokeXuenTheWhiteTiger:CooldownRemains() > 15 or not S.LastEmperorsCapacitor:IsAvailable() and 
+      S.StormEarthAndFire:FullRechargeTime() < S.InvokeXuenTheWhiteTiger:CooldownRemains() and S.InvokeXuenTheWhiteTiger:CooldownRemains() > 15)
+      
+    if (VarSefCondition and not Player:IsInDungeonArea() or VarSefDungeonrouteCondition and Player:IsInDungeonArea()) then
+      if Everyone.CastTargetIf(S.StormEarthAndFire, Enemies8y, "max", EvaluateTargetIfFilterTTD, nil, nil, Settings.Windwalker.OffGCDasOffGCD.StormEarthAndFire) then return "storm_earth_and_fire cooldowns 10"; end
+    end
+  end
+  
   -- touch_of_karma
   if S.TouchofKarma:IsCastable() and not Settings.Windwalker.IgnoreToK then
-    if Cast(S.TouchofKarma, Settings.Windwalker.GCDasOffGCD.TouchOfKarma, nil, not Target:IsInRange(20)) then return "touch_of_karma cooldowns 8"; end
+    if Cast(S.TouchofKarma, Settings.Windwalker.GCDasOffGCD.TouchOfKarma, nil, not Target:IsInRange(20)) then return "touch_of_karma cooldowns 12"; end
   end
-  if S.InvokeXuenTheWhiteTiger:CooldownRemains() > 30 or BossFightRemains < 20 then
-    -- ancestral_call,if=cooldown.invoke_xuen_the_white_tiger.remains>30|fight_remains<20
-    if S.AncestralCall:IsCastable() then
-      if Cast(S.AncestralCall, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "ancestral_call cooldowns 10"; end
-    end
-    -- blood_fury,if=cooldown.invoke_xuen_the_white_tiger.remains>30|fight_remains<20
-    if S.BloodFury:IsCastable() then
-      if Cast(S.BloodFury, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "blood_fury cooldowns 12"; end
-    end
+  
+  -- ancestral_call,if=buff.invoke_xuen_the_white_tiger.remains>15|!talent.invoke_xuen_the_white_tiger&(!talent.storm_earth_and_fire&(cooldown.strike_of_the_windlord.ready|!talent.strike_of_the_windlord&cooldown.fists_of_fury.ready)|buff.storm_earth_and_fire.remains>10)|fight_remains<20
+  if S.AncestralCall:IsCastable() and ((Monk.Xuen.Active and Monk.Xuen.SummonTime + 15 > GetTime()) or not S.InvokeXuenTheWhiteTiger:IsAvailable() and (not S.StormEarthAndFire:IsAvailable() and (S.StrikeoftheWindlord:CooldownUp() or not S.StrikeoftheWindlord:IsAvailable() and S.FistsofFury:CooldownUp()) or Player:BuffRemains(S.StormEarthAndFireBuff) > 10) or BossFightRemains < 20) then
+    if Cast(S.AncestralCall, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "ancestral_call cooldowns 14"; end
   end
-  -- fireblood,if=cooldown.invoke_xuen_the_white_tiger.remains>30|fight_remains<10
-  if S.Fireblood:IsCastable() and (S.InvokeXuenTheWhiteTiger:CooldownRemains() > 30 or BossFightRemains < 10) then
-    if Cast(S.Fireblood, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "fireblood cooldowns 14"; end
+  
+  -- blood_fury,if=buff.invoke_xuen_the_white_tiger.remains>15|!talent.invoke_xuen_the_white_tiger&(!talent.storm_earth_and_fire&(cooldown.strike_of_the_windlord.ready|!talent.strike_of_the_windlord&cooldown.fists_of_fury.ready)|buff.storm_earth_and_fire.remains>10)|fight_remains<20
+  if S.BloodFury:IsCastable() and ((Monk.Xuen.Active and Monk.Xuen.SummonTime + 15 > GetTime()) or not S.InvokeXuenTheWhiteTiger:IsAvailable() and (not S.StormEarthAndFire:IsAvailable() and (S.StrikeoftheWindlord:CooldownUp() or not S.StrikeoftheWindlord:IsAvailable() and S.FistsofFury:CooldownUp()) or Player:BuffRemains(S.StormEarthAndFireBuff) > 10) or BossFightRemains < 20) then
+    if Cast(S.BloodFury, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "blood_fury cooldowns 16"; end
   end
-  -- berserking,if=cooldown.invoke_xuen_the_white_tiger.remains>60|fight_remains<15
-  if S.Berserking:IsCastable() and (S.InvokeXuenTheWhiteTiger:CooldownRemains() > 60 or BossFightRemains < 15) then
-    if Cast(S.Berserking, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "berserking cooldowns 16"; end
+  
+  -- fireblood,if=buff.invoke_xuen_the_white_tiger.remains>15|!talent.invoke_xuen_the_white_tiger&(!talent.storm_earth_and_fire&(cooldown.strike_of_the_windlord.ready|!talent.strike_of_the_windlord&cooldown.fists_of_fury.ready)|buff.storm_earth_and_fire.remains>10)|fight_remains<20
+  if S.Fireblood:IsCastable() and ((Monk.Xuen.Active and Monk.Xuen.SummonTime + 15 > GetTime()) or not S.InvokeXuenTheWhiteTiger:IsAvailable() and (not S.StormEarthAndFire:IsAvailable() and (S.StrikeoftheWindlord:CooldownUp() or not S.StrikeoftheWindlord:IsAvailable() and S.FistsofFury:CooldownUp()) or Player:BuffRemains(S.StormEarthAndFireBuff) > 10) or BossFightRemains < 20) then
+    if Cast(S.Fireblood, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "fireblood cooldowns 18"; end
   end
+  
+  -- berserking,if=buff.invoke_xuen_the_white_tiger.remains>15|!talent.invoke_xuen_the_white_tiger&(!talent.storm_earth_and_fire&(cooldown.strike_of_the_windlord.ready|!talent.strike_of_the_windlord&cooldown.fists_of_fury.ready)|buff.storm_earth_and_fire.remains>10)|fight_remains<20
+  if S.Berserking:IsCastable() and ((Monk.Xuen.Active and Monk.Xuen.SummonTime + 15 > GetTime()) or not S.InvokeXuenTheWhiteTiger:IsAvailable() and (not S.StormEarthAndFire:IsAvailable() and (S.StrikeoftheWindlord:CooldownUp() or not S.StrikeoftheWindlord:IsAvailable() and S.FistsofFury:CooldownUp()) or Player:BuffRemains(S.StormEarthAndFireBuff) > 10) or BossFightRemains < 20) then
+    if Cast(S.Berserking, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "berserking cooldowns 20"; end
+  end
+  
   if Player:BuffDown(S.StormEarthAndFireBuff) then
     -- bag_of_tricks,if=buff.storm_earth_and_fire.down
     if S.BagofTricks:IsCastable() then
-      if Cast(S.BagofTricks, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "bag_of_tricks cooldowns 18"; end
+      if Cast(S.BagofTricks, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "bag_of_tricks cooldowns 22"; end
     end
     -- lights_judgment,if=buff.storm_earth_and_fire.down
     if S.LightsJudgment:IsCastable() then
-      if Cast(S.LightsJudgment, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "lights_judgment cooldowns 20"; end
+      if Cast(S.LightsJudgment, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "lights_judgment cooldowns 24"; end
     end
     -- haymaker,if=buff.storm_earth_and_fire.down
     if S.Haymaker:IsCastable() then
-      if Cast(S.Haymaker, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "haymaker cooldowns 22"; end
+      if Cast(S.Haymaker, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "haymaker cooldowns 26"; end
     end
     -- rocket_barrage,if=buff.storm_earth_and_fire.down
     if S.RocketBarrage:IsCastable() then
-      if Cast(S.RocketBarrage, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "rocket_barrage cooldowns 24"; end
+      if Cast(S.RocketBarrage, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "rocket_barrage cooldowns 28"; end
     end
     -- azerite_surge,if=buff.storm_earth_and_fire.down
     if S.AzeriteSurge:IsCastable() then
-      if Cast(S.AzeriteSurge, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "azerite_surge cooldowns 26"; end
+      if Cast(S.AzeriteSurge, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "azerite_surge cooldowns 30"; end
     end
     -- arcane_pulse,if=buff.storm_earth_and_fire.down
     if S.ArcanePulse:IsCastable() then
@@ -354,6 +398,10 @@ local function Cooldowns()
 end
 
 local function AoEOpener()
+  -- slicing_winds
+  if S.SlicingWinds:IsReady() then
+    if Cast(S.SlicingWinds, nil, nil, not Target:IsInRange(40)) then return "slicing_winds aoe_opener 1"; end
+  end
   -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=chi<6
   if S.TigerPalm:IsReady() and (Player:Chi() < 6) then
     if MotCCastSwitcher(S.TigerPalm, Enemies8y, "min", EvaluateTargetIfFilterMarkoftheCrane, nil, 5) then return "tiger_palm aoe_opener 2"; end
@@ -438,7 +486,7 @@ local function DefaultAoE()
     if MotCCastSwitcher(S.TigerPalm, Enemies8y, "min", EvaluateTargetIfFilterMarkoftheCrane, nil, 5) then return "tiger_palm default_aoe 26"; end
   end
   -- spinning_crane_kick,target_if=max:target.time_to_die,if=combo_strike&chi>5
-  -- spinning_crane_kick,target_if=max:target.time_to_die,if=combo_strike&buff.dance_of_chiji.up&buff.chi_energy.stack>29&cooldown.fists_of_fury.remains<5
+  -- spinning_crane_kick,target_if=max:target.time_to_die,if=combo_strike&buff.dance_of_chiji.stack>29&cooldown.fists_of_fury.remains<5
   -- Note: Combining both lines and using Cast instead of CastTargetIf, since SCK hits all targets in range anyway.
   if S.SpinningCraneKick:IsReady() and ((ComboStrike(S.SpinningCraneKick) and Player:Chi() > 5) or (ComboStrike(S.SpinningCraneKick) and Player:BuffUp(S.DanceofChijiBuff) and Player:BuffStack(S.ChiEnergyBuff) > 29 and S.FistsofFury:CooldownRemains() < 5)) then
     if Cast(S.SpinningCraneKick, nil, nil, not Target:IsInMeleeRange(8)) then return "spinning_crane_kick default_aoe 28"; end
@@ -526,6 +574,10 @@ local function DefaultAoE()
   if S.TigerPalm:IsReady() and (Player:Chi() == 0) then
     if Cast(S.TigerPalm, nil, nil, not Target:IsInMeleeRange(5)) then return "tiger_palm default_aoe 60"; end
   end
+  -- slicing_winds
+  if S.SlicingWinds:IsReady() then
+    if Cast(S.SlicingWinds, nil, nil, not Target:IsInRange(40)) then return "slicing_winds default_aoe 19"; end
+  end
 end
 
 local function DefaultCleave()
@@ -543,7 +595,7 @@ local function DefaultCleave()
     if Cast(S.SpinningCraneKick, nil, nil, not Target:IsInMeleeRange(8)) then return "spinning_crane_kick default_cleave 4"; end
   end
   -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=(energy>55&talent.inner_peace|energy>60&!talent.inner_peace)&combo_strike&chi.max-chi>=2&buff.teachings_of_the_monastery.stack<buff.teachings_of_the_monastery.max_stack&(talent.energy_burst&!buff.bok_proc.up|!talent.energy_burst)&!buff.ordered_elements.up|(talent.energy_burst&!buff.bok_proc.up|!talent.energy_burst)&!buff.ordered_elements.up&!cooldown.fists_of_fury.remains&chi<3|(prev.strike_of_the_windlord|cooldown.strike_of_the_windlord.remains)&cooldown.celestial_conduit.remains<2&buff.ordered_elements.up&chi<5&combo_strike|(!buff.heart_of_the_jade_serpent_cdr.up|!buff.heart_of_the_jade_serpent_cdr_celestial.up)&combo_strike&chi.deficit>=2&!buff.ordered_elements.up
-  if S.TigerPalm:IsReady() and ((Player:Energy() > 55 and S.InnerPeace:IsAvailable() or Player:Energy() > 60 and not S.InnerPeace:IsAvailable()) and ComboStrike(S.TigerPalm) and Player:ChiDeficit() >= 2 and Player:BuffStack(S.TeachingsoftheMonasteryBuff) < VarTotMMaxStacks and (S.EnergyBurst:IsAvailable() and Player:BuffDown(S.BlackoutKickBuff) or not S.EnergyBurst:IsAvailable()) and Player:BuffDown(S.OrderedElementsBuff) or (S.EnergyBurst:IsAvailable() and Player:BuffDown(S.BlackoutKickBuff) or not S.EnergyBurst:IsAvailable()) and Player:BuffDown(S.OrderedElementsBuff) and S.FistsofFury:CooldownUp() and Player:Chi() < 3 or (Player:PrevGCD(1, S.StrikeoftheWindlord) or S.StrikeoftheWindlord:CooldownDown()) and S.CelestialConduit:CooldownRemains() < 2 and Player:BuffUp(S.OrderedElementsBuff) and Player:Chi() < 5 and ComboStrike(S.TigerPalm) or (Player:BuffDown(S.HeartoftheJadeSerpentCDRBuff) or Player:BuffDown(S.HeartoftheJadeSerpentCDRCelestialBuff)) and ComboStrike(S.TigerPalm) and Player:ChiDeficit() >= 2 and Player:BuffDown(S.OrderedElementsBuff)) then
+  if S.TigerPalm:IsReady() and ((Player:Energy() > 55 and S.InnerPeace:IsAvailable() or Player:Energy() > 60 and not S.InnerPeace:IsAvailable()) and ComboStrike(S.TigerPalm) and Player:ChiDeficit() >= 2 and Player:BuffStack(S.TeachingsoftheMonasteryBuff) < VarTotMMaxStacks and (S.EnergyBurst:IsAvailable() and Player:BuffDown(S.BlackoutKickBuff)) and Player:BuffDown(S.OrderedElementsBuff) or (S.EnergyBurst:IsAvailable() and Player:BuffDown(S.BlackoutKickBuff)) and Player:BuffDown(S.OrderedElementsBuff) and S.FistsofFury:CooldownUp() and Player:Chi() < 3 or (Player:PrevGCD(1, S.StrikeoftheWindlord) or S.StrikeoftheWindlord:CooldownDown()) and S.CelestialConduit:CooldownRemains() < 2 and Player:BuffUp(S.OrderedElementsBuff) and Player:Chi() < 5 and ComboStrike(S.TigerPalm) or (Player:BuffDown(S.HeartoftheJadeSerpentCDRBuff) or Player:BuffDown(S.HeartoftheJadeSerpentCDRCelestialBuff)) and ComboStrike(S.TigerPalm) and Player:ChiDeficit() >= 2 and Player:BuffDown(S.OrderedElementsBuff)) then
     if MotCCastSwitcher(S.TigerPalm, Enemies8y, "min", EvaluateTargetIfFilterMarkoftheCrane, nil, 5) then return "tiger_palm default_cleave 6"; end
   end
   -- touch_of_death
@@ -682,7 +734,7 @@ local function DefaultCleave()
   end
   -- spinning_crane_kick,target_if=max:target.time_to_die,if=combo_strike&!buff.ordered_elements.up&talent.crane_vortex&active_enemies>2&chi>4
   -- Note: Using Cast instead of CastTargetIf, since SCK hits all targets in range anyway.
-  if S.SpinningCraneKick:IsReady() and (ComboStrike(S.SpinningCraneKick) and Player:BuffDown(S.OrderedElementsBuff) and S.CraneVortex:IsAvailable() and EnemiesCount8y > 2 and Player:Chi() > 4) then
+  if S.SpinningCraneKick:IsReady() and (ComboStrike(S.SpinningCraneKick) and Player:BuffDown(S.OrderedElementsBuff) and S.CraneVortex:IsAvailable() and EnemiesCount8y > 2 and Player:Chi() > 4 and SCKMax()) then
     if Cast(S.SpinningCraneKick, nil, nil, not Target:IsInMeleeRange(8)) then return "spinning_crane_kick default_cleave 58"; end
   end
   -- chi_burst,if=!buff.ordered_elements.up
@@ -720,6 +772,18 @@ local function DefaultCleave()
   if S.TigerPalm:IsReady() and (Player:PrevGCD(1, S.TigerPalm) and Player:Chi() < 3 and S.FistsofFury:CooldownUp()) then
     if Cast(S.TigerPalm, nil, nil, not Target:IsInMeleeRange(5)) then return "tiger_palm default_cleave 74"; end
   end
+  -- Manually added: tiger_palm,if=chi=0 (avoids a potential profile stall)
+  if S.TigerPalm:IsReady() and (Player:Chi() == 0) then
+    if Cast(S.TigerPalm, nil, nil, not Target:IsInMeleeRange(5)) then return "tiger_palm default_cleave 76"; end
+  end
+  -- slicing_winds
+  if S.SlicingWinds:IsReady() then
+    if Cast(S.SlicingWinds, nil, nil, not Target:IsInRange(40)) then return "slicing_winds default_cleave 31"; end
+  end
+  -- strike_of_the_windlord,if=time>5&(cooldown.invoke_xuen_the_white_tiger.remains>15|talent.flurry_strikes)&(cooldown.fists_of_fury.remains<2|cooldown.celestial_conduit.remains<10)
+  if S.StrikeoftheWindlord:IsReady() and (HL.CombatTime() > 5 and (S.InvokeXuenTheWhiteTiger:CooldownRemains() > 15 or S.FlurryStrikes:IsAvailable()) and (S.FistsofFury:CooldownRemains() < 2 or S.CelestialConduit:CooldownRemains() < 10)) then
+    if Everyone.CastTargetIf(S.StrikeoftheWindlord, Enemies8y, "max", EvaluateTargetIfFilterTTD, nil, not Target:IsInMeleeRange(9)) then return "strike_of_the_windlord default_cleave 30"; end
+  end
 end
 
 local function DefaultST()
@@ -728,7 +792,7 @@ local function DefaultST()
     if Cast(S.RisingSunKick, nil, nil, not Target:IsInMeleeRange(5)) then return "rising_sun_kick default_st 2"; end
   end
   -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=(energy>55&talent.inner_peace|energy>60&!talent.inner_peace)&combo_strike&chi.max-chi>=2&buff.teachings_of_the_monastery.stack<buff.teachings_of_the_monastery.max_stack&(talent.energy_burst&!buff.bok_proc.up|!talent.energy_burst)&!buff.ordered_elements.up|(talent.energy_burst&!buff.bok_proc.up|!talent.energy_burst)&!buff.ordered_elements.up&!cooldown.fists_of_fury.remains&chi<3|(prev.strike_of_the_windlord|cooldown.strike_of_the_windlord.remains)&cooldown.celestial_conduit.remains<2&buff.ordered_elements.up&chi<5&combo_strike|(!buff.heart_of_the_jade_serpent_cdr.up|!buff.heart_of_the_jade_serpent_cdr_celestial.up)&combo_strike&chi.deficit>=2&!buff.ordered_elements.up
-  if S.TigerPalm:IsReady() and ((Player:Energy() > 55 and S.InnerPeace:IsAvailable() or Player:Energy() > 60 and not S.InnerPeace:IsAvailable()) and ComboStrike(S.TigerPalm) and Player:ChiDeficit() >= 2 and Player:BuffStack(S.TeachingsoftheMonasteryBuff) < VarTotMMaxStacks and (S.EnergyBurst:IsAvailable() and Player:BuffDown(S.BlackoutKickBuff) or not S.EnergyBurst:IsAvailable()) and Player:BuffDown(S.OrderedElementsBuff) or (S.EnergyBurst:IsAvailable() and Player:BuffDown(S.BlackoutKickBuff) or not S.EnergyBurst:IsAvailable()) and Player:BuffDown(S.OrderedElementsBuff) and S.FistsofFury:CooldownUp() and Player:Chi() < 3 or (Player:PrevGCD(1, S.StrikeoftheWindlord) or S.StrikeoftheWindlord:CooldownDown()) and S.CelestialConduit:CooldownRemains() < 2 and Player:BuffUp(S.OrderedElementsBuff) and Player:Chi() < 5 and ComboStrike(S.TigerPalm) or (Player:BuffDown(S.HeartoftheJadeSerpentCDRBuff) or Player:BuffDown(S.HeartoftheJadeSerpentCDRCelestialBuff)) and ComboStrike(S.TigerPalm) and Player:ChiDeficit() >= 2 and Player:BuffDown(S.OrderedElementsBuff)) then
+  if S.TigerPalm:IsReady() and ((Player:Energy() > 55 and S.InnerPeace:IsAvailable() or Player:Energy() > 60 and not S.InnerPeace:IsAvailable()) and ComboStrike(S.TigerPalm) and Player:ChiDeficit() >= 2 and Player:BuffStack(S.TeachingsoftheMonasteryBuff) < VarTotMMaxStacks and (S.EnergyBurst:IsAvailable() and Player:BuffDown(S.BlackoutKickBuff)) and Player:BuffDown(S.OrderedElementsBuff) or (S.EnergyBurst:IsAvailable() and Player:BuffDown(S.BlackoutKickBuff)) and Player:BuffDown(S.OrderedElementsBuff) and S.FistsofFury:CooldownUp() and Player:Chi() < 3 or (Player:PrevGCD(1, S.StrikeoftheWindlord) or S.StrikeoftheWindlord:CooldownDown()) and S.CelestialConduit:CooldownRemains() < 2 and Player:BuffUp(S.OrderedElementsBuff) and Player:Chi() < 5 and ComboStrike(S.TigerPalm) or (Player:BuffDown(S.HeartoftheJadeSerpentCDRBuff) or Player:BuffDown(S.HeartoftheJadeSerpentCDRCelestialBuff)) and ComboStrike(S.TigerPalm) and Player:ChiDeficit() >= 2 and Player:BuffDown(S.OrderedElementsBuff)) then
     if MotCCastSwitcher(S.TigerPalm, Enemies8y, "min", EvaluateTargetIfFilterMarkoftheCrane, nil, 5) then return "tiger_palm default_st 4"; end
   end
   -- touch_of_death
@@ -901,6 +965,10 @@ local function DefaultST()
   if S.TigerPalm:IsReady() and (Player:Chi() == 0) then
     if Cast(S.TigerPalm, nil, nil, not Target:IsInMeleeRange(5)) then return "tiger_palm default_st 78"; end
   end
+  -- slicing_winds
+  if S.SlicingWinds:IsReady() then
+    if Cast(S.SlicingWinds, nil, nil, not Target:IsInRange(40)) then return "slicing_winds default_st 11"; end
+  end
 end
 
 --- ===== APL Main =====
@@ -926,6 +994,23 @@ local function APL()
     -- Check MotC Status
     MotCCount = S.MarkoftheCraneDebuff:AuraActiveCount()
     MotCMinTime = MotCMinTimeCheck()
+    
+    -- Define Variables for CD Management as per SimC APL
+    local VarHasExternalPI = S.PowerInfusion:IsKnown()
+    -- SEF condition determines when to use Storm, Earth and Fire based on target lifetime and other factors
+    local VarSefCondition = Target:TimeToDie() > 6 and 
+      (S.RisingSunKick:CooldownDown() or EnemiesCount8y > 2 or not S.OrderedElements:IsAvailable()) and 
+      (Player:PrevGCD(1, S.InvokeXuenTheWhiteTiger) or 
+      (S.CelestialConduit:IsAvailable() or not S.LastEmperorsCapacitor:IsAvailable()) and 
+      Player:BloodlustUp() and (S.StrikeoftheWindlord:CooldownRemains() < 5 or not S.StrikeoftheWindlord:IsAvailable()) and 
+      S.SequencedStrikes:IsAvailable() or Player:BuffRemains(S.InvokersDelightBuff) > 15 or 
+      (S.StrikeoftheWindlord:CooldownRemains() < 5 or not S.StrikeoftheWindlord:IsAvailable()) and 
+      S.StormEarthAndFire:FullRechargeTime() < S.InvokeXuenTheWhiteTiger:CooldownRemains() and 
+      S.FistsofFury:CooldownRemains() < 5 and (not S.LastEmperorsCapacitor:IsAvailable() or S.CelestialConduit:IsAvailable()) or 
+      S.LastEmperorsCapacitor:IsAvailable() and Player:BuffStack(S.TheEmperorsCapacitorBuff) > 17 and 
+      S.InvokeXuenTheWhiteTiger:CooldownRemains() > S.StormEarthAndFire:FullRechargeTime()) or 
+      BossFightRemains < 30 or Player:BuffRemains(S.InvokersDelightBuff) > 15 and
+      (S.RisingSunKick:CooldownDown() or EnemiesCount8y > 2 or not S.OrderedElements:IsAvailable())
   end
 
   if Everyone.TargetIsValid() then
