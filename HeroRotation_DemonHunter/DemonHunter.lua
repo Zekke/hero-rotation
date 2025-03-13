@@ -69,7 +69,8 @@ Spell.DemonHunter.AldrachiReaver = {
   ArtoftheGlaiveBuff                    = Spell(444661),
   GlaiveFlurryBuff                      = Spell(442435),
   ThrilloftheFightAtkBuff               = Spell(442695),
-  ThrilloftheFightDmgBuff               = Spell(442688),
+  ThrilloftheFightHavocDmgBuff          = Spell(442688),
+  ThrilloftheFightVengDmgBuff           = Spell(1227062),
   WarbladesHungerBuff                   = Spell(442503),
   -- Debuffs
   ReaversMarkDebuff                     = Spell(442624),
@@ -131,6 +132,7 @@ Spell.DemonHunter.Havoc = MergeTableByKey(Spell.DemonHunter.Commons, {
   Momentum                              = Spell(206476),
   Ragefire                              = Spell(388107),
   RestlessHunter                        = Spell(390142),
+  ScreamingBrutality                    = Spell(1220506),
   SerratedGlaive                        = Spell(390154),
   ShatteredDestiny                      = Spell(388116),
   Soulrend                              = Spell(388106),
