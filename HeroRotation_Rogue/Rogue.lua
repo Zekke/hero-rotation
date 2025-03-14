@@ -134,10 +134,10 @@ Spell.Rogue.Commons = {
   VanishBuff2             = Spell(115193),
   WithoutATrace           = Spell(382513),
   -- Trinkets
-  BlazingSoul             = Spell(426898),
   RecklessIncubation      = Spell(449595), --Ovi'nax's Mercurial Egg Secondary stats buff
   DeliberateIncubation    = Spell(449578), --Ovi'nax's Mercurial Egg Main stats buff
   EtherealPowerlink       = Spell(449954),
+  JunkmaestrosBuff        = Spell(1219661), -- Junkmaestro's Mega Magnet buff
   -- Misc
   PoolEnergy              = Spell(999910),
 }
