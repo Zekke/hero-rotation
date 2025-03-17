@@ -59,6 +59,7 @@ local VarBoneShieldRefreshValue = 7
 local VarHeartStrikeRPDRW = 21 + num(S.Heartbreaker:IsAvailable()) * 2
 local VarBoneShieldStacks
 local IsTanking
+local TargetInMeleeRange
 local EnemiesMelee
 local EnemiesMeleeCount
 local HeartStrikeCount
@@ -161,7 +162,7 @@ local function Precombat()
   end
   -- Manually added: marrowrend
   if S.Marrowrend:IsReady() then
-    if Cast(S.Marrowrend, nil, nil, not Target:IsInMeleeRange(5)) then return "marrowrend precombat 6"; end
+    if Cast(S.Marrowrend, nil, nil, not TargetInMeleeRange) then return "marrowrend precombat 6"; end
   end
 end
 
@@ -173,13 +174,13 @@ local function Defensives()
   -- Active Mitigation
   if Player:ActiveMitigationNeeded() and S.Marrowrend:TimeSinceLastCast() > 2.5 and S.DeathStrike:TimeSinceLastCast() > 2.5 then
     if S.DeathStrike:IsReady() and Player:BuffStack(S.BoneShieldBuff) > 7 then
-      if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not Target:IsSpellInRange(S.DeathStrike)) then return "death_strike defensives 4"; end
+      if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not TargetInMeleeRange) then return "death_strike defensives 4"; end
     end
     if S.Marrowrend:IsReady() then
       if Cast(S.Marrowrend, nil, nil, not Target:IsInMeleeRange(5)) then return "marrowrend defensives 6"; end
     end
     if S.DeathStrike:IsReady() then
-      if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not Target:IsSpellInRange(S.DeathStrike)) then return "death_strike defensives 8"; end
+      if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not TargetInMeleeRange) then return "death_strike defensives 8"; end
     end
   end
   -- Icebound Fortitude
@@ -193,15 +194,7 @@ local function Defensives()
   -- Death Strike Healing
   -- Note: If under 50% health (or 70% health, if RP is above VarDeathStrikeDumpAmt).
   if S.DeathStrike:IsReady() and Player:HealthPercentage() <= 50 + (Player:RunicPower() > VarDeathStrikeDumpAmt and 20 or 0) and not Player:HealingAbsorbed() then
-    if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not Target:IsSpellInRange(S.DeathStrike)) then return "death_strike defensives 14"; end
-  end
-end
-
-local function Sequence()
-  -- sequence,name=drw_bp:blood_boil
-  -- Note: DRW can apply BP, so we want to force the application.
-  if S.BloodBoil:IsCastable() and (Player:BuffUp(S.DancingRuneWeaponBuff) and S.BloodBoil:TimeSinceLastCast() > S.DancingRuneWeapon:TimeSinceLastCast()) then
-    if Cast(S.BloodBoil, nil, nil, not Target:IsInMeleeRange(10)) then return "blood_boil sequence 2"; end
+    if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not TargetInMeleeRange) then return "death_strike defensives 14"; end
   end
 end
 
@@ -214,7 +207,7 @@ local function Deathbringer()
   end
   -- death_strike,if=buff.coagulopathy.remains<=gcd
   if S.DeathStrike:IsReady() and (Player:BuffRemains(S.CoagulopathyBuff) <= Player:GCD()) then
-    if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not Target:IsSpellInRange(S.DeathStrike)) then return "death_strike deathbringer 4"; end
+    if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not TargetInMeleeRange) then return "death_strike deathbringer 4"; end
   end
   -- marrowrend,if=!buff.bone_shield.up|buff.bone_shield.remains<1.5|buff.bone_shield.stack<=1
   -- marrowrend,if=(buff.exterminate.up)&(cooldown.reapers_mark.up|cooldown.reapers_mark.remains<3)
@@ -222,7 +215,7 @@ local function Deathbringer()
     (Player:BuffDown(S.BoneShieldBuff) or Player:BuffRemains(S.BoneShieldBuff) < 1.5 or VarBoneShieldStacks <= 1) or
     ((Player:BuffUp(S.ExterminateBuff)) and (S.ReapersMark:CooldownUp() or S.ReapersMark:CooldownRemains() < 3))
   ) then
-    if Cast(S.Marrowrend, nil, nil, not Target:IsInMeleeRange(5)) then return "marrowrend deathbringer 6"; end
+    if Cast(S.Marrowrend, nil, nil, not TargetInMeleeRange) then return "marrowrend deathbringer 6"; end
   end
   -- deaths_caress,if=!buff.bone_shield.up|buff.bone_shield.remains<1.5|buff.bone_shield.stack<=1
   if S.DeathsCaress:IsReady() and (Player:BuffDown(S.BoneShieldBuff) or Player:BuffRemains(S.BoneShieldBuff) < 1.5 or VarBoneShieldStacks <= 1) then
@@ -242,7 +235,7 @@ local function Deathbringer()
     (EnemiesMeleeCount <= 2 and Player:BuffUp(S.ReaperofSoulsBuff) and Target:TimeToDie() > (Target:DebuffRemains(S.SoulReaperDebuff) + 5)) or
     (EnemiesMeleeCount <= 2 and Target:TimeToX(35) < 5 and Target:TimeToDie() > (Target:DebuffRemains(S.SoulReaperDebuff) + 5))
   ) then
-    if Cast(S.SoulReaper, nil, nil, not Target:IsInMeleeRange(5)) then return "soul_reaper deathbringer 14"; end
+    if Cast(S.SoulReaper, nil, nil, not TargetInMeleeRange) then return "soul_reaper deathbringer 14"; end
   end
   -- death_and_decay,if=((dot.reapers_mark.ticking)&!death_and_decay.ticking)|!buff.death_and_decay.up
   if S.DeathAndDecay:IsReady() and ((Target:DebuffUp(S.ReapersMarkDebuff) and not Player:DnDTicking()) or Player:BuffDown(S.DeathAndDecayBuff)) then
@@ -250,7 +243,7 @@ local function Deathbringer()
   end
   -- marrowrend,if=buff.exterminate.up
   if S.Marrowrend:IsReady() and (Player:BuffUp(S.ExterminateBuff)) then
-    if Cast(S.Marrowrend, nil, nil, not Target:IsInMeleeRange(5)) then return "marrowrend deathbringer 18"; end
+    if Cast(S.Marrowrend, nil, nil, not TargetInMeleeRange) then return "marrowrend deathbringer 18"; end
   end
   -- bonestorm,if=buff.bone_shield.stack>=5&(!talent.shattering_bone.enabled|death_and_decay.ticking)&buff.dancing_rune_weapon.remains
   if CDsON() and S.Bonestorm:IsReady() and (VarBoneShieldStacks >= 5 and (not S.ShatteringBone:IsAvailable() or Player:DnDTicking()) and Player:BuffUp(S.DancingRuneWeaponBuff)) then
@@ -258,15 +251,15 @@ local function Deathbringer()
   end
   -- death_strike,if=(runic_power.deficit<35|(runic_power.deficit<41&buff.dancing_rune_weapon.up))
   if S.DeathStrike:IsReady() and (Player:BuffRemains(S.CoagulopathyBuff) <= Player:GCD() or Player:RunicPowerDeficit() < 35) then
-    if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not Target:IsSpellInRange(S.DeathStrike)) then return "death_strike deathbringer 14"; end
+    if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not TargetInMeleeRange) then return "death_strike deathbringer 14"; end
   end
   -- reapers_mark
   if S.ReapersMark:IsReady() then
-    if Cast(S.ReapersMark, nil, nil, not Target:IsInMeleeRange(5)) then return "reapers_mark deathbringer 16"; end
+    if Cast(S.ReapersMark, nil, nil, not TargetInMeleeRange) then return "reapers_mark deathbringer 16"; end
   end
   -- marrowrend,if=buff.bone_shield.stack<6&!dot.bonestorm.ticking
   if S.Marrowrend:IsReady() and (VarBoneShieldStacks < 6 and not Player:BonestormTicking()) then
-    if Cast(S.Marrowrend, nil, nil, not Target:IsInMeleeRange(5)) then return "marrowrend deathbringer 18"; end
+    if Cast(S.Marrowrend, nil, nil, not TargetInMeleeRange) then return "marrowrend deathbringer 18"; end
   end
   -- tombstone,if=buff.bone_shield.stack>=8&(!talent.shattering_bone.enabled|death_and_decay.ticking)&cooldown.dancing_rune_weapon.remains>=25
   if S.Tombstone:IsReady() and (VarBoneShieldStacks >= 8 and (not S.ShatteringBone:IsAvailable() or Player:DnDTicking()) and S.DancingRuneWeapon:CooldownRemains() >= 25) then
@@ -276,53 +269,53 @@ local function Deathbringer()
   if CDsON() and S.AbominationLimb:IsCastable() and (Player:BuffDown(S.DancingRuneWeaponBuff)) then
     if Cast(S.AbominationLimb, nil, Settings.CommonsDS.DisplayStyle.AbominationLimb, not Target:IsInRange(20)) then return "abomination_limb deathbringer 22"; end
   end
-  -- call_action_list,name=sequence,if=buff.dancing_rune_weapon.up&cooldown.blood_boil.charges>=1
-  if Player:BuffUp(S.DancingRuneWeaponBuff) and S.BloodBoil:Charges() >= 1 then
-    local ShouldReturn = Sequence(); if ShouldReturn then return ShouldReturn; end
+  -- blood_boil,if=pet.dancing_rune_weapon.active&!drw.bp_ticking
+  if S.BloodBoil:IsCastable() and (Player:BuffUp(S.DancingRuneWeaponBuff) and not Player:DRWBPTicking()) then
+    if Cast(S.BloodBoil, nil, nil, not Target:IsInMeleeRange(10)) then return "blood_boil deathbringer 24"; end
   end
   -- any_dnd,if=!buff.death_and_decay.remains
   if S.DeathAndDecay:IsReady() and (Player:BuffDown(S.DeathAndDecayBuff)) then
-    if Cast(S.DeathAndDecay, Settings.CommonsOGCD.GCDasOffGCD.DeathAndDecay) then return "death_and_decay deathbringer 24"; end
+    if Cast(S.DeathAndDecay, Settings.CommonsOGCD.GCDasOffGCD.DeathAndDecay) then return "death_and_decay deathbringer 26"; end
   end
   -- blooddrinker,if=!buff.dancing_rune_weapon.up&active_enemies<=2&buff.coagulopathy.remains>3
   if S.Blooddrinker:IsReady() and (Player:BuffDown(S.DancingRuneWeaponBuff) and EnemiesMeleeCount <= 2 and Player:BuffRemains(S.CoagulopathyBuff) > 3) then
-    if Cast(S.Blooddrinker, nil, nil, not Target:IsSpellInRange(S.Blooddrinker)) then return "blooddrinker deathbringer 26"; end
+    if Cast(S.Blooddrinker, nil, nil, not Target:IsSpellInRange(S.Blooddrinker)) then return "blooddrinker deathbringer 28"; end
   end
   -- death_strike
   if S.DeathStrike:IsReady() then
-    if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not Target:IsSpellInRange(S.DeathStrike)) then return "death_strike deathbringer 28"; end
+    if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not TargetInMeleeRange) then return "death_strike deathbringer 30"; end
   end
   -- consumption
   if S.Consumption:IsCastable() then
-    if Cast(S.Consumption, nil, Settings.Blood.DisplayStyle.Consumption, not Target:IsSpellInRange(S.Consumption)) then return "consumption deathbringer 30"; end
+    if Cast(S.Consumption, nil, Settings.Blood.DisplayStyle.Consumption, not TargetInMeleeRange) then return "consumption deathbringer 32"; end
   end
   -- blood_boil,if=charges_fractional>=1.5
   if S.BloodBoil:IsCastable() and (S.BloodBoil:ChargesFractional() >= 1.5) then
-    if Cast(S.BloodBoil, nil, nil, not Target:IsInMeleeRange(10)) then return "blood_boil deathbringer 32"; end
+    if Cast(S.BloodBoil, nil, nil, not Target:IsInMeleeRange(10)) then return "blood_boil deathbringer 34"; end
   end
   -- heart_strike,if=rune>=1|rune.time_to_2<gcd
   if HSAction:IsReady() and (Player:Rune() >= 1 or Player:RuneTimeToX(2) < Player:GCD()) then
-    if Cast(S.HeartStrike, nil, nil, not Target:IsSpellInRange(S.HeartStrike)) then return "heart_strike deathbringer 34"; end
+    if Cast(S.HeartStrike, nil, nil, not TargetInMeleeRange) then return "heart_strike deathbringer 36"; end
   end
   -- blood_boil
   if S.BloodBoil:IsCastable() then
-    if Cast(S.BloodBoil, nil, nil, not Target:IsInMeleeRange(10)) then return "blood_boil deathbringer 36"; end
+    if Cast(S.BloodBoil, nil, nil, not Target:IsInMeleeRange(10)) then return "blood_boil deathbringer 38"; end
   end
   -- heart_strike
   if HSAction:IsReady() then
-    if Cast(S.HeartStrike, nil, nil, not Target:IsSpellInRange(S.HeartStrike)) then return "heart_strike deathbringer 38"; end
+    if Cast(S.HeartStrike, nil, nil, not TargetInMeleeRange) then return "heart_strike deathbringer 40"; end
   end
   -- soul_reaper,if=buff.reaper_of_souls.up
   if S.SoulReaper:IsReady() and (Player:BuffUp(S.ReaperofSoulsBuff)) then
-    if Cast(S.SoulReaper, nil, nil, not Target:IsInMeleeRange(5)) then return "soul_reaper deathbringer 40"; end
+    if Cast(S.SoulReaper, nil, nil, not TargetInMeleeRange) then return "soul_reaper deathbringer 42"; end
   end
   -- arcane_torrent,if=runic_power.deficit>20
   if CDsON() and S.ArcaneTorrent:IsCastable() and (Player:RunicPowerDeficit() > 20) then
-    if Cast(S.ArcaneTorrent, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "arcane_torrent deathbringer 42"; end
+    if Cast(S.ArcaneTorrent, Settings.CommonsOGCD.OffGCDasOffGCD.Racials) then return "arcane_torrent deathbringer 44"; end
   end
   -- deaths_caress,if=buff.bone_shield.stack<11
   if S.DeathsCaress:IsReady() and (VarBoneShieldStacks < 11) then
-    if Cast(S.DeathsCaress, nil, nil, not Target:IsSpellInRange(S.DeathsCaress)) then return "deaths_caress deathbringer 44"; end
+    if Cast(S.DeathsCaress, nil, nil, not Target:IsSpellInRange(S.DeathsCaress)) then return "deaths_caress deathbringer 46"; end
   end
 end
 
@@ -338,7 +331,7 @@ local function Sanlayn()
   VarHeartStrikeRPDRW = 21 + EnemiesMeleeCount * num(S.Heartbreaker:IsAvailable()) * 2
   -- death_strike,if=buff.coagulopathy.remains<=gcd
   if S.DeathStrike:IsReady() and (Player:BuffRemains(S.CoagulopathyBuff) <= Player:GCD()) then
-    if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not Target:IsInMeleeRange(5)) then return "death_strike sanlayn 2"; end
+    if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not TargetInMeleeRange) then return "death_strike sanlayn 2"; end
   end
   -- deaths_caress,if=!buff.bone_shield.up
   if S.DeathsCaress:IsReady() and (Player:BuffDown(S.BoneShieldBuff)) then
@@ -357,7 +350,7 @@ local function Sanlayn()
   end
   -- consumption,if=pet.dancing_rune_weapon.active&pet.dancing_rune_weapon.remains<=3
   if S.Consumption:IsCastable() and (Player:BuffUp(S.DancingRuneWeaponBuff) and Player:BuffRemains(S.DancingRuneWeaponBuff) <= 3) then
-    if Cast(S.Consumption, nil, Settings.Blood.DisplayStyle.Consumption, not Target:IsSpellInRange(S.Consumption)) then return "consumption sanlayn 10"; end
+    if Cast(S.Consumption, nil, Settings.Blood.DisplayStyle.Consumption, not TargetInMeleeRange) then return "consumption sanlayn 10"; end
   end
   -- bonestorm,if=(buff.death_and_decay.up)&buff.bone_shield.stack>5&cooldown.dancing_rune_weapon.remains
   if CDsON() and S.Bonestorm:IsReady() and (Player:BuffUp(S.DeathAndDecayBuff) and VarBoneShieldStacks > 5 and S.DancingRuneWeapon:CooldownDown()) then
@@ -365,11 +358,11 @@ local function Sanlayn()
   end
   -- death_strike,if=runic_power>=108
   if S.DeathStrike:IsReady() and (Player:RunicPower() >= 108) then
-    if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not Target:IsSpellInRange(S.DeathStrike)) then return "death_strike sanlayn 14"; end
+    if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not TargetInMeleeRange) then return "death_strike sanlayn 14"; end
   end
   -- heart_strike,if=buff.dancing_rune_weapon.up&rune>1
   if HSAction:IsReady() and (Player:BuffUp(S.DancingRuneWeaponBuff) and Player:Rune() > 1) then
-    if Cast(HSAction, nil, nil, not Target:IsSpellInRange(HSAction)) then return "heart_strike sanlayn 16"; end
+    if Cast(HSAction, nil, nil, not TargetInMeleeRange) then return "heart_strike sanlayn 16"; end
   end
   -- death_and_decay,if=!buff.death_and_decay.up
   if S.DeathAndDecay:IsReady() and (Player:BuffDown(S.DeathAndDecayBuff)) then
@@ -377,7 +370,7 @@ local function Sanlayn()
   end
   -- heart_strike,if=buff.infliction_of_sorrow.up&buff.death_and_decay.up
   if HSAction:IsReady() and (Player:BuffUp(S.InflictionofSorrowBuff) and Player:BuffUp(S.DeathAndDecayBuff)) then
-    if Cast(HSAction, nil, nil, not Target:IsSpellInRange(HSAction)) then return "heart_strike sanlayn 20"; end
+    if Cast(HSAction, nil, nil, not TargetInMeleeRange) then return "heart_strike sanlayn 20"; end
   end
   -- raise_dead
   if CDsON() and S.RaiseDead:IsCastable() then
@@ -401,19 +394,19 @@ local function Sanlayn()
     (Target:HealthPercentage() < VarDeathStrikeSangLowHP and Player:RunicPower() > VarDeathStrikePreEssenceDumpAmtLowHP) or
     (Target:HealthPercentage() > VarDeathStrikeSangLowHP and Player:RunicPower() > VarDeathStrikePreEssenceDumpAmt)
   ) then
-    if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not Target:IsSpellInRange(S.DeathStrike)) then return "death_strike sanlayn 30"; end
+    if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not TargetInMeleeRange) then return "death_strike sanlayn 30"; end
   end
   -- marrowrend,if=!dot.bonestorm.ticking&(buff.bone_shield.stack<variable.bone_shield_refresh_value&runic_power.deficit>20|buff.bone_shield.remains<=3)
   if S.Marrowrend:IsReady() and (not Player:BonestormTicking() and (VarBoneShieldStacks < VarBoneShieldRefreshValue and Player:RunicPowerDeficit() > 20 or Player:BuffRemains(S.BoneShieldBuff) <= 3)) then
-    if Cast(S.Marrowrend, nil, nil, not Target:IsInMeleeRange(5)) then return "marrowrend sanlayn 32"; end
+    if Cast(S.Marrowrend, nil, nil, not TargetInMeleeRange) then return "marrowrend sanlayn 32"; end
   end
   -- marrowrend,if=!dot.bonestorm.ticking&(buff.bone_shield.stack<variable.bone_shield_refresh_value&runic_power.deficit>20&!cooldown.dancing_rune_weapon.up|buff.bone_shield.remains<=3)
   if S.Marrowrend:IsReady() and (not Player:BonestormTicking() and (VarBoneShieldStacks < VarBoneShieldRefreshValue and Player:RunicPowerDeficit() > 20 and S.DancingRuneWeapon:CooldownDown() or Player:BuffRemains(S.BoneShieldBuff) <= 3)) then
-    if Cast(S.Marrowrend, nil, nil, not Target:IsInMeleeRange(5)) then return "marrowrend sanlayn 34"; end
+    if Cast(S.Marrowrend, nil, nil, not TargetInMeleeRange) then return "marrowrend sanlayn 34"; end
   end
   -- soul_reaper,if=active_enemies=1&target.time_to_pct_35<5&target.time_to_die>(dot.soul_reaper.remains+5)
   if S.SoulReaper:IsReady() and (EnemiesMeleeCount == 1 and Target:TimeToX(35) < 5 and Target:TimeToDie() > (Target:DebuffRemains(S.SoulReaperDebuff) + 5)) then
-    if Cast(S.SoulReaper, nil, nil, not Target:IsInMeleeRange(5)) then return "soul_reaper sanlayn 36"; end
+    if Cast(S.SoulReaper, nil, nil, not TargetInMeleeRange) then return "soul_reaper sanlayn 36"; end
   end
   -- death_strike,if=buff.dancing_rune_weapon.up&(buff.coagulopathy.remains<2*gcd|(target.health.pct<variable.death_strike_sang_low_hp&runic_power>50))
   -- death_strike,if=buff.dancing_rune_weapon.up&(buff.coagulopathy.remains<2*gcd|(runic_power.deficit<=variable.heart_strike_rp_drw&debuff.incite_terror.stack>=3))
@@ -421,11 +414,11 @@ local function Sanlayn()
     (Player:BuffRemains(S.CoagulopathyBuff) < 2 * Player:GCD() or (Target:HealthPercentage() < VarDeathStrikeSangLowHP and Player:RunicPower() > 50)) or
     (Player:BuffRemains(S.CoagulopathyBuff) < 2 * Player:GCD() or (Player:RunicPowerDeficit() <= VarHeartStrikeRPDRW and Target:DebuffStack(S.InciteTerrorDebuff) >= 3))
   ) then
-    if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not Target:IsSpellInRange(S.DeathStrike)) then return "death_strike sanlayn 38"; end
+    if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not TargetInMeleeRange) then return "death_strike sanlayn 38"; end
   end
   -- heart_strike,if=buff.vampiric_strike.up|buff.infliction_of_sorrow.up&((talent.consumption.enabled&buff.consumption.up)|!talent.consumption.enabled)&dot.blood_plague.ticking&dot.blood_plague.remains>20
   if HSAction:IsReady() and (S.VampiricStrikeAction:IsReady() or Player:BuffUp(S.InflictionofSorrowBuff) and ((S.Consumption:IsAvailable() and Player:BuffUp(S.ConsumptionBuff)) or not S.Consumption:IsAvailable()) and Target:DebuffUp(S.BloodPlagueDebuff) and Target:DebuffRemains(S.BloodPlagueDebuff) > 20) then
-    if Cast(HSAction, nil, nil, not Target:IsSpellInRange(HSAction)) then return "heart_strike sanlayn 40"; end
+    if Cast(HSAction, nil, nil, not TargetInMeleeRange) then return "heart_strike sanlayn 40"; end
   end
   -- dancing_rune_weapon,if=buff.coagulopathy.up
   if CDsON() and S.DancingRuneWeapon:IsCastable() and (Player:BuffUp(S.CoagulopathyBuff)) then
@@ -433,7 +426,7 @@ local function Sanlayn()
   end
   -- death_strike,if=runic_power.deficit<=variable.heart_strike_rp_drw|runic_power>=variable.death_strike_dump_amount
   if S.DeathStrike:IsReady() and (Player:RunicPowerDeficit() <= VarHeartStrikeRPDRW or Player:RunicPower() >= VarDeathStrikeDumpAmt) then
-    if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not Target:IsSpellInRange(S.DeathStrike)) then return "death_strike sanlayn 44"; end
+    if Cast(S.DeathStrike, Settings.Blood.GCDasOffGCD.DeathStrike, nil, not TargetInMeleeRange) then return "death_strike sanlayn 44"; end
   end
   -- blood_boil,if=charges>=2|(full_recharge_time<=gcd.max)
   if S.BloodBoil:IsCastable() and (S.BloodBoil:Charges() >= 2 or (S.BloodBoil:FullRechargeTime() <= Player:GCD())) then
@@ -441,11 +434,11 @@ local function Sanlayn()
   end
   -- consumption,if=cooldown.dancing_rune_weapon.remains>20
   if S.Consumption:IsCastable() and (S.DancingRuneWeapon:CooldownRemains() > 20) then
-    if Cast(S.Consumption, nil, Settings.Blood.DisplayStyle.Consumption, not Target:IsSpellInRange(S.Consumption)) then return "consumption sanlayn 48"; end
+    if Cast(S.Consumption, nil, Settings.Blood.DisplayStyle.Consumption, not TargetInMeleeRange) then return "consumption sanlayn 48"; end
   end
   -- heart_strike,if=rune>1
   if HSAction:IsReady() and (Player:Rune() > 1) then
-    if Cast(HSAction, nil, nil, not Target:IsSpellInRange(HSAction)) then return "heart_strike sanlayn 50"; end
+    if Cast(HSAction, nil, nil, not TargetInMeleeRange) then return "heart_strike sanlayn 50"; end
   end
   -- bonestorm,if=buff.death_and_decay.up&buff.bone_shield.stack>5&cooldown.dancing_rune_weapon.remains
   if CDsON() and S.Bonestorm:IsReady() and (Player:BuffUp(S.DeathAndDecayBuff) and VarBoneShieldStacks > 5 and S.DancingRuneWeapon:CooldownDown()) then
@@ -477,6 +470,9 @@ local function APL()
     -- Are we actively tanking?
     IsTanking = Player:IsTankingAoE(8) or Player:IsTanking(Target)
 
+    -- Target in melee range?
+    TargetInMeleeRange = Target:IsSpellInRange(S.DeathStrike)
+
     -- Bone Shield Stacks
     VarBoneShieldStacks = Player:BuffStack(S.BoneShieldBuff)
 
@@ -500,8 +496,6 @@ local function APL()
       if HR.CastAnnotated(S.Pool, false, "WAIT") then return "Pool During Blooddrinker"; end
     end
     -- auto_attack
-    -- restart_sequence,name=drw_bp,if=cooldown.dancing_rune_weapon.remains<10
-    -- Note: Used by Simulationcraft, but unnecessary here.
     -- use_item,name=tome_of_lights_devotion,if=buff.inner_resilience.up
     if I.TomeofLightsDevotion:IsEquippedAndReady() and Player:BuffUp(S.InnerResilienceBuff) then
       if Cast(I.TomeofLightsDevotion, Settings.CommonsDS.DisplayStyle.Trinkets) then return "tome_of_lights_devotion main 2"; end
