@@ -147,6 +147,7 @@ Spell.Hunter.BeastMastery = MergeTableByKey(Spell.Hunter.Commons, {
   -- Talents
   AMurderofCrows                        = Spell(131894),
   AnimalCompanion                       = Spell(267116),
+  AspectoftheHydra                      = Spell(470945),
   AspectoftheWild                       = Spell(193530),
   BarbedScales                          = Spell(469880),
   BarbedShot                            = Spell(217200),
@@ -183,6 +184,7 @@ Spell.Hunter.BeastMastery = MergeTableByKey(Spell.Hunter.Commons, {
   CalloftheWildBuff                     = Spell(359844),
   FrenzyPetBuff                         = Spell(272790, "Pet"),
   HuntersPreyBuff                       = Spell(378215),
+  HuntmastersCallBuff                   = Spell(459731),
   SolitaryCompanionBuff                 = Spell(474751),
   -- Debuffs
   BarbedShotDebuff                      = Spell(217200),
