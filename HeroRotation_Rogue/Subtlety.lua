@@ -557,7 +557,7 @@ end
 local function CDs ()
   -- actions.cds=cold_blood,if=cooldown.secret_technique.up&buff.shadow_dance.up&combo_points>=6&variable.secret&buff.flagellation_persist.up
   if HR.CDsON() and S.ColdBlood:IsReady() and S.SecretTechnique:IsReady() and Player:BuffUp(S.ShadowDanceBuff)
-    and ComboPoints >= 6 and Secret and Player:BuffUp(S.FlagellationPersistBuff) then
+    and ComboPoints >= 6 and Secret and (Player:BuffUp(S.FlagellationPersistBuff) or (Player:BuffUp(S.FlagellationBuff) and Player:BuffRemains(S.FlagellationBuff) < 1)) then
     if Cast(S.ColdBlood, Settings.CommonsOGCD.OffGCDasOffGCD.ColdBlood) then
       return "Cast Cold Blood"
     end
