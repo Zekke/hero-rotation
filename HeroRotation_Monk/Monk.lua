@@ -57,6 +57,7 @@ Spell.Monk.Commons = {
   TouchofDeath                          = Spell(322109),
   Transcendence                         = Spell(101643),
   TranscendenceTransfer                 = Spell(119996),
+  VivaciousVivication                   = Spell(388812),
   Vivify                                = Spell(116670),
   -- Talents
   BonedustBrew                          = Spell(386276),
@@ -88,11 +89,12 @@ Spell.Monk.Commons = {
   JunkmaestrosBuff                      = Spell(1219661), -- Junkmaestro's Mega Magnet buff
   PressurePointBuff                     = Spell(393053),
   RushingJadeWindBuff                   = Spell(116847),
+  VivaciousVivicationBuff               = Spell(392883),
   -- Debuffs
   -- Item Effects
   CalltoDominanceBuff                   = Spell(403380), -- Neltharion trinket buff
   DomineeringArroganceBuff              = Spell(411661), -- Neltharion trinket buff2
-  TheEmperorsCapacitorBuff              = Spell(235054),
+  TheEmperorsCapacitorBuff              = Spell(393039),
   -- Misc
   PoolEnergy                            = Spell(999910),
   StopFoF                               = Spell(363653)
