@@ -664,9 +664,9 @@ local function Items()
       end
     end
 
-    if I.TreacherousTransmitter:CooldownRemains() >= 75 and Player:BuffDown(S.EtherealPowerlink) and Player:BuffUp(S.ShadowDanceBuff) then
-      if HR.CastAnnotated(S.PoolEnergy, false, "DO TASK") then return "Do transmitter task"; end
-    end
+    -- if I.TreacherousTransmitter:CooldownRemains() >= 75 and Player:BuffDown(S.EtherealPowerlink) and Player:BuffUp(S.ShadowDanceBuff) then
+    --  if HR.CastAnnotated(S.PoolEnergy, false, "DO TASK") then return "Do transmitter task"; end
+    -- end
 
     --actions.items+=/use_item,name=imperfect_ascendancy_serum,use_off_gcd=1,if=dot.rupture.ticking&buff.flagellation_buff.up
     if I.ImperfectAscendancySerum:IsEquippedAndReady() then
