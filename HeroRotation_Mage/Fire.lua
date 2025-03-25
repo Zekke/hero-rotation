@@ -183,7 +183,7 @@ end, "PLAYER_REGEN_ENABLED")
 --- ===== Helper Functions =====
 local function ScorchExecuteActive()
   if not Player or not Target then return false end
-  if S.SearingTouch:IsAvailable() and Target:HealthPercentage() <= 30 then return true end
+  if Target:HealthPercentage() <= 30 then return true end
   return false
 end
 
@@ -278,7 +278,13 @@ local function Precombat()
   -- Note: Can't calculate enemies in Precombat
   -- pyroblast
   if S.Pyroblast:IsReady() and not Player:IsCasting(S.Pyroblast) then
-    if PBCast(S.Pyroblast, nil, nil, not Target:IsSpellInRange(S.Pyroblast)) then return "pyroblast precombat 8"; end
+    -- Check if we have a free cast available
+    if FreeCastAvailable() then
+      if PBCast(S.Pyroblast, nil, nil, not Target:IsSpellInRange(S.Pyroblast)) then return "pyroblast precombat 8"; end
+    else
+      -- Use regular Cast if not a free cast
+      if Cast(S.Pyroblast, nil, nil, not Target:IsSpellInRange(S.Pyroblast)) then return "pyroblast precombat 9"; end
+    end
   end
   -- phoenix_flames,if=time=0
   -- Note: From APL()
@@ -682,7 +688,7 @@ local function APL()
     -- phoenix_flames,if=time=0
     -- Note: Moved to Precombat.
     -- Manually added: Scorch sniping
-    if Settings.Fire.UseScorchSniping and S.SearingTouch:IsAvailable() and AoEON() and Target:HealthPercentage() > 30 then
+    if Settings.Fire.UseScorchSniping and AoEON() and Target:HealthPercentage() > 30 then
       for _, CycleUnit in pairs(Enemies16ySplash) do
         if CycleUnit:Exists() and CycleUnit:GUID() ~= Target:GUID() and not CycleUnit:IsDeadOrGhost() and CycleUnit:HealthPercentage() < 30 and CycleUnit:IsSpellInRange(S.Scorch) then
           if HR.CastLeftNameplate(CycleUnit, S.Scorch) then return "Scorch Sniping on "..CycleUnit:Name().." main 2"; end
@@ -768,8 +774,10 @@ local function APL()
         end
       end
     end
-    -- variable,use_off_gcd=1,use_while_casting=1,name=fire_blast_pooling,value=buff.combustion.down&action.fire_blast.charges_fractional+(variable.time_to_combustion+action.shifting_power.full_reduction*variable.shifting_power_before_combustion)%cooldown.fire_blast.duration-1<cooldown.fire_blast.max_charges+variable.overpool_fire_blasts%cooldown.fire_blast.duration-(buff.combustion.duration%cooldown.fire_blast.duration)%%1&variable.time_to_combustion<fight_remains
-    VarFireBlastPooling = VarTimeToCombustion <= 8
+    -- Hardcoded value for fireblast pooling as per Simc.
+    -- Note: Simc default is 8 seconds, but top Fire Mages recommend 10 to 12 seconds for realistic usage.
+    -- variable,use_off_gcd=1,use_while_casting=1,name=fire_blast_pooling,value=variable.time_to_combustion<=11
+    VarFireBlastPooling = VarTimeToCombustion <= 11
     -- call_action_list,name=combustion_phase,if=variable.time_to_combustion<=0|buff.combustion.up|variable.time_to_combustion<variable.combustion_precast_time&cooldown.combustion.remains<variable.combustion_precast_time
     if VarTimeToCombustion <= 0 or CombustionUp or VarTimeToCombustion < VarCombustionPrecastTime and S.Combustion:CooldownRemains() < VarCombustionPrecastTime then
       local ShouldReturn = CombustionPhase(); if ShouldReturn then return ShouldReturn; end

@@ -128,8 +128,26 @@ local function SetTrinketVariables()
   VarTrinket1Buffs = Trinket1:HasUseBuff() or VarTrinket1ID == I.TreacherousTransmitter:ID()
   VarTrinket2Buffs = Trinket2:HasUseBuff() or VarTrinket2ID == I.TreacherousTransmitter:ID()
 
-  VarTrinket1Duration = (VarTrinket1ID == I.TreacherousTransmitter:ID() or VarTrinket1ID == I.FunhouseLens:ID()) and 15 or Trinket1:BuffDuration()
-  VarTrinket2Duration = (VarTrinket2ID == I.TreacherousTransmitter:ID() or VarTrinket2ID == I.FunhouseLens:ID()) and 15 or Trinket2:BuffDuration()
+  VarTrinket1Duration = 0
+  VarTrinket2Duration = 0
+  if VarTrinket1ID == I.TreacherousTransmitter:ID() then
+    VarTrinket1Duration = 15
+  elseif VarTrinket1ID == I.FunhouseLens:ID() then
+    VarTrinket1Duration = 15
+  elseif VarTrinket1ID == I.SignetofthePriory:ID() then
+    VarTrinket1Duration = 20
+  else
+    VarTrinket1Duration = Trinket1:BuffDuration()
+  end
+  if VarTrinket2ID == I.TreacherousTransmitter:ID() then
+    VarTrinket2Duration = 15
+  elseif VarTrinket2ID == I.FunhouseLens:ID() then
+    VarTrinket2Duration = 15
+  elseif VarTrinket2ID == I.SignetofthePriory:ID() then
+    VarTrinket2Duration = 20
+  else
+    VarTrinket2Duration = Trinket2:BuffDuration()
+  end
 
   VarTrinket1HighValue = VarTrinket1ID == I.TreacherousTransmitter:ID() and 2 or 1
   VarTrinket2HighValue = VarTrinket2ID == I.TreacherousTransmitter:ID() and 2 or 1
@@ -338,8 +356,8 @@ local function Precombat()
   end
   -- variable,name=trinket_1_buffs,value=trinket.1.has_use_buff|trinket.1.is.treacherous_transmitter
   -- variable,name=trinket_2_buffs,value=trinket.2.has_use_buff|trinket.2.is.treacherous_transmitter
-  -- variable,name=trinket_1_duration,op=setif,value=trinket.1.is.treacherous_transmitter*15+trinket.1.is.funhouse_lens*15,value_else=trinket.1.proc.any_dps.duration,condition=trinket.1.is.treacherous_transmitter|trinket.1.is.funhouse_lens
-  -- variable,name=trinket_2_duration,op=setif,value=trinket.2.is.treacherous_transmitter*15+trinket.2.is.funhouse_lens*15,value_else=trinket.2.proc.any_dps.duration,condition=trinket.2.is.treacherous_transmitter|trinket.2.is.funhouse_lens
+  -- variable,name=trinket_1_duration,op=setif,value=trinket.1.is.treacherous_transmitter*15+trinket.1.is.funhouse_lens*15+trinket.1.is.signet_of_the_priory*20,value_else=trinket.1.proc.any_dps.duration,condition=trinket.1.is.treacherous_transmitter|trinket.1.is.funhouse_lens|trinket.1.is.signet_of_the_priory
+  -- variable,name=trinket_2_duration,op=setif,value=trinket.2.is.treacherous_transmitter*15+trinket.2.is.funhouse_lens*15+trinket.2.is.signet_of_the_priory*20,value_else=trinket.2.proc.any_dps.duration,condition=trinket.2.is.treacherous_transmitter|trinket.2.is.funhouse_lens|trinket.2.is.signet_of_the_priory
   -- variable,name=trinket_1_high_value,op=setif,value=2,value_else=1,condition=trinket.1.is.treacherous_transmitter
   -- variable,name=trinket_2_high_value,op=setif,value=2,value_else=1,condition=trinket.2.is.treacherous_transmitter
   -- variable,name=trinket_1_sync,op=setif,value=1,value_else=0.5,condition=variable.trinket_1_buffs&(talent.apocalypse&trinket.1.cooldown.duration%%cooldown.apocalypse.duration=0|talent.dark_transformation&trinket.1.cooldown.duration%%cooldown.dark_transformation.duration=0)|trinket.1.is.treacherous_transmitter
@@ -698,6 +716,10 @@ local function SanFishing()
   if S.AntiMagicShell:IsCastable() and Settings.Commons.UseAMSAMZOffensively and (Settings.Unholy.AMSAbsorbPercent > 0 and Player:RunicPower() < 40) then
     if Cast(S.AntiMagicShell, Settings.CommonsOGCD.GCDasOffGCD.AntiMagicShell) then return "antimagic_shell san_fishing 2"; end
   end
+  -- wound_spender,if=buff.infliction_of_sorrow.up
+  if WoundSpender:IsReady() and (Player:BuffUp(S.InflictionofSorrowBuff)) then
+    if Cast(WoundSpender, nil, nil, not Target:IsSpellInRange(WoundSpender)) then return "wound_spender san_fishing 3"; end
+  end
   -- any_dnd,if=!buff.death_and_decay.up&!buff.vampiric_strike.react
   if AnyDnD:IsReady() and Target:IsInMeleeRange(5) and (Player:BuffDown(S.DeathAndDecayBuff) and not S.VampiricStrikeAction:IsLearned()) then
     if Cast(AnyDnD, Settings.CommonsOGCD.GCDasOffGCD.DeathAndDecay) then return "any_dnd san_fishing 4"; end
@@ -729,9 +751,13 @@ local function SanST()
   if AnyDnD:IsReady() and Target:IsInMeleeRange(5) and (Player:BuffDown(S.DeathAndDecayBuff) and S.UnholyGround:IsAvailable() and S.DarkTransformation:CooldownRemains() < 5) then
     if Cast(AnyDnD, Settings.CommonsOGCD.GCDasOffGCD.DeathAndDecay) then return "any_dnd san_st 1"; end
   end
+  -- wound_spender,if=buff.infliction_of_sorrow.up
+  if WoundSpender:IsReady() and (Player:BuffUp(S.InflictionofSorrowBuff)) then
+    if Cast(WoundSpender, nil, nil, not Target:IsSpellInRange(WoundSpender)) then return "wound_spender san_st 2"; end
+  end
   -- death_coil,if=buff.sudden_doom.react&buff.gift_of_the_sanlayn.remains&(talent.doomed_bidding|talent.rotten_touch)|rune<3&!buff.runic_corruption.up|set_bonus.tww2_4pc&runic_power>80|buff.gift_of_the_sanlayn.up&buff.essence_of_the_blood_queen.at_max_stacks&talent.frenzied_bloodthirst&set_bonus.tww2_4pc&buff.winning_streak.at_max_stacks&rune<=3&buff.essence_of_the_blood_queen.remains>3
   if S.DeathCoil:IsReady() and (Player:BuffUp(S.SuddenDoomBuff) and Player:BuffUp(S.GiftoftheSanlaynBuff) and (S.DoomedBidding:IsAvailable() or S.RottenTouch:IsAvailable()) or Player:Rune() < 3 and Player:BuffDown(S.RunicCorruptionBuff) or Player:HasTier("TWW2", 4) and Player:RunicPower() > 80 or Player:BuffUp(S.GiftoftheSanlaynBuff) and Player:BuffStack(S.EssenceoftheBloodQueenBuff) >= 5 and S.FrenziedBloodthirst:IsAvailable() and Player:HasTier("TWW2", 4) and Player:BuffStack(S.WinningStreakBuff) >= 6 and Player:Rune() <= 3 and Player:BuffRemains(S.EssenceoftheBloodQueenBuff) > 3) then
-    if Cast(S.DeathCoil, nil, nil, not Target:IsSpellInRange(S.DeathCoil)) then return "death_coil san_st 2"; end
+    if Cast(S.DeathCoil, nil, nil, not Target:IsSpellInRange(S.DeathCoil)) then return "death_coil san_st 3"; end
   end
   -- wound_spender,if=buff.gift_of_the_sanlayn.up&buff.vampiric_strike.react|talent.gift_of_the_sanlayn&buff.dark_transformation.up&buff.dark_transformation.remains<gcd
   if WoundSpender:IsReady() and (Player:BuffUp(S.GiftoftheSanlaynBuff) and S.VampiricStrikeAction:IsLearned() or S.GiftoftheSanlayn:IsAvailable() and Pet:BuffUp(S.DarkTransformation) and Pet:BuffRemains(S.DarkTransformation) < Player:GCD()) then
