@@ -464,7 +464,7 @@ local function Build (ReturnSpellOnly, ForceStealth)
   end
 
   -- actions.build+=/shadowstrike
-  if S.Shadowstrike:IsReady() or ForceStealth then
+  if Target:IsInMeleeRange(5) and (S.Shadowstrike:IsReady() or ForceStealth) then
     if ReturnSpellOnly then
       return S.Shadowstrike
     else
