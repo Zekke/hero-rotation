@@ -17,6 +17,7 @@ local Item = HL.Item
 local HR = HeroRotation
 local AoEON = HR.AoEON
 local CDsON = HR.CDsON
+local FunnelON    = HR.FunnelON
 local Cast = HR.Cast
 local CastPooling = HR.CastPooling
 local CastSuggested = HR.CastSuggested
@@ -806,7 +807,7 @@ local function CDs ()
 
   -- # Killing Spree has higher priority than stealth cooldowns
   -- actions.finish+=/killing_spree,if=variable.finish_condition&!stealthed.all
-  if S.KillingSpree:IsCastable() and Finish_Condition() and not Player:StealthUp(true, true) then
+  if FunnelON() and S.KillingSpree:IsCastable() and Finish_Condition() and not Player:StealthUp(true, true) then
     if Cast(S.KillingSpree, nil, Settings.Outlaw.KillingSpreeDisplayStyle, not Target:IsSpellInRange(S.KillingSpree), nil) then
       return "Cast Killing Spree"
     end

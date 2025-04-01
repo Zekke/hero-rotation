@@ -549,7 +549,7 @@ local function Stealthed (ReturnSpellOnly, ForceStealth)
   -- &((active_dot.rupture<spell_targets.fan_of_knives&active_dot.rupture<5&(debuff.deathmark.up|cooldown.deathmark.ready))|debuff.deathmark.down&!cooldown.deathmark.ready)
   --HR.Print("Active rupture : " .. S.Rupture:AuraActiveCount() .. "/" .. MeleeEnemies10yCount)
   if (S.Rupture:IsCastable() or ForceStealth)
-  and ((S.Rupture:AuraActiveCount() < MeleeEnemies10yCount and S.Rupture:AuraActiveCount() < 5 and (S.Deathmark:AnyDebuffUp() or S.Deathmark:IsReady())) or (not S.Deathmark:AnyDebuffUp() and not S.Deathmark:IsReady()) or not CDsON())
+  and ((S.Rupture:AuraActiveCount() < MeleeEnemies10yCount and S.Rupture:AuraActiveCount() < 4 and (S.Deathmark:AnyDebuffUp() or S.Deathmark:IsReady() or S.Kingsbane:IsReady())) or (not S.Deathmark:AnyDebuffUp() and not S.Deathmark:IsReady() and not S.Kingsbane:IsReady()) or not CDsON())
   then
     local function RuptureTargetIfFunc(TargetUnit)
       return TargetUnit:DebuffRemains(S.Rupture)

@@ -289,7 +289,7 @@ local function PreCD()
       if Cast(PotionSelected, nil, Settings.CommonsDS.DisplayStyle.Potions) then return "potion pre_cd 6"; end
     end
   end
-  if Settings.Commons.Enabled.Trinkets then
+  if CDsON() and Settings.Commons.Enabled.Trinkets then
     -- use_item,slot=trinket1,if=!trinket.1.is.spymasters_web&!trinket.1.is.imperfect_ascendancy_serum&!trinket.1.is.treacherous_transmitter&!trinket.1.is.soulletting_ruby&(variable.on_use_trinket=1|variable.on_use_trinket=3)&variable.cd_condition
     -- Note: All checks against specific trinkets are already excluded via VarTrinket1Ex.
     if Trinket1 and Trinket1:IsReady() and not VarTrinket1Ex and not Player:IsItemBlacklisted(Trinket1) and ((VarOnUseTrinket == 1 or VarOnUseTrinket == 3) and VarCDCondition) then
@@ -302,7 +302,7 @@ local function PreCD()
     end
   end
   -- use_item,name=bestinslots,if=hero_tree.keeper_of_the_grove&buff.harmony_of_the_grove.up|hero_tree.elunes_chosen&(cooldown.ca_inc.full_recharge_time>20|buff.ca_inc.up)
-  if Settings.Commons.Enabled.Items and I.BestinSlotsCaster:IsEquippedAndReady() and (Player:HeroTreeID() == 23 and Player:BuffUp(S.HarmonyoftheGroveBuff) or Player:HeroTreeID() == 24 and (CaInc:FullRechargeTime() > 20 or CAIncBuffUp)) then
+  if CDsON() and Settings.Commons.Enabled.Items and I.BestinSlotsCaster:IsEquippedAndReady() and (Player:HeroTreeID() == 23 and Player:BuffUp(S.HarmonyoftheGroveBuff) or Player:HeroTreeID() == 24 and (CaInc:FullRechargeTime() > 20 or CAIncBuffUp)) then
     if Cast(I.BestinSlotsCaster, nil, Settings.CommonsDS.DisplayStyle.Items) then return "bestinslots pre_cd 12"; end
   end
 end
@@ -603,7 +603,7 @@ local function APL()
     VarBoatStacks = Player:BuffStack(S.BOATArcaneBuff) + Player:BuffStack(S.BOATNatureBuff)
     -- variable,name=no_cd_talent,value=!talent.celestial_alignment&!talent.incarnation_chosen_of_elune|druid.no_cds
     VarNoCDTalent = not S.CelestialAlignment:IsAvailable() and not S.Incarnation:IsAvailable() or not CDsON()
-    if Settings.Commons.Enabled.Trinkets then
+    if CDsON() and Settings.Commons.Enabled.Trinkets then
       -- use_item,name=spymasters_web,if=fight_remains<20
       if I.SpymastersWeb:IsEquippedAndReady() and (BossFightRemains < 20) then
         if Cast(I.SpymastersWeb, Settings.CommonsDS.DisplayStyle.Trinkets) then return "spymasters_web main 2"; end
@@ -614,10 +614,10 @@ local function APL()
       end
     end
     -- use_item,name=neural_synapse_enhancer,if=buff.harmony_of_the_grove.up|hero_tree.elunes_chosen
-    if Settings.Commons.Enabled.Items and I.NeuralSynapseEnhancer:IsEquippedAndReady() and (Player:BuffUp(S.HarmonyoftheGroveBuff) or Player:HeroTreeID() == 24) then
+    if CDsON() and Settings.Commons.Enabled.Items and I.NeuralSynapseEnhancer:IsEquippedAndReady() and (Player:BuffUp(S.HarmonyoftheGroveBuff) or Player:HeroTreeID() == 24) then
       if Cast(I.NeuralSynapseEnhancer, nil, Settings.CommonsDS.DisplayStyle.Items) then return "neural_synapse_enhancer main 6"; end
     end
-    if Settings.Commons.Enabled.Trinkets then
+    if CDsON() and Settings.Commons.Enabled.Trinkets then
       -- use_item,name=soulletting_ruby,if=(variable.ca_effective_cd<3|fight_remains<20|fight_remains<variable.ca_effective_cd&(buff.harmony_of_the_grove.up|cooldown.convoke_the_spirits.ready))&buff.spymasters_report.stack<=29&!equipped.neural_synapse_enhancer|equipped.neural_synapse_enhancer&cooldown.force_of_nature.remains>20
       if I.SoullettingRuby:IsEquippedAndReady() and ((VarCAEffectiveCD < 3 or BossFightRemains < 20 or BossFightRemains < VarCAEffectiveCD and (Player:BuffUp(S.HarmonyoftheGroveBuff) or S.ConvoketheSpirits:CooldownUp())) and Player:BuffStack(S.SpymastersReportBuff) <= 29 and not I.NeuralSynapseEnhancer:IsEquipped() or I.NeuralSynapseEnhancer:IsEquipped() and S.ForceofNature:CooldownRemains() > 20) then
         if Cast(I.SoullettingRuby, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(40)) then return "soulletting_ruby main 8"; end
@@ -627,7 +627,7 @@ local function APL()
         if Cast(I.TreacherousTransmitter, Settings.CommonsDS.DisplayStyle.Trinkets) then return "treacherous_transmitter main 10"; end
       end
     end
-    if Settings.Commons.Enabled.Trinkets then
+    if CDsON() and Settings.Commons.Enabled.Trinkets then
       -- variable,name=generic_trinket_condition,value=variable.no_cd_talent|fight_remains<variable.ca_effective_cd&(buff.harmony_of_the_grove.up|cooldown.convoke_the_spirits.ready)|(buff.spymasters_report.stack+variable.ca_effective_cd%6)>29&variable.ca_effective_cd>20|variable.on_use_trinket=0
       local VarGenericTrinketCondition = VarNoCDTalent or BossFightRemains < VarCAEffectiveCD and (Player:BuffUp(S.HarmonyoftheGroveBuff) or S.ConvoketheSpirits:CooldownUp()) or (Player:BuffStack(S.SpymastersReportBuff) + VarCAEffectiveCD / 6) > 29 and VarCAEffectiveCD > 20 or VarOnUseTrinket == 0
       -- use_item,slot=trinket1,if=!trinket.1.is.spymasters_web&!trinket.1.is.imperfect_ascendancy_serum&!trinket.1.is.treacherous_transmitter&!trinket.1.is.soulletting_ruby&(variable.on_use_trinket!=1&variable.on_use_trinket!=3&trinket.2.cooldown.remains>20|fight_remains<(20+20*(trinket.2.has_use&trinket.2.cooldown.remains<25))|variable.generic_trinket_condition)
@@ -645,7 +645,7 @@ local function APL()
         if Cast(I.AberrantSpellforge, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "aberrant_spellforge main 16"; end
       end
     end
-    if Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items then
+    if CDsON() and (Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items) then
       -- use_items
       local ItemToUse, ItemSlot, ItemRange = Player:GetUseableItems(OnUseExcludes)
       if ItemToUse then
