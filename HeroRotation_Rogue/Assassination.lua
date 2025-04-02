@@ -1481,7 +1481,6 @@ local function Init ()
   S.Garrote:RegisterAuraTracking()
   S.Rupture:RegisterAuraTracking()
   S.CrimsonTempest:RegisterAuraTracking()
-  S.Rupture:RegisterAuraTracking()
 
   HR.Print("Assassination Rogue rotation has been updated for patch 11.1.0.")
 end
