@@ -356,11 +356,11 @@ local function Precombat()
   -- snapshot_stats
   -- Manually added openers:
   -- primordial_wave
-  if S.PrimordialWave:IsReady() then
+  if CDsON() and S.PrimordialWave:IsReady() then
     if Cast(S.PrimordialWave, nil, Settings.CommonsDS.DisplayStyle.PrimordialWave, not Target:IsInRange(45)) then return "primordial_wave precombat 4"; end
   end
   -- feral_spirit
-  if S.FeralSpirit:IsCastable() then
+  if CDsON() and S.FeralSpirit:IsCastable() then
     if Cast(S.FeralSpirit, Settings.Enhancement.GCDasOffGCD.FeralSpirit) then return "feral_spirit precombat 6"; end
   end
   -- flame_shock
@@ -379,12 +379,12 @@ local function SingleOpen()
     if Cast(S.VoltaicBlazeAbility, nil, nil, not Target:IsSpellInRange(S.VoltaicBlazeAbility)) then return "voltaic_blaze single_open 4"; end
   end
   -- primordial_wave,if=(buff.maelstrom_weapon.stack>=4)&dot.flame_shock.ticking&(active_dot.flame_shock=active_enemies|active_dot.flame_shock=6)
-  if S.PrimordialWave:IsReady() and ((MaelstromStacks >= 4) and Target:DebuffUp(S.FlameShockDebuff) and (S.FlameShockDebuff:AuraActiveCount() == mathmin(EnemiesMeleeCount, 6))) then
+  if CDsON() and S.PrimordialWave:IsReady() and ((MaelstromStacks >= 4) and Target:DebuffUp(S.FlameShockDebuff) and (S.FlameShockDebuff:AuraActiveCount() == mathmin(EnemiesMeleeCount, 6))) then
     if Cast(S.PrimordialWave, nil, Settings.CommonsDS.DisplayStyle.PrimordialWave, not Target:IsInRange(45)) then return "primordial_wave single_open 6"; end
   end
   if Player:BuffUp(S.LegacyoftheFrostWitchBuff) then
     -- feral_spirit,if=buff.legacy_of_the_frost_witch.up
-    if S.FeralSpirit:IsCastable() then
+    if CDsON() and S.FeralSpirit:IsCastable() then
       if Cast(S.FeralSpirit, Settings.Enhancement.GCDasOffGCD.FeralSpirit) then return "feral_spirit single_open 8"; end
     end
     -- doom_winds,if=buff.legacy_of_the_frost_witch.up
@@ -455,7 +455,7 @@ local function Single()
     if Cast(S.FlameShock, nil, nil, not Target:IsSpellInRange(S.FlameShock)) then return "flame_shock single 4"; end
   end
   -- feral_spirit,if=(cooldown.doom_winds.remains>30|cooldown.doom_winds.remains<7)
-  if S.FeralSpirit:IsCastable() and (S.DoomWinds:CooldownRemains() > 30 or S.DoomWinds:CooldownRemains() < 7) then
+  if CDsON() and S.FeralSpirit:IsCastable() and (S.DoomWinds:CooldownRemains() > 30 or S.DoomWinds:CooldownRemains() < 7) then
     if Cast(S.FeralSpirit, Settings.Enhancement.GCDasOffGCD.FeralSpirit) then return "feral_spirit single 6"; end
   end
   -- windstrike,if=talent.thorims_invocation.enabled&buff.maelstrom_weapon.stack>0&ti_lightning_bolt
@@ -467,7 +467,7 @@ local function Single()
     if Cast(S.DoomWinds, Settings.Enhancement.GCDasOffGCD.DoomWinds, nil, not Target:IsInMeleeRange(5)) then return "doom_winds single 10"; end
   end
   -- primordial_wave,if=dot.flame_shock.ticking&(raid_event.adds.in>action.primordial_wave.cooldown|raid_event.adds.in<6)
-  if S.PrimordialWave:IsReady() and (Target:DebuffDown(S.FlameShockDebuff)) then
+  if CDsON() and S.PrimordialWave:IsReady() and (Target:DebuffDown(S.FlameShockDebuff)) then
     if Cast(S.PrimordialWave, nil, Settings.CommonsDS.DisplayStyle.PrimordialWave, not Target:IsInRange(45)) then return "primordial_wave single 12"; end
   end
   -- ascendance,if=(dot.flame_shock.ticking|!talent.primordial_wave.enabled|!talent.ashen_catalyst.enabled)
@@ -592,12 +592,12 @@ local function SingleTotemicOpen()
     if Cast(S.SurgingTotem, nil, Settings.CommonsDS.DisplayStyle.SurgingTotem) then return "surging_totem single_totemic_open 6"; end
   end
   -- primordial_wave
-  if S.PrimordialWave:IsReady() then
+  if CDsON() and S.PrimordialWave:IsReady() then
     if Cast(S.PrimordialWave, nil, Settings.CommonsDS.DisplayStyle.PrimordialWave, not Target:IsInRange(45)) then return "primordial_wave single_totemic_open 8"; end
   end
   if Player:BuffUp(S.LegacyoftheFrostWitchBuff) then
     -- feral_spirit,if=buff.legacy_of_the_frost_witch.up
-    if S.FeralSpirit:IsCastable() then
+    if CDsON() and S.FeralSpirit:IsCastable() then
       if Cast(S.FeralSpirit, Settings.Enhancement.GCDasOffGCD.FeralSpirit) then return "feral_spirit single_totemic_open 10"; end
     end
     -- doom_winds,if=buff.legacy_of_the_frost_witch.up
@@ -666,11 +666,11 @@ local function SingleTotemic()
     if Cast(S.LavaLash, nil, nil, not Target:IsSpellInRange(S.LavaLash)) then return "lava_lash single_totemic 8"; end
   end
   -- feral_spirit,if=((cooldown.doom_winds.remains>23|cooldown.doom_winds.remains<7)&(cooldown.primordial_wave.remains<20|buff.primordial_storm.up|!talent.primordial_storm.enabled))
-  if S.FeralSpirit:IsCastable() and ((S.DoomWinds:CooldownRemains() > 23 or S.DoomWinds:CooldownRemains() < 7) and (S.PrimordialWave:CooldownRemains() < 20 or Player:BuffUp(S.PrimordialStormBuff) or not S.PrimordialStorm:IsAvailable())) then
+  if CDsON() and S.FeralSpirit:IsCastable() and ((S.DoomWinds:CooldownRemains() > 23 or S.DoomWinds:CooldownRemains() < 7) and (S.PrimordialWave:CooldownRemains() < 20 or Player:BuffUp(S.PrimordialStormBuff) or not S.PrimordialStorm:IsAvailable())) then
     if Cast(S.FeralSpirit, Settings.Enhancement.GCDasOffGCD.FeralSpirit) then return "feral_spirit single_totemic 10"; end
   end
   -- primordial_wave,if=dot.flame_shock.ticking&(raid_event.adds.in>action.primordial_wave.cooldown)|raid_event.adds.in<6
-  if S.PrimordialWave:IsReady() and (Target:DebuffUp(S.FlameShockDebuff)) then
+  if CDsON() and S.PrimordialWave:IsReady() and (Target:DebuffUp(S.FlameShockDebuff)) then
     if Cast(S.PrimordialWave, nil, Settings.CommonsDS.DisplayStyle.PrimordialWave, not Target:IsInRange(45)) then return "primordial_wave single_totemic 12"; end
   end
   -- doom_winds,if=buff.legacy_of_the_frost_witch.up
@@ -793,12 +793,12 @@ local function AoeOpen()
     if Cast(S.LavaLash, nil, nil, not Target:IsSpellInRange(S.LavaLash)) then return "lava_lash aoe_open 8"; end
   end
   -- primordial_wave,if=(buff.maelstrom_weapon.stack>=4)&dot.flame_shock.ticking&(active_dot.flame_shock=active_enemies|active_dot.flame_shock=6)
-  if S.PrimordialWave:IsReady() and ((MaelstromStacks >= 4) and Target:DebuffUp(S.FlameShockDebuff) and (S.FlameShockDebuff:AuraActiveCount() == mathmin(EnemiesMeleeCount, 6))) then
+  if CDsON() and S.PrimordialWave:IsReady() and ((MaelstromStacks >= 4) and Target:DebuffUp(S.FlameShockDebuff) and (S.FlameShockDebuff:AuraActiveCount() == mathmin(EnemiesMeleeCount, 6))) then
     if Cast(S.PrimordialWave, nil, Settings.CommonsDS.DisplayStyle.PrimordialWave, not Target:IsInRange(45)) then return "primordial_wave aoe_open 10"; end
   end
   if MaelstromStacks >= 9 then
     -- feral_spirit,if=buff.maelstrom_weapon.stack>=9
-    if S.FeralSpirit:IsCastable() then
+    if CDsON() and S.FeralSpirit:IsCastable() then
       if Cast(S.FeralSpirit, Settings.Enhancement.GCDasOffGCD.FeralSpirit) then return "feral_spirit aoe_open 12"; end
     end
     -- doom_winds,if=buff.maelstrom_weapon.stack>=9
@@ -858,7 +858,7 @@ end
 
 local function Aoe()
   -- feral_spirit,if=talent.elemental_spirits.enabled|talent.alpha_wolf.enabled
-  if S.FeralSpirit:IsCastable() and (S.ElementalSpirits:IsAvailable() or S.AlphaWolf:IsAvailable()) then
+  if CDsON() and S.FeralSpirit:IsCastable() and (S.ElementalSpirits:IsAvailable() or S.AlphaWolf:IsAvailable()) then
     if Cast(S.FeralSpirit, Settings.Enhancement.GCDasOffGCD.FeralSpirit) then return "feral_spirit aoe 2"; end
   end
   -- run_action_list,name=aoe_open,if=time<15
@@ -883,7 +883,7 @@ local function Aoe()
     end
   end
   -- feral_spirit,if=(cooldown.doom_winds.remains>30|cooldown.doom_winds.remains<7)
-  if S.FeralSpirit:IsCastable() and (S.DoomWinds:CooldownRemains() > 30 or S.DoomWinds:CooldownRemains() < 7) then
+  if CDsON() and S.FeralSpirit:IsCastable() and (S.DoomWinds:CooldownRemains() > 30 or S.DoomWinds:CooldownRemains() < 7) then
     if Cast(S.FeralSpirit, Settings.Enhancement.GCDasOffGCD.FeralSpirit) then return "feral_spirit aoe 10"; end
   end
   -- doom_winds
@@ -891,7 +891,7 @@ local function Aoe()
     if Cast(S.DoomWinds, Settings.Enhancement.GCDasOffGCD.DoomWinds, nil, not Target:IsInMeleeRange(5)) then return "doom_winds aoe 12"; end
   end
   -- primordial_wave,if=dot.flame_shock.ticking&(active_dot.flame_shock=active_enemies|active_dot.flame_shock=6)
-  if S.PrimordialWave:IsReady() and (S.FlameShockDebuff:AuraActiveCount() == mathmin(EnemiesMeleeCount, 6)) then
+  if CDsON() and S.PrimordialWave:IsReady() and (S.FlameShockDebuff:AuraActiveCount() == mathmin(EnemiesMeleeCount, 6)) then
     if Cast(S.PrimordialWave, nil, Settings.CommonsDS.DisplayStyle.PrimordialWave, not Target:IsInRange(45)) then return "primordial_wave aoe 14"; end
   end
   -- primordial_storm,if=(buff.maelstrom_weapon.stack>=10)&(buff.doom_winds.up|cooldown.doom_winds.remains>15|buff.primordial_storm.remains<3)
@@ -1027,11 +1027,11 @@ local function AoeTotemicOpen()
     if Cast(S.FireNova) then return "fire_nova aoe_totemic_open 6"; end
   end
   -- primordial_wave,if=dot.flame_shock.ticking&(active_dot.flame_shock=active_enemies|active_dot.flame_shock=6)
-  if S.PrimordialWave:IsReady() and (S.FlameShockDebuff:AuraActiveCount() == mathmin(EnemiesMeleeCount, 6)) then
+  if CDsON() and S.PrimordialWave:IsReady() and (S.FlameShockDebuff:AuraActiveCount() == mathmin(EnemiesMeleeCount, 6)) then
     if Cast(S.PrimordialWave, nil, Settings.CommonsDS.DisplayStyle.PrimordialWave, not Target:IsInRange(45)) then return "primordial_wave aoe_totemic_open 8"; end
   end
   -- feral_spirit,if=buff.maelstrom_weapon.stack>=8
-  if S.FeralSpirit:IsCastable() and (MaelstromStacks >= 8) then
+  if CDsON() and S.FeralSpirit:IsCastable() and (MaelstromStacks >= 8) then
     if Cast(S.FeralSpirit, Settings.Enhancement.GCDasOffGCD.FeralSpirit) then return "feral_spirit aoe_totemic_open 10"; end
   end
   -- crash_lightning,if=(buff.electrostatic_wager.stack>9&buff.doom_winds.up)|!buff.crash_lightning.up
@@ -1109,7 +1109,7 @@ local function AoeTotemic()
     if Cast(S.CrashLightning, Settings.Enhancement.GCDasOffGCD.CrashLightning, nil, not Target:IsInMeleeRange(8)) then return "crash_lightning aoe_totemic 8"; end
   end
   -- feral_spirit,if=((cooldown.doom_winds.remains>30|cooldown.doom_winds.remains<7)&(cooldown.primordial_wave.remains<2|buff.primordial_storm.up|!talent.primordial_storm.enabled))
-  if S.FeralSpirit:IsCastable() and ((S.DoomWinds:CooldownRemains() > 30 or S.DoomWinds:CooldownRemains() < 7) and (S.PrimordialWave:CooldownRemains() < 2 or Player:BuffUp(S.PrimordialStormBuff) or not S.PrimordialStorm:IsAvailable())) then
+  if CDsON() and S.FeralSpirit:IsCastable() and ((S.DoomWinds:CooldownRemains() > 30 or S.DoomWinds:CooldownRemains() < 7) and (S.PrimordialWave:CooldownRemains() < 2 or Player:BuffUp(S.PrimordialStormBuff) or not S.PrimordialStorm:IsAvailable())) then
     if Cast(S.FeralSpirit, Settings.Enhancement.GCDasOffGCD.FeralSpirit) then return "feral_spirit aoe_totemic 10"; end
   end
   -- doom_winds,if=!talent.elemental_spirits.enabled
@@ -1121,7 +1121,7 @@ local function AoeTotemic()
     if Cast(S.PrimordialStormAbility, nil, Settings.CommonsDS.DisplayStyle.PrimordialWave, not Target:IsInRange(45)) then return "primordial_storm aoe_totemic 14"; end
   end
   -- primordial_wave,if=dot.flame_shock.ticking&(active_dot.flame_shock=active_enemies|active_dot.flame_shock=6)
-  if S.PrimordialWave:IsReady() and (S.FlameShockDebuff:AuraActiveCount() == mathmin(EnemiesMeleeCount, 6)) then
+  if CDsON() and S.PrimordialWave:IsReady() and (S.FlameShockDebuff:AuraActiveCount() == mathmin(EnemiesMeleeCount, 6)) then
     if Cast(S.PrimordialWave, nil, Settings.CommonsDS.DisplayStyle.PrimordialWave, not Target:IsInRange(45)) then return "primordial_wave aoe_totemic 16"; end
   end
   -- windstrike
@@ -1265,7 +1265,7 @@ end
 
 local function Funnel()
   -- feral_spirit,if=talent.elemental_spirits.enabled
-  if S.FeralSpirit:IsCastable() and (S.ElementalSpirits:IsAvailable()) then
+  if CDsON() and S.FeralSpirit:IsCastable() and (S.ElementalSpirits:IsAvailable()) then
     if Cast(S.FeralSpirit, Settings.Enhancement.GCDasOffGCD.FeralSpirit) then return "feral_spirit funnel 2"; end
   end
   -- surging_totem
@@ -1305,7 +1305,7 @@ local function Funnel()
     if Cast(S.LavaLash, nil, nil, not Target:IsSpellInRange(S.LavaLash)) then return "lava_lash funnel 20"; end
   end
   -- primordial_wave,target_if=min:dot.flame_shock.remains,if=!buff.primordial_wave.up
-  if S.PrimordialWave:IsReady() and (Player:BuffDown(S.PrimordialWaveBuff)) then
+  if CDsON() and S.PrimordialWave:IsReady() and (Player:BuffDown(S.PrimordialWaveBuff)) then
     if Everyone.CastTargetIf(S.PrimordialWave, EnemiesMelee, "min", EvaluateTargetIfFilterPrimordialWave, nil, not Target:IsInRange(45), nil, Settings.CommonsDS.DisplayStyle.PrimordialWave) then return "primordial_wave funnel 22"; end
   end
   -- elemental_blast,if=(!talent.elemental_spirits.enabled|(talent.elemental_spirits.enabled&(charges=max_charges|buff.feral_spirit.up)))&buff.maelstrom_weapon.stack=buff.maelstrom_weapon.max_stack
@@ -1313,7 +1313,7 @@ local function Funnel()
     if Cast(S.ElementalBlast, nil, nil, not Target:IsSpellInRange(S.ElementalBlast)) then return "elemental_blast funnel 24"; end
   end
   -- feral_spirit
-  if S.FeralSpirit:IsCastable() then
+  if CDsON() and S.FeralSpirit:IsCastable() then
     if Cast(S.FeralSpirit, Settings.Enhancement.GCDasOffGCD.FeralSpirit) then return "feral_spirit funnel 26"; end
   end
   -- doom_winds
