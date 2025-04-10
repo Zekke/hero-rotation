@@ -383,6 +383,9 @@ local function AoE()
   -- wound_spender,target_if=max:debuff.festering_wound.stack,if=debuff.festering_wound.stack>=1&buff.death_and_decay.up&talent.bursting_sores&cooldown.apocalypse.remains>variable.apoc_timing
   if WoundSpender:IsReady() and (Player:BuffUp(S.DeathAndDecayBuff) and S.BurstingSores:IsAvailable() and S.Apocalypse:CooldownRemains() > VarApocTiming) then
     if Everyone.CastTargetIf(WoundSpender, EnemiesMelee, "max", EvaluateTargetIfFilterFWStack, EvaluateTargetIfWoundSpenderAoE, not Target:IsInMeleeRange(5)) then return "wound_spender aoe 4"; end
+    if (S.VampiricStrikeAction:IsLearned()) and S.VampiricStrikeAction then
+      if Cast(WoundSpender, nil, nil, not Target:IsSpellInRange(WoundSpender)) then return "wound_spender aoe 4"; end
+    end
   end
   -- death_coil,if=!variable.pooling_runic_power&active_enemies<variable.epidemic_targets
   if S.DeathCoil:IsReady() and (not VarPoolingRunicPower and EnemiesMeleeCount < VarEpidemicTargets) then
@@ -407,6 +410,9 @@ local function AoE()
   -- wound_spender,target_if=max:debuff.festering_wound.stack,if=debuff.festering_wound.stack>=1&cooldown.apocalypse.remains>gcd|buff.vampiric_strike.react&dot.virulent_plague.ticking
   if WoundSpender:IsReady() then
     if Everyone.CastTargetIf(WoundSpender, EnemiesMelee, "max", EvaluateTargetIfFilterFWStack, EvaluateTargetIfWoundSpenderAoE3, not Target:IsInMeleeRange(5)) then return "wound_spender aoe 16"; end
+    if (S.VampiricStrikeAction:IsLearned()) and S.VampiricStrikeAction then
+      if Cast(WoundSpender, nil, nil, not Target:IsSpellInRange(WoundSpender)) then return "wound_spender aoe 4"; end
+    end
   end
 end
 
@@ -430,6 +436,9 @@ local function AoEBurst()
   -- wound_spender,target_if=max:debuff.festering_wound.stack,if=debuff.festering_wound.stack>=1|buff.vampiric_strike.react
   if WoundSpender:IsReady() then
     if Everyone.CastTargetIf(WoundSpender, EnemiesMelee, "max", EvaluateTargetIfFilterFWStack, EvaluateTargetIfWoundSpenderAoEBurst, not Target:IsSpellInRange(WoundSpender)) then return "wound_spender aoe_burst 10"; end
+    if (S.VampiricStrikeAction:IsLearned()) and S.VampiricStrikeAction then
+      if Cast(WoundSpender, nil, nil, not Target:IsSpellInRange(WoundSpender)) then return "wound_spender aoe_burst 10"; end
+    end
   end
   -- death_coil,if=active_enemies<variable.epidemic_targets
   if S.DeathCoil:IsReady() and (EnemiesMeleeCount < VarEpidemicTargets) then
@@ -446,6 +455,9 @@ local function AoEBurst()
   -- wound_spender,target_if=max:debuff.festering_wound.stack
   if WoundSpender:IsReady() then
     if Everyone.CastTargetIf(WoundSpender, EnemiesMelee, "max", EvaluateTargetIfFilterFWStack, nil, not Target:IsSpellInRange(WoundSpender)) then return "wound_spender aoe_burst 18"; end
+    if (S.VampiricStrikeAction:IsLearned()) and S.VampiricStrikeAction then
+      if Cast(WoundSpender, nil, nil, not Target:IsSpellInRange(WoundSpender)) then return "wound_spender aoe_burst 18"; end
+    end
   end
 end
 
@@ -455,7 +467,7 @@ local function AoESetup()
     if Cast(S.FesteringScytheAction, nil, nil, not Target:IsInMeleeRange(14)) then return "festering_scythe aoe_setup 2"; end
   end
   -- any_dnd,if=!death_and_decay.ticking&(!talent.bursting_sores&!talent.vile_contagion|death_knight.fwounded_targets=active_enemies|death_knight.fwounded_targets>=8|raid_event.adds.exists&raid_event.adds.remains<=11&raid_event.adds.remains>5|!buff.death_and_decay.up&talent.defile)
-  if AnyDnD:IsReady() and Target:IsInMeleeRange(5) and (not Player:DnDTicking() and (not S.BurstingSores:IsAvailable() and not S.VileContagion:IsAvailable() or S.FesteringWoundDebuff:AuraActiveCount() == ActiveEnemies or S.FesteringWoundDebuff:AuraActiveCount() >= 8 or Player:BuffUp(S.DeathAndDecayBuff) and S.Defile:IsAvailable())) then
+  if AnyDnD:IsReady() and Target:IsInMeleeRange(5) and (not Player:DnDTicking() and (not S.BurstingSores:IsAvailable() and not S.VileContagion:IsAvailable() or S.FesteringWoundDebuff:AuraActiveCount() == ActiveEnemies or S.FesteringWoundDebuff:AuraActiveCount() >= 8 or Player:BuffDown(S.DeathAndDecayBuff) and S.Defile:IsAvailable())) then
     if Cast(AnyDnD, Settings.CommonsOGCD.GCDasOffGCD.DeathAndDecay) then return "any_dnd aoe_setup 4"; end
   end
   -- wound_spender,target_if=debuff.chains_of_ice_trollbane_slow.up
@@ -523,6 +535,7 @@ local function CDsAoE()
   -- unholy_assault,target_if=max:debuff.festering_wound.stack,if=variable.adds_remain&(debuff.festering_wound.stack>=2&cooldown.vile_contagion.remains<3|!talent.vile_contagion)
   if S.UnholyAssault:IsCastable() then
     if Everyone.CastTargetIf(S.UnholyAssault, EnemiesMelee, "max", EvaluateTargetIfFilterFWStack, EvaluateTargetIfUnholyAssaultCDsAoE, not Target:IsInMeleeRange(5), Settings.Unholy.GCDasOffGCD.UnholyAssault) then return "unholy_assault cds_aoe 4"; end
+    if Cast(S.UnholyAssault, Settings.Unholy.GCDasOffGCD.UnholyAssault, nil, not Target:IsInMeleeRange(5)) then return "unholy_assault cds_aoe 4"; end
   end
   -- dark_transformation,if=variable.adds_remain&(cooldown.vile_contagion.remains>5|!talent.vile_contagion|death_and_decay.ticking|cooldown.death_and_decay.remains<3)
   if S.DarkTransformation:IsCastable() and (VarAddsRemain and (S.VileContagion:CooldownRemains() > 5 or not S.VileContagion:IsAvailable() or Player:DnDTicking() or AnyDnD:CooldownRemains() < 3)) then
@@ -554,6 +567,7 @@ local function CDsAoESan()
   -- unholy_assault,target_if=max:debuff.festering_wound.stack,if=variable.adds_remain&(debuff.festering_wound.stack>=2&cooldown.vile_contagion.remains<6|!talent.vile_contagion)
   if S.UnholyAssault:IsCastable() and (VarAddsRemain) then
     if Everyone.CastTargetIf(S.UnholyAssault, EnemiesMelee, "max", EvaluateTargetIfFilterFWStack, EvaluateTargetIfUnholyAssaultCDsAoESan, not Target:IsInMeleeRange(5), Settings.Unholy.GCDasOffGCD.UnholyAssault) then return "unholy_assault cds_aoe_san 6"; end
+    if Cast(S.UnholyAssault, Settings.Unholy.GCDasOffGCD.UnholyAssault, nil, not Target:IsInMeleeRange(5)) then return "unholy_assault cds_aoe_san 6"; end
   end
   -- outbreak,if=dot.virulent_plague.ticks_remain<5&(dot.virulent_plague.refreshable|talent.morbidity&!buff.gift_of_the_sanlayn.up&talent.superstrain&dot.frost_fever.refreshable&dot.blood_plague.refreshable)&(!talent.unholy_blight|talent.unholy_blight&cooldown.dark_transformation.remains)&(!talent.raise_abomination|talent.raise_abomination&cooldown.raise_abomination.remains)
   if S.Outbreak:IsReady() and (Target:DebuffTicksRemain(S.VirulentPlagueDebuff) < 5 and (Target:DebuffRefreshable(S.VirulentPlagueDebuff) or S.Morbidity:IsAvailable() and Player:BuffDown(S.GiftoftheSanlaynBuff) and S.Superstrain:IsAvailable() and Target:DebuffRefreshable(S.FrostFeverDebuff) and Target:DebuffRefreshable(S.BloodPlagueDebuff)) and (not S.UnholyBlight:IsAvailable() or S.UnholyBlight:IsAvailable() and S.DarkTransformation:CooldownDown()) and (not S.RaiseAbomination:IsAvailable() or S.RaiseAbomination:IsAvailable() and S.RaiseAbomination:CooldownDown())) then
