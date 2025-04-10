@@ -201,6 +201,7 @@ Spell.Rogue.Assassination = MergeTableByKey(Spell.Rogue.Commons, {
   ThrownPrecision         = Spell(381629),
   VenomRush               = Spell(152152),
   ViciousVenoms           = Spell(381634),
+  ZoldyckRecipe           = Spell(381798)
   -- PvP
 })
 
@@ -342,6 +343,7 @@ Item.Rogue.Outlaw = {
   -- Trinkets
   BottledFlayedwingToxin   = Item(178742, {13, 14}),
   ImperfectAscendancySerum = Item(225654, {13, 14}),
+  JunkmaestrosMegaMagnet   = Item(230189, {13, 14}),
   MadQueensMandate         = Item(212454, {13, 14}),
   ScrollOfMomentum         = Item(226539, {13, 14}),
   OvinaxsMercurialEgg       = Item(220305, {13, 14})

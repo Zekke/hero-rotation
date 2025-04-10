@@ -84,6 +84,7 @@ HR.GUISettings.APL.Warlock = {
       PowerSiphon = true,
       SummonDemonicTyrant = false,
       SummonPet = false,
+      SummonVilefiend = false,
     },
     -- {Display OffGCD as OffGCD, ForceReturn}
     OffGCDasOffGCD = {
@@ -104,6 +105,7 @@ HR.GUISettings.APL.Warlock = {
       DimensionalRift = false,
       GrimoireOfSacrifice = true,
       InquisitorsGaze = false,
+      RainOfFire = false,
       SummonInfernal = true,
       SummonPet = false,
       SummonSoulkeeper = false,
