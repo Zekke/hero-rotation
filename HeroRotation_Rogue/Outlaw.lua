@@ -369,7 +369,7 @@ end
 
 local function Finish(ReturnSpellOnly)
   -- actions.finish+=/killing_spree
-  if S.KillingSpree:IsCastable() then
+  if FunnelON() and S.KillingSpree:IsCastable() then
     if ReturnSpellOnly then
       return S.KillingSpree
     else
@@ -833,7 +833,7 @@ local function CDs ()
   -- # If not at risk of losing Adrenaline Rush, run finishers to use Killing Spree or Coup de Grace as a higher priority than Vanish.
   -- actions.cds+=/run_action_list,name=finish,if=!stealthed.all&(cooldown.killing_spree.ready&talent.killing_spree
   -- |buff.escalating_blade.stack>=4)&variable.finish_condition
-  if FunnelON() and not Player:StealthUp(true, true) and (S.KillingSpree:IsReady() and S.KillingSpree:IsAvailable()
+  if not Player:StealthUp(true, true) and (S.KillingSpree:IsReady() and S.KillingSpree:IsAvailable()
     or Player:BuffStack(S.EscalatingBlade) >= 4) and Finish_Condition() then
     ShouldReturn = Finish()
     if ShouldReturn then

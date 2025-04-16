@@ -828,7 +828,7 @@ local function ShivUsage ()
     -- &talent.zoldyck_recipe|cooldown.shiv.charges_fractional>=1.9)
     if S.ArterialPrecision:IsAvailable() and Target:DebuffDown(S.ShivDebuff) and Target:DebuffUp(S.Garrote)
       and Target:DebuffUp(S.Rupture) and MeleeEnemies10yCount >= 4 and S.CrimsonTempest:AnyDebuffUp()
-      and Target:HealthPercentage() <= 35 and S.ZoldyckRecipe:IsAvailable() or S.Shiv:ChargesFractional() >= 1.9 then
+      and (Target:HealthPercentage() <= 35 and S.ZoldyckRecipe:IsAvailable() or S.Shiv:ChargesFractional() >= 1.9) then
       if Cast(S.Shiv, Settings.Assassination.GCDasOffGCD.Shiv) then
         return "Cast Shiv (Arterial Precision)"
       end

@@ -214,6 +214,7 @@ local function Cleave()
   -- bestial_wrath,target_if=min:dot.barbed_shot.remains
   if CDsON() and S.BestialWrath:IsCastable() then
     if Everyone.CastTargetIf(S.BestialWrath, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, nil, not TargetInRange40y, Settings.BeastMastery.GCDasOffGCD.BestialWrath) then return "bestial_wrath cleave 2"; end
+    if Cast(S.BestialWrath, Settings.BeastMastery.GCDasOffGCD.BestialWrath) then return "bestial_wrath cleave 2"; end
   end
   -- dire_beast,if=talent.huntmasters_call&buff.huntmasters_call.stack=2
   if S.DireBeast:IsCastable() and (S.HuntmastersCall:IsAvailable() and Player:BuffStack(S.HuntmastersCallBuff) == 2) then
@@ -226,6 +227,7 @@ local function Cleave()
   -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=full_recharge_time<gcd|charges_fractional>=cooldown.kill_command.charges_fractional|talent.call_of_the_wild&cooldown.call_of_the_wild.ready|howl_summon.ready&full_recharge_time<8
   if S.BarbedShot:IsCastable() and (S.BarbedShot:FullRechargeTime() < Player:GCD() or S.BarbedShot:ChargesFractional() >= S.KillCommand:ChargesFractional() or S.CalloftheWild:IsAvailable() and S.CalloftheWild:CooldownUp() or HowlSummonReady() and S.BarbedShot:FullRechargeTime() < 8) then
     if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, nil, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot cleave 8"; end
+    if Cast(S.BarbedShot, nil, nil, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot cleave 8"; end
   end
   -- multishot,if=pet.main.buff.beast_cleave.down&(!talent.bloody_frenzy|cooldown.call_of_the_wild.remains)
   if S.MultiShot:IsReady() and (Pet:BuffDown(S.BeastCleavePetBuff) and (not S.BloodyFrenzy:IsAvailable() or S.CalloftheWild:CooldownDown() or not CDsON())) then
@@ -254,6 +256,7 @@ local function Cleave()
   -- kill_command,target_if=max:(target.health.pct<35|!talent.killer_instinct)*2+dot.a_murder_of_crows.refreshable
   if S.KillCommand:IsReady() then
     if Everyone.CastTargetIf(S.KillCommand, Enemies40y, "max", EvaluateTargetIfFilterKillCommand, nil, not Target:IsInRange(50)) then return "kill_command cleave 22"; end
+    if Cast(S.KillCommand, nil, nil, not Target:IsSpellInRange(S.KillCommand)) then return "kill_command cleave 22"; end
   end
   -- lights_judgment,if=buff.bestial_wrath.down|target.time_to_die<5
   if CDsON() and S.LightsJudgment:IsCastable() and (Player:BuffDown(S.BestialWrathBuff) or Target:TimeToDie() < 5) then
