@@ -11,6 +11,8 @@ local Item           = HL.Item
 -- HeroRotation
 local HR             = HeroRotation
 local DH             = HR.Commons.DemonHunter
+-- num Helper Function
+local num            = HR.Commons.Everyone.num
 -- Spells
 local SpellHavoc     = Spell.DemonHunter.Havoc
 local SpellVengeance = Spell.DemonHunter.Vengeance
@@ -39,6 +41,28 @@ HavocOldSpellIsCastable = HL.AddCoreOverride ("Spell.IsCastable",
       return BaseCheck and not Player:IsCasting(self)
     else
       return BaseCheck
+    end
+  end
+, 577)
+
+local HavocOldBuffUp
+HavocOldBuffUp = HL.AddCoreOverride ("Player.BuffUp", 
+  function (self, Spell, AnyCaster, BypassRecovery)
+    if Spell == SpellHavoc.ImmolationAuraBuff then
+      return HavocOldBuffUp(self, SpellHavoc.ImmolationAuraBuff1, AnyCaster, BypassRecovery) or HavocOldBuffUp(self, SpellHavoc.ImmolationAuraBuff2, AnyCaster, BypassRecovery) or HavocOldBuffUp(self, SpellHavoc.ImmolationAuraBuff3, AnyCaster, BypassRecovery) or HavocOldBuffUp(self, SpellHavoc.ImmolationAuraBuff4, AnyCaster, BypassRecovery) or HavocOldBuffUp(self, SpellHavoc.ImmolationAuraBuff5, AnyCaster, BypassRecovery)
+    else
+      return HavocOldBuffUp(self, Spell, AnyCaster, BypassRecovery)
+    end
+  end
+, 577)
+
+local HavocOldBuffStack
+HavocOldBuffStack = HL.AddCoreOverride ("Player.BuffStack",
+  function (self, Spell, AnyCaster, BypassRecovery)
+    if Spell == SpellHavoc.ImmolationAuraBuff then
+      return num(Player:BuffUp(SpellHavoc.ImmolationAuraBuff1)) + num(Player:BuffUp(SpellHavoc.ImmolationAuraBuff2)) + num(Player:BuffUp(SpellHavoc.ImmolationAuraBuff3)) + num(Player:BuffUp(SpellHavoc.ImmolationAuraBuff4)) + num(Player:BuffUp(SpellHavoc.ImmolationAuraBuff5))
+    else
+      return HavocOldBuffStack(self, Spell, AnyCaster, BypassRecovery)
     end
   end
 , 577)

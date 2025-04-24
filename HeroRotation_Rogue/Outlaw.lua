@@ -287,19 +287,6 @@ local function Vanish_DPS_Condition ()
 end
 
 local function Stealth(ReturnSpellOnly)
-  if S.BladeFlurry:IsCastable() then
-    if S.DeftManeuvers:IsAvailable() and not Finish_Condition() and (EnemiesBFCount >= 3
-      and ComboPointsDeficit == EnemiesBFCount + num(Player:BuffUp(S.Broadside)) or EnemiesBFCount >= 5) then
-      if ReturnSpellOnly then
-        return S.BladeFlurry
-      else
-        if Cast(S.BladeFlurry, Settings.Outlaw.GCDasOffGCD.BladeFlurry) then
-          return "Cast Blade Flurry"
-        end
-      end
-    end
-  end
-
   -- actions.stealth+=/cold_blood,if=variable.finish_condition
   if S.ColdBlood:IsCastable() and Player:BuffDown(S.ColdBlood) and Finish_Condition() then
     if Cast(S.ColdBlood, Settings.CommonsOGCD.OffGCDasOffGCD.ColdBlood) then
@@ -695,12 +682,9 @@ local function CDs ()
   end
 
   -- # If using Improved AR, recast AR if it is already active at low CPs.
-  -- Trickster builds should avoid recasting it during Disorienting Strikes with 0-3 stacks of Escalating Blade, unless stealth is active.
   -- actions.cds+=/adrenaline_rush,if=buff.adrenaline_rush.up&talent.improved_adrenaline_rush&combo_points<=2
-  -- &(!buff.disorienting_strikes.up|stealthed.all|buff.escalating_blade.stack>=4)
   if CDsON() and S.AdrenalineRush:IsCastable() then
-    if Player:BuffUp(S.AdrenalineRush) and S.ImprovedAdrenalineRush:IsAvailable() and ComboPoints <= 2
-      and (Rogue.DisorientingStrikesCount() == 0 or Player:StealthUp(true, true) or Player:BuffStack(S.EscalatingBlade) >= 41) then
+    if Player:BuffUp(S.AdrenalineRush) and S.ImprovedAdrenalineRush:IsAvailable() and ComboPoints <= 2 then
       if S.ImprovedAdrenalineRush:IsAvailable() then
         ShouldReturn = SpellQueueMacro(S.AdrenalineRush)
         if ShouldReturn then
@@ -749,23 +733,10 @@ local function CDs ()
     end
   end
 
-  -- # With Deft Maneuvers, build CPs with Blade Flurry at 5+ targets.
-  -- Trickster builds should avoid this during Disorienting Strikes with 0-3 stacks of Escalating Blade, unless stealth is active.
-  -- actions.cds+=/blade_flurry,if=talent.deft_maneuvers&!variable.finish_condition&spell_targets>=5
-  -- &(!buff.disorienting_strikes.up|stealthed.all|buff.escalating_blade.stack>=4)
-  if S.BladeFlurry:IsCastable() then
-    if S.DeftManeuvers:IsAvailable() and not Finish_Condition() and EnemiesBFCount >= 5
-      and (Rogue.DisorientingStrikesCount() == 0 or Player:StealthUp(true, true) or Player:BuffStack(S.EscalatingBlade) >= 4) then
-      if Cast(S.BladeFlurry, Settings.Outlaw.GCDasOffGCD.BladeFlurry) then
-        return "Cast Blade Flurry"
-      end
-    end
-  end
-
   -- # With a natural 5 buff roll, use Keep it Rolling when you obtain the remaining buff from Count the Odds and all buffs are within 30s remaining.
-  -- actions.cds+=/keep_it_rolling,if=rtb_buffs.normal>=5&rtb_buffs=6&rtb_buffs.max_remains<=30
+  -- actions.cds+=/keep_it_rolling,if=rtb_buffs.normal>=5&rtb_buffs=6
   if S.KeepItRolling:IsCastable() then
-    if Cache.APLVar.RtB_Buffs.Normal >= 5 and Cache.APLVar.RtB_Buffs.Total == 6 and Cache.APLVar.RtB_Buffs.MaxRemains <= 30 then
+    if Cache.APLVar.RtB_Buffs.Normal >= 5 and Cache.APLVar.RtB_Buffs.Total == 6 then
       if Cast(S.KeepItRolling, Settings.Outlaw.GCDasOffGCD.KeepItRolling) then
         return "Cast Keep it Rolling"
       end
@@ -844,10 +815,9 @@ local function CDs ()
   -- # If not at risk of losing Adrenaline Rush, call flexible Vanish rules to be used at finisher CPs.
   -- Trickster builds attempt to hold Vanish if at 3 stacks of Escalating Blades with Disorienting Strikes active.
   -- actions.cds+=/call_action_list,name=vanish_usage,if=!stealthed.all&talent.crackshot&talent.underhanded_upper_hand
-  -- &talent.subterfuge&buff.adrenaline_rush.up&variable.finish_condition&(buff.escalating_blade.stack!=3|!buff.disorienting_strikes.up)
+  -- &talent.subterfuge&buff.adrenaline_rush.up&variable.finish_condition
   if not Player:StealthUp(true, true) and S.Crackshot:IsAvailable() and S.UnderhandedUpperhand:IsAvailable()
-    and S.Subterfuge:IsAvailable() and Player:BuffUp(S.AdrenalineRush)
-    and Finish_Condition() and (Player:BuffStack(S.EscalatingBlade) ~= 3 or Rogue.DisorientingStrikesCount == 0) then
+    and S.Subterfuge:IsAvailable() and Player:BuffUp(S.AdrenalineRush) and Finish_Condition() then
     ShouldReturn = StealthCDs()
     if ShouldReturn then
       return ShouldReturn
@@ -957,6 +927,12 @@ local function CDs ()
 end
 
 local function Build ()
+  --# With Deft Maneuvers, build CPs with Blade Flurry at 5+ targets, only at 2 CPs or lower (1 CP with Broadside) unless AR isn't active.
+  --actions.build=variable,name=deft_condition,value=cooldown.blade_flurry.ready&talent.deft_maneuvers&spell_targets>=5
+  -- &(combo_points<=2-buff.broadside.up|!buff.adrenaline_rush.up)
+  local DeftCondition = S.DeftManeuvers:IsAvailable() and EnemiesBFCount >= 5
+    and (ComboPoints <= 2 - num(Player:BuffUp(S.Broadside)) or Player:BuffDown(S.AdrenalineRush))
+
   -- # High priority Ambush for Hidden Opportunity builds
   -- actions.build+=/ambush,if=talent.hidden_opportunity&buff.audacity.up
   if S.Ambush:IsCastable() and S.HiddenOpportunity:IsAvailable() and Player:BuffUp(S.AudacityBuff) then
@@ -965,12 +941,12 @@ local function Build ()
     end
   end
 
-  -- # Trickster builds without HO should prioritize Sinister Strike during Disorienting Strikes.
-  -- actions.build+=/sinister_strike,if=!talent.hidden_opportunity&buff.disorienting_strikes.up&!stealthed.all
-  -- &(buff.escalating_blade.stack>2&buff.opportunity.stack<buff.opportunity.max_stack|!talent.hidden_opportunity)
-  -- &buff.escalating_blade.stack<4
+  -- # Trickster builds should prioritize Sinister Strike during Disorienting Strikes.
+  -- HO builds prefer to do this only at 3 Escalating Blade stacks and not at max Opportunity stacks.
+  -- actions.build+=/sinister_strike,if=buff.disorienting_strikes.up&!stealthed.all&(buff.escalating_blade.stack>2
+  -- &buff.opportunity.stack<buff.opportunity.max_stack|!talent.hidden_opportunity)&buff.escalating_blade.stack<4
   if S.SinisterStrike:IsCastable() then
-    if not S.HiddenOpportunity:IsAvailable() and Rogue.DisorientingStrikesCount() > 0 and not Player:StealthUp(true, true)
+    if Rogue.DisorientingStrikesCount() > 0 and not Player:StealthUp(true, true)
       and (Player:BuffStack(S.EscalatingBlade)>2 and Player:BuffStack(S.Opportunity) < 6 or not S.HiddenOpportunity:IsAvailable())
       and Player:BuffStack(S.EscalatingBlade) < 4 then
       if CastPooling(S.SinisterStrike, nil, not Target:IsSpellInRange(S.SinisterStrike)) then
@@ -984,6 +960,16 @@ local function Build ()
   if S.FanTheHammer:IsAvailable() and S.Audacity:IsAvailable() and S.HiddenOpportunity:IsAvailable() and Player:BuffUp(S.Opportunity) and Player:BuffDown(S.AudacityBuff) then
     if CastPooling(S.PistolShot, nil, not Target:IsSpellInRange(S.PistolShot)) then
       return "Cast Pistol Shot (Audacity)"
+    end
+  end
+
+  -- # With Fatebound or 1 rank in Fan the Hammer, and without Hidden Opportunity, build CP with Blade Flurry as a higher priority than Opportunity procs.
+  -- actions.build+=/blade_flurry,if=variable.deft_condition&(talent.fan_the_hammer.rank=1|!talent.nimble_flurry&!talent.surprising_strikes)
+  if S.BladeFlurry:IsCastable() then
+    if DeftCondition and (S.FanTheHammer:TalentRank() == 1 or not S.NimbleFlurry:IsAvailable() and not S.SurprisingStrikes:IsAvailable()) then
+      if Cast(S.BladeFlurry, Settings.Outlaw.GCDasOffGCD.BladeFlurry) then
+        return "Cast Blade Flurry (Fatebound or 1FTH)"
+      end
     end
   end
 
@@ -1013,6 +999,22 @@ local function Build ()
     or S.QuickDraw:IsAvailable() or S.Audacity:IsAvailable() and Player:BuffDown(S.AudacityBuff)) then
     if CastPooling(S.PistolShot, nil, not Target:IsSpellInRange(S.PistolShot)) then
       return "Cast Pistol Shot (No Fan the Hammer)"
+    end
+  end
+
+  -- # With Hidden Opportunity or 2 ranks in Fan the Hammer, building CPs with Blade Flurry is lower priority than Opportunity procs and Ambush.
+  -- actions.build+=/blade_flurry,if=variable.deft_condition
+  if S.BladeFlurry:IsCastable() and DeftCondition then
+    if Cast(S.BladeFlurry, Settings.Outlaw.GCDasOffGCD.BladeFlurry) then
+      return "Cast Blade Flurry"
+    end
+  end
+
+  -- # Use Coup de Grace at low CP if Sinister Strike would otherwise be used.
+  -- actions.build+=/coup_de_grace,if=!stealthed.all
+  if S.CoupDeGrace:IsCastable() and not Player:StealthUp(true, true) then
+    if CastPooling(S.CoupDeGrace, nil, not Target:IsSpellInRange(S.CoupDeGrace)) then
+      return "Low CP Coup De Grace"
     end
   end
 

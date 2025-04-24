@@ -319,11 +319,11 @@ local function Slayer()
     if Cast(S.Execute, nil, nil, not TargetInMeleeRange) then return "execute slayer 60"; end
   end
   -- whirlwind,if=talent.improved_whirlwind
-  if S.Whirlwind:IsCastable() and (S.ImprovedWhilwind:IsAvailable()) then
+  if S.Whirlwind:IsCastable() and (S.ImprovedWhirlwind:IsAvailable()) then
     if Cast(S.Whirlwind, nil, nil, not Target:IsInMeleeRange(8)) then return "whirlwind slayer 62"; end
   end
   -- slam,if=!talent.improved_whirlwind
-  if S.Slam:IsCastable() and (not S.ImprovedWhilwind:IsAvailable()) then
+  if S.Slam:IsCastable() and (not S.ImprovedWhirlwind:IsAvailable()) then
     if Cast(S.Slam, nil, nil, not TargetInMeleeRange) then return "slam slayer 64"; end
   end
   -- storm_bolt,if=buff.bladestorm.up
@@ -580,12 +580,12 @@ local function APL()
     -- run_action_list,name=slayer,if=talent.slayers_dominance
     if S.SlayersDominance:IsAvailable() or Player:Level() < 71 then
       local ShouldReturn = Slayer(); if ShouldReturn then return ShouldReturn; end
-      if HR.CastAnnotated(S.Pool, false, "WAIT") then return "Pool for SlayerAMMT()"; end
+      if HR.CastAnnotated(S.Pool, false, "WAIT") then return "Pool for Slayer()"; end
     end
     -- run_action_list,name=thane,if=talent.lightning_strikes
     if S.LightningStrikes:IsAvailable() then
       local ShouldReturn = Thane(); if ShouldReturn then return ShouldReturn; end
-      if HR.CastAnnotated(S.Pool, false, "WAIT") then return "Pool for ThaneAMMT()"; end
+      if HR.CastAnnotated(S.Pool, false, "WAIT") then return "Pool for Thane()"; end
     end
     -- Pool if nothing else to suggest
     if HR.CastAnnotated(S.Pool, false, "WAIT") then return "Wait/Pool Resources"; end
