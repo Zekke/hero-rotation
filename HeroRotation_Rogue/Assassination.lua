@@ -546,7 +546,7 @@ local function Stealthed (ReturnSpellOnly, ForceStealth)
   -- actions.stealthed+=/rupture,target_if=effective_combo_points>=variable.effective_spend_cp&buff.indiscriminate_carnage.up
   -- &refreshable&(!variable.regen_saturated|!variable.scent_saturation|!dot.rupture.ticking)&target.time_to_die>15
   if (S.Rupture:IsCastable() or ForceStealth)
-    and (S.Rupture:AuraActiveCount() < Settings.Assassination.ICRuptureCap or Settings.Assassination.ICRuptureCap == 0) then
+    and ((not S.Deathmark:CooldownUp()) or (S.Rupture:AuraActiveCount() < Settings.Assassination.ICRuptureCap or Settings.Assassination.ICRuptureCap == 0)) then
     local function RuptureTargetIfFunc(TargetUnit)
       return TargetUnit:DebuffRemains(S.Rupture)
     end
@@ -943,7 +943,7 @@ local function CDs ()
   -- |spell_targets.fan_of_knives>1&buff.slice_and_dice.remains>5|!talent.kingsbane&dot.crimson_tempest.ticking)
   -- &!debuff.deathmark.up&variable.deathmark_ma_condition
   local DeathmarkCondition = Target:DebuffUp(S.Rupture) and (DeathmarkKingsbaneCondition or MeleeEnemies10yCount > 1
-    and Player:BuffRemains(S.SliceandDice) > 5 or S.Kingsbane:IsAvailable() and Target:DebuffUp(S.CrimsonTempest))
+    and Player:BuffRemains(S.SliceandDice) > 5 or ((not S.Kingsbane:IsAvailable()) and Target:DebuffUp(S.CrimsonTempest)))
     and Target:DebuffDown(S.Deathmark) and DeathmarkMACondition
 
   -- # Usages for various special-case Trinkets and other Cantrips if applicable
