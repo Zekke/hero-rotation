@@ -17,6 +17,7 @@ local CreateARPanelOptions = HR.GUI.CreateARPanelOptions
 -- All settings here should be moved into the GUI someday.
 HR.GUISettings.APL.Mage = {
   Commons = {
+    AIDuringCombat = true,
     UseTemporalWarp = true,
     Enabled = {
       Potions = true,
@@ -51,7 +52,6 @@ HR.GUISettings.APL.Mage = {
   },
   Arcane = {
     AEMainIcon = false,
-    AllowHoldingTotM = false,
     MirrorImagesBeforePull = true,
     PotionType = {
       Selected = "Tempered",
@@ -137,6 +137,7 @@ local CP_Frost = CreateChildPanel(CP_Mage, "Frost")
 -- Controls
 -- Mage
 CreateARPanelOptions(CP_Mage, "APL.Mage.Commons")
+CreatePanelOption("CheckButton", CP_Mage, "APL.Mage.Commons.AIDuringCombat", "Show Arcane Intellect During Combat", "Enable this option to show Arcane Intellect suggestions during combat.")
 CreatePanelOption("CheckButton", CP_Mage, "APL.Mage.Commons.UseTemporalWarp", "Suggest Time Warp with Temporal Warp", "Show Time Warp when the Temporal Warp talent is selected.")
 CreateARPanelOptions(CP_MageDS, "APL.Mage.CommonsDS")
 CreateARPanelOptions(CP_MageOGCD, "APL.Mage.CommonsOGCD")
@@ -144,7 +145,6 @@ CreateARPanelOptions(CP_MageOGCD, "APL.Mage.CommonsOGCD")
 -- Arcane
 CreatePanelOption("CheckButton", CP_Arcane, "APL.Mage.Arcane.AEMainIcon", "Show Arcane Explosion in Main Icon", "Enable this to show Arcane Explosion in the main icon. When not enabled, Arcane Explosion will be shown in the left icon.")
 CreatePanelOption("CheckButton", CP_Arcane, "APL.Mage.Arcane.MirrorImagesBeforePull", "Use Mirror Images Precombat", "Enable this option to show Mirror Images during Precombat.")
-CreatePanelOption("CheckButton", CP_Arcane, "APL.Mage.Arcane.AllowHoldingTotM", "Allow Delayed Touch of the Magi", "Enable this option to allow delaying of Touch of the Magi without the profile getting stuck on Arcane Barrage. NOTE: This option subverts a portion of the APL and may result in a loss of DPS.")
 CreateARPanelOptions(CP_Arcane, "APL.Mage.Arcane")
 
 -- Fire
