@@ -123,6 +123,12 @@ ArcanePlayerBuffDown = HL.AddCoreOverride("Player.BuffDown",
     local BaseCheck = ArcanePlayerBuffDown(self, Spell, AnyCaster, Offset)
     if Spell == SpellArcane.ArcaneSurgeBuff then
       return BaseCheck and not Player:IsCasting(SpellArcane.ArcaneSurge)
+    elseif Spell == SpellArcane.NetherPrecisionBuff then
+      if Player:BuffInfo(Spell) == 1 and Player:IsCasting(SpellArcane.ArcaneBlast) then
+        return true
+      else
+        return BaseCheck
+      end
     else
       return BaseCheck
     end
@@ -192,6 +198,8 @@ HL.AddCoreOverride("Spell.IsReady",
 
     if self == SpellFire.FireBlast then
       return BaseCheck and self:Charges() >= 1
+    elseif self == SpellFire.Pyroblast or self == SpellFire.Flamestrike then
+      return BaseCheck and not Player:IsCasting(self)
     else
       return BaseCheck
     end

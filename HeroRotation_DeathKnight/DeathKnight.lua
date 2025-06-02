@@ -129,9 +129,11 @@ Spell.DeathKnight.Blood = MergeTableByKey(Spell.DeathKnight.Commons, {
   Consumption                           = Spell(274156),
   DancingRuneWeapon                     = Spell(49028),
   DeathsCaress                          = Spell(195292),
+  EverlastingBond                       = Spell(377668),
   HeartStrike                           = Spell(206930),
   Heartbreaker                          = Spell(221536),
   Marrowrend                            = Spell(195182),
+  RelishinBlood                         = Spell(317610),
   RuneTap                               = Spell(194679),
   ShatteringBone                        = Spell(377640),
   Tombstone                             = Spell(219809),
@@ -223,6 +225,7 @@ Spell.DeathKnight.Unholy = MergeTableByKey(Spell.DeathKnight.Commons, {
   MenacingMagus                         = Spell(455135),
   Morbidity                             = Spell(377592),
   Outbreak                              = Spell(77575),
+  Pestilence                            = Spell(277234),
   Plaguebringer                         = Spell(390175),
   RaiseAbomination                      = Spell(455395),
   RaiseDead                             = Spell(46584),
@@ -255,12 +258,15 @@ if not Item.DeathKnight then Item.DeathKnight = {} end
 Item.DeathKnight.Commons = {
   -- TWW Trinkets
   FunhouseLens                          = Item(234217, {13, 14}),
+  ImprovisedSeaforiumPacemaker          = Item(232541, {13, 14}),
   TreacherousTransmitter                = Item(221023, {13, 14}),
 }
 
 Item.DeathKnight.Blood = MergeTableByKey(Item.DeathKnight.Commons, {
   -- TWW Trinkets
   TomeofLightsDevotion                  = Item(219309, {13, 14}),
+  -- TWW Items
+  BestinSlots                           = Item(232526, {16}),
 })
 
 Item.DeathKnight.Frost = MergeTableByKey(Item.DeathKnight.Commons, {
