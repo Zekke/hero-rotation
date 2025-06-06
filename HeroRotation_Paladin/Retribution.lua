@@ -241,10 +241,10 @@ local function Cooldowns()
     end
   end
   -- use_item,name=bestinslots,if=((buff.avenging_wrath.up&cooldown.avenging_wrath.remains>40|buff.crusade.up&buff.crusade.stack=10)&!talent.radiant_glory|talent.radiant_glory&(!talent.execution_sentence&cooldown.wake_of_ashes.remains=0|debuff.execution_sentence.up))
-  if Settings.Commons.Enabled.Items and I.BestinSlotsMelee:IsEquippedAndReady() and (((Settings.Retribution.DisableCrusadeAWCDCheck or Player:BuffUp(S.AvengingWrathBuff) and S.AvengingWrath:CooldownRemains() > 40 or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) == 10) and not S.RadiantGlory:IsAvailable() or S.RadiantGlory:IsAvailable() and (not S.ExecutionSentence:IsAvailable() and S.WakeofAshes:CooldownUp() or Target:DebuffUp(S.ExecutionSentenceDebuff)))) then
+  if CDsON() and Settings.Commons.Enabled.Items and I.BestinSlotsMelee:IsEquippedAndReady() and (((Settings.Retribution.DisableCrusadeAWCDCheck or Player:BuffUp(S.AvengingWrathBuff) and S.AvengingWrath:CooldownRemains() > 40 or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) == 10) and not S.RadiantGlory:IsAvailable() or S.RadiantGlory:IsAvailable() and (not S.ExecutionSentence:IsAvailable() and S.WakeofAshes:CooldownUp() or Target:DebuffUp(S.ExecutionSentenceDebuff)))) then
     if Cast(I.BestinSlotsMelee, nil, Settings.CommonsDS.DisplayStyle.Items) then return "bestinslots cooldowns 12"; end
   end
-  if Settings.Commons.Enabled.Trinkets then
+  if CDsON() and Settings.Commons.Enabled.Trinkets then
     -- use_item,slot=trinket1,if=!variable.trinket_1_buffs&(trinket.2.cooldown.remains|!variable.trinket_2_buffs|!buff.crusade.up&cooldown.crusade.remains>20|!buff.avenging_wrath.up&cooldown.avenging_wrath.remains>20)
     if Trinket1 and Trinket1:IsReady() and not VarTrinket1Ex and not Player:IsItemBlacklisted(Trinket1) and (not VarTrinket1Buffs and (Trinket2:CooldownDown() or not VarTrinket2Buffs or (Settings.Retribution.DisableCrusadeAWCDCheck or Player:BuffDown(S.CrusadeBuff) and S.Crusade:CooldownRemains() > 20 or Player:BuffDown(S.AvengingWrathBuff) and S.AvengingWrath:CooldownRemains() > 20))) then
       if Cast(Trinket1, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket1Range)) then return "use_item for trinket1 ("..Trinket1:Name()..") cooldowns 14"; end
@@ -263,15 +263,29 @@ local function Cooldowns()
     if Cast(S.ExecutionSentence, Settings.Retribution.GCDasOffGCD.ExecutionSentence, nil, not Target:IsSpellInRange(S.ExecutionSentence)) then return "execution_sentence cooldowns 20"; end
   end
   -- avenging_wrath,if=(holy_power>=4&time<5|holy_power>=3&time>5|holy_power>=2&talent.divine_auxiliary&(cooldown.execution_sentence.remains=0|cooldown.final_reckoning.remains=0))&(!raid_event.adds.up|target.time_to_die>10)
-  if S.AvengingWrath:IsCastable() and ((HolyPower >= 4 and HL.CombatTime() < 5 or HolyPower >= 3 and HL.CombatTime() > 5 or HolyPower >= 2 and S.DivineAuxiliary:IsAvailable() and (S.ExecutionSentence:CooldownUp() or S.FinalReckoning:CooldownUp())) and (EnemiesCount8y == 1 or Target:TimeToDie() > 10)) then
+  if CDsON() and S.AvengingWrath:IsCastable() and ((HolyPower >= 4 and HL.CombatTime() < 5 or HolyPower >= 3 and HL.CombatTime() > 5 or HolyPower >= 2 and S.DivineAuxiliary:IsAvailable() and (S.ExecutionSentence:CooldownUp() or S.FinalReckoning:CooldownUp())) and (EnemiesCount8y == 1 or Target:TimeToDie() > 10)) then
     if Cast(S.AvengingWrath, Settings.Retribution.OffGCDasOffGCD.AvengingWrath) then return "avenging_wrath cooldowns 22" end
   end
   -- crusade,if=holy_power>=5&time<5|holy_power>=3&time>5
-  if S.Crusade:IsCastable() and (HolyPower >= 5 and HL.CombatTime() < 5 or HolyPower >= 3 and HL.CombatTime() >= 5) then
+  if CDsON() and S.Crusade:IsCastable() and (HolyPower >= 5 and HL.CombatTime() < 5 or HolyPower >= 3 and HL.CombatTime() >= 5) then
     if Cast(S.Crusade, Settings.Retribution.OffGCDasOffGCD.AvengingWrath) then return "crusade cooldowns 24" end
   end
   -- final_reckoning,if=(holy_power>=4&time<8|holy_power>=3&time>=8|holy_power>=2&(talent.divine_auxiliary|talent.radiant_glory))&(cooldown.avenging_wrath.remains>10|cooldown.crusade.remains&(!buff.crusade.up|buff.crusade.stack>=10)|talent.radiant_glory&(buff.avenging_wrath.up|talent.crusade&cooldown.wake_of_ashes.remains<gcd))&(!raid_event.adds.exists|raid_event.adds.up|raid_event.adds.in>40)
-  if S.FinalReckoning:IsCastable() and ((HolyPower >= 4 and HL.CombatTime() < 8 or HolyPower >= 3 and HL.CombatTime() >= 8 or HolyPower >= 2 and (S.DivineAuxiliary:IsAvailable() or S.RadiantGlory:IsAvailable())) and (Settings.Retribution.DisableCrusadeAWCDCheck or S.AvengingWrath:CooldownRemains() > 10 or S.Crusade:CooldownDown() and (Player:BuffDown(S.CrusadeBuff) or Player:BuffStack(S.CrusadeBuff) >= 10) or S.RadiantGlory:IsAvailable() and (Player:BuffUp(S.AvengingWrathBuff) or S.Crusade:IsAvailable() and S.WakeofAshes:CooldownRemains() < PlayerGCD))) then
+  if CDsON() and S.FinalReckoning:IsCastable() and (
+    (
+      (HolyPower >= 4 and HL.CombatTime() < 8)
+      or (HolyPower >= 3 and HL.CombatTime() >= 8)
+      or (HolyPower >= 2 and (S.DivineAuxiliary:IsAvailable() or S.RadiantGlory:IsAvailable()))
+    )
+    and (
+    Settings.Retribution.DisableCrusadeAWCDCheck
+    or S.AvengingWrath:CooldownRemains() > 10
+    or (S.Crusade:CooldownDown() and (Player:BuffDown(S.CrusadeBuff) or Player:BuffStack(S.CrusadeBuff) >= 10))
+    or (S.RadiantGlory:IsAvailable() and (S.WakeofAshes:CooldownRemains() < PlayerGCD))
+    )
+  )
+
+    then
     if Cast(S.FinalReckoning, Settings.Retribution.GCDasOffGCD.FinalReckoning, nil, not Target:IsInRange(30)) then return "final_reckoning cooldowns 26" end
   end
 end
