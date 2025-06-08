@@ -73,7 +73,10 @@ Spell.Evoker.Chronowarden = {
   ChronoFlames                          = Spell(431443),
   -- Talents
   ChronoFlame                           = Spell(431442),
+  TemporalBurst                         = Spell(431695),
   ThreadsofFate                         = Spell(431715),
+  -- Buffs
+  TemporalBurstBuff                     = Spell(431698),
 }
 
 Spell.Evoker.Flameshaper = {
@@ -123,6 +126,7 @@ Spell.Evoker.Augmentation = MergeTableByKey(Spell.Evoker.Commons, {
   ImminentDestruction                   = Spell(459537),
   InterwovenThreads                     = Spell(412713),
   MoltenEmbers                          = Spell(459725),
+  Overlord                              = Spell(410260),
   Prescience                            = Spell(409311),
   PupilofAlexstrasza                    = Spell(407814),
   Rockfall                              = Spell(1219236),
@@ -138,6 +142,7 @@ Spell.Evoker.Augmentation = MergeTableByKey(Spell.Evoker.Commons, {
   EssenceBurstBuff                      = Spell(392268),
   ImminentDestructionBuff               = Spell(459574),
   PrescienceBuff                        = Spell(410089),
+  ShiftingSandsBuff                     = Spell(413984),
   -- Debuffs
   TemporalWoundDebuff                   = Spell(409560),
   StopFireBreath                        = Spell(363653)
@@ -202,6 +207,7 @@ Spell.Evoker.Devastation = MergeTableByKey(Spell.Evoker.Devastation, Spell.Evoke
 if not Item.Evoker then Item.Evoker = {} end
 Item.Evoker.Commons = {
   -- TWW Trinkets
+  HouseofCards                          = Item(230027, {13, 14}),
   SpymastersWeb                         = Item(220202, {13, 14}),
   -- TWW Items
   BestinSlotsCaster                     = Item(232805, {16}),
@@ -222,6 +228,5 @@ Item.Evoker.Devastation = MergeTableByKey(Item.Evoker.Commons, {
   -- DF Items
   KharnalexTheFirstLight                = Item(195519, {16}),
   -- TWW Trinkets
-  HouseofCards                          = Item(230027, {13, 14}),
   SignetofthePriory                     = Item(219308, {13, 14}),
 })
