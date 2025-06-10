@@ -210,6 +210,7 @@ Spell.Shaman.Enhancement = MergeTableByKey(Spell.Shaman.Commons, {
   Stormstrike                           = Spell(17364),
   Sundering                             = Spell(197214),
   SwirlingMaelstrom                     = Spell(384359),
+  TempestStrikes                        = Spell(428071),
   ThorimsInvocation                     = Spell(384444),
   UnrelentingStorms                     = Spell(470490),
   UnrulyWinds                           = Spell(390288),
@@ -268,8 +269,11 @@ Item.Shaman.Enhancement = MergeTableByKey(Item.Shaman.Commons, {
 
 Item.Shaman.Elemental = MergeTableByKey(Item.Shaman.Commons, {
   -- TWW Trinkets
+  FunhouseLens                          = Item(234217, {13, 14}),
   HouseofCards                          = Item(230027, {13, 14}),
   SpymastersWeb                         = Item(220202, {13, 14}),
+  -- TWW Items
+  BestinSlotsCaster                     = Item(232805, {16}),
   -- TWW S2 Previous Expansion Items
   NeuralSynapseEnhancer                 = Item(168973, {16}),
 })
