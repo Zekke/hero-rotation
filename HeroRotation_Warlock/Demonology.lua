@@ -440,9 +440,6 @@ local function Items()
     if I.MirrorofFracturedTomorrows:IsEquippedAndReady() and (VarTrinket1ID == I.MirrorofFracturedTomorrows:ID() and VarTrinketPriority == 2 or VarTrinket2ID == I.MirrorofFracturedTomorrows:ID() and VarTrinketPriority == 1) then
       if Cast(I.MirrorofFracturedTomorrows, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "mirror_of_fractured_tomorrows items 16"; end
     end
-    if I.BalefireBranch:IsEquippedAndReady() and (DemonicTyrantActive()) then
-      if Cast(I.BalefireBranch, nil, Settings.Commons.DisplayStyle.Trinkets) then return "balefire_branch items 16"; end
-    end
     -- use_item,slot=trinket1,if=!variable.trinket_1_buffs&(variable.damage_trinket_priority=1|trinket.2.cooldown.remains)
     if Trinket1 and Trinket1:IsReady() and not VarTrinket1Ex and not Player:IsItemBlacklisted(Trinket1) and (not VarTrinket1Buffs and (VarDamageTrinketPriority == 1 or Trinket2:CooldownDown())) then
       if Cast(Trinket1, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket1Range)) then return "trinket1 (" .. Trinket1:Name() .. ") items 18"; end
@@ -744,7 +741,7 @@ local function APL()
       local ShouldReturn = Racials(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=items,use_off_gcd=1
-    if Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items then
+    if CDsON() and (Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items) then
       local ShouldReturn = Items(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=fight_end,if=fight_remains<30
