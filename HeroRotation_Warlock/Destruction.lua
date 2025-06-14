@@ -490,11 +490,11 @@ local function Aoe()
     local ShouldReturn = oGCD(); if ShouldReturn then return ShouldReturn; end
   end
   -- call_action_list,name=items
-  if Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Trinkets then
+  if CDsON() and (Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Trinkets) then
     local ShouldReturn = Items(); if ShouldReturn then return ShouldReturn; end
   end
   -- malevolence,if=cooldown.summon_infernal.remains>=55&soul_shard<4.7&(active_enemies<=3+active_dot.wither|time>30)
-  if S.Malevolence:IsReady() and (S.SummonInfernal:CooldownRemains() >= 55 and SoulShards < 4.7 and (EnemiesCount8ySplash <= 3 + S.WitherDebuff:AuraActiveCount() or HL.CombatTime() > 30)) then
+  if CDsON() and S.Malevolence:IsReady() and (S.SummonInfernal:CooldownRemains() >= 55 and SoulShards < 4.7 and (EnemiesCount8ySplash <= 3 + S.WitherDebuff:AuraActiveCount())) then
     if Cast(S.Malevolence, nil, Settings.CommonsDS.DisplayStyle.Malevolence) then return "malevolence aoe 2"; end
   end
   -- rain_of_fire,if=demonic_art
@@ -636,7 +636,7 @@ end
 
 local function Cleave()
   -- call_action_list,name=items
-  if Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items then
+  if CDsON() and (Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items) then
     local ShouldReturn = Items(); if ShouldReturn then return ShouldReturn; end
   end
   -- call_action_list,name=ogcd
@@ -650,7 +650,7 @@ local function Cleave()
   -- variable,name=pool_soul_shards,value=cooldown.havoc.remains<=5|talent.mayhem
   VarPoolSoulShards = (S.Havoc:CooldownRemains() <= 5) or S.Mayhem:IsAvailable()
   -- malevolence,if=(!cooldown.summon_infernal.up|!talent.summon_infernal)
-  if S.Malevolence:IsReady() and (S.SummonInfernal:CooldownDown() or not S.SummonInfernal:IsAvailable()) then
+  if CDsON() and S.Malevolence:IsReady() and (S.SummonInfernal:CooldownDown() or not S.SummonInfernal:IsAvailable()) then
     if Cast(S.Malevolence, nil, Settings.CommonsDS.DisplayStyle.Malevolence) then return "malevolence cleave 2"; end
   end
   -- havoc,target_if=min:((-target.time_to_die)<?-15)+dot.immolate.remains+99*(self.target=target),if=(!cooldown.summon_infernal.up|!talent.summon_infernal)&target.time_to_die>8
@@ -867,11 +867,11 @@ local function APL()
       local ShouldReturn = oGCD(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=items
-    if Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Trinkets then
+    if CDsON() and (Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Trinkets) then
       local ShouldReturn = Items(); if ShouldReturn then return ShouldReturn; end
     end
     -- malevolence,if=cooldown.summon_infernal.remains>=55
-    if S.Malevolence:IsReady() and (S.SummonInfernal:CooldownRemains() >= 55) then
+    if CDsON() and S.Malevolence:IsReady() and (S.SummonInfernal:CooldownRemains() >= 55) then
       if Cast(S.Malevolence, nil, Settings.CommonsDS.DisplayStyle.Malevolence) then return "malevolence main 2"; end
     end
     -- wait,sec=((buff.diabolic_ritual_mother_of_chaos.remains+buff.diabolic_ritual_overlord.remains+buff.diabolic_ritual_pit_lord.remains)),if=(diabolic_ritual&(buff.diabolic_ritual_mother_of_chaos.remains+buff.diabolic_ritual_overlord.remains+buff.diabolic_ritual_pit_lord.remains)<gcd.max*0.25)&soul_shard>2
