@@ -301,7 +301,7 @@ local function Precombat()
   -- Note: Another tw variables that are never changed. Moved to variable declarations.
   -- verdant_embrace,if=talent.scarlet_adaptation
   if Settings.Devastation.UseGreen and S.VerdantEmbrace:IsCastable() and (S.ScarletAdaptation:IsAvailable()) then
-    if Cast(S.VerdantEmbrace) then return "verdant_embrace precombat 4"; end
+    if Cast(S.VerdantEmbrace, Settings.CommonsOGCD.GCDasOffGCD.VerdantEmbrace) then return "verdant_embrace precombat 4"; end
   end
   -- hover,if=talent.slipstream
   -- hover,if=talent.slipstream
@@ -339,10 +339,12 @@ local function ES()
     ESEmpower = 4
   end
   -- We should (usually, if not always) be hitting all targets anyway, so keeping CastAnnotated over CastTargetIf.
-  if Settings.Devastation.ShowChainClip and Player:IsChanneling(S.Disintegrate) and (VarDragonrageUp and (not (Player:PowerInfusionUp() and Player:BloodlustUp()) or S.FireBreath:CooldownUp() or S.EternitySurge:CooldownUp())) then
-    if CastAnnotated(S.EternitySurge, nil, ESEmpower.." CLIP", not Target:IsInRange(25), Settings.Commons.DisintegrateFontSize) then return "eternity_surge empower " .. ESEmpower .. " clip ES 2"; end
-  else
-    if CastAnnotated(S.EternitySurge, false, ESEmpower, not Target:IsInRange(25), Settings.Commons.EmpoweredFontSize) then return "eternity_surge empower " .. ESEmpower .. " ES 2"; end
+  if ESEmpower > 0 then
+    if Settings.Devastation.ShowChainClip and Player:IsChanneling(S.Disintegrate) and (VarDragonrageUp and (not (Player:PowerInfusionUp() and Player:BloodlustUp()) or S.FireBreath:CooldownUp() or S.EternitySurge:CooldownUp())) then
+      if CastAnnotated(S.EternitySurge, nil, ESEmpower.." CLIP", not Target:IsInRange(25), Settings.Commons.DisintegrateFontSize) then return "eternity_surge empower " .. ESEmpower .. " clip ES 2"; end
+    else
+      if CastAnnotated(S.EternitySurge, false, ESEmpower, not Target:IsInRange(25), Settings.Commons.EmpoweredFontSize) then return "eternity_surge empower " .. ESEmpower .. " ES 2"; end
+    end
   end
 end
 
@@ -373,22 +375,24 @@ local function FB()
     FBEmpower = 4
   end
   -- We should (usually, if not always) be hitting all targets anyway, so keeping CastAnnotated over CastTargetIf.
-  if Settings.Devastation.ShowChainClip and Player:IsChanneling(S.Disintegrate) and (VarDragonrageUp and (not (Player:PowerInfusionUp() and Player:BloodlustUp()) or S.FireBreath:CooldownUp() or S.EternitySurge:CooldownUp())) then
-    if CastAnnotated(S.FireBreath, nil, FBEmpower.." CLIP", not Target:IsInRange(25), Settings.Commons.DisintegrateFontSize) then return "fire_breath empower " .. FBEmpower .. " clip FB 2"; end
-  else
-    if CastAnnotated(S.FireBreath, false, FBEmpower, not Target:IsInRange(25), Settings.Commons.EmpoweredFontSize) then return "fire_breath empower " .. FBEmpower .. " FB 2"; end
+  if FBEmpower > 0 then
+    if Settings.Devastation.ShowChainClip and Player:IsChanneling(S.Disintegrate) and (VarDragonrageUp and (not (Player:PowerInfusionUp() and Player:BloodlustUp()) or S.FireBreath:CooldownUp() or S.EternitySurge:CooldownUp())) then
+      if CastAnnotated(S.FireBreath, nil, FBEmpower.." CLIP", not Target:IsInRange(25), Settings.Commons.DisintegrateFontSize) then return "fire_breath empower " .. FBEmpower .. " clip FB 2"; end
+    else
+      if CastAnnotated(S.FireBreath, false, FBEmpower, not Target:IsInRange(25), Settings.Commons.EmpoweredFontSize) then return "fire_breath empower " .. FBEmpower .. " FB 2"; end
+    end
   end
 end
 
 local function Green()
   -- emerald_blossom
   if S.EmeraldBlossom:IsCastable() then
-    if Cast(S.EmeraldBlossom) then return "emerald_blossom green 2"; end
+    if Cast(S.EmeraldBlossom, Settings.CommonsOGCD.GCDasOffGCD.EmeraldBlossom) then return "emerald_blossom green 2"; end
   end
   -- verdant_embrace
   -- Note: Added PrevGCDP check for emerald_blossom so we don't suggest VE while waiting for EB to pop.
   if S.VerdantEmbrace:IsCastable() and not Player:PrevGCDP(1, S.EmeraldBlossom) then
-    if Cast(S.VerdantEmbrace) then return "verdant_embrace green 4"; end
+    if Cast(S.VerdantEmbrace, Settings.CommonsOGCD.GCDasOffGCD.VerdantEmbrace) then return "verdant_embrace green 4"; end
   end
 end
 
