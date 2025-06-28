@@ -674,6 +674,17 @@ local function StealthCDs_2 (ReturnSpellOnly)
   end
 end
 
+local function Defensives ()
+  if S.Elusiveness:IsAvailable() and Player:BuffDown(S.Evasion) and Player:BuffDown(S.Feint) then
+    if S.Evasion:IsCastable() then
+      if Cast(S.Evasion) then return "Evasion" end
+    end
+    if S.Feint:IsCastable() then
+      if Cast(S.Feint) then return "Feint" end
+    end
+  end
+end
+
 local function CDs ()
   -- # Maintain Adrenaline Rush if it is not active. Use at low CPs with Improved AR.
   -- actions.cds=adrenaline_rush,if=!buff.adrenaline_rush.up&(!variable.finish_condition|!talent.improved_adrenaline_rush)
@@ -1166,6 +1177,12 @@ local function APL ()
   end
 
   if Everyone.TargetIsValid() then
+    --Custom Defensives
+    --ShouldReturn = Defensives()
+    --if ShouldReturn then
+    --  return "Defensives: " .. ShouldReturn
+    --end
+
     -- Interrupts
     ShouldReturn = Everyone.Interrupt(S.Kick, Settings.CommonsDS.DisplayStyle.Interrupts, Interrupts)
     if ShouldReturn then
