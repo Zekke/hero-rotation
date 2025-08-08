@@ -49,8 +49,7 @@ local OnUseExcludes = {
   I.CursedStoneIdol:ID(),
   I.ImperfectAscendancySerum:ID(),
   I.MadQueensMandate:ID(),
-  I.TreacherousTransmitter:ID(),
-  I.SkardynsGrace:ID()
+  I.TreacherousTransmitter:ID()
 }
 
 -- Rotation Var
