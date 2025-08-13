@@ -63,7 +63,6 @@ Spell.Hunter.Commons = {
   Stampede                              = Spell(201430),
   SteelTrap                             = Spell(162488),
   TarTrap                               = Spell(187698),
-  WailingArrow                          = Spell(392060),
   -- Buffs
   BerserkingBuff                        = Spell(26297),
   BloodFuryBuff                         = Spell(20572),
@@ -109,6 +108,7 @@ Spell.Hunter.PackLeader = {
   HogstriderBuff                        = Spell(472640),
   HowlofthePackBuff                     = Spell(462515),
   HowlofthePackLeaderCDBuff             = Spell(471877),
+  LeadFromTheFrontBuff                  = Spell(472743),
   PackCoordinationBuff                  = Spell(445695),
   ScatteredPreyBuff                     = Spell(461866),
   -- Howl of the Pack Leader Summon Buffs
@@ -224,6 +224,7 @@ Spell.Hunter.Marksmanship = MergeTableByKey(Spell.Hunter.Commons, {
   Readiness                             = Spell(389865),
   Salvo                                 = Spell(400456),
   SerpentstalkersTrickery               = Spell(378888),
+  ShrapnelShot                          = Spell(473520),
   SmallGameHunter                       = Spell(459802),
   SteadyFocus                           = Spell(193533),
   Streamline                            = Spell(260367),
@@ -331,6 +332,7 @@ Item.Hunter.Commons = {
   HouseofCards                          = Item(230027, {13, 14}),
   -- TWW Trinkets
   JunkmaestrosMegaMagnet                = Item(230189, {13, 14}),
+  UnyieldingNetherprism                 = Item(242396, {13, 14}),
 }
 
 Item.Hunter.BeastMastery = MergeTableByKey(Item.Hunter.Commons, {
