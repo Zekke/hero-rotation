@@ -390,7 +390,7 @@ local function Finish(ReturnSpellOnly)
     if ReturnSpellOnly then
       return S.KillingSpree
     else
-      if Cast(S.KillingSpree, nil, Settings.Outlaw.KillingSpreeDisplayStyle, not Target:IsInMeleeRange(8), nil) then
+      if Cast(S.KillingSpree, nil, Settings.Outlaw.KillingSpreeDisplayStyle, not Target:IsInRange(8), nil) then
         return "Cast Killing Spree"
       end
     end
@@ -497,7 +497,7 @@ local function SpellQueueMacro (BaseSpell, ReturnSpellOnly)
       -- Outside of stealth could be AR -> Vanish -> BtE so check for this first then fallback into normal finisher.
       if not Player:StealthUp(true, true) then
         -- AR->Coup Highest prio, outside of stealth especially if double coup
-        if S.CoupDeGrace:IsCastable() and (S.CoupDeGrace:TimeSinceLastCast() < 1 and Player:BuffUp(S.AdrenalineRush)) then
+        if S.CoupDeGrace:IsCastable() and Player:BuffUp(S.AdrenalineRush) then
           MacroAbility = S.CoupDeGrace
         else
           local MacroAbilities = StealthCDs(true)
@@ -633,7 +633,7 @@ local function Items()
   -- &(buff.vanish.up|!talent.subterfuge)|fight_remains<=20
   if I.UnyieldingNetherprism:IsEquippedAndReady() then
     if (Cache.APLVar.RtB_Buffs.Total >= 4 or not S.KeepItRolling:IsAvailable()) and
-      (Player:BuffUp(S.Vanish) or not S.Subterfuge:IsAvailable()) or HL.BossFilteredFightRemains("<=", 20) then
+      (Player:StealthUp(true, false) or not S.Subterfuge:IsAvailable()) or HL.BossFilteredFightRemains("<=", 20) then
       if Cast(I.UnyieldingNetherprism, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsItemInRange(I.UnyieldingNetherprism)) then
         return "Unyielding Netherprism";
       end
