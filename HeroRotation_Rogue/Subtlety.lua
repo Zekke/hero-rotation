@@ -336,7 +336,7 @@ local function Finish (ReturnSpellOnly, ForceStealth)
   if S.BlackPowder:IsCastable() then
     if not PriorityRotation and Maintenance and (((MeleeEnemies10yCount >= 2 and S.DeathStalkersMark:IsAvailable()
     and (Player:BuffDown(S.DarkestNightBuff) or Player:BuffUp(S.ShadowDanceBuff) and MeleeEnemies10yCount >= 5))
-    or S.UnseenBlade:IsAvailable() and MeleeEnemies10yCount >= 5-2 * num(Player:BuffUp(S.ShadowBlades)))
+    or S.UnseenBlade:IsAvailable() and S.FindWeaknessDebuff:AuraActiveCount() >= 5-2 * num(Player:BuffUp(S.ShadowBlades)))
       or S.CoupDeGrace:IsReady() and MeleeEnemies10yCount >= 3 and Settings.Subtlety.HoldCoupForCDs) then
       if ReturnSpellOnly then
         return S.BlackPowder
@@ -1046,6 +1046,7 @@ end
 
 local function Init ()
   S.Rupture:RegisterAuraTracking()
+  S.FindWeaknessDebuff:RegisterAuraTracking()
 
   HR.Print("Subtlety Rogue rotation has been updated for patch 11.2.0.")
 end
