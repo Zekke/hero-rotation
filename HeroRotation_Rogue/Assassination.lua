@@ -880,7 +880,7 @@ local function ShivUsage ()
     end
   end
 
-  if CDsON() and S.Shiv:IsReady() then
+  if S.Shiv:IsReady() then
     -- # Shiv for aoe with Arterial Precision
     -- actions.shiv+=/shiv,if=talent.arterial_precision&!debuff.shiv.up&dot.garrote.ticking
     -- &dot.rupture.ticking&spell_targets.fan_of_knives>=4&dot.crimson_tempest.ticking
@@ -923,7 +923,7 @@ local function ShivUsage ()
     if S.LightweightShiv:IsAvailable() then
       if ShivKingsbaneCondition
         and (Target:DebuffUp(S.Kingsbane) and Target:DebuffRemains(S.Kingsbane) < (8+3*BoolToInt(Player:HasTier("TWW3", 4)))
-        and Target:DebuffRemains(S.Kingsbane) > 4 or S.Kingsbane:CooldownRemains() <= 1 and S.Shiv:ChargesFractional() >= 1.7) then
+        and Target:DebuffRemains(S.Kingsbane) > 4 or (S.Kingsbane:CooldownRemains() <= 1 and CDsON()) and S.Shiv:ChargesFractional() >= 1.7) then
         if Cast(S.Shiv, Settings.Assassination.GCDasOffGCD.Shiv) then
           return "Cast Shiv (Double-charge Shiv case for Kingsbane)"
         end
