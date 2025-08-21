@@ -83,7 +83,6 @@ Spell.Hunter.DarkRanger = {
   -- Abilities
   BlackArrow                            = Spell(466930),
   -- Talents
-  BlackArrowTalent                      = Spell(466932),
   BleakArrows                           = Spell(467749),
   BleakArrowsBMAbility                  = Spell(472084),
   BleakArrowsMMAbility                  = Spell(467914),
@@ -353,4 +352,6 @@ Item.Hunter.Survival = MergeTableByKey(Item.Hunter.Commons, {
   ImperfectAscendancySerum              = Item(225654, {13, 14}),
   MadQueensMandate                      = Item(212454, {13, 14}),
   SkardynsGrace                         = Item(133282, {13, 14}),
+  -- TWW Items
+  SpellstrikeWarplance                  = Item(242481, {16}),
 })

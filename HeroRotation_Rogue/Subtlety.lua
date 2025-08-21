@@ -49,7 +49,9 @@ local OnUseExcludes = {
   I.CursedStoneIdol:ID(),
   I.ImperfectAscendancySerum:ID(),
   I.MadQueensMandate:ID(),
-  I.TreacherousTransmitter:ID()
+  I.SoleahsSecretTechnique:ID(),
+  I.TreacherousTransmitter:ID(),
+  I.UnyieldingNetherprism:ID()
 }
 
 -- Rotation Var
@@ -332,12 +334,12 @@ local function Finish (ReturnSpellOnly, ForceStealth)
 
   -- actions.finish+=/black_powder,if=!variable.priority_rotation&variable.maintenance
   -- &(((variable.targets>=2&talent.deathstalkers_mark&(!buff.darkest_night.up|buff.shadow_dance.up&variable.targets>=5))
-  -- |talent.unseen_blade&fw_targets>=5-2*buff.shadow_blades.up)|action.coup_de_grace.ready&variable.targets>=3)
+  -- |talent.unseen_blade&variable.targets>=4)|action.coup_de_grace.ready&variable.targets>=3)
   if S.BlackPowder:IsCastable() then
     if not PriorityRotation and Maintenance and (((MeleeEnemies10yCount >= 2 and S.DeathStalkersMark:IsAvailable()
     and (Player:BuffDown(S.DarkestNightBuff) or Player:BuffUp(S.ShadowDanceBuff) and MeleeEnemies10yCount >= 5))
-    or S.UnseenBlade:IsAvailable() and S.FindWeaknessDebuff:AuraActiveCount() >= 5-2 * num(Player:BuffUp(S.ShadowBlades)))
-      or S.CoupDeGrace:IsReady() and MeleeEnemies10yCount >= 3) then
+    or S.UnseenBlade:IsAvailable() and MeleeEnemies10yCount >= 5)
+      or S.CoupDeGrace:IsReady() and MeleeEnemies10yCount >= 3 and Settings.Subtlety.HoldCoupForCDs) then
       if ReturnSpellOnly then
         return S.BlackPowder
       else
@@ -350,7 +352,7 @@ local function Finish (ReturnSpellOnly, ForceStealth)
 
   -- actions.finish+=/eviscerate,if=cooldown.flagellation.remains>=10|variable.targets>=3
   if S.Eviscerate:IsCastable() then
-    if (S.Flagellation:CooldownRemains() >= 10 or not CDsON())or MeleeEnemies10yCount >= 3 then
+    if (S.Flagellation:IsReady() or S.Flagellation:CooldownRemains() >= 10 or not CDsON()) or MeleeEnemies10yCount >= 3 then
       if ReturnSpellOnly then
         return S.Eviscerate
       else
@@ -709,8 +711,21 @@ local function Items()
     -- actions.item+=/use_item,name=cursed_stone_idol,use_off_gcd=1,if=dot.rupture.remains>=25&buff.flagellation_buff.up|fight_remains<=20
     if I.CursedStoneIdol:IsEquippedAndReady() then
       if Target:DebuffRemains(S.Rupture) >= 25 and Player:BuffUp(S.FlagellationBuff) or HL.BossFilteredFightRemains("<=", 20) then
-        if Cast(I.CursedStoneIdol, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(I.CursedStoneIdol)) then
+        if Cast(I.CursedStoneIdol, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsItemInRange(I.CursedStoneIdol)) then
           return "Cursed Stone Idol"
+        end
+      end
+    end
+
+    -- actions.item+=/use_item,name=unyielding_netherprism,use_off_gcd=1,if=buff.shadow_blades.up
+    -- &(buff.latent_energy.stack>=8+8*(trinket.arazs_ritual_forge.cooldown.ready|!equipped.arazs_ritual_forge)
+    -- |!equipped.arazs_ritual_forge&fight_remains<=90)|fight_remains<=20
+    if I.UnyieldingNetherprism:IsEquippedAndReady() then
+      if Player:BuffUp(S.ShadowBlades) and (Player:BuffStack(S.LatentEnergyBuff) >= 8 + 8*num(I.ArazsRitualForge:IsReady()
+        or not I.ArazsRitualForge:IsEquipped()) or not I.ArazsRitualForge:IsEquipped() and HL.BossFilteredFightRemains('<=', 90))
+        or HL.BossFilteredFightRemains('<=', 20) then
+        if Cast(I.UnyieldingNetherprism, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsItemInRange(I.UnyieldingNetherprism)) then
+          return "Unyielding Netherprism"
         end
       end
     end
@@ -1046,7 +1061,6 @@ end
 
 local function Init ()
   S.Rupture:RegisterAuraTracking()
-  S.FindWeaknessDebuff:RegisterAuraTracking()
 
   HR.Print("Subtlety Rogue rotation has been updated for patch 11.2.0.")
 end
