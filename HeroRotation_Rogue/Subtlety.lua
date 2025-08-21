@@ -337,7 +337,7 @@ local function Finish (ReturnSpellOnly, ForceStealth)
     if not PriorityRotation and Maintenance and (((MeleeEnemies10yCount >= 2 and S.DeathStalkersMark:IsAvailable()
     and (Player:BuffDown(S.DarkestNightBuff) or Player:BuffUp(S.ShadowDanceBuff) and MeleeEnemies10yCount >= 5))
     or S.UnseenBlade:IsAvailable() and S.FindWeaknessDebuff:AuraActiveCount() >= 5-2 * num(Player:BuffUp(S.ShadowBlades)))
-      or S.CoupDeGrace:IsReady() and MeleeEnemies10yCount >= 3 and Settings.Subtlety.HoldCoupForCDs) then
+      or S.CoupDeGrace:IsReady() and MeleeEnemies10yCount >= 3) then
       if ReturnSpellOnly then
         return S.BlackPowder
       else
@@ -350,7 +350,7 @@ local function Finish (ReturnSpellOnly, ForceStealth)
 
   -- actions.finish+=/eviscerate,if=cooldown.flagellation.remains>=10|variable.targets>=3
   if S.Eviscerate:IsCastable() then
-    if S.Flagellation:CooldownRemains() >= 10 or MeleeEnemies10yCount >= 3 then
+    if (S.Flagellation:CooldownRemains() >= 10 or not CDsON())or MeleeEnemies10yCount >= 3 then
       if ReturnSpellOnly then
         return S.Eviscerate
       else
@@ -888,7 +888,7 @@ local function APL ()
 
   -- actions+=/variable,name=secret,value=buff.shadow_dance.up&!buff.darkest_night.up|(cooldown.flagellation.remains<60
   -- &cooldown.flagellation.remains>30&talent.death_perception&talent.unseen_blade)
-  Secret = Player:BuffUp(S.ShadowDanceBuff) and Player:BuffDown(S.DarkestNightBuff) or (S.Flagellation:CooldownRemains() < 60
+  Secret = (Player:BuffUp(S.SymbolsofDeath) or not ZTB.GetCurrentEncounterId() == 3132) and Player:BuffUp(S.ShadowDanceBuff) and Player:BuffDown(S.DarkestNightBuff) or (S.Flagellation:CooldownRemains() < 60
     and S.Flagellation:CooldownRemains() > 30 and S.DeathPerception:IsAvailable() and S.UnseenBlade:IsAvailable())
 
   -- actions+=/variable,name=racial_sync,value=(buff.shadow_blades.up&buff.shadow_dance.up)|!talent.shadow_blades&buff.symbols_of_death.up|fight_remains<20
