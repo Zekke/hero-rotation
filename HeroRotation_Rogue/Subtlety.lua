@@ -903,6 +903,7 @@ local function APL ()
 
   -- actions+=/variable,name=secret,value=buff.shadow_dance.up&!buff.darkest_night.up|(cooldown.flagellation.remains<60
   -- &cooldown.flagellation.remains>30&talent.death_perception&talent.unseen_blade)
+  local ZTB = _G.ZTB_API
   Secret = (Player:BuffUp(S.SymbolsofDeath) or not ZTB.GetCurrentEncounterId() == 3132) and Player:BuffUp(S.ShadowDanceBuff) and Player:BuffDown(S.DarkestNightBuff) or (S.Flagellation:CooldownRemains() < 60
     and S.Flagellation:CooldownRemains() > 30 and S.DeathPerception:IsAvailable() and S.UnseenBlade:IsAvailable())
 
