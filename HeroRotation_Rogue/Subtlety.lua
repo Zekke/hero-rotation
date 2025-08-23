@@ -724,7 +724,7 @@ local function Items()
       if Player:BuffUp(S.ShadowBlades) and (Player:BuffStack(S.LatentEnergyBuff) >= 8 + 8*num(I.ArazsRitualForge:IsReady()
         or not I.ArazsRitualForge:IsEquipped()) or not I.ArazsRitualForge:IsEquipped() and HL.BossFilteredFightRemains('<=', 90))
         or HL.BossFilteredFightRemains('<=', 20) then
-        if Cast(I.UnyieldingNetherprism, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsItemInRange(I.UnyieldingNetherprism)) then
+        if Cast(I.UnyieldingNetherprism, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then
           return "Unyielding Netherprism"
         end
       end
