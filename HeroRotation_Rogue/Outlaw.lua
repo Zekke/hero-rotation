@@ -400,7 +400,7 @@ local function Finish(ReturnSpellOnly)
   end
 
   -- actions.finish+=/killing_spree
-  if FunnelON() and S.KillingSpree:IsCastable() and (Player:BuffDown(S.AdrenalineRush) or Player:BuffRemains(S.AdrenalineRush) > KSHastedDuration) then
+  if S.KillingSpree:IsCastable() and (Player:BuffDown(S.AdrenalineRush) or Player:BuffRemains(S.AdrenalineRush) > KSHastedDuration) then
     if ReturnSpellOnly then
       return S.KillingSpree
     else
