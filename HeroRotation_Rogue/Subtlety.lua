@@ -684,7 +684,7 @@ end
 
 -- # Items
 local function Items()
-  if Settings.Commons.Enabled.Trinkets then
+  if Settings.Commons.Enabled.Trinkets and CDsON() then
     -- actions.items=use_item,name=treacherous_transmitter,if=cooldown.flagellation.remains<=2|fight_remains<=15
     if I.TreacherousTransmitter:IsEquippedAndReady() and CDsON() then
       if S.Flagellation:CooldownRemains() <= 2 or S.Flagellation:IsReady() or Player:BuffUp(S.FlagellationBuff) or Player:BuffUp(S.FlagellationPersistBuff)
