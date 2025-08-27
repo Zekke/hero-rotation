@@ -85,6 +85,7 @@ Spell.Mage.Spellslinger = {
 
 Spell.Mage.Sunfury = {
   -- Talents
+  GloriousIncandescence                 = Spell(449394),
   SpellfireSpheres                      = Spell(448601),
   SunfuryExecution                      = Spell(449349),
   -- Buffs
@@ -155,44 +156,27 @@ Spell.Mage.Fire = MergeTableByKey(Spell.Mage.Commons, {
   Fireball                              = Spell(133),
   Flamestrike                           = Spell(2120),
   -- Talents
-  AlexstraszasFury                      = Spell(235870),
-  CalloftheSunKing                      = Spell(343222),
   Combustion                            = Spell(190319),
-  FeeltheBurn                           = Spell(383391),
-  Firefall                              = Spell(384033),
-  FlameAccelerant                       = Spell(203275),
   FireBlast                             = Spell(108853),
   Firestarter                           = Spell(205026),
-  FlamePatch                            = Spell(205037),
   Hyperthermia                          = Spell(383860),
   ImprovedScorch                        = Spell(383604),
   Kindling                              = Spell(155148),
   MarkoftheFirelord                     = Spell(450325),
   Meteor                                = Spell(153561),
   PhoenixFlames                         = Spell(257541),
-  PhoenixReborn                         = Spell(453123),
   Pyroblast                             = Spell(11366),
   Quickflame                            = Spell(450807),
-  Scald                                 = Spell(450746),
   Scorch                                = Spell(2948),
-  SpontaneousCombustion                 = Spell(451875),
   SunKingsBlessing                      = Spell(383886),
-  UnleashedInferno                      = Spell(416506),
   -- Buffs
+  BornofFlameBuff                       = Spell(1219307), -- TWW S2 Tier 4pc
   CombustionBuff                        = Spell(190319),
-  FeeltheBurnBuff                       = Spell(383395),
-  FlameAccelerantBuff                   = Spell(203277),
-  FlamesFuryBuff                        = Spell(409964), -- T30 4pc bonus
   HeatShimmerBuff                       = Spell(458964),
   HeatingUpBuff                         = Spell(48107),
   HotStreakBuff                         = Spell(48108),
   HyperthermiaBuff                      = Spell(383874),
-  RollinHotBuff                         = Spell(1219035), -- TWW S2 Tier 4pc
-  SunKingsBlessingBuff                  = Spell(383882),
   FuryoftheSunKingBuff                  = Spell(383883),
-  -- Tier Set Bonuses (TWW)
-  TWW_S2_2pcBuff                        = Spell(1219034), -- Lead the Chase
-  TWW_S2_4pcBuff                        = Spell(1219035), -- Rollin' Hot (same as RollinHotBuff)
   -- Debuffs
   IgniteDebuff                          = Spell(12654),
   ImprovedScorchDebuff                  = Spell(383608),
@@ -228,6 +212,7 @@ Spell.Mage.Frost = MergeTableByKey(Spell.Mage.Commons, {
   Freeze                                = Spell(33395), --splash, 8
   -- Buffs
   BrainFreezeBuff                       = Spell(190446),
+  ColdFrontReadyBuff                    = Spell(382114),
   DeathsChillBuff                       = Spell(454371),
   ExtendedBankrollBuff                  = Spell(1216914), -- TWW S2 Tier 4pc
   FingersofFrostBuff                    = Spell(44544),
@@ -255,30 +240,32 @@ Item.Mage.Commons = {
   ArazsRitualForge                      = Item(242402, {13, 14}),
   BurstofKnowledge                      = Item(231424, {13, 14}),
   ChaoticNethergate                     = Item(246825, {13, 14}),
+  FlarendosPilotLight                   = Item(230191, {13, 14}),
+  FunhouseLens                          = Item(234217, {13, 14}),
   HighSpeakersAccretion                 = Item(219303, {13, 14}),
   HouseOfCards                          = Item(230027, {13, 14}),
   ImperfectAscendancySerum              = Item(225654, {13, 14}),
   IncorporealEssencegorger              = Item(246945, {13, 14}),
-  LilyoftheEternalWeave                 = Item(242494, {13, 14}),
+  LilyOfTheEternalWeave                 = Item(242494, {13, 14}),
+  MereldarsToll                         = Item(219313, {13, 14}),
   PerfidiousProjector                   = Item(242403, {13, 14}),
   QuickwickCandlestick                  = Item(225649, {13, 14}),
   SignetOfThePriory                     = Item(219308, {13, 14}),
   SpymastersWeb                         = Item(220202, {13, 14}),
   TreacherousTransmitter                = Item(221023, {13, 14}),
-  FunhouseLens                          = Item(234217, {13, 14}),
-  FlarendosPilotLight                   = Item(230191, {13, 14}),
   -- TWW S2 Prior Expansion Items
   Blastmaster3000                       = Item(234717, {13, 14}),
   GarbagemancersLastResort              = Item(235984, {13, 14}),
   GeargrindersSpareKeys                 = Item(230197, {13, 14}),
   GooBlinGrenade                        = Item(200142, {13, 14}),
   IngeniousManaBattery                  = Item(169344, {13, 14}),
-  NeuralSynapseEnhancer                 = Item(168973, {16}),
   NoggenfoggerUltimateDeluxe            = Item(232486, {13, 14}),
   RatfangToxin                          = Item(235359, {13, 14}),
   RingingRitualMud                      = Item(232543, {13, 14}),
   SoullettingRuby                       = Item(178809, {13, 14}),
   SunbloodAmethyst                      = Item(178826, {13, 14}),
+  -- Non-Trinket Items
+  NeuralSynapseEnhancer                 = Item(168973, {16}),
 }
 
 Item.Mage.Arcane = MergeTableByKey(Item.Mage.Commons, {
@@ -286,11 +273,11 @@ Item.Mage.Arcane = MergeTableByKey(Item.Mage.Commons, {
   AberrantSpellforge                    = Item(212451, {13, 14}),
   FearbreakersEcho                      = Item(224449, {13, 14}),
   MadQueensMandate                      = Item(212454, {13, 14}),
-  MereldarsToll                         = Item(219313, {13, 14}),
 })
 
 Item.Mage.Fire = MergeTableByKey(Item.Mage.Commons, {
   -- TWW Gladiator's Badges
+  AstralGladiatorsBadge                 = Item(230638, {13, 14}),
   ForgedGladiatorsBadge                 = Item(218713, {13, 14}),
   PrizedGladiatorsBadge                 = Item(229780, {13, 14}),
   -- TWW Trinkets
