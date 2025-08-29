@@ -14,9 +14,13 @@ local Target            = Unit.Target
 local Spell             = HL.Spell
 local Item              = HL.Item
 -- Lua
+local ipairs            = ipairs
 local pairs             = pairs
 local gsub              = string.gsub
 -- API
+local GetTime           = GetTime
+local GetUnitEmpowerStageDuration = GetUnitEmpowerStageDuration
+local UnitChannelInfo   = UnitChannelInfo
 local UnitInParty       = UnitInParty
 local UnitInRaid        = UnitInRaid
 -- File Locals
@@ -75,7 +79,8 @@ function Commons.Interrupt(Spell, Setting, StunSpells)
       local SpellRange = (Spell.MaximumRange and Spell.MaximumRange > 0 and Spell.MaximumRange <= 100) and Spell.MaximumRange or 40
       local Enemies = Player:GetEnemiesInRange(SpellRange)
       local TargetGUID = Target:GUID()
-      for _, CycleUnit in pairs(Enemies) do
+      for j = 1, #Enemies do
+        local CycleUnit = Enemies[j]
         if CycleUnit:GUID() ~= TargetGUID and CycleUnit:IsInterruptible() then
           if Spell:IsCastable(true) and CycleUnit:IsSpellInRange(Spell) then
             CastLeftNameplate(CycleUnit, Spell)
@@ -107,7 +112,8 @@ function Commons.CastCycle(Object, Enemies, Condition, OutofRange, OffGCD, Displ
   end
   if AoEON() then
     local TargetGUID = Target:GUID()
-    for _, CycleUnit in pairs(Enemies) do
+    for i = 1, #Enemies do
+      local CycleUnit = Enemies[i]
       if CycleUnit:GUID() ~= TargetGUID and not CycleUnit:IsFacingBlacklisted() and (not CycleUnit:IsUserCycleBlacklisted()) and Condition(CycleUnit) then
         CastLeftNameplate(CycleUnit, Object)
         break
@@ -124,10 +130,12 @@ function Commons.CastTargetIf(Object, Enemies, TargetIfMode, TargetIfCondition, 
   end
   if AoEON() then
     local BestUnit, BestConditionValue = nil, nil
-    for _, CycleUnit in pairs(Enemies) do
+    for i = 1, #Enemies do
+      local CycleUnit = Enemies[i]
+      local CycleUnitCondition = TargetIfCondition(CycleUnit)
       if not CycleUnit:IsFacingBlacklisted() and not CycleUnit:IsUserCycleBlacklisted() and (CycleUnit:AffectingCombat() or CycleUnit:IsDummy())
-        and (not BestConditionValue or Utils.CompareThis(TargetIfMode, TargetIfCondition(CycleUnit), BestConditionValue)) then
-        BestUnit, BestConditionValue = CycleUnit, TargetIfCondition(CycleUnit)
+        and (not BestConditionValue or Utils.CompareThis(TargetIfMode, CycleUnitCondition, BestConditionValue)) then
+        BestUnit, BestConditionValue = CycleUnit, CycleUnitCondition
       end
     end
     if BestUnit then
@@ -140,24 +148,27 @@ function Commons.CastTargetIf(Object, Enemies, TargetIfMode, TargetIfCondition, 
   end
 end
 
+local BotBBuffIDs = {
+  [1] = 381758, -- Warrior
+  [2] = 381752, -- Paladin
+  [3] = 381749, -- Hunter (432655 Buff ID exists, but doesn't seem to be used)
+  [4] = 381754, -- Rogue
+  [5] = 381753, -- Priest
+  [6] = 381732, -- Death Knight
+  [7] = 381756, -- Shaman (432652? Unverified, but unlikely to be used, like the other extra Buff IDs)
+  [8] = 381750, -- Mage
+  [9] = 381757, -- Warlock
+  [10] = 381751, -- Monk
+  [11] = 381746, -- Druid (432658 Buff ID exists, but doesn't seem to be used)
+  [12] = 381741, -- Demon Hunter
+  [13] = 381748, -- Evoker (432658 Buff ID exists, but doesn't seem to be used)
+}
+
 function Commons.GroupBuffMissing(spell)
+  local SpellID = spell:ID()
   local range = 40
-  local BotBBuffIDs = {
-    [1] = 381758, -- Warrior
-    [2] = 381752, -- Paladin
-    [3] = 381749, -- Hunter (432655 Buff ID exists, but doesn't seem to be used)
-    [4] = 381754, -- Rogue
-    [5] = 381753, -- Priest
-    [6] = 381732, -- Death Knight
-    [7] = 381756, -- Shaman (432652? Unverified, but unlikely to be used, like the other extra Buff IDs)
-    [8] = 381750, -- Mage
-    [9] = 381757, -- Warlock
-    [10] = 381751, -- Monk
-    [11] = 381746, -- Druid (432658 Buff ID exists, but doesn't seem to be used)
-    [12] = 381741, -- Demon Hunter
-    [13] = 381748, -- Evoker (432658 Buff ID exists, but doesn't seem to be used)
-  }
-  if spell:ID() == 6673 then range = 100 end
+  
+  if SpellID == 6673 then range = 100 end
   if Player:BuffDown(spell, true) then return true end
   -- Are we in a party or raid?
   local Group
@@ -174,7 +185,7 @@ function Commons.GroupBuffMissing(spell)
   for _, Char in pairs(Group) do
     if Char:Exists() and not Char:IsDeadOrGhost() and Char:IsInRange(range) and not (Player:IsInDelve() and Char:Name() == "Brann Bronzebeard") then
       TotalChars = TotalChars + 1
-      if spell:ID() == 381748 then -- Blessing of the Bronze
+      if SpellID == 381748 then -- Blessing of the Bronze
         local _, _, CharClass = Char:Class()
         if Char:BuffUp(Spell(BotBBuffIDs[CharClass]), true) then
           BuffedChars = BuffedChars + 1
@@ -184,7 +195,7 @@ function Commons.GroupBuffMissing(spell)
       end
     end
   end
-  if spell:ID() == 381748 and BuffedChars < TotalChars then return true end
+  if SpellID == 381748 and BuffedChars < TotalChars then return true end
   return false
 end
 
@@ -200,8 +211,10 @@ function Commons.GetCurrentEmpowerData(stage)
         Start = LastFinish,
         Finish = LastFinish + GetUnitEmpowerStageDuration("player", i - 1) / 1000
       }
-      HR.Print(" Start"..i..": "..StagesData[i].Start)
-      HR.Print("Finish"..i..": "..StagesData[i].Finish)
+      if HR.DebugON() then
+        HR.Print(" Start", i, "- ", StagesData[i].Start)
+        HR.Print("Finish", i, "- ", StagesData[i].Finish)
+      end
       LastFinish = StagesData[i].Finish
       if StartTimeMS / 1000 + LastFinish <= GetTime() then
         CurrentStage = i
@@ -217,106 +230,71 @@ function Commons.GetCurrentEmpowerData(stage)
 end
 
 -- Check if player's selected potion type is ready
+local Classes = { "Warrior", "Paladin", "Hunter", "Rogue", "Priest", "DeathKnight", "Shaman", "Mage", "Warlock", "Monk", "Druid", "DemonHunter", "Evoker" }
+local Specs = {
+  -- DeathKnight
+  [250] = "Blood", [251] = "Frost", [252] = "Unholy",
+  -- DemonHunter
+  [577] = "Havoc", [581] = "Vengeance",
+  -- Druid
+  [102] = "Balance", [103] = "Feral", [104] = "Guardian", [105] = "Restoration", 
+  -- Evoker
+  [1467] = "Devastation", [1468] = "Preservation", [1473] = "Augmentation",
+  -- Hunter
+  [253] = "BeastMastery", [254] = "Marksmanship", [255] = "Survival",
+  -- Mage
+  [62] = "Arcane", [63] = "Fire", [64] = "Frost",
+  -- Monk
+  [268] = "Brewmaster", [269] = "Windwalker", [270] = "Mistweaver",
+  -- Paladin
+  [65] = "Holy", [66] = "Protection", [70] = "Retribution",
+  --Priest
+  [256] = "Discipline", [257] = "Holy", [258] = "Shadow",
+  -- Rogue
+  [259] = "Assassination", [260] = "Outlaw", [261] = "Subtlety",
+  -- Shaman
+  [262] = "Elemental", [263] = "Enhancement", [264] = "Restoration",
+  -- Warlock
+  [265] = "Affliction", [266] = "Demonology", [267] = "Destruction",
+  -- Warrior
+  [71] = "Arms", [72] = "Fury", [73] = "Protection",
+}
+-- TWW Potions (Fleeting rank 3->1, Regular rank 3->1)
+local TemperedIDs = { 212971, 212970, 212969, 212265, 212264, 212263 }
+local UnwaveringFocusIDs = { 212965, 212964, 212963, 212259, 212258, 212257 }
+local FrontlineIDs = { 212968, 212967, 212966, 212262, 212261, 212260 }
+
 function Commons.PotionSelected()
-  local Classes = { "Warrior", "Paladin", "Hunter", "Rogue", "Priest", "DeathKnight", "Shaman", "Mage", "Warlock", "Monk", "Druid", "DemonHunter", "Evoker" }
   local ClassNum = Cache.Persistent.Player.Class[3]
   local Class = Classes[ClassNum]
 
-  local Specs = {
-    -- DeathKnight
-    [250] = "Blood", [251] = "Frost", [252] = "Unholy",
-    -- DemonHunter
-    [577] = "Havoc", [581] = "Vengeance",
-    -- Druid
-    [102] = "Balance", [103] = "Feral", [104] = "Guardian", [105] = "Restoration", 
-    -- Evoker
-    [1467] = "Devastation", [1468] = "Preservation", [1473] = "Augmentation",
-    -- Hunter
-    [253] = "BeastMastery", [254] = "Marksmanship", [255] = "Survival",
-    -- Mage
-    [62] = "Arcane", [63] = "Fire", [64] = "Frost",
-    -- Monk
-    [268] = "Brewmaster", [269] = "Windwalker", [270] = "Mistweaver",
-    -- Paladin
-    [65] = "Holy", [66] = "Protection", [70] = "Retribution",
-    --Priest
-    [256] = "Discipline", [257] = "Holy", [258] = "Shadow",
-    -- Rogue
-    [259] = "Assassination", [260] = "Outlaw", [261] = "Subtlety",
-    -- Shaman
-    [262] = "Elemental", [263] = "Enhancement", [264] = "Restoration",
-    -- Warlock
-    [265] = "Affliction", [266] = "Demonology", [267] = "Destruction",
-    -- Warrior
-    [71] = "Arms", [72] = "Fury", [73] = "Protection",
-  }
   local SpecNum = Cache.Persistent.Player.Spec[1]
   local Spec = Specs[SpecNum]
 
   local PotionType = HR.GUISettings.APL[Class][Spec].PotionType.Selected
-  local PowerPotionIDs = {
-    -- Fleeting Ultimate Power
-    191914, 191913, 191912,
-    -- Fleeting Power
-    191907, 191906, 191905,
-    -- Ultimate Power
-    191383, 191382, 191381,
-    -- Power
-    191389, 191388, 191387
-  }
-  -- TWW Potions
-  local TemperedIDs = { 212265, 212264, 212263 }
-  local UnwaveringFocusIDs = { 212259, 212258, 212257 }
-  local FrontlineIDs = { 212262, 212261, 212260 }
-  if PotionType == "Tempered" then
-    for _, PotionID in ipairs(TemperedIDs) do
+  -- If the user hasn't selected a TWW potion type, they might still have a DF type. Default to Tempered.
+  if PotionType == "Tempered" or PotionType ~= "Unwavering Focus" and PotionType ~= "Frontline" then
+    for i = 1, #TemperedIDs do
+      local PotionID = TemperedIDs[i]
       if Item(PotionID):IsUsable() then
         return Item(PotionID)
       end
     end
   elseif PotionType == "Unwavering Focus" then
-    for _, PotionID in ipairs(UnwaveringFocusIDs) do
+    for i = 1, #UnwaveringFocusIDs do
+      local PotionID = UnwaveringFocusIDs[i]
       if Item(PotionID):IsUsable() then
         return Item(PotionID)
       end
     end
   elseif PotionType == "Frontline" then
-    for _, PotionID in ipairs(FrontlineIDs) do
+    for i = 1, #FrontlineIDs do
+      local PotionID = FrontlineIDs[i]
       if Item(PotionID):IsUsable() then
         return Item(PotionID)
       end
     end
   end
-  -- DF Potions
-  -- Deprecated. Will be removed when all profiles are updated.
-  local FrozenFocusIDs = { 191365, 191364, 191363 }
-  local ChilledClarityIDs = { 191368, 191367, 191366 }
-  local ShockingDisclosureIDs = { 191401, 191400, 191399 }
-  if PotionType == "Power" then
-    for _, PotionID in ipairs(PowerPotionIDs) do
-      if Item(PotionID):IsUsable() then
-        return Item(PotionID)
-      end
-    end
-  elseif PotionType == "Frozen Focus" then
-    for _, PotionID in ipairs(FrozenFocusIDs) do
-      if Item(PotionID):IsUsable() then
-        return Item(PotionID)
-      end
-    end
-  elseif PotionType == "Chilled Clarity" then
-    for _, PotionID in ipairs(ChilledClarityIDs) do
-      if Item(PotionID):IsUsable() then
-        return Item(PotionID)
-      end
-    end
-  elseif PotionType == "Shocking Disclosure" then
-    for _, PotionID in ipairs(ShockingDisclosureIDs) do
-      if Item(PotionID):IsUsable() then
-        return Item(PotionID)
-      end
-    end
-  else
-    return nil
-  end
+  -- Should never reach here, but just in case.
+  return nil
 end
