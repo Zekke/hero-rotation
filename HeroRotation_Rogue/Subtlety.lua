@@ -17,7 +17,7 @@ local ValueIsInArray = HL.Utils.ValueIsInArray
 -- HeroRotation
 local HR = HeroRotation
 local AoEON = HR.AoEON
---local CDsON = HR.CDsON
+local CDsON = HR.CDsON
 local FunnelON   = HR.FunnelON
 local Cast = HR.Cast
 local CastLeftNameplate = HR.CastLeftNameplate
@@ -88,22 +88,6 @@ SetTrinketVariables()
 HL:RegisterForEvent(function()
   SetTrinketVariables()
 end, "PLAYER_EQUIPMENT_CHANGED")
-
-local function CDsON()
-  local CurrentTimer = HL.CombatTime()
-   --HR.Print("current timer = " .. tostring(CurrentTimer))
-   --HR.Print("current Target = " .. tostring(Target:NPCID()))
-  --217491 217489 218884 (silken court)
-  if Target:NPCID() == 217491 or Target:NPCID() == 217489 or Target:NPCID() == 218884 then
-    if (CurrentTimer > 20 and CurrentTimer < 45) or (CurrentTimer > 90 and CurrentTimer < 105) or (CurrentTimer > 115 and CurrentTimer < 131) then
-      --HR.Print("Return False")
-      return false
-    end
-  end
-  --HR.Print("Return " .. tostring(HR.CDsON()))
-  return HR.CDsON()
-end
---local CDsON = DelayCDs
 
 S.Eviscerate:RegisterDamageFormula(
 -- Eviscerate DMG Formula (Pre-Mitigation):
@@ -267,7 +251,7 @@ end
 -- ReturnSpellOnly and StealthSpell parameters are to Predict Finisher in case of Stealth Macros
 local function Finish (ReturnSpellOnly, ForceStealth)
   -- actions.finish=secret_technique,if=variable.secret
-  if S.SecretTechnique:IsCastable() and (Secret or ForceStealth) then
+  if S.SecretTechnique:IsCastable() and (Secret) then
       if ReturnSpellOnly then
         return S.SecretTechnique
       end
@@ -278,10 +262,10 @@ local function Finish (ReturnSpellOnly, ForceStealth)
 
   -- # Maintenance Finisher
   -- actions.finish+=/rupture,if=!variable.skip_rupture&(!dot.rupture.ticking|refreshable|buff.flagellation_buff.up
-  -- &!buff.symbols_of_death.up&variable.targets<=2)&target.time_to_die-remains>6
+  -- &!buff.symbols_of_death.up&variable.targets<=2)&target.time_to_die-remains>6&cooldown.flagellation.remains>=10
   if S.Rupture:IsCastable() then
     if not SkipRupture and (Target:DebuffDown(S.Rupture) or Target:DebuffRefreshable(S.Rupture, RuptureThreshold) or Player:BuffUp(S.FlagellationBuff)
-    and Player:BuffDown(S.SymbolsofDeath) and MeleeEnemies10yCount <= 2) and Target:TimeToDie() > 6 then
+    and Player:BuffDown(S.SymbolsofDeath) and MeleeEnemies10yCount <= 2) and Target:TimeToDie() > 6 and (S.Flagellation:CooldownRemains() >= 10 or not CDsON()) then
       if ReturnSpellOnly then
         return S.Rupture
       else
@@ -304,26 +288,11 @@ local function Finish (ReturnSpellOnly, ForceStealth)
     end
   end
 
-  -- actions.finish+=/rupture,if=talent.unseen_blade&cooldown.flagellation.remains<10&variable.targets>=3
-  -- &dot.rupture.remains<fight_remains
-  if S.Rupture:IsCastable() then
-    if S.UnseenBlade:IsAvailable() and S.Flagellation:CooldownRemains() < 10 and MeleeEnemies10yCount >= 3
-      and (Target:DebuffRemains(S.Rupture) < HL.FightRemains(MeleeEnemies10y, false)) then
-      if ReturnSpellOnly then
-        return S.Rupture
-      else
-        if CastPooling(S.Rupture, nil, not Target:IsSpellInRange(S.Rupture)) then
-          return "Cast Rupture"
-        end
-      end
-    end
-  end
-
   -- # Direct Damage Finisher
   -- actions.finish+=/coup_de_grace,if=debuff.fazed.up&cooldown.flagellation.remains>=20|fight_remains<=10
   if S.CoupDeGrace:IsCastable() then
     if Target:DebuffUp(S.FazedDebuff) and (S.Flagellation:CooldownRemains() >= 20
-      or HL.BossFilteredFightRemains("<=", 10)) then
+      or HL.BossFilteredFightRemains("<=", 10) or not CDsON()) then
       if ReturnSpellOnly then
         return S.CoupDeGrace
       else
@@ -354,7 +323,7 @@ local function Finish (ReturnSpellOnly, ForceStealth)
 
   -- actions.finish+=/eviscerate,if=cooldown.flagellation.remains>=10|variable.targets>=3
   if S.Eviscerate:IsCastable() then
-    if (S.Flagellation:IsReady() or S.Flagellation:CooldownRemains() >= 10 or not CDsON()) or MeleeEnemies10yCount >= 3 then
+    if (S.Flagellation:CooldownRemains() >= 10 or not CDsON()) or (MeleeEnemies10yCount >= 3 and not Target:NPCID() == 241800) or (MeleeEnemies10yCount >= 3 and Target:NPCID() == 241800 and S.Flagellation:CooldownRemains() >= 8) then
       if ReturnSpellOnly then
         return S.Eviscerate
       else
@@ -612,9 +581,10 @@ local function CDs ()
   if HR.CDsON() and S.SymbolsofDeath:IsReady() then
     if (Player:BuffRemains(S.SymbolsofDeath) <= 3.5 and Maintenance
       and (MeleeEnemies10yCount >=3 or Player:BuffDown(S.FlagellationBuff) or Target:DebuffRemains(S.Rupture) >= 30)
-      and (not S.Flagellation:IsAvailable() or (S.Flagellation:CooldownRemains() >= 30 - 15 * num(not S.DeathPerception:IsAvailable())
-      or S.Flagellation:IsReady())
-      and S.SecretTechnique:CooldownRemains() < 8 or not S.DeathPerception:IsAvailable()) or HL.BossFilteredFightRemains("<=", 15)) then
+      and (not S.Flagellation:IsAvailable() or (S.Flagellation:CooldownRemains() >= 30 - 15 * num(not S.DeathPerception:IsAvailable()))
+      -- and S.SecretTechnique:CooldownRemains() < 8 or not S.DeathPerception:IsAvailable()) or HL.BossFilteredFightRemains("<=", 15))
+      and S.SecretTechnique:CooldownRemains() < 8 or not S.DeathPerception:IsAvailable()))
+      and not Player:PrevGCD(1,S.Flagellation) then
       if Cast(S.SymbolsofDeath, Settings.Subtlety.OffGCDasOffGCD.SymbolsofDeath) then
         return "Cast Symbols of Death"
       end
@@ -642,10 +612,8 @@ local function CDs ()
 
   -- actions.cds+=/flagellation,if=combo_points>=5&cooldown.shadow_blades.remains<=3|fight_remains<=25
   if HR.CDsON() and S.Flagellation:IsAvailable() and S.Flagellation:IsReady()
-    and (S.ShadowDance:IsReady() or Player:BuffUp(S.ShadowDanceBuff))
-    and (S.SymbolsofDeath:IsReady() or Player:BuffUp(S.SymbolsofDeath))
     and (S.ShadowBlades:IsReady() or Player:BuffUp(S.ShadowBlades) or S.ShadowBlades:CooldownRemains() <=3) then
-    if ComboPoints >= 5
+    if ComboPoints > 5
       or HL.BossFilteredFightRemains("<=", 25) then
       if Cast(S.Flagellation, nil, Settings.CommonsDS.DisplayStyle.Flagellation, not Target:IsSpellInRange(S.Flagellation)) then
         return "Cast Flagellation"
@@ -727,7 +695,8 @@ local function Items()
     if I.UnyieldingNetherprism:IsEquippedAndReady() then
       if Player:BuffUp(S.ShadowBlades) and (Player:BuffStack(S.LatentEnergyBuff) >= 8 + 8*num(I.ArazsRitualForge:IsReady()
         or not I.ArazsRitualForge:IsEquipped()) or not I.ArazsRitualForge:IsEquipped() and HL.BossFilteredFightRemains('<=', 90))
-        or HL.BossFilteredFightRemains('<=', 20) then
+        -- or HL.BossFilteredFightRemains('<=', 20)
+        then
         if Cast(I.UnyieldingNetherprism, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then
           return "Unyielding Netherprism"
         end
@@ -795,7 +764,8 @@ local function Stealth_CDs ()
     if S.ShadowDance:IsReady() then
       if (ShdCp or not S.Premeditation:IsAvailable()) and Maintenance
         and (S.SecretTechnique:CooldownRemains() <= 24 or S.TheFirstDance:IsAvailable() and Player:BuffUp(S.ShadowBlades))
-        and (Player:BuffRemains(S.SymbolsofDeath) >= 6 or Player:BuffRemains(S.ShadowBlades) >= 6) or HL.BossFilteredFightRemains("<=", 10) then
+        -- and (Player:BuffRemains(S.SymbolsofDeath) >= 6 or Player:BuffRemains(S.ShadowBlades) >= 6) or HL.BossFilteredFightRemains("<=", 10) then
+        and (Player:BuffRemains(S.SymbolsofDeath) >= 6 or Player:BuffRemains(S.ShadowBlades) >= 6) then
         ShouldReturn = StealthMacro(S.ShadowDance)
         if ShouldReturn then
           return "Shadow Dance Macro " .. ShouldReturn
@@ -907,9 +877,9 @@ local function APL ()
 
   -- actions+=/variable,name=secret,value=buff.shadow_dance.up&!buff.darkest_night.up|(cooldown.flagellation.remains<60
   -- &cooldown.flagellation.remains>30&talent.death_perception&talent.unseen_blade)
-  local ZTB = _G.ZTB_API
-  Secret = (Player:BuffUp(S.SymbolsofDeath) or not ZTB.GetCurrentEncounterId() == 3132) and Player:BuffUp(S.ShadowDanceBuff) and Player:BuffDown(S.DarkestNightBuff) or (S.Flagellation:CooldownRemains() < 60
-    and S.Flagellation:CooldownRemains() > 30 and S.DeathPerception:IsAvailable() and S.UnseenBlade:IsAvailable())
+
+  Secret = Player:BuffUp(S.ShadowDanceBuff) and Player:BuffDown(S.DarkestNightBuff) or (S.Flagellation:CooldownRemains() < 60
+    and S.Flagellation:CooldownRemains() > 30 and S.DeathPerception:IsAvailable() and S.UnseenBlade:IsAvailable() and CDsON())
 
   -- actions+=/variable,name=racial_sync,value=(buff.shadow_blades.up&buff.shadow_dance.up)|!talent.shadow_blades&buff.symbols_of_death.up|fight_remains<20
   RacialSync = (Player:BuffUp(S.ShadowBlades) and Player:BuffUp(S.ShadowDanceBuff)) or not S.ShadowBlades:IsAvailable() and Player:BuffUp(S.SymbolsofDeath) or HL.BossFilteredFightRemains("<", 20)
@@ -1030,8 +1000,8 @@ local function APL ()
     -- # Finishing Rules
     -- actions+=/call_action_list,name=finish,if=!buff.darkest_night.up&effective_combo_points>=6|buff.darkest_night.up
     -- &combo_points==cp_max_spend|action.coup_de_grace.ready&cooldown.secret_technique.remains>0
-    if Player:BuffDown(S.DarkestNightBuff) and EffectiveComboPoints >= 6 or Player:BuffUp(S.DarkestNightBuff)
-      and ComboPoints == Rogue.CPMaxSpend() or S.CoupDeGrace:IsReady() and S.SecretTechnique:CooldownRemains() > 0 then
+    if (Player:BuffDown(S.DarkestNightBuff) and EffectiveComboPoints >= 6) or (Player:BuffUp(S.DarkestNightBuff)
+      and ComboPoints == Rogue.CPMaxSpend()) or (S.CoupDeGrace:IsReady() and S.SecretTechnique:CooldownRemains() > 0) then
       ShouldReturn = Finish()
       if ShouldReturn then
         return "Finish: " .. ShouldReturn
