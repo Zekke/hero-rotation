@@ -588,7 +588,7 @@ local function Cooldown()
     end
     -- use_item,name=bestinslots,use_off_gcd=1,if=fight_remains<=20
     if I.BestinSlotsMelee:IsEquippedAndReady() and (BossFightRemains <= 20) then
-      if Cast(I.BestinSlotsMelee, nil, Settings.CommonsDS.DisplayStyle.Items) then return "bestinslots cooldown 26"; end
+      if Cast(I.BestinSlotsMelee, nil, Settings.CommonsDS.DisplayStyle.Items) then return "bestinslots cooldown 22"; end
     end
   end
   -- do_treacherous_transmitter_task,if=buff.tigers_fury.up|fight_remains<22
@@ -688,7 +688,7 @@ local function Variables()
   -- Note: Moved above rip_duration, as this variable is used in defining that variable and causes an error otherwise.
   VarRipMaxPandemicDuration = ((4 + (4 * ComboPoints)) * (1 - (0.2 * num(S.CircleofLifeandDeath:IsAvailable()))) * (1 + (0.25 * num(S.Veinripper:IsAvailable())))) * 0.3
   -- variable,name=rip_duration,value=((4+(4*combo_points))*(1-(0.2*talent.circle_of_life_and_death))*(1+(0.25*talent.veinripper)))+(variable.rip_max_pandemic_duration>?dot.rip.remains)
-  local VarRipDuration = ((4 + (4 * ComboPoints)) * (1 - (0.2 * num(S.CircleofLifeandDeath:IsAvailable()))) * (1 + (0.25 * num(S.Veinripper:IsAvailable())))) + mathmin(VarRipMaxPandemicDuration, Target:DebuffRemains(S.RipDebuff))
+  VarRipDuration = ((4 + (4 * ComboPoints)) * (1 - (0.2 * num(S.CircleofLifeandDeath:IsAvailable()))) * (1 + (0.25 * num(S.Veinripper:IsAvailable())))) + mathmin(VarRipMaxPandemicDuration, Target:DebuffRemains(S.RipDebuff))
   -- variable,name=dot_refresh_soon,value=(!talent.thrashing_claws&(dot.thrash_cat.remains-dot.thrash_cat.duration*0.3<=2))|(talent.lunar_inspiration&(dot.moonfire_cat.remains-dot.moonfire_cat.duration*0.3<=2))|((dot.rake.pmultiplier<1.6|buff.sudden_ambush.up)&(dot.rake.remains-dot.rake.duration*0.3<=2))
   -- TODO: Variable is currently only used in a single 0.2s pool, so we're ignoring it for now.
   -- variable,name=need_bt,value=talent.bloodtalons&buff.bloodtalons.stack<=1
@@ -814,6 +814,50 @@ local function APL()
     if CDsON() and Target:DebuffUp(S.RipDebuff) then
       local ShouldReturn = Cooldown(); if ShouldReturn then return ShouldReturn; end
     end
+    -- Debug variables / fonctions potentiellement nil
+HL.Print("=== DEBUG Rip condition ===")
+
+HL.Print("S.Rip: " .. tostring(S.Rip))
+if S.Rip then
+    HL.Print("S.Rip:IsReady(): " .. tostring(S.Rip:IsReady()))
+end
+
+HL.Print("S.RipandTear: " .. tostring(S.RipandTear))
+if S.RipandTear then
+    HL.Print("S.RipandTear:IsAvailable(): " .. tostring(S.RipandTear:IsAvailable()))
+end
+
+HL.Print("EnemiesCountMelee: " .. tostring(EnemiesCountMelee))
+
+HL.Print("Player: " .. tostring(Player))
+if Player then
+    HL.Print("Player:HeroTreeID(): " .. tostring(Player:HeroTreeID()))
+    HL.Print("Player:BuffUp(S.TigersFury): " .. tostring(Player:BuffUp(S.TigersFury)))
+    HL.Print("Player:BuffDown(BsInc): " .. tostring(Player:BuffDown(BsInc)))
+    HL.Print("Player:BuffUp(S.BloodtalonsBuff): " .. tostring(Player:BuffUp(S.BloodtalonsBuff)))
+    HL.Print("Player:BuffRemains(S.TigersFury): " .. tostring(Player:BuffRemains(S.TigersFury)))
+end
+
+HL.Print("S.Bloodtalons: " .. tostring(S.Bloodtalons))
+if S.Bloodtalons then
+    HL.Print("S.Bloodtalons:IsAvailable(): " .. tostring(S.Bloodtalons:IsAvailable()))
+end
+
+HL.Print("ComboPoints: " .. tostring(ComboPoints))
+HL.Print("VarRipDuration: " .. tostring(VarRipDuration))
+
+HL.Print("Target: " .. tostring(Target))
+if Target then
+    HL.Print("Target:DebuffRefreshable(S.RipDebuff): " .. tostring(Target:DebuffRefreshable(S.RipDebuff)))
+    HL.Print("Target:DebuffRemains(S.RipDebuff): " .. tostring(Target:DebuffRemains(S.RipDebuff)))
+end
+
+HL.Print("S.TigersFury: " .. tostring(S.TigersFury))
+if S.TigersFury then
+    HL.Print("S.TigersFury:CooldownRemains(): " .. tostring(S.TigersFury:CooldownRemains()))
+end
+
+HL.Print("=== END DEBUG ===")
     -- rip,if=talent.rip_and_tear&spell_targets=1&hero_tree.wildstalker&buff.tigers_fury.up&!buff.bs_inc.up&(buff.bloodtalons.up|!talent.bloodtalons)&(combo_points>=3&refreshable&cooldown.tigers_fury.remains>25|buff.tigers_fury.remains<5&variable.rip_duration>cooldown.tigers_fury.remains&cooldown.tigers_fury.remains>=dot.rip.remains)
     if S.Rip:IsReady() and (S.RipandTear:IsAvailable() and EnemiesCountMelee == 1 and Player:HeroTreeID() == 22 and Player:BuffUp(S.TigersFury) and Player:BuffDown(BsInc) and (Player:BuffUp(S.BloodtalonsBuff) or not S.Bloodtalons:IsAvailable()) and (ComboPoints >= 3 and Target:DebuffRefreshable(S.RipDebuff) and S.TigersFury:CooldownRemains() > 25 or Player:BuffRemains(S.TigersFury) < 5 and VarRipDuration > S.TigersFury:CooldownRemains() and S.TigersFury:CooldownRemains() >= Target:DebuffRemains(S.RipDebuff))) then
       if Cast(S.Rip, nil, nil, not IsInMeleeRange) then return "rip main 20"; end
