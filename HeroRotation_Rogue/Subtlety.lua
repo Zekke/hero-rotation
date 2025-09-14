@@ -247,6 +247,75 @@ local function Trinket_Sync_Slot()
   return TrinketSyncSlot
 end
 
+--- ======= CUSTOM =======
+local currentEncounterID = nil
+local currentDifficulty = nil
+
+local function EncounterEventHandler(self, event, encounterID, encounterName, difficulty, raidSize)
+    if event == "ENCOUNTER_START" then
+      currentEncounterID = encounterID
+      currentDifficulty = difficulty
+      --HR.Print("CurrentID = " .. tostring(currentEncounterID))
+      --HR.Print("CurrentDifficulty = " .. tostring(currentDifficulty))
+    elseif event == "ENCOUNTER_END" then
+      currentEncounterID = nil
+      currentDifficulty = nil
+    end
+end
+
+local frame = CreateFrame("Frame")
+frame:RegisterEvent("ENCOUNTER_START")
+frame:RegisterEvent("ENCOUNTER_END")
+frame:SetScript("OnEvent", EncounterEventHandler)
+
+local function CustomDefensives ()
+  local bossSpellName, _, _, startTimeMS, endTimeMS, _, _, _, bossSpellID = UnitCastingInfo("boss1")
+  local bossRemainingCastTime
+
+  if bossSpellName then
+    bossRemainingCastTime = (endTimeMS - (GetTime() * 1000))/1000
+    -- HR.Print("Boss is casting " .. bossSpellName .. " (" .. tostring(bossSpellID) ..") in " .. tostring(bossRemainingCastTime) .. "s.")
+  end
+
+  -- Aggramar(2063)
+  if currentEncounterID == 2063 then
+    if bossSpellName then
+      if bossSpellID == 244693 then
+        if S.Feint:IsCastable() and bossRemainingCastTime < 6 and (Player:BuffDown(S.Feint) and (Player:BuffDown(S.CloakofShadows) or Player:BuffRemains(S.CloakofShadows) < bossRemainingCastTime)) then
+          if Cast(S.Feint, Settings.CommonsOGCD.GCDasOffGCD.Feint) then
+            return "Cast Feint"
+          end
+        end
+      end
+    end
+  end
+
+  -- Mythic(16) / Heroic(15) Dimensius(3135)
+  if currentEncounterID == 3135 and (currentDifficulty == 16 or currentDifficulty == 15) then
+    -- P1
+    -- Casting Massive Smash (1230087)
+    if bossSpellName then
+      if bossSpellID == 1230087 or bossSpellID == 1242095 or bossSpellID == 1231195 then
+        if S.Feint:IsCastable() and bossRemainingCastTime < 6 and (Player:BuffDown(S.Feint) and (Player:BuffDown(S.CloakofShadows) or Player:BuffRemains(S.CloakofShadows) < bossRemainingCastTime)) then
+          if Cast(S.Feint, Settings.CommonsOGCD.GCDasOffGCD.Feint) then
+            return "Cast Feint (Dimensius's Massive Smash)"
+          end
+        end
+      end
+    end
+    -- Shattered Space (1243690)
+    if bossSpellName then
+      if bossSpellID == 1243690 or bossSpellID == 1243693 or bossSpellID == 1243694 then
+        if S.Feint:IsCastable() and bossRemainingCastTime < 6 and (Player:BuffDown(S.Feint) and (Player:BuffDown(S.CloakofShadows) or Player:BuffRemains(S.CloakofShadows) < bossRemainingCastTime)) then
+          if Cast(S.Feint, Settings.CommonsOGCD.GCDasOffGCD.Feint) then
+            return "Cast Feint (Dimensius's Shattered Space)"
+          end
+        end
+      end
+    end
+  end
+end
+
 -- # Finishers
 -- ReturnSpellOnly and StealthSpell parameters are to Predict Finisher in case of Stealth Macros
 local function Finish (ReturnSpellOnly, ForceStealth)
@@ -603,7 +672,7 @@ local function CDs ()
       and (MeleeEnemies10yCount > 1 or Player:BuffDown(S.FlagellationBuff) or Target:DebuffRemains(S.Rupture) >= 30)
       and (not S.Flagellation:IsAvailable() or S.Flagellation:CooldownRemains() >= 30 - 15 * num(not S.DeathPerception:IsAvailable())
       or (S.Flagellation:IsReady() and Settings.Subtlety.DontHoldForCDs)
-      and S.SecretTechnique:CooldownRemains() < 8 or not S.DeathPerception:IsAvailable()) or HL.BossFilteredFightRemains("<=", 15))
+      and S.SecretTechnique:CooldownRemains() < 8 or not S.DeathPerception:IsAvailable()))
       and not Player:PrevGCD(1,S.Flagellation) then
       if Cast(S.SymbolsofDeath, Settings.Subtlety.OffGCDasOffGCD.SymbolsofDeath) then
         return "Cast Symbols of Death"
@@ -925,6 +994,10 @@ local function APL ()
   RuptureDMGThreshold = S.Eviscerate:Damage() * Settings.Subtlety.EviscerateDMGOffset; -- Used to check if Rupture is worth to be casted since it's a finisher.
 
   --- Defensives
+  ShouldReturn = CustomDefensives()
+  if ShouldReturn then
+   return ShouldReturn
+  end
   -- Crimson Vial
   ShouldReturn = Rogue.CrimsonVial()
   if ShouldReturn then

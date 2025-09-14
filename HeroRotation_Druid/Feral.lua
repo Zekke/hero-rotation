@@ -783,7 +783,7 @@ local function APL()
         TarTTD = enemy:TimeToDie()
       end
     end
-    if S.TigersFury:IsCastable() and ((Player:HeroTreeID() == 22 and (not S.Bloodtalons:IsAvailable() or Player:BuffUp(S.BloodtalonsBuff)) and RefreshRip and ComboPoints >= 3 and S.RipandTear:IsAvailable() or ComboPoints == 5) and (BossFightRemains <= 15 or BsInc:CooldownRemains() > 20 and TarTTD > 5 or BsInc:CooldownUp() and TarTTD > 12 or TarTTD == BossFightRemains)) then
+    if S.TigersFury:IsCastable() and not ((BsInc:CooldownUp() or BsInc:CooldownRemains() < 20) and not CDsON()) and ((Player:HeroTreeID() == 22 and (not S.Bloodtalons:IsAvailable() or Player:BuffUp(S.BloodtalonsBuff)) and RefreshRip and ComboPoints >= 3 and S.RipandTear:IsAvailable() or ComboPoints == 5) and (BossFightRemains <= 15 or BsInc:CooldownRemains() > 20 and TarTTD > 5 or BsInc:CooldownUp() and TarTTD > 12 or TarTTD == BossFightRemains)) then
       if Cast(S.TigersFury, Settings.Feral.OffGCDasOffGCD.TigersFury) then return "tigers_fury main 6"; end
     end
     -- rake,target_if=max:refreshable+(persistent_multiplier>dot.rake.pmultiplier),if=buff.shadowmeld.up|buff.prowl.up
@@ -814,50 +814,6 @@ local function APL()
     if CDsON() and Target:DebuffUp(S.RipDebuff) then
       local ShouldReturn = Cooldown(); if ShouldReturn then return ShouldReturn; end
     end
-    -- Debug variables / fonctions potentiellement nil
-HL.Print("=== DEBUG Rip condition ===")
-
-HL.Print("S.Rip: " .. tostring(S.Rip))
-if S.Rip then
-    HL.Print("S.Rip:IsReady(): " .. tostring(S.Rip:IsReady()))
-end
-
-HL.Print("S.RipandTear: " .. tostring(S.RipandTear))
-if S.RipandTear then
-    HL.Print("S.RipandTear:IsAvailable(): " .. tostring(S.RipandTear:IsAvailable()))
-end
-
-HL.Print("EnemiesCountMelee: " .. tostring(EnemiesCountMelee))
-
-HL.Print("Player: " .. tostring(Player))
-if Player then
-    HL.Print("Player:HeroTreeID(): " .. tostring(Player:HeroTreeID()))
-    HL.Print("Player:BuffUp(S.TigersFury): " .. tostring(Player:BuffUp(S.TigersFury)))
-    HL.Print("Player:BuffDown(BsInc): " .. tostring(Player:BuffDown(BsInc)))
-    HL.Print("Player:BuffUp(S.BloodtalonsBuff): " .. tostring(Player:BuffUp(S.BloodtalonsBuff)))
-    HL.Print("Player:BuffRemains(S.TigersFury): " .. tostring(Player:BuffRemains(S.TigersFury)))
-end
-
-HL.Print("S.Bloodtalons: " .. tostring(S.Bloodtalons))
-if S.Bloodtalons then
-    HL.Print("S.Bloodtalons:IsAvailable(): " .. tostring(S.Bloodtalons:IsAvailable()))
-end
-
-HL.Print("ComboPoints: " .. tostring(ComboPoints))
-HL.Print("VarRipDuration: " .. tostring(VarRipDuration))
-
-HL.Print("Target: " .. tostring(Target))
-if Target then
-    HL.Print("Target:DebuffRefreshable(S.RipDebuff): " .. tostring(Target:DebuffRefreshable(S.RipDebuff)))
-    HL.Print("Target:DebuffRemains(S.RipDebuff): " .. tostring(Target:DebuffRemains(S.RipDebuff)))
-end
-
-HL.Print("S.TigersFury: " .. tostring(S.TigersFury))
-if S.TigersFury then
-    HL.Print("S.TigersFury:CooldownRemains(): " .. tostring(S.TigersFury:CooldownRemains()))
-end
-
-HL.Print("=== END DEBUG ===")
     -- rip,if=talent.rip_and_tear&spell_targets=1&hero_tree.wildstalker&buff.tigers_fury.up&!buff.bs_inc.up&(buff.bloodtalons.up|!talent.bloodtalons)&(combo_points>=3&refreshable&cooldown.tigers_fury.remains>25|buff.tigers_fury.remains<5&variable.rip_duration>cooldown.tigers_fury.remains&cooldown.tigers_fury.remains>=dot.rip.remains)
     if S.Rip:IsReady() and (S.RipandTear:IsAvailable() and EnemiesCountMelee == 1 and Player:HeroTreeID() == 22 and Player:BuffUp(S.TigersFury) and Player:BuffDown(BsInc) and (Player:BuffUp(S.BloodtalonsBuff) or not S.Bloodtalons:IsAvailable()) and (ComboPoints >= 3 and Target:DebuffRefreshable(S.RipDebuff) and S.TigersFury:CooldownRemains() > 25 or Player:BuffRemains(S.TigersFury) < 5 and VarRipDuration > S.TigersFury:CooldownRemains() and S.TigersFury:CooldownRemains() >= Target:DebuffRemains(S.RipDebuff))) then
       if Cast(S.Rip, nil, nil, not IsInMeleeRange) then return "rip main 20"; end
@@ -884,7 +840,7 @@ HL.Print("=== END DEBUG ===")
       local ShouldReturn = AoeBuilder(); if ShouldReturn then return ShouldReturn; end
     end
     -- tigers_fury
-    if S.TigersFury:IsCastable() then
+    if S.TigersFury:IsCastable() and not ((BsInc:CooldownUp() or BsInc:CooldownRemains() < 20) and not CDsON()) then
       if Cast(S.TigersFury, Settings.Feral.OffGCDasOffGCD.TigersFury) then return "tigers_fury main 22"; end
     end
     -- regrowth,if=buff.predatory_swiftness.up&variable.regrowth
