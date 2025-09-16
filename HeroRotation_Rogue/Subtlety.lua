@@ -313,6 +313,16 @@ local function CustomDefensives ()
         end
       end
     end
+    -- Devour (1229038 / 1233539)
+    if bossSpellName then
+      if bossSpellID == 1229038 or bossSpellID == 1233539 then
+        if S.Feint:IsCastable() and bossRemainingCastTime < 6 and (Player:BuffDown(S.Feint) and (Player:BuffDown(S.CloakofShadows) or Player:BuffRemains(S.CloakofShadows) < bossRemainingCastTime)) then
+          if Cast(S.Feint, Settings.CommonsOGCD.GCDasOffGCD.Feint) then
+            return "Cast Feint (Dimensius's Devour)"
+          end
+        end
+      end
+    end
   end
 end
 
@@ -814,8 +824,7 @@ local function Items()
       TrinketRange = (TrinketSpell and TrinketSpell.MaximumRange > 0 and TrinketSpell.MaximumRange <= 100) and TrinketSpell.MaximumRange or 100
     end
     if trinket1 and trinket1:IsEquippedAndReady() and not Player:IsItemBlacklisted(trinket1) then
-      if not ValueIsInArray(OnUseExcludes, trinket1:ID()) and (Trinket_Sync_Slot() == 1 and (Player:BuffUp(S.ShadowBlades)
-        or HL.BossFilteredFightRemains("<=", 20)) or (Trinket_Sync_Slot() == 2 and (not trinket2:IsReady()
+      if not ValueIsInArray(OnUseExcludes, trinket1:ID()) and (Trinket_Sync_Slot() == 1 and (Player:BuffUp(S.ShadowBlades)) or (Trinket_Sync_Slot() == 2 and (not trinket2:IsReady()
         and S.ShadowBlades:CooldownRemains() > 20)) or Trinket_Sync_Slot() == 0) then
         if Cast(trinket1, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(TrinketRange)) then
           return "Generic use_items for " .. trinket1:Name()
