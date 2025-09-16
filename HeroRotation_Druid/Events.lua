@@ -19,9 +19,11 @@ HR.Commons.Druid = {}
 local Druid = HR.Commons.Druid
 Druid.FullMoonLastCast = nil
 Druid.OrbitBreakerStacks = 0
+Druid.LastDryadSummon = 0
+Druid.TreantsTable = {}
 
 --- ============================ CONTENT ============================
--- Orbit Breaker Tracking
+--- ===== Orbit Breaker Tracking =====
 HL:RegisterForSelfCombatEvent(function(dmgTime, _, _, _, _, _, _, _, _, _, _, spellID)
   if spellID == 202497 then
     Druid.OrbitBreakerStacks = Druid.OrbitBreakerStacks + 1
@@ -38,6 +40,45 @@ HL:RegisterForSelfCombatEvent(function(castTime, _, _, _, _, _, _, _, _, _, _, s
     Druid.FullMoonLastCast = castTime
   end
 end, "SPELL_CAST_SUCCESS")
+
+--- ===== Dryad Tracking =====
+local DryadSpells = {
+  [390414] = true, -- Incarnation (Variante 1)
+  [102560] = true, -- Incarnation (Variante 2)
+  [383410] = true, -- Celestial Alignment (Variante 1)
+  [194223] = true, -- Celestial Alignment (Variante 2)
+}
+local DryadBuffs = {
+  [102560] = true, -- Buff-ID von Incarnation (Variante 1)
+  [390414] = true, -- Buff-ID von Incarnation (Variante 2)
+  [194223] = true, -- Buff-ID von Celestial Alignment (Variante 1)
+  [383410] = true, -- Buff-ID von Celestial Alignment (Variante 2)
+}
+
+HL:RegisterForSelfCombatEvent(function(_, _, _, _, _, _, _, _, _, _, _, spellID)
+  if DryadSpells[spellID] then
+    Druid.LastDryadSummon = GetTime()
+  end
+end, "SPELL_CAST_SUCCESS")
+
+HL:RegisterForSelfCombatEvent(function(_, _, _, _, _, _, _, _, _, _, _, spellID)
+  if DryadBuffs[spellID] then
+    Druid.LastDryadSummon = GetTime()
+  end
+end, "SPELL_AURA_APPLIED")
+
+--- ===== Treant Tracking =====
+HL:RegisterForSelfCombatEvent(function(_, _, _, _, _, _, _, DestGUID, _, _, _, spellID)
+  if spellID == 248280 then
+    Druid.TreantsTable[DestGUID] = true
+  end
+end, "SPELL_SUMMON")
+
+HL:RegisterForCombatEvent(function(_, _, _, SourceGUID, _, _, _, _, _, _, _, spellID)
+  if spellID == 205644 and Druid.TreantsTable[SourceGUID] then
+    Druid.TreantsTable[SourceGUID] = nil
+  end
+end, "SPELL_AURA_REMOVED")
 
 --- ======= NON-COMBATLOG =======
 
