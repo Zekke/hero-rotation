@@ -314,11 +314,21 @@ local function CustomDefensives ()
       end
     end
     -- Devour (1229038 / 1233539)
+    -- if bossSpellName then
+    --   if bossSpellID == 1229038 or bossSpellID == 1233539 then
+    --     if S.Feint:IsCastable() and bossRemainingCastTime < 3 and (Player:BuffDown(S.Feint) and (Player:BuffDown(S.CloakofShadows) or Player:BuffRemains(S.CloakofShadows) < bossRemainingCastTime)) then
+    --       if Cast(S.Feint, Settings.CommonsOGCD.GCDasOffGCD.Feint) then
+    --         return "Cast Feint (Dimensius's Devour)"
+    --       end
+    --     end
+    --   end
+    -- end
+    -- Collapse (1234263 / 1234269 / 1234265 / 1234270 )
     if bossSpellName then
-      if bossSpellID == 1229038 or bossSpellID == 1233539 then
+      if bossSpellID == 1234263 or bossSpellID == 1234269 or bossSpellID == 1234265 or bossSpellID == 1234270 then
         if S.Feint:IsCastable() and bossRemainingCastTime < 6 and (Player:BuffDown(S.Feint) and (Player:BuffDown(S.CloakofShadows) or Player:BuffRemains(S.CloakofShadows) < bossRemainingCastTime)) then
           if Cast(S.Feint, Settings.CommonsOGCD.GCDasOffGCD.Feint) then
-            return "Cast Feint (Dimensius's Devour)"
+            return "Cast Feint (Dimensius's Cosmic Collapse)"
           end
         end
       end
@@ -695,6 +705,7 @@ local function CDs ()
     if Maintenance and ShdCp and Player:BuffUp(S.ShadowDanceBuff) and Player:BuffDown(S.PremeditationBuff)
       and (Player:BuffUp(S.FlagellationBuff) or Player:BuffUp(S.FlagellationPersistBuff)) then
       if Cast(S.ShadowBlades, Settings.Subtlety.OffGCDasOffGCD.ShadowBlades) then
+        HL.Print("CombatTime = " .. HL.CombatTime())
         return "Cast Shadow Blades"
       end
     end
@@ -792,8 +803,9 @@ local function Items()
     -- &(buff.latent_energy.stack>=8+8*(trinket.arazs_ritual_forge.cooldown.ready|!equipped.arazs_ritual_forge)
     -- |!equipped.arazs_ritual_forge&fight_remains<=90)|fight_remains<=20
     if I.UnyieldingNetherprism:IsEquippedAndReady() then
-      if Player:BuffUp(S.ShadowBlades) and (Player:BuffStack(S.LatentEnergyBuff) >= 8 + 8*num(I.ArazsRitualForge:IsReady()
-        or not I.ArazsRitualForge:IsEquipped()) or not I.ArazsRitualForge:IsEquipped() and HL.BossFilteredFightRemains('<=', 90))
+      if Player:BuffUp(S.ShadowBlades)
+        and ((currentEncounterID ~= 3135 and Player:BuffStack(S.LatentEnergyBuff) >= 8 + 8*num(I.ArazsRitualForge:IsReady() or not I.ArazsRitualForge:IsEquipped()) or not I.ArazsRitualForge:IsEquipped() and HL.BossFilteredFightRemains('<=', 90))
+        or (currentEncounterID == 3135 and currentDifficulty == 16 and Player:BuffStack(S.LatentEnergyBuff) >= 16 - 4*num(HL.CombatTime() > 390 and HL.CombatTime() < 405)))
         -- or HL.BossFilteredFightRemains('<=', 20)
         then
         if Cast(I.UnyieldingNetherprism, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then
