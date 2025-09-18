@@ -123,9 +123,7 @@ local GuardianOldSpellIsCastable
 GuardianOldSpellIsCastable = HL.AddCoreOverride ("Spell.IsCastable",
   function (self, BypassRecovery, Range, AoESpell, ThisUnit, Offset)
     local BaseCheck = GuardianOldSpellIsCastable(self, BypassRecovery, Range, AoESpell, ThisUnit, Offset)
-    if self == SpellGuardian.Thrash then
-      return BaseCheck and (Player:Rage() <= 95 and Target:DebuffRemains(SpellGuardian.ThrashDebuff) > Player:GCD() * 2 or Target:DebuffStack(SpellGuardian.ThrashDebuff) < 3)
-    elseif self == SpellGuardian.BearForm then
+    if self == SpellGuardian.BearForm then
       return BaseCheck and Player:BuffDown(self)
     elseif self == SpellGuardian.WildCharge then
       return BaseCheck and Target:IsInRange(28) and not Target:IsInRange(8)

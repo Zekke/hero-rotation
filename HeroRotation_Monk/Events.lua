@@ -153,21 +153,13 @@ end
 HL:RegisterForCombatEvent(
   function (...)
     local args = {...}
-    -- Absorb is coming from a spell damage
-    -- TODO: Verify this is still the case
-    if #args == 23 then
-      local DestGUID, _, _, _, _, _, _, _, _, _, _, SpellID, _, _, Amount = select(8, ...)
-      if DestGUID == Player:GUID() and SpellID == StaggerSpellID then
-        -- Register the full amount of the current Stagger
-        RegisterStaggerFullAbsorb(Amount)
-      end
-    -- Absorb is coming from a melee hit
-    else
-      local DestGUID, _, _, _, _, _, _, _, SpellID, _, _, Amount = select(8, ...)
-      if DestGUID == Player:GUID() and SpellID == StaggerSpellID then
-        -- Register the full amount of the current Stagger
-        RegisterStaggerFullAbsorb(Amount)
-      end
+    -- Absorb procs from the Stagger spell.
+    local DestGUID = args[8]
+    local SpellID = args[12]
+    local Amount = args[22]
+    if DestGUID == Player:GUID() and SpellID == StaggerSpellID then
+      -- Register the full amount of the current Stagger
+      RegisterStaggerFullAbsorb(Amount)
     end
   end
   , "SPELL_ABSORBED"
@@ -175,8 +167,23 @@ HL:RegisterForCombatEvent(
 
 HL:RegisterForCombatEvent(
   function(...)
-    local DestGUID, _, _, _, SpellID, _, _, Amount = select(8, ...)
+    local args = {...}
+    local event = args[2]
+    local DestGUID = args[8]
+    
     if Cache.Persistent.Player.Spec[1] == 268 and DestGUID == Player:GUID() then
+      local SpellID, Amount
+      
+      if event == "SWING_DAMAGE" then
+        -- For SWING_DAMAGE: Amount is at position 12, no SpellID
+        Amount = args[12]
+        SpellID = nil
+      else
+        -- For SPELL_DAMAGE/SPELL_PERIODIC_DAMAGE: SpellID at 12, Amount at 15
+        SpellID = args[12]
+        Amount = args[15]
+      end
+      
       -- Damage is coming from our Stagger
       if SpellID == StaggerDoTID and Amount and Amount > 0 then
         -- Add to our table of Stagger damage taken
@@ -197,12 +204,12 @@ HL:RegisterForEvent(
   -- Reset our damage tables when we exit combat
   function()
     if #StaggerDamage > 0 then
-      for i=0, #StaggerDamage do
+      for i=1, #StaggerDamage do
         StaggerDamage[i]=nil
       end
     end
     if #IncomingDamage > 0 then
-      for i=0, #IncomingDamage do
+      for i=1, #IncomingDamage do
         IncomingDamage[i]=nil
       end
     end
@@ -216,8 +223,7 @@ local Stomp     = Spell(227291)
 Monk.NiuzaoGUID = 0
 Monk.LastNiuzaoStomp = 0
 HL:RegisterForCombatEvent(
-  function(...)
-    local SourceGUID, _, _, _, DestGUID, _, _, _, SpellID = select(4, ...)
+  function(_, _, _, SourceGUID, _, _, _, DestGUID, _, _, _, SpellID)
     if SourceGUID == Player:GUID() and SpellID == 132578 then
       Monk.NiuzaoGUID = DestGUID
     end
@@ -226,8 +232,7 @@ HL:RegisterForCombatEvent(
 )
 
 HL:RegisterForCombatEvent(
-  function(...)
-    local SourceGUID, _, _, _, _, _, _, _, SpellID = select(4, ...)
+  function(_, _, _, SourceGUID, _, _, _, _, _, _, _, SpellID)
     if SourceGUID == Monk.NiuzaoGUID and SpellID == 227291 then
       Monk.LastNiuzaoStomp = GetTime()
     end
@@ -236,8 +241,7 @@ HL:RegisterForCombatEvent(
 )
 
 HL:RegisterForCombatEvent(
-  function(...)
-    local DestGUID = select(8, ...)
+  function(_, _, _, _, _, _, _, DestGUID)
     if DestGUID == Monk.NiuzaoGUID then
       Monk.NiuzaoGUID = 0
     end
@@ -252,8 +256,7 @@ Monk.Xuen.Count = 0
 Monk.Xuen.GUID = 0
 Monk.Xuen.ExpireTime = 0
 HL:RegisterForSelfCombatEvent(
-  function(...)
-    local destGUID, _, _, _, spellID = select(8, ...)
+  function(_, _, _, _, _, _, _, destGUID, _, _, _, spellID)
     if spellID == 123904 then
       Monk.Xuen.Active = true
       Monk.Xuen.Count = Monk.Xuen.Count + 1
@@ -265,8 +268,7 @@ HL:RegisterForSelfCombatEvent(
 )
 
 HL:RegisterForCombatEvent(
-  function(...)
-    local destGUID = select(8, ...)
+  function(_, _, _, _, _, _, _, destGUID)
     if destGUID == Monk.Xuen.GUID then
       Monk.Xuen.Active = false
       Monk.Xuen.GUID = 0
