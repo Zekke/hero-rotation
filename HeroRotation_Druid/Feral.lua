@@ -119,8 +119,8 @@ local function SetTrinketVariables()
   -- Note: Handled later in CDsVariable(). Put here to avoid nil errors.
   VarTrinket1CDRemains = VarTrinket1ID == I.UnyieldingNetherprism:ID() and BsInc:CooldownRemains() or Trinket1:CooldownRemains()
   VarTrinket2CDRemains = VarTrinket2ID == I.UnyieldingNetherprism:ID() and BsInc:CooldownRemains() or Trinket2:CooldownRemains()
-  VarTrinket1CDDuration = VarTrinket1ID == I.UnyieldingNetherprism:ID() and BsInc:CooldownDuration() or VarTrinket1CD
-  VarTrinket2CDDuration = VarTrinket2ID == I.UnyieldingNetherprism:ID() and BsInc:CooldownDuration() or VarTrinket2CD
+  VarTrinket1CDDuration = VarTrinket1ID == I.UnyieldingNetherprism:ID() and VarBsIncCD or VarTrinket1CD
+  VarTrinket2CDDuration = VarTrinket2ID == I.UnyieldingNetherprism:ID() and VarBsIncCD or VarTrinket2CD
 end
 SetTrinketVariables()
 
@@ -552,9 +552,9 @@ local function CDsVariable()
   -- variable,name=trinket2_cd_remains,op=setif,condition=trinket.2.is.unyielding_netherprism,value=cooldown.bs_inc.remains,value_else=trinket.2.cooldown.remains
   VarTrinket2CDRemains = VarTrinket2ID == I.UnyieldingNetherprism:ID() and BsInc:CooldownRemains() or Trinket2:CooldownRemains()
   -- variable,name=trinket1_cd_duration,op=setif,condition=trinket.1.is.unyielding_netherprism,value=cooldown.bs_inc.duration,value_else=trinket.1.cooldown.duration
-  VarTrinket1CDDuration = VarTrinket1ID == I.UnyieldingNetherprism:ID() and BsInc:CooldownDuration() or VarTrinket1CD
+  VarTrinket1CDDuration = VarTrinket1ID == I.UnyieldingNetherprism:ID() and VarBsIncCD or VarTrinket1CD
   -- variable,name=trinket2_cd_duration,op=setif,condition=trinket.2.is.unyielding_netherprism,value=cooldown.bs_inc.duration,value_else=trinket.2.cooldown.duration
-  VarTrinket2CDDuration = VarTrinket2ID == I.UnyieldingNetherprism:ID() and BsInc:CooldownDuration() or VarTrinket2CD
+  VarTrinket2CDDuration = VarTrinket2ID == I.UnyieldingNetherprism:ID() and VarBsIncCD or VarTrinket2CD
 end
 
 local function Cooldown()
