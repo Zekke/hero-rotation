@@ -58,21 +58,23 @@ local VarConvokeCountRemaining, VarZerkCountRemaining
 local VarPotCountRemaining, VarSlot1CountRemaining, VarSlot2CountRemaining
 local VarHoldBerserk, VarHoldConvoke, VarHoldPot
 local VarSend90sTrinketCondition
-local VarBsIncCD = S.BerserkHeartoftheLion:IsAvailable() and 120 or 180
-local VarConvokeCD = S.AshamanesGuidance:IsAvailable() and 60 or 120
-local VarPotCD = 300
+local VarBsIncCD, VarConvokeCD, VarPotCD
 local VarHighestCDRemaining, VarLowestCDRemaining, VarSecondLowestCDRemaining
 local VarRipDuration
 local VarNeedBT, VarStealthBonus
 local VarDoTRefreshSoon
-local VarCCCapped, VarRegrowth, VarEasySwipe
+local VarRegrowth, VarEasySwipe
 local ComboPoints, ComboPointsDeficit
 local BsInc = S.Incarnation:IsAvailable() and S.Incarnation or S.Berserk
+local BsIncCD = S.BerserkHeartoftheLion:IsAvailable() and 120 or 180
 local IsInMeleeRange, IsInAoERange
 local BossFightRemains = 11111
 local FightRemains = 11111
 local EnemiesMelee, EnemiesCountMelee
 local Enemies8y, EnemiesCount8y
+local BiteFinisher
+local VarTrinket1CDDuration, VarTrinket2CDDuration = 0, 0
+local VarRipMaxPandemicDuration = 0
 
 --- ===== Trinket Variables =====
 local Trinket1, Trinket2
@@ -119,8 +121,8 @@ local function SetTrinketVariables()
   -- Note: Handled later in CDsVariable(). Put here to avoid nil errors.
   VarTrinket1CDRemains = VarTrinket1ID == I.UnyieldingNetherprism:ID() and BsInc:CooldownRemains() or Trinket1:CooldownRemains()
   VarTrinket2CDRemains = VarTrinket2ID == I.UnyieldingNetherprism:ID() and BsInc:CooldownRemains() or Trinket2:CooldownRemains()
-  VarTrinket1CDDuration = VarTrinket1ID == I.UnyieldingNetherprism:ID() and VarBsIncCD or VarTrinket1CD
-  VarTrinket2CDDuration = VarTrinket2ID == I.UnyieldingNetherprism:ID() and VarBsIncCD or VarTrinket2CD
+  VarTrinket1CDDuration = VarTrinket1ID == I.UnyieldingNetherprism:ID() and BsIncCD or VarTrinket1CD
+  VarTrinket2CDDuration = VarTrinket2ID == I.UnyieldingNetherprism:ID() and BsIncCD or VarTrinket2CD
 end
 SetTrinketVariables()
 
@@ -134,8 +136,8 @@ local InterruptStuns = {
 HL:RegisterForEvent(function()
   BsInc = S.Incarnation:IsAvailable() and S.Incarnation or S.Berserk
   BsIncCD = S.BerserkHeartoftheLion:IsAvailable() and 120 or 180
-  VarTrinket1CDDuration = VarTrinket1ID == I.UnyieldingNetherprism:ID() and VarBsIncCD or VarTrinket1CD
-  VarTrinket2CDDuration = VarTrinket2ID == I.UnyieldingNetherprism:ID() and VarBsIncCD or VarTrinket2CD
+  VarTrinket1CDDuration = VarTrinket1ID == I.UnyieldingNetherprism:ID() and BsIncCD or VarTrinket1CD
+  VarTrinket2CDDuration = VarTrinket2ID == I.UnyieldingNetherprism:ID() and BsIncCD or VarTrinket2CD
 end, "SPELLS_CHANGED", "LEARNED_SPELL_IN_TAB")
 
 HL:RegisterForEvent(function()
@@ -320,7 +322,7 @@ local function Precombat()
     if Cast(S.MarkoftheWild, Settings.CommonsOGCD.GCDasOffGCD.MarkOfTheWild) then return "mark_of_the_wild precombat"; end
   end
   -- cat_form,if=!buff.cat_form.up
-  if S.CatForm:IsCastable() then
+  if S.CatForm:IsCastable() and Player:BuffDown(S.CatForm) then
     if Cast(S.CatForm) then return "cat_form precombat 2"; end
   end
   -- heart_of_the_wild
@@ -335,7 +337,7 @@ local function Precombat()
     end
   end
   -- prowl,if=!buff.prowl.up
-  if S.Prowl:IsReady() then
+  if S.Prowl:IsReady() and Player:StealthDown(true, true) then
     if Cast(S.Prowl) then return "prowl precombat 4"; end
   end
   -- Manually added: wild_charge
@@ -472,7 +474,9 @@ local function Builder()
   -- variable,name=dot_refresh_soon,value=(!talent.thrashing_claws&(dot.thrash_cat.remains-dot.thrash_cat.duration*0.3<=2))|(talent.lunar_inspiration&(dot.moonfire_cat.remains-dot.moonfire_cat.duration*0.3<=2))|((dot.rake.pmultiplier<1.6|buff.sudden_ambush.up)&(dot.rake.remains-dot.rake.duration*0.3<=2))
   VarDoTRefreshSoon = (not S.ThrashingClaws:IsAvailable() and (Target:DebuffRemains(S.ThrashCatDebuff) - S.ThrashCatDebuff:PandemicThreshold() <= 2)) or (S.LunarInspiration:IsAvailable() and (Target:DebuffRemains(S.LIMoonfireDebuff) - S.LIMoonfireDebuff:PandemicThreshold() <= 2)) or ((Target:PMultiplier(S.Rake) < 1.6 or Player:BuffUp(S.SuddenAmbushBuff)) and (Target:DebuffRemains(S.RakeDebuff) - S.RakeDebuff:PandemicThreshold() <= 2))
   -- pool_resource,if=variable.dot_refresh_soon&energy.deficit>70&!variable.need_bt&!buff.bs_inc.up&cooldown.tigers_fury.remains>3
-  -- TODO
+  if VarDoTRefreshSoon and Player:EnergyDeficit() > 70 and not VarNeedBT and Player:BuffDown(BsInc) and S.TigersFury:CooldownRemains() > 3 then
+    if CastPooling(S.Pool, 1.5) then return "pool for dot_refresh_soon builder"; end
+  end
   -- brutal_slash,if=!(variable.need_bt&buff.bt_swipe.up)
   if S.BrutalSlash:IsReady() and (not (VarNeedBT and BTBuffUp(S.Swipe))) then
     if Cast(S.BrutalSlash, nil, nil, not IsInAoERange) then return "brutal_slash builder 18"; end
@@ -508,19 +512,33 @@ local function Builder()
 end
 
 local function CDsVariable()
+  -- variable,name=bs_inc_cd,value=cooldown.bs_inc.remains+10
+  VarBsIncCD = BsInc:CooldownRemains() + 10
+  -- variable,name=convoke_cd,value=cooldown.convoke_the_spirits.remains+10
+  VarConvokeCD = S.ConvoketheSpirits:CooldownRemains() + 10
+  -- variable,name=potCountRemaining,value=floor(((fight_remains-variable.pot_cd)%cooldown.potion.duration)+(fight_remains>cooldown.potion.remains))
+  local PotionSelected = Everyone.PotionSelected()
+  local PotCDRemains = PotionSelected and PotionSelected:CooldownRemains() or 0
+  -- variable,name=pot_cd,value=cooldown.potion.remains+25
+  VarPotCD = PotCDRemains + 25
+  VarPotCountRemaining = mathfloor(((FightRemains - VarPotCD) / 300) + num(FightRemains > PotCDRemains))
   -- variable,name=convokeCountRemaining,value=floor(((fight_remains-variable.convoke_cd)%cooldown.convoke_the_spirits.duration)+(fight_remains>cooldown.convoke_the_spirits.remains))
   local ConvokeCD = S.AshamanesGuidance:IsAvailable() and 60 or 120
   VarConvokeCountRemaining = mathfloor(((FightRemains - VarConvokeCD) / ConvokeCD) + num(FightRemains > S.ConvoketheSpirits:CooldownRemains()))
   -- variable,name=zerkCountRemaining,value=floor(((fight_remains-variable.bs_inc_cd)%cooldown.bs_inc.duration)+(fight_remains>cooldown.bs_inc.remains))
   VarZerkCountRemaining = mathfloor(((FightRemains - VarBsIncCD) / BsIncCD) + num(FightRemains > BsInc:CooldownRemains()))
-  -- variable,name=potCountRemaining,value=floor(((fight_remains-variable.pot_cd)%cooldown.potion.duration)+(fight_remains>cooldown.potion.remains))
-  local PotionSelected = Everyone.PotionSelected()
-  local PotCDRemains = PotionSelected and PotionSelected:CooldownRemains() or 0
-  VarPotCountRemaining = mathfloor(((FightRemains - VarPotCD) / 300) + num(FightRemains > PotCDRemains))
+  -- variable,name=trinket1_cd_remains,op=setif,condition=trinket.1.is.unyielding_netherprism,value=cooldown.bs_inc.remains,value_else=trinket.1.cooldown.remains
+  VarTrinket1CDRemains = VarTrinket1ID == I.UnyieldingNetherprism:ID() and BsInc:CooldownRemains() or Trinket1:CooldownRemains()
+  -- variable,name=trinket2_cd_remains,op=setif,condition=trinket.2.is.unyielding_netherprism,value=cooldown.bs_inc.remains,value_else=trinket.2.cooldown.remains
+  VarTrinket2CDRemains = VarTrinket2ID == I.UnyieldingNetherprism:ID() and BsInc:CooldownRemains() or Trinket2:CooldownRemains()
+  -- variable,name=trinket1_cd_duration,op=setif,condition=trinket.1.is.unyielding_netherprism,value=cooldown.bs_inc.duration,value_else=trinket.1.cooldown.duration
+  VarTrinket1CDDuration = VarTrinket1ID == I.UnyieldingNetherprism:ID() and BsIncCD or VarTrinket1CD
+  -- variable,name=trinket2_cd_duration,op=setif,condition=trinket.2.is.unyielding_netherprism,value=cooldown.bs_inc.duration,value_else=trinket.2.cooldown.duration
+  VarTrinket2CDDuration = VarTrinket2ID == I.UnyieldingNetherprism:ID() and BsIncCD or VarTrinket2CD
   -- variable,name=slot1CountRemaining,value=floor(((fight_remains-variable.trinket1_cd_remains-10)%variable.trinket1_cd_duration)+(fight_remains>variable.trinket1_cd_remains))
-  VarSlot1CountRemaining = mathfloor(((FightRemains - VarTrinket1CDRemains - 10) / VarTrinket1CD) + num(FightRemains > VarTrinket1CDRemains))
+  VarSlot1CountRemaining = mathfloor(((FightRemains - VarTrinket1CDRemains - 10) / VarTrinket1CDDuration) + num(FightRemains > VarTrinket1CDRemains))
   -- variable,name=slot2CountRemaining,value=floor(((fight_remains-variable.trinket2_cd_remains-10)%variable.trinket2_cd_duration)+(fight_remains>variable.trinket2_cd_remains))
-  VarSlot2CountRemaining = mathfloor(((FightRemains - VarTrinket2CDRemains - 10) / VarTrinket2CD) + num(FightRemains > VarTrinket2CDRemains))
+  VarSlot2CountRemaining = mathfloor(((FightRemains - VarTrinket2CDRemains - 10) / VarTrinket2CDDuration) + num(FightRemains > VarTrinket2CDRemains))
   -- variable,name=firstHoldBerserkCondition,value=variable.zerkCountRemaining=1&(variable.convokeCountRemaining=1&cooldown.convoke_the_spirits.remains>10|variable.potCountRemaining=1&cooldown.potion.remains)
   local VarFirstHoldBerserkCondition = VarZerkCountRemaining == 1 and (VarConvokeCountRemaining == 1 and S.ConvoketheSpirits:CooldownRemains() > 10 or VarPotCountRemaining == 1 and PotCDRemains > 0)
   -- variable,name=secondHoldBerserkCondition,value=cooldown.convoke_the_spirits.remains>20&variable.convokeCountRemaining=variable.zerkCountRemaining&variable.zerkCountRemaining=floor(((fight_remains-variable.convoke_cd)%cooldown.bs_inc.duration)+(fight_remains>cooldown.convoke_the_spirits.remains))
@@ -537,26 +555,14 @@ local function CDsVariable()
   VarHoldConvoke = VarConvokeCountRemaining == 1 and VarZerkCountRemaining == 1 and Player:BuffDown(BsInc)
   -- variable,name=holdPot,value=variable.potCountRemaining=floor(((fight_remains-variable.bs_inc_cd)%cooldown.potion.duration)+(fight_remains>cooldown.bs_inc.remains))
   VarHoldPot = VarPotCountRemaining == mathfloor(((FightRemains - VarBsIncCD) / 300) + num(FightRemains > BsInc:CooldownRemains()))
-  -- variable,name=bs_inc_cd,value=cooldown.bs_inc.remains+10
-  VarBsIncCD = BsInc:CooldownRemains() + 10
-  -- variable,name=convoke_cd,value=cooldown.convoke_the_spirits.remains+10
-  VarConvokeCD = S.ConvoketheSpirits:CooldownRemains() + 10
-  -- variable,name=pot_cd,value=cooldown.potion.remains+25
-  VarPotCD = PotCDRemains + 25
+
   -- variable,name=highestCDremaining,op=setif,condition=talent.convoke_the_spirits,value=cooldown.convoke_the_spirits.remains<?cooldown.bs_inc.remains<?cooldown.potion.remains,value_else=cooldown.bs_inc.remains<?cooldown.potion.remains
   VarHighestCDRemaining = S.ConvoketheSpirits:IsAvailable() and mathmax(S.ConvoketheSpirits:CooldownRemains(), BsInc:CooldownRemains(), PotCDRemains) or mathmax(BsInc:CooldownRemains(), PotCDRemains)
   -- variable,name=lowestCDremaining,op=setif,condition=talent.convoke_the_spirits,value=cooldown.convoke_the_spirits.remains>?cooldown.bs_inc.remains>?cooldown.potion.remains,value_else=cooldown.bs_inc.remains>?cooldown.potion.remains
   VarLowestCDRemaining = S.ConvoketheSpirits:IsAvailable() and mathmin(S.ConvoketheSpirits:CooldownRemains(), BsInc:CooldownRemains(), PotCDRemains) or mathmin(BsInc:CooldownRemains(), PotCDRemains)
   -- variable,name=secondLowestCDremaining,op=setif,condition=cooldown.convoke_the_spirits.remains>cooldown.bs_inc.remains,value=cooldown.convoke_the_spirits.remains>?cooldown.potion.remains,value_else=cooldown.bs_inc.remains>?cooldown.potion.remains
   VarSecondLowestCDRemaining = (S.ConvoketheSpirits:CooldownRemains() > BsInc:CooldownRemains()) and mathmin(S.ConvoketheSpirits:CooldownRemains(), PotCDRemains) or mathmin(BsInc:CooldownRemains(), PotCDRemains)
-  -- variable,name=trinket1_cd_remains,op=setif,condition=trinket.1.is.unyielding_netherprism,value=cooldown.bs_inc.remains,value_else=trinket.1.cooldown.remains
-  VarTrinket1CDRemains = VarTrinket1ID == I.UnyieldingNetherprism:ID() and BsInc:CooldownRemains() or Trinket1:CooldownRemains()
-  -- variable,name=trinket2_cd_remains,op=setif,condition=trinket.2.is.unyielding_netherprism,value=cooldown.bs_inc.remains,value_else=trinket.2.cooldown.remains
-  VarTrinket2CDRemains = VarTrinket2ID == I.UnyieldingNetherprism:ID() and BsInc:CooldownRemains() or Trinket2:CooldownRemains()
-  -- variable,name=trinket1_cd_duration,op=setif,condition=trinket.1.is.unyielding_netherprism,value=cooldown.bs_inc.duration,value_else=trinket.1.cooldown.duration
-  VarTrinket1CDDuration = VarTrinket1ID == I.UnyieldingNetherprism:ID() and VarBsIncCD or VarTrinket1CD
-  -- variable,name=trinket2_cd_duration,op=setif,condition=trinket.2.is.unyielding_netherprism,value=cooldown.bs_inc.duration,value_else=trinket.2.cooldown.duration
-  VarTrinket2CDDuration = VarTrinket2ID == I.UnyieldingNetherprism:ID() and VarBsIncCD or VarTrinket2CD
+
 end
 
 local function Cooldown()
@@ -644,7 +650,7 @@ end
 local function Finisher()
   -- primal_wrath,target_if=min:dot.primal_wrath.ticking,if=spell_targets.primal_wrath>1&(dot.primal_wrath.remains<6.5&!buff.bs_inc.up|dot.primal_wrath.refreshable)
   if S.PrimalWrath:IsReady() and (EnemiesCount8y > 1) then
-    if Everyone.CastTargetIf(S.PrimalWrath, Enemies8y, "max", EvaluateTargetIfFilterPrimalWrath, EvaluateTargetIfPrimalWrath, not IsInAoERange) then return "primal_wrath finisher 2"; end
+    if Everyone.CastTargetIf(S.PrimalWrath, Enemies8y, "min", EvaluateTargetIfFilterPrimalWrath, EvaluateTargetIfPrimalWrath, not IsInAoERange) then return "primal_wrath finisher 2"; end
   end
   -- rip,target_if=refreshable,if=(!talent.primal_wrath|spell_targets=1)&(buff.bloodtalons.up|!talent.bloodtalons)&(buff.tigers_fury.up|dot.rip.remains<cooldown.tigers_fury.remains)&(remains<fight_remains|remains<4&buff.ravage.up)
   if S.Rip:IsReady() and ((not S.PrimalWrath:IsAvailable() or EnemiesCountMelee == 1) and (Player:BuffUp(S.BloodtalonsBuff) or not S.Bloodtalons:IsAvailable())) then
@@ -716,8 +722,11 @@ local function APL()
     end
   end
 
+  -- variables Update
+  VarRegrowth = Settings.Feral.ShowHealSpells
+  VarEasySwipe = Settings.Feral.UseEasySwipe
   -- cat_form OOC, if setting is true
-  if S.CatForm:IsCastable() and not Player:AffectingCombat() and Settings.Feral.ShowCatFormOOC then
+  if S.CatForm:IsCastable() and Player:BuffDown(S.CatForm) and not Player:AffectingCombat() and Settings.Feral.ShowCatFormOOC then
     if Cast(S.CatForm) then return "cat_form ooc"; end
   end
 
@@ -736,7 +745,7 @@ local function APL()
       if Cast(S.Prowl) then return "prowl main 2"; end
     end
     -- cat_form,if=!buff.cat_form.up&!talent.fluid_form
-    if S.CatForm:IsCastable() and (not S.FluidForm:IsAvailable()) then
+    if S.CatForm:IsCastable() and Player:BuffDown(S.CatForm) and (not S.FluidForm:IsAvailable()) then
       if Cast(S.CatForm) then return "cat_form main 4"; end
     end
     -- invoke_external_buff,name=power_infusion,if=buff.bs_inc.up|!talent.berserk_heart_of_the_lion
@@ -753,7 +762,7 @@ local function APL()
     for _, enemy in pairs(Enemies8y) do
       if enemy:DebuffRefreshable(S.RipDebuff) then
         RefreshRip = true
-        TarTTD = enemy:TimeToDie()
+        TarTTD = mathmax(TarTTD, enemy:TimeToDie())
       end
     end
     if S.TigersFury:IsCastable() and ((Player:HeroTreeID() == 22 and (not S.Bloodtalons:IsAvailable() or Player:BuffUp(S.BloodtalonsBuff)) and RefreshRip and ComboPoints >= 3 and S.RipandTear:IsAvailable() or ComboPoints == 5) and (BossFightRemains <= 15 or BsInc:CooldownRemains() > 20 and TarTTD > 5 or BsInc:CooldownUp() and TarTTD > 12 or TarTTD == BossFightRemains)) then
