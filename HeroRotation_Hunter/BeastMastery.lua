@@ -166,6 +166,18 @@ local function EvaluateTargetIfBlackArrowST(TargetUnit)
   return TargetUnit:DebuffRefreshable(S.SerpentStingDebuff)
 end
 
+local function NextBuffWindowRemains()
+  if not S.CalloftheWild:IsAvailable() and not S.Bloodshed:IsAvailable() then
+    return S.BestialWrath:CooldownRemains()
+  end
+  local rems = {}
+  if S.CalloftheWild:IsAvailable() then table.insert(rems, S.CalloftheWild:CooldownRemains()) end
+  if S.Bloodshed:IsAvailable()     then table.insert(rems, S.Bloodshed:CooldownRemains())     end
+  local best = rems[1] or 0
+  for i=2,#rems do if rems[i] < best then best = rems[i] end end
+  return best
+end
+
 --- ===== Rotation Functions =====
 local function Precombat()
   -- summon_pet
@@ -217,7 +229,7 @@ end
 local function DRCleave()
   -- kill_shot
   if S.BlackArrow:IsReady() then
-    if Cast(S.BlackArrow, nil, nil, not Target:IsSpellInRange(S.BlackArrow)) then return "kill_shot dr_cleave 2"; end
+    if Cast(S.BlackArrow, nil, nil, not Target:IsSpellInRange(S.BlackArrow)) then return "black_arrow dr_cleave 2"; end
   end
   -- bestial_wrath,if=cooldown.call_of_the_wild.remains>20|!talent.call_of_the_wild
   if CDsON() and S.BestialWrath:IsCastable() and (S.CalloftheWild:CooldownRemains() > 20 or not S.CalloftheWild:IsAvailable()) then
@@ -226,6 +238,7 @@ local function DRCleave()
   -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=full_recharge_time<gcd|buff.thrill_of_the_hunt.remains<1.5*gcd
   if S.BarbedShot:IsCastable() and (S.BarbedShot:FullRechargeTime() < Player:GCD() or Player:BuffRemains(S.ThrilloftheHuntBuff) < Player:GCD() * 1.5) then
     if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, nil, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot dr_cleave 6"; end
+    if Cast(S.BarbedShot, nil, nil, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot dr_cleave 6"; end
   end
   -- bloodshed
   if S.Bloodshed:IsCastable() then
@@ -246,7 +259,7 @@ local function DRCleave()
   -- Localize buff.withering_fire.tick_time_remains
   local WFTTR = 999
   if Player:BuffUp(S.WitheringFireBuff) then
-    WFTTR = 4 - S.BlackArrow:TimeSinceLastCast()
+    WFTTR = math.max(0, 4 - (S.BlackArrow:TimeSinceLastCast() % 4))
   end
   -- kill_command,if=buff.withering_fire.tick_time_remains>gcd&cooldown.black_arrow.remains>0.5|buff.withering_fire.down
   if S.KillCommand:IsReady() and (WFTTR > Player:GCD() and S.BlackArrow:CooldownRemains() > 0.5 or Player:BuffDown(S.WitheringFireBuff)) then
@@ -269,7 +282,7 @@ end
 local function DRST()
   -- kill_shot
   if S.BlackArrow:IsReady() then
-    if Cast(S.BlackArrow, nil, nil, not Target:IsSpellInRange(S.BlackArrow)) then return "kill_shot dr_st 2"; end
+    if Cast(S.BlackArrow, nil, nil, not Target:IsSpellInRange(S.BlackArrow)) then return "black_arrow dr_st 2"; end
   end
   -- bestial_wrath,if=cooldown.call_of_the_wild.remains>30|!talent.call_of_the_wild|time_to_die.remains<cooldown.call_of_the_wild.remains
   if CDsON() and S.BestialWrath:IsCastable() and (S.CalloftheWild:CooldownRemains() > 30 or not S.CalloftheWild:IsAvailable() or Target:TimeToDie() < S.CalloftheWild:CooldownRemains()) then
@@ -286,7 +299,7 @@ local function DRST()
   -- Localize buff.withering_fire.tick_time_remains
   local WFTTR = 999
   if Player:BuffUp(S.WitheringFireBuff) then
-    WFTTR = 4 - S.BlackArrow:TimeSinceLastCast()
+    WFTTR = math.max(0, 4 - (S.BlackArrow:TimeSinceLastCast() % 4))
   end
   -- kill_command,if=buff.withering_fire.tick_time_remains>gcd&cooldown.black_arrow.remains>0.5|buff.withering_fire.down
   if S.KillCommand:IsReady() and (WFTTR > Player:GCD() and S.BlackArrow:CooldownRemains() > 0.5 or Player:BuffDown(S.WitheringFireBuff)) then
@@ -345,7 +358,7 @@ local function ST()
   end
   -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=full_recharge_time<gcd
   if S.BarbedShot:IsCastable() and (S.BarbedShot:FullRechargeTime() < Player:GCD()) then
-    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, nil, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot cleave 4"; end
+    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, nil, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot st 4"; end
   end
   -- Main Target backup
   if S.BarbedShot:IsCastable() and (S.BarbedShot:FullRechargeTime() < Player:GCD()) then
@@ -365,7 +378,7 @@ local function ST()
   end
   -- barbed_shot,target_if=min:dot.barbed_shot.remains
   if S.BarbedShot:IsCastable() then
-    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, nil, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot cleave 14"; end
+    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, nil, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot st 14"; end
   end
   -- cobra_shot
   if S.CobraShot:IsReady() then
@@ -377,7 +390,7 @@ local function Trinkets()
   -- variable,name=buff_sync_ready,value=talent.call_of_the_wild&(prev_gcd.1.call_of_the_wild)|talent.bloodshed&(prev_gcd.1.bloodshed)|(!talent.call_of_the_wild&!talent.bloodshed)&(buff.bestial_wrath.up|cooldown.bestial_wrath.remains_guess<5)
   VarBuffSyncReady = S.CalloftheWild:IsAvailable() and Player:PrevGCD(1, S.CalloftheWild) or S.Bloodshed:IsAvailable() and Player:PrevGCD(1, S.Bloodshed) or (not S.CalloftheWild:IsAvailable() and not S.Bloodshed:IsAvailable()) and (Player:BuffUp(S.BestialWrathBuff) or S.BestialWrath:CooldownRemains() < 5)
   -- variable,name=buff_sync_remains,op=setif,value=cooldown.bestial_wrath.remains_guess,value_else=cooldown.call_of_the_wild.remains|cooldown.bloodshed.remains,condition=!talent.call_of_the_wild&!talent.bloodshed
-  VarBuffSyncRemains = (not S.CalloftheWild:IsAvailable() and not S.Bloodshed:IsAvailable()) and S.BestialWrath:CooldownRemains() or (S.CalloftheWild:CooldownRemains() or S.Bloodshed:CooldownRemains())
+  VarBuffSyncRemains = NextBuffWindowRemains()
   -- variable,name=buff_sync_active,value=talent.call_of_the_wild&buff.call_of_the_wild.up|talent.bloodshed&prev_gcd.1.bloodshed|(!talent.call_of_the_wild&!talent.bloodshed)&buff.bestial_wrath.up
   VarBuffSyncActive = S.CalloftheWild:IsAvailable() and Player:BuffUp(S.CalloftheWildBuff) or S.Bloodshed:IsAvailable() and Player:PrevGCD(1, S.Bloodshed) or (not S.CalloftheWild:IsAvailable() and not S.Bloodshed:IsAvailable()) and Player:BuffUp(S.BestialWrathBuff)
   -- variable,name=damage_sync_active,value=1
