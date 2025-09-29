@@ -268,6 +268,7 @@ local function DRCleave()
   -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=buff.withering_fire.tick_time_remains>0.5&cooldown.black_arrow.remains>0.5|buff.withering_fire.down
   if S.BarbedShot:IsCastable() and (WFTTR > 0.5 and S.BlackArrow:CooldownRemains() > 0.5 or Player:BuffDown(S.WitheringFireBuff)) then
     if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, nil, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot dr_cleave 18"; end
+    if Cast(S.BarbedShot, nil, nil, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot dr_cleave 18"; end
   end
   -- cobra_shot,if=buff.withering_fire.down&focus.time_to_max<gcd*2
   if S.CobraShot:IsReady() and (Player:BuffDown(S.WitheringFireBuff) and Player:FocusTimeToMax() < Player:GCD() * 2) then
@@ -285,7 +286,7 @@ local function DRST()
     if Cast(S.BlackArrow, nil, nil, not Target:IsSpellInRange(S.BlackArrow)) then return "black_arrow dr_st 2"; end
   end
   -- bestial_wrath,if=cooldown.call_of_the_wild.remains>30|!talent.call_of_the_wild|time_to_die.remains<cooldown.call_of_the_wild.remains
-  if CDsON() and S.BestialWrath:IsCastable() and (S.CalloftheWild:CooldownRemains() > 30 or not S.CalloftheWild:IsAvailable() or Target:TimeToDie() < S.CalloftheWild:CooldownRemains()) then
+  if CDsON() and S.BestialWrath:IsCastable() and (S.CalloftheWild:CooldownRemains() > 30 or not S.CalloftheWild:IsAvailable()) then
     if Cast(S.BestialWrath, Settings.BeastMastery.GCDasOffGCD.BestialWrath) then return "bestial_wrath dr_st 4"; end
   end
   -- bloodshed
