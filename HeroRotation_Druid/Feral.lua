@@ -305,6 +305,10 @@ local function EvaluateCycleRakeRefreshable(TargetUnit)
   return TargetUnit:DebuffRefreshable(S.RakeDebuff)
 end
 
+local function FilterRakePMultiplier(TargetUnit)
+  return TargetUnit:PMultiplier(S.Rake)
+end
+
 local function EvaluateCycleRakeAoeBuilder(TargetUnit)
   -- target_if=dot.rake.pmultiplier<1.6
   return TargetUnit:PMultiplier(S.Rake) < 1.6
@@ -434,7 +438,7 @@ local function AoeBuilder()
   end
   -- rake,target_if=pmultiplier<1.6,if=variable.need_bt&buff.bt_rake.down
   if S.Rake:IsReady() and (VarNeedBT and BTBuffDown(S.Rake)) then
-    if Everyone.CastTargetIf(S.Rake, EnemiesMelee, "min", EvaluateCycleRakeAoeBuilder, nil, not IsInMeleeRange) then return "rake aoe_builder 40"; end
+    if Everyone.CastTargetIf(S.Rake, EnemiesMelee, "min", FilterRakePMultiplier, EvaluateCycleRakeAoeBuilder, not IsInMeleeRange) then return "rake aoe_builder 40"; end
   end
 end
 
