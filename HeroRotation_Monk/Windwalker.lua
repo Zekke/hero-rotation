@@ -76,6 +76,7 @@ local TWW3_2pc = Player:HasTier("TWW3", 2)
 local TWW3_4pc = Player:HasTier("TWW3", 4)
 local BossFightRemains = 11111
 local FightRemains = 11111
+local VarSpecialCaseTrinket = false
 
 --- ===== Trinket Item Objects =====
 local Trinket1, Trinket2
@@ -166,7 +167,7 @@ end
 
 --- ===== CastTargetIf Filter Functions =====
 local function EvaluateTargetIfFilterAcclamation(TargetUnit)
-  return TargetUnit:DebuffRemains(S.AcclamationDebuff)
+  return TargetUnit:DebuffStack(S.AcclamationDebuff)
 end
 
 local function EvaluateTargetIfFilterTargetHP(TargetUnit)
@@ -201,48 +202,80 @@ local function Trinkets()
   if Settings.Commons.Enabled.Trinkets then
     local T1Check = Trinket1 and Trinket1:IsReady() and not VarTrinket1Ex and not Player:IsItemBlacklisted(Trinket1)
     local T2Check = Trinket2 and Trinket2:IsReady() and not VarTrinket2Ex and not Player:IsItemBlacklisted(Trinket2)
-    -- use_item,slot=trinket1,if=trinket.1.has_use_buff&trinket.2.has_use_buff&pet.xuen_the_white_tiger.active&variable.invoke_xuen_count%%2|fight_remains<20
-    if T1Check and (Trinket1:HasUseBuff() and Trinket2:HasUseBuff() and Monk.Xuen.Active and Monk.Xuen.Count % 2 == 1 or BossFightRemains < 20) then
-      if Cast(Trinket1, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket1Range)) then return "Generic use_items for " .. Trinket1:Name() .. " trinkets 2"; end
+
+    -- Double on-use de stats (miroir SimC)
+    if T1Check and (Trinket1:HasUseBuff() and Trinket2:HasUseBuff() and Monk.Xuen.Active and (math.fmod(Monk.Xuen.Count, 2) == 1) or BossFightRemains < 20) then
+      if Cast(Trinket1, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket1Range)) then return "trinket1 double-stats"; end
     end
-    -- use_item,slot=trinket2,if=trinket.1.has_use_buff&trinket.2.has_use_buff&pet.xuen_the_white_tiger.active|fight_remains<20
     if T2Check and (Trinket1:HasUseBuff() and Trinket2:HasUseBuff() and Monk.Xuen.Active or BossFightRemains < 20) then
-      if Cast(Trinket2, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket2Range)) then return "Generic use_items for " .. Trinket2:Name() .. " trinkets 4"; end
+      if Cast(Trinket2, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket2Range)) then return "trinket2 double-stats"; end
     end
-    -- use_item,slot=trinket1,if=trinket.1.has_use_buff&!trinket.2.has_use_buff&pet.xuen_the_white_tiger.active|fight_remains<20
+
+    -- T1 stats seul
     if T1Check and (Trinket1:HasUseBuff() and not Trinket2:HasUseBuff() and Monk.Xuen.Active or BossFightRemains < 20) then
-      if Cast(Trinket1, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket1Range)) then return "Generic use_items for " .. Trinket1:Name() .. " trinkets 6"; end
+      if Cast(Trinket1, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket1Range)) then return "trinket1 stats"; end
     end
-    -- use_item,slot=trinket2,if=trinket.1.has_use_buff&!trinket.2.has_use_buff&cooldown.invoke_xuen_the_white_tiger.remains>30|fight_remains<20
-    if T2Check and (Trinket1:HasUseBuff() and not Trinket2:HasUseBuff() and S.InvokeXuenTheWhiteTiger:CooldownRemains() > 30 or BossFightRemains < 20) then
-      if Cast(Trinket2, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket2Range)) then return "Generic use_items for " .. Trinket2:Name() .. " trinkets 8"; end
+    -- T2 stats seul
+    if T2Check and (not Trinket1:HasUseBuff() and Trinket2:HasUseBuff() and S.InvokeXuenTheWhiteTiger:CooldownRemains() > 30 or BossFightRemains < 20) then
+      if Cast(Trinket2, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket2Range)) then return "trinket2 stats"; end
     end
-    -- use_item,slot=trinket1,if=!trinket.1.has_use_buff&trinket.2.has_use_buff&cooldown.invoke_xuen_the_white_tiger.remains>30|fight_remains<20
+
+    -- T1 quand T2 a des stats (miroir SimC : symétrique)
     if T1Check and (not Trinket1:HasUseBuff() and Trinket2:HasUseBuff() and S.InvokeXuenTheWhiteTiger:CooldownRemains() > 30 or BossFightRemains < 20) then
-      if Cast(Trinket1, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket1Range)) then return "Generic use_items for " .. Trinket1:Name() .. " trinkets 10"; end
+      if Cast(Trinket1, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket1Range)) then return "trinket1 when t2-stats"; end
     end
-    -- use_item,slot=trinket2,if=!trinket.1.has_use_buff&trinket.2.has_use_buff&pet.xuen_the_white_tiger.active|fight_remains<20
     if T2Check and (not Trinket1:HasUseBuff() and Trinket2:HasUseBuff() and Monk.Xuen.Active or BossFightRemains < 20) then
-      if Cast(Trinket2, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket2Range)) then return "Generic use_items for " .. Trinket2:Name() .. " trinkets 12"; end
+      if Cast(Trinket2, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket2Range)) then return "trinket2 when t2-stats"; end
     end
-    -- use_item,slot=trinket1,if=!trinket.1.has_use_buff&!trinket.2.has_use_buff
+
+    -- Aucune stat on-use → libre
     if T1Check and (not Trinket1:HasUseBuff() and not Trinket2:HasUseBuff()) then
-      if Cast(Trinket1, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket1Range)) then return "Generic use_items for " .. Trinket1:Name() .. " trinkets 14"; end
+      if Cast(Trinket1, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket1Range)) then return "trinket1 free"; end
     end
-    -- use_item,slot=trinket2,if=!trinket.1.has_use_buff&!trinket.2.has_use_buff
     if T2Check and (not Trinket1:HasUseBuff() and not Trinket2:HasUseBuff()) then
-      if Cast(Trinket2, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket2Range)) then return "Generic use_items for " .. Trinket2:Name() .. " trinkets 16"; end
+      if Cast(Trinket2, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket2Range)) then return "trinket2 free"; end
     end
   end
-  -- use_item,slot=main_hand
-  -- Note: Expanding to all non-trinket items.
+
   if Settings.Commons.Enabled.Items then
     local ItemToUse, _, ItemRange = Player:GetUseableItems(OnUseExcludes, nil, true)
     if ItemToUse and not Player:IsItemBlacklisted(ItemToUse) then
-      if Cast(ItemToUse, nil, Settings.CommonsDS.DisplayStyle.Items, not Target:IsInRange(ItemRange)) then return "Generic use_items for " .. ItemToUse:Name() .. " trinkets 18"; end
+      if Cast(ItemToUse, nil, Settings.CommonsDS.DisplayStyle.Items, not Target:IsInRange(ItemRange)) then return "use-item non-trinket"; end
     end
   end
 end
+
+-- Cas spéciaux : Flurry + trinkets 120s + Netherprism (SimC "special_trinkets")
+local function SpecialTrinkets()
+  -- Utilise les trinkets 120s pendant Xuen, sinon en fin de fight
+  if Settings.Commons.Enabled.Trinkets then
+    local T1Check = Trinket1 and Trinket1:IsReady() and not VarTrinket1Ex and not Player:IsItemBlacklisted(Trinket1)
+    local T2Check = Trinket2 and Trinket2:IsReady() and not VarTrinket2Ex and not Player:IsItemBlacklisted(Trinket2)
+
+    if T1Check and VarTrinket1CD == 120 and (Monk.Xuen.Active or BossFightRemains < 30) then
+      if Cast(Trinket1, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket1Range)) then return "special t1"; end
+    end
+    if T2Check and VarTrinket2CD == 120 and (Monk.Xuen.Active or BossFightRemains < 30) then
+      if Cast(Trinket2, nil, Settings.CommonsDS.DisplayStyle.Trinkets, not Target:IsInRange(VarTrinket2Range)) then return "special t2"; end
+    end
+
+    -- Netherprism quand SEF a >10s restant et Latent Energy >=3 stacks (approximation)
+    if I.UnyieldingNetherprism and I.UnyieldingNetherprism:IsEquippedAndReady() then
+      if Player:BuffRemains(S.StormEarthAndFireBuff) > 10 and (Player:BuffStack(S.LatentEnergyBuff) or 0) > 2 then
+        if Cast(I.UnyieldingNetherprism, nil, Settings.CommonsDS.DisplayStyle.Trinkets) then return "netherprism special"; end
+      end
+    end
+  end
+
+  -- Arme / autres items
+  if Settings.Commons.Enabled.Items then
+    local ItemToUse, _, ItemRange = Player:GetUseableItems(OnUseExcludes, nil, true)
+    if ItemToUse and not Player:IsItemBlacklisted(ItemToUse) then
+      if Cast(ItemToUse, nil, Settings.CommonsDS.DisplayStyle.Items, not Target:IsInRange(ItemRange)) then return "use-item special"; end
+    end
+  end
+end
+
 
 local function Cooldowns()
   -- Note: Variables from APL(), as they're only used in this function, so we'll keep them local here.
@@ -316,8 +349,8 @@ local function DefaultAoE()
   if S.TigerPalm:IsReady() and ((Energy > 55 and S.InnerPeace:IsAvailable() or Energy > 60 and not S.InnerPeace:IsAvailable()) and ComboStrike(S.TigerPalm) and ChiDeficit >= 2 and Player:BuffStack(S.TeachingsoftheMonasteryBuff) < VarTotMMaxStacks and (S.EnergyBurst:IsAvailable() and Player:BuffDown(S.BlackoutKickBuff)) and Player:BuffDown(S.OrderedElementsBuff) or (S.EnergyBurst:IsAvailable() and Player:BuffDown(S.BlackoutKickBuff)) and Player:BuffDown(S.OrderedElementsBuff) and S.FistsofFury:CooldownUp() and Chi < 3 or (Player:PrevGCD(1, S.StrikeoftheWindlord) or S.StrikeoftheWindlord:CooldownDown()) and S.CelestialConduit:CooldownRemains() < 2 and Player:BuffUp(S.OrderedElementsBuff) and Chi < 5 and ComboStrike(S.TigerPalm)) then
     if Cast(S.TigerPalm, nil, nil, not IsInMeleeRange) then return "tiger_palm default_aoe 2"; end
   end
-  -- touch_of_death,if=!variable.small_hotjs_active&!buff.heart_of_the_jade_serpent_cdr_celestial.up
-  if S.TouchofDeath:CooldownUp() and (not VarSmallHotjsActive and Player:BuffDown(S.HeartoftheJadeSerpentCDRCelestialBuff)) then
+  -- touch_of_death,if=!variable.small_hotjs_active&!buff.heart_of_the_jade_serpent_cdr_celestial.up|fight_remains<10
+  if S.TouchofDeath:CooldownUp() and ((not VarSmallHotjsActive and Player:BuffDown(S.HeartoftheJadeSerpentCDRCelestialBuff)) or BossFightRemains < 10) then
     local ToDTar = ToDTarget()
     if ToDTar then
       if ToDTar:GUID() == Target:GUID() then
@@ -508,7 +541,7 @@ end
 local function DefaultCleave()
   -- rising_sun_kick,target_if=max:target.time_to_die,if=buff.storm_earth_and_fire.remains>13&combo_strike
   if S.RisingSunKick:IsReady() and (Player:BuffRemains(S.StormEarthAndFireBuff) > 13 and ComboStrike(S.RisingSunKick)) then
-    if Cast(S.RisingSunKick, nil, nil, not Target:IsInRange(40)) then return "rising_sun_kick default_cleave 2"; end
+    if Cast(S.RisingSunKick, nil, nil, not IsInMeleeRange) then return "rising_sun_kick default_cleave 2"; end
   end
   -- strike_of_the_windlord,if=talent.gale_force&cooldown.invoke_xuen_the_white_tiger.remains>10&set_bonus.tww3_2pc&!talent.flurry_strikes
   if S.StrikeoftheWindlord:IsReady() and (S.GaleForce:IsAvailable() and S.InvokeXuenTheWhiteTiger:CooldownRemains() > 10 and TWW3_2pc and not S.FlurryStrikes:IsAvailable()) then
@@ -543,8 +576,8 @@ local function DefaultCleave()
   if S.TigerPalm:IsReady() and ((Energy > 55 and S.InnerPeace:IsAvailable() or Energy > 60 and not S.InnerPeace:IsAvailable()) and ComboStrike(S.TigerPalm) and ChiDeficit >= 2 and Player:BuffStack(S.TeachingsoftheMonasteryBuff) < VarTotMMaxStacks and (S.EnergyBurst:IsAvailable() and Player:BuffDown(S.BlackoutKickBuff) or not S.EnergyBurst:IsAvailable()) and Player:BuffDown(S.OrderedElementsBuff) or (S.EnergyBurst:IsAvailable() and Player:BuffDown(S.BlackoutKickBuff) or not S.EnergyBurst:IsAvailable()) and Player:BuffDown(S.OrderedElementsBuff) and S.FistsofFury:CooldownUp() and Chi < 3 or (Player:PrevGCD(1, S.StrikeoftheWindlord) or S.StrikeoftheWindlord:CooldownDown()) and S.CelestialConduit:CooldownRemains() < 2 and Player:BuffUp(S.OrderedElementsBuff) and Chi < 5 and ComboStrike(S.TigerPalm) or (not VarSmallHotjsActive or Player:BuffDown(S.HeartoftheJadeSerpentCDRCelestialBuff)) and ComboStrike(S.TigerPalm) and ChiDeficit >= 2 and Player:BuffDown(S.OrderedElementsBuff)) then
     if Cast(S.TigerPalm, nil, nil, not IsInMeleeRange) then return "tiger_palm default_cleave 18"; end
   end
-  -- touch_of_death,if=!variable.small_hotjs_active&!buff.heart_of_the_jade_serpent_cdr_celestial.up
-  if S.TouchofDeath:CooldownUp() and (not VarSmallHotjsActive and Player:BuffDown(S.HeartoftheJadeSerpentCDRCelestialBuff)) then
+  -- touch_of_death,if=!variable.small_hotjs_active&!buff.heart_of_the_jade_serpent_cdr_celestial.up|fight_remains<10
+  if S.TouchofDeath:CooldownUp() and ((not VarSmallHotjsActive and Player:BuffDown(S.HeartoftheJadeSerpentCDRCelestialBuff)) or BossFightRemains < 10) then
     local ToDTar = ToDTarget()
     if ToDTar then
       if ToDTar:GUID() == Target:GUID() then
@@ -789,7 +822,15 @@ local function DefaultST()
     if Cast(S.RisingSunKick, nil, nil, not IsInMeleeRange) then return "rising_sun_kick default_st 30"; end
   end
   -- strike_of_the_windlord,if=!buff.heart_of_the_jade_serpent_cdr_celestial.up&talent.celestial_conduit&!buff.invokers_delight.up&!buff.heart_of_the_jade_serpent_cdr_celestial.up&cooldown.fists_of_fury.remains<5&cooldown.invoke_xuen_the_white_tiger.remains>15&(cooldown.slicing_winds.remains<23|!set_bonus.tww3_2pc)|fight_remains<12
-  if S.StrikeoftheWindlord:IsReady() and (Player:BuffDown(S.HeartoftheJadeSerpentCDRCelestialBuff) and S.CelestialConduit:IsAvailable() and Player:BuffDown(S.InvokersDelightBuff) and Player:BuffUp(S.HeartoftheJadeSerpentCDRBuff) and S.FistsofFury:CooldownRemains() < 5 and S.InvokeXuenTheWhiteTiger:CooldownRemains() > 15 and (S.SlicingWinds:CooldownRemains() < 23 or not TWW3_2pc) or BossFightRemains < 12) then
+  if S.StrikeoftheWindlord:IsReady() and ((
+    Player:BuffDown(S.HeartoftheJadeSerpentCDRCelestialBuff)
+    and S.CelestialConduit:IsAvailable()
+    and Player:BuffDown(S.InvokersDelightBuff)
+    and Player:BuffDown(S.HeartoftheJadeSerpentCDRCelestialBuff)  -- <-- double négation voulue (miroir SimC)
+    and S.FistsofFury:CooldownRemains() < 5
+    and S.InvokeXuenTheWhiteTiger:CooldownRemains() > 15
+    and (S.SlicingWinds:CooldownRemains() < 23 or not TWW3_2pc)
+    ) or BossFightRemains < 12) then
     if Cast(S.StrikeoftheWindlord, nil, nil, not Target:IsSpellInRange(S.StrikeoftheWindlord)) then return "strike_of_the_windlord default_st 32"; end
   end
   -- strike_of_the_windlord,if=talent.gale_force&cooldown.invoke_xuen_the_white_tiger.remains>10
@@ -988,6 +1029,14 @@ local function APL()
     -- Check DungeonSlice
     DungeonSlice = Player:IsInDungeonArea()
 
+    -- Variable spéciale trinket : Flurry + (un des 2 trinkets = 120s avec buff de stats) + Netherprism équipé + pas de Xuen's Bond
+    -- N.B. : on approxime "has_use_buff" via :HasUseBuff() de l'Item wrapper.
+    local HasT1Stats = Trinket1 and Trinket1:HasUseBuff() and VarTrinket1CD == 120
+    local HasT2Stats = Trinket2 and Trinket2:HasUseBuff() and VarTrinket2CD == 120
+    local HasNetherprism = I.UnyieldingNetherprism and I.UnyieldingNetherprism:IsEquipped()
+
+    VarSpecialCaseTrinket = S.FlurryStrikes:IsAvailable() and (HasT1Stats or HasT2Stats) and HasNetherprism and not S.XuensBond:IsAvailable()
+
     -- Get our Chi/Energy status
     Chi = Player:Chi()
     ChiDeficit = Player:ChiDeficit()
@@ -1019,9 +1068,9 @@ local function APL()
     if Settings.Commons.Enabled.Potions then
       local PotionSelected = Everyone.PotionSelected()
       if PotionSelected and PotionSelected:IsReady() then
-        if S.InvokeXuenTheWhiteTiger:IsAvailable() and (
+        if (S.InvokeXuenTheWhiteTiger:IsAvailable() and (
           -- potion,if=talent.invoke_xuen_the_white_tiger&pet.xuen_the_white_tiger.active&buff.storm_earth_and_fire.up
-          (S.InvokeXuenTheWhiteTiger:IsAvailable() and Monk.Xuen.Active and Player:BuffUp(S.StormEarthAndFireBuff)) or
+          (S.InvokeXuenTheWhiteTiger:IsAvailable() and Monk.Xuen.Active and Player:BuffUp(S.StormEarthAndFireBuff))) or
           -- potion,if=!talent.invoke_xuen_the_white_tiger&buff.storm_earth_and_fire.up
           (not S.InvokeXuenTheWhiteTiger:IsAvailable() and Player:BuffUp(S.StormEarthAndFireBuff)) or
           -- potion,if=fight_remains<=30
@@ -1040,7 +1089,11 @@ local function APL()
     -- Other variables from APL's def function are only used in the Cooldowns function, so we're moving them there.
     -- call_action_list,name=trinkets
     if (Settings.Commons.Enabled.Trinkets or Settings.Commons.Enabled.Items) then
-      local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
+      if VarSpecialCaseTrinket then
+        local ShouldReturn = SpecialTrinkets(); if ShouldReturn then return ShouldReturn; end
+      else
+        local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
+      end
     end
     -- call_action_list,name=normal_opener,if=time<4&active_enemies<3
     if CombatTime < 4 and EnemiesCount8y < 3 then
@@ -1054,12 +1107,12 @@ local function APL()
     if EnemiesCount8y >= 5 then
       local ShouldReturn = DefaultAoE(); if ShouldReturn then return ShouldReturn; end
     end
-    -- call_action_list,name=default_cleave,if=active_enemies>1&active_enemies<5
-    if EnemiesCount8y > 1 and EnemiesCount8y < 5 then
+    -- call_action_list,name=default_cleave,if=active_enemies>2&active_enemies<5
+    if EnemiesCount8y > 2 and EnemiesCount8y < 5 then
       local ShouldReturn = DefaultCleave(); if ShouldReturn then return ShouldReturn; end
     end
-    -- call_action_list,name=default_st,if=active_enemies<2
-    if EnemiesCount8y < 2 then
+    -- call_action_list,name=default_st,if=active_enemies<3
+    if EnemiesCount8y < 3 then
       local ShouldReturn = DefaultST(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=fallback
