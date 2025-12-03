@@ -84,6 +84,7 @@ HR.GUISettings.APL.Monk = {
     },
   },
   Windwalker = {
+    SoftTargetCycling = false,
     FortifyingBrewHP = 40,
     IgnoreFSK = true,
     IgnoreToK = false,
@@ -131,6 +132,7 @@ CreateARPanelOptions(CP_MonkOGCD, "APL.Monk.CommonsOGCD")
 
 -- Windwalker
 CreateARPanelOptions(CP_Windwalker, "APL.Monk.Windwalker")
+CreatePanelOption("CheckButton", CP_Windwalker, "APL.Monk.Windwalker.SoftTargetCycling", "Soft Target Cycling", "Enable or disable soft target cycling.")
 CreatePanelOption("CheckButton", CP_Windwalker, "APL.Monk.Windwalker.ShowFortifyingBrewCD", "Fortifying Brew", "Enable or disable Fortifying Brew recommendations.")
 CreatePanelOption("CheckButton", CP_Windwalker, "APL.Monk.Windwalker.IgnoreToK", "Ignore Touch of Karma", "Enable this setting to allow you to ignore Touch of Karma without stalling the rotation. (NOTE: Touch of Karma will never be suggested if this is enabled)")
 CreatePanelOption("CheckButton", CP_Windwalker, "APL.Monk.Windwalker.IgnoreFSK", "Ignore Flying Serpent Kick", "Enable this setting to allow you to ignore Flying Serpent Kick without stalling the rotation. (NOTE: Flying Serpent Kick will never be suggested if this is enabled)")

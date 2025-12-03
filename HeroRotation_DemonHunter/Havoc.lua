@@ -1359,7 +1359,7 @@ local function AR()
   -- call_action_list,name=ar_cooldown
   local ShouldReturn = ARCooldown(); if ShouldReturn then return ShouldReturn; end
   -- run_action_list,name=ar_opener,if=(cooldown.eye_beam.up|cooldown.metamorphosis.up|cooldown.essence_break.up)&time<15&(raid_event.adds.in>20|talent.cycle_of_hatred)
-  if (BeamAbility:CooldownUp() or S.Metamorphosis:CooldownUp() or S.EssenceBreak:CooldownUp()) and CombatTime < 15 then
+  if (BeamAbility:CooldownUp() or S.Metamorphosis:CooldownUp() or S.EssenceBreak:CooldownUp()) and CombatTime < 15 and CDsON() then
     local ShouldReturn = AROpener(); if ShouldReturn then return ShouldReturn; end
     if HR.CastAnnotated(S.Pool, false, "WAIT") then return "Pool for AROpener()"; end
   end

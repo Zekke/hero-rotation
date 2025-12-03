@@ -178,6 +178,67 @@ local function EvaluateTargetIfFilterTTD(TargetUnit)
   return TargetUnit:TimeToDie()
 end
 
+-- Sauvegarde de la fonction d’origine
+local OrigCastTargetIf = Everyone.CastTargetIf
+
+-- Whitelist des sorts pour lesquels on veut le "dual" (main icon + overlay swap).
+-- Tu peux ajuster selon tes préférences.
+local SoftTargetIfWhitelist = {
+  [S.InvokeXuenTheWhiteTiger:ID()] = true,
+  [S.FistsofFury:ID()]             = true,
+  [S.RisingSunKick:ID()]           = true,
+  [S.WhirlingDragonPunch:ID()]     = true,
+  [S.StrikeoftheWindlord:ID()]     = true,
+  [S.SpinningCraneKick:ID()]       = true,
+  [S.JadefireStomp:ID()]           = true,
+  [S.StormEarthAndFire:ID()]       = true,
+  [S.CracklingJadeLightning:ID()]  = true,
+  -- Exemple volontairement exclus : Touch of Death (ciblage précis)
+}
+
+-- Petit helper pour retrouver la "best target" comme target_if
+local function __PickBestTarget(Units, mode, filter, condition)
+  local best, bestVal = nil, nil
+  for _, u in pairs(Units) do
+    if (not condition or condition(u)) then
+      local v = (filter and filter(u)) or 0
+      if (bestVal == nil) or Utils.CompareThis(mode, v, bestVal) then
+        best, bestVal = u, v
+      end
+    end
+  end
+  return best
+end
+
+-- Override
+function Everyone.CastTargetIf(SpellObj, Units, mode, filter, condition, notInRange, displayStyle, ...)
+  -- Si désactivé ou sort non whitelité → comportement d’origine inchangé
+  if not (Settings.Windwalker and Settings.Windwalker.SoftTargetCycling) then
+    return OrigCastTargetIf(SpellObj, Units, mode, filter, condition, notInRange, displayStyle, ...)
+  end
+  local id = SpellObj and SpellObj:ID()
+  if not (id and SoftTargetIfWhitelist[id]) then
+    return OrigCastTargetIf(SpellObj, Units, mode, filter, condition, notInRange, displayStyle, ...)
+  end
+
+  -- 1) On calcule la meilleure cible pour l’overlay (swap suggestion)
+  local best = __PickBestTarget(Units, mode, filter, condition)
+
+  -- 2) Si la meilleure cible n’est pas la cible actuelle, on affiche l’overlay nameplate
+  if best and Target and best:GUID() ~= Target:GUID() then
+    -- On ignore le retour pour ne pas court-circuiter le main icon
+    HR.CastLeftNameplate(best, SpellObj, displayStyle)
+  end
+
+  -- 3) On affiche le main icon pour caster sur la cible actuelle (si c’est valide)
+  --    → te laisse le choix : soit tu presses sur ta cible, soit tu retarget selon l’overlay.
+  local castedOnCurrent = Cast(SpellObj, nil, displayStyle, notInRange)
+
+  -- 4) On renvoie "true" si le main icon est posé (ou si au moins l’overlay a été affiché)
+  --    Ça évite que l’APL parte chercher un autre sort quand on a déjà une reco pour celui-ci.
+  return castedOnCurrent or (best and Target and best:GUID() ~= Target:GUID())
+end
+
 --- ===== Rotation Functions =====
 local function Precombat()
   -- snapshot_stats
@@ -303,10 +364,12 @@ local function Cooldowns()
   -- invoke_xuen_the_white_tiger,target_if=max:target.time_to_die,if=(target.time_to_die>12|!talent.xuens_bond&target.time_to_die>8)&set_bonus.tww3_2pc&talent.celestial_conduit&cooldown.strike_of_the_windlord.remains<3&(chi>2&talent.ordered_elements|chi>5|chi>3&energy<50|energy<50&active_enemies=1|prev.tiger_palm&!talent.ordered_elements&time<5)|(!set_bonus.tww3_2pc|!talent.celestial_conduit|!fight_style.patchwerk)&(variable.xuen_condition&!fight_style.dungeonslice&!fight_style.dungeonroute|variable.xuen_dungeonslice_condition&fight_style.Dungeonslice|variable.xuen_dungeonroute_condition&fight_style.dungeonroute)
   if S.InvokeXuenTheWhiteTiger:IsCastable() and ((Target:TimeToDie() > 12 or not S.XuensBond:IsAvailable() and Target:TimeToDie() > 8) and TWW3_2pc and S.CelestialConduit:IsAvailable() and S.StrikeoftheWindlord:CooldownRemains() < 3 and (Chi > 2 and S.OrderedElements:IsAvailable() or Chi > 5 or Chi > 3 and Energy < 50 or Energy < 50 and EnemiesCount8y == 1 or Player:PrevGCD(1, S.TigerPalm) and not S.OrderedElements:IsAvailable() and CombatTime < 5) or (not TWW3_2pc or not S.CelestialConduit:IsAvailable() or DungeonSlice) and (VarXuenCondition and not DungeonSlice or VarXuenDungeonsliceCondition and DungeonSlice or VarXuenDungeonrouteCondition and DungeonSlice)) then
     if Everyone.CastTargetIf(S.InvokeXuenTheWhiteTiger, Enemies8y, "max", EvaluateTargetIfFilterTTD, nil, not Target:IsInRange(40), Settings.Windwalker.GCDasOffGCD.InvokeXuenTheWhiteTiger) then return "invoke_xuen_the_white_tiger cooldowns 6"; end
+    --if Cast(S.InvokeXuenTheWhiteTiger, nil, nil, not IsInMeleeRange) then return "invoke_xuen_the_white_tiger cooldowns 6"; end
   end
   -- storm_earth_and_fire,target_if=max:target.time_to_die,if=talent.flurry_strikes&cooldown.invoke_xuen_the_white_tiger.remains&buff.bloodlust.up&cooldown.rising_sun_kick.remains|variable.sef_condition&!fight_style.dungeonroute|variable.sef_dungeonroute_condition&fight_style.dungeonroute|fight_style.patchwerk&active_enemies=1&talent.flurry_strikes&fight_remains<60&cooldown.invoke_xuen_the_white_tiger.remains>fight_remains&cooldown.rising_sun_kick.remains&buff.the_emperors_capacitor.stack>15
   if S.StormEarthAndFire:IsCastable() and (S.FlurryStrikes:IsAvailable() and S.InvokeXuenTheWhiteTiger:CooldownDown() and Player:BloodlustUp() and S.RisingSunKick:CooldownDown() or VarSefCondition and not DungeonSlice or VarSefDungeonrouteCondition and DungeonSlice or not DungeonSlice and EnemiesCount8y == 1 and S.FlurryStrikes:IsAvailable() and FightRemains < 60 and S.InvokeXuenTheWhiteTiger:CooldownRemains() > FightRemains and S.RisingSunKick:CooldownDown() and Player:BuffStack(S.TheEmperorsCapacitorBuff) > 15) then
     if Everyone.CastTargetIf(S.StormEarthAndFire, Enemies8y, "max", EvaluateTargetIfFilterTTD, nil, nil, Settings.Windwalker.OffGCDasOffGCD.StormEarthAndFire) then return "storm_earth_and_fire cooldowns 8"; end
+    --if Cast(S.StormEarthAndFire, nil, nil, not IsInMeleeRange) then return "storm_earth_and_fire cooldowns 8"; end
   end
   -- touch_of_karma
   if S.TouchofKarma:IsCastable() and not Settings.Windwalker.IgnoreToK then
@@ -379,6 +442,7 @@ local function DefaultAoE()
   -- whirling_dragon_punch,target_if=max:target.time_to_die,if=buff.dance_of_chiji.stack<2
   if S.WhirlingDragonPunch:IsReady() and (Player:BuffStack(S.DanceofChijiBuff) < 2) then
     if Everyone.CastTargetIf(S.WhirlingDragonPunch, Enemies5y, "max", EvaluateTargetIfFilterTTD, nil, not IsInMeleeRange) then return "whirling_dragon_punch default_aoe 16"; end
+    --if Cast(S.WhirlingDragonPunch, nil, nil, not IsInMeleeRange) then return "whirling_dragon_punch default_aoe 16"; end
   end
   -- tiger_palm,if=combo_strike&buff.storm_earth_and_fire.remains>2&talent.flurry_strikes&energy.time_to_max<=gcd.max*3&cooldown.fists_of_fury.remains&(!talent.xuens_battlegear|chi<6)&set_bonus.tww3_4pc
   if S.TigerPalm:IsReady() and (ComboStrike(S.TigerPalm) and Player:BuffRemains(S.StormEarthAndFireBuff) > 2 and S.FlurryStrikes:IsAvailable() and EnergyTTMCheck and S.FistsofFury:CooldownRemains() and (not S.XuensBattlegear:IsAvailable() or Chi < 6) and TWW3_4pc) then

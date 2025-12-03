@@ -436,13 +436,13 @@ local function CustomBurst ()
 -- rupture
   if S.Rupture:IsReady() and ComboPoints >= 3 and Target:DebuffDown(S.Rupture) then
     if CastPooling(S.Rupture, nil, nil, not TargetInMeleeRange) then
-      return "Cast Rupture"
+      return "Cast Rupture (burst)"
     end
   end
 -- Deathmark
   if S.Deathmark:IsReady() then
     if Cast(S.Deathmark, Settings.Assassination.OffGCDasOffGCD.Deathmark) then
-        return "Cast Deathmark"
+        return "Cast Deathmark (burst)"
     end
   end
 -- trinket
@@ -455,7 +455,7 @@ local function CustomBurst ()
 -- kingsbane
   if S.Kingsbane:IsReady() then
     if Cast(S.Kingsbane, Settings.Assassination.OffGCDasOffGCD.Kingsbane) then
-        return "Cast Kingsbane"
+        return "Cast Kingsbane (burst)"
     end
   end
 end
@@ -1035,7 +1035,7 @@ local function CDs ()
   -- # Cast Deathmark if the target will survive long enough
   -- actions.cds+=/deathmark,if=(variable.deathmark_condition&target.time_to_die>=10)|fight_remains<=20
   if S.Deathmark:IsCastable() then
-    if (DeathmarkCondition and Target:TimeToDie() >= 10) or HL.BossFilteredFightRemains("<=", 20) then
+    if (DeathmarkCondition) then
       if Cast(S.Deathmark, Settings.Assassination.OffGCDasOffGCD.Deathmark) then
         return "Cast Deathmark"
       end
@@ -1046,8 +1046,8 @@ local function CDs ()
   -- &(cooldown.deathmark.remains>=50-15*set_bonus.tww3_fatebound_4pc|dot.deathmark.ticking)|fight_remains<=15
   if S.Kingsbane:IsReady() then
     if (Target:DebuffUp(S.ShivDebuff) or S.Shiv:CooldownRemains() < 6) and (Player:BuffUp(S.Envenom) or MeleeEnemies10yCount > 1)
-      and (S.Deathmark:CooldownRemains() >= 50 - 15*BoolToInt(TWW3FateboundHasTier4PC) or Target:DebuffUp(S.Deathmark))
-      or HL.BossFilteredFightRemains("<=", 15) then
+      and ((S.Deathmark:CooldownRemains() >= 50 - 15*BoolToInt(TWW3FateboundHasTier4PC) or (S.ColdBlood:IsReady() or Player:BuffUp(S.ColdBlood))) or Target:DebuffUp(S.Deathmark))
+      then
       if Cast(S.Kingsbane, Settings.Assassination.GCDasOffGCD.Kingsbane) then
         return "Cast Kingsbane"
       end

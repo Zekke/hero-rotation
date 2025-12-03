@@ -772,6 +772,9 @@ local function APL()
     if S.TigersFury:IsCastable() and ((Player:HeroTreeID() == 22 and (not S.Bloodtalons:IsAvailable() or Player:BuffUp(S.BloodtalonsBuff)) and RefreshRip and ComboPoints >= 3 and S.RipandTear:IsAvailable() or ComboPoints == 5) and (BossFightRemains <= 15 or BsInc:CooldownRemains() > 20 and TarTTD > 5 or BsInc:CooldownUp() and TarTTD > 12 or TarTTD == BossFightRemains)) then
       if Cast(S.TigersFury, Settings.Feral.OffGCDasOffGCD.TigersFury) then return "tigers_fury main 8"; end
     end
+    if S.TigersFury:IsCastable() and BsInc:CooldownRemains() > 25 then
+      if Cast(S.TigersFury, Settings.Feral.OffGCDasOffGCD.TigersFury) then return "tigers_fury main test"; end
+    end
     -- natures_vigil,if=spell_targets.swipe_cat>0&variable.regrowth
     if S.NaturesVigil:IsCastable() and (EnemiesCount8y > 0 and VarRegrowth) then
       if Cast(S.NaturesVigil, Settings.Feral.OffGCDasOffGCD.NaturesVigil) then return "natures_vigil main 10"; end

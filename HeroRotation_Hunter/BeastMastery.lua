@@ -248,7 +248,7 @@ local function DRCleave()
     if Cast(S.BarbedShot, nil, nil, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot dr_cleave 6"; end
   end
   -- bloodshed
-  if S.Bloodshed:IsCastable() then
+  if CDsON() and S.Bloodshed:IsCastable() then
     if Cast(S.Bloodshed, Settings.BeastMastery.GCDasOffGCD.Bloodshed, nil, not Target:IsSpellInRange(S.Bloodshed)) then return "bloodshed dr_cleave 8"; end
   end
   -- multishot,if=pet.main.buff.beast_cleave.down&(!talent.bloody_frenzy|cooldown.call_of_the_wild.remains)
@@ -297,7 +297,7 @@ local function DRST()
     if Cast(S.BestialWrath, Settings.BeastMastery.GCDasOffGCD.BestialWrath) then return "bestial_wrath dr_st 4"; end
   end
   -- bloodshed
-  if S.Bloodshed:IsCastable() then
+  if CDsON() and S.Bloodshed:IsCastable() then
     if Cast(S.Bloodshed, Settings.BeastMastery.GCDasOffGCD.Bloodshed, nil, not Target:IsSpellInRange(S.Bloodshed)) then return "bloodshed dr_st 6"; end
   end
   -- call_of_the_wild
