@@ -273,7 +273,10 @@ local function Aoe()
     if Cast(S.AncestralSwiftness, Settings.CommonsOGCD.GCDasOffGCD.AncestralSwiftness) then return "ancestral_swiftness aoe 14"; end
   end
   -- ascendance,if=(talent.first_ascendant|fight_remains>200|fight_remains<80|variable.trinket_1_buffs&trinket.1.ready_cooldown|variable.trinket_2_buffs&trinket.2.ready_cooldown|equipped.neural_synapse_enhancer&cooldown.neural_synapse_enhancer.remains=0|equipped.bestinslots&cooldown.bestinslots.remains=0)&(buff.fury_of_storms.up|!talent.fury_of_the_storms)
-  if CDsON() and S.Ascendance:IsCastable() and ((S.FirstAscendant:IsAvailable() or FightRemains > 200 or FightRemains < 80 or VarTrinket1Buffs and Trinket1:CooldownUp() or VarTrinket2Buffs and Trinket2:CooldownUp() or I.NeuralSynapseEnhancer:IsEquippedAndReady() or I.BestinSlotsCaster:IsEquippedAndReady()) and (Player:BuffUp(S.FuryofStormsBuff) or not S.FuryoftheStorms:IsAvailable())) then
+  if CDsON() and S.Ascendance:IsCastable() and ((S.FirstAscendant:IsAvailable() or FightRemains > 200 or FightRemains < 80
+    or VarTrinket1Buffs and Trinket1:CooldownUp() or VarTrinket2Buffs and Trinket2:CooldownUp()
+    or I.NeuralSynapseEnhancer:IsEquippedAndReady() or I.BestinSlotsCaster:IsEquippedAndReady())
+    and ((S.FuryoftheStorms:IsAvailable() and Player:StormkeeperUp()) or not S.FuryoftheStorms:IsAvailable())) then
     if Cast(S.Ascendance, Settings.CommonsOGCD.GCDasOffGCD.Ascendance) then return "ascendance aoe 16"; end
   end
   -- tempest,target_if=min:debuff.lightning_rod.remains,if=buff.arc_discharge.stack<2&(buff.surge_of_power.up|!talent.surge_of_power)
@@ -288,8 +291,8 @@ local function Aoe()
   if S.ChainLightning:IsViable() and (Shaman.ClusterTargets >= 6 and Player:BuffUp(S.SurgeofPowerBuff)) then
     if Cast(S.ChainLightning, nil, nil, not Target:IsSpellInRange(S.ChainLightning)) then return "chain_lightning aoe 22"; end
   end
-  -- lightning_bolt,if=buff.storm_frenzy.stack=2&!talent.surge_of_power&maelstrom<variable.mael_cap-(15+buff.stormkeeper.up*spell_targets.chain_lightning*spell_targets.chain_lightning)&buff.stormkeeper.up&!buff.call_of_the_ancestors.up&spell_targets.chain_lightning=2
-  if S.LightningBolt:IsViable() and (Player:BuffStack(S.StormFrenzyBuff) == 2 and not S.SurgeofPower:IsAvailable() and VarMaelstrom < VarMaelCap - (15 + num(Player:StormkeeperUp()) * Shaman.ClusterTargets * Shaman.ClusterTargets) and Player:StormkeeperUp() and Player:BuffDown(S.CalloftheAncestorsBuff) and Shaman.ClusterTargets == 2) then
+  -- lightning_bolt,if=buff.storm_frenzy.stack=2&!talent.surge_of_power&(maelstrom<variable.mael_cap-15)&buff.stormkeeper.up&!buff.call_of_the_ancestors.up&spell_targets.chain_lightning=2
+  if S.LightningBolt:IsViable() and (Player:BuffStack(S.StormFrenzyBuff) == 2 and not S.SurgeofPower:IsAvailable() and VarMaelstrom < VarMaelCap - 15 and Player:StormkeeperUp() and Player:BuffDown(S.CalloftheAncestorsBuff) and Shaman.ClusterTargets == 2) then
     if Cast(S.LightningBolt, nil, nil, not Target:IsSpellInRange(S.LightningBolt)) then return "lightning_bolt aoe 24"; end
   end
   -- chain_lightning,if=buff.storm_frenzy.stack=2&!talent.surge_of_power&maelstrom<variable.mael_cap-(15+buff.stormkeeper.up*spell_targets.chain_lightning*spell_targets.chain_lightning)
@@ -360,17 +363,21 @@ local function Aoe()
   if S.FrostShock:IsViable() and (Player:IcefuryUp() and Player:BuffDown(S.AscendanceBuff) and not Player:StormkeeperUp() and (S.CalloftheAncestors:IsAvailable() or Shaman.ClusterTargets <= 3)) then
     if Cast(S.FrostShock, nil, nil, not Target:IsSpellInRange(S.FrostShock)) then return "frost_shock moving aoe 58"; end
   end
+  -- lightning_bolt,if=buff.stormkeeper.up&!buff.call_of_the_ancestors.up&spell_targets.chain_lightning=2
+  if S.LightningBolt:IsViable() and (Player:StormkeeperUp() and Player:BuffDown(S.CalloftheAncestorsBuff) and Shaman.ClusterTargets == 2) then
+    if Cast(S.LightningBolt, nil, nil, not Target:IsSpellInRange(S.LightningBolt)) then return "lightning_bolt aoe 60"; end
+  end
   -- chain_lightning
   if S.ChainLightning:IsViable() then
-    if Cast(S.ChainLightning, nil, nil, not Target:IsSpellInRange(S.ChainLightning)) then return "chain_lightning aoe 60"; end
+    if Cast(S.ChainLightning, nil, nil, not Target:IsSpellInRange(S.ChainLightning)) then return "chain_lightning aoe 62"; end
   end
   -- flame_shock,moving=1,target_if=refreshable
   if S.FlameShock:IsViable() and Player:IsMoving() then
-    if Everyone.CastCycle(S.FlameShock, Enemies10ySplash, EvaluateCycleFlameShockRefreshable, not Target:IsSpellInRange(S.FlameShock)) then return "flame_shock moving aoe 62"; end
+    if Everyone.CastCycle(S.FlameShock, Enemies10ySplash, EvaluateCycleFlameShockRefreshable, not Target:IsSpellInRange(S.FlameShock)) then return "flame_shock moving aoe 64"; end
   end
   -- frost_shock,moving=1
   if S.FrostShock:IsViable() and Player:IsMoving() then
-    if Cast(S.FrostShock, nil, nil, not Target:IsSpellInRange(S.FrostShock)) then return "frost_shock moving aoe 64"; end
+    if Cast(S.FrostShock, nil, nil, not Target:IsSpellInRange(S.FrostShock)) then return "frost_shock moving aoe 66"; end
   end
 end
 
@@ -407,8 +414,16 @@ local function SingleTarget()
   if S.AncestralSwiftness:IsViable() then
     if Cast(S.AncestralSwiftness, Settings.CommonsOGCD.GCDasOffGCD.AncestralSwiftness) then return "ancestral_swiftness single_target 16"; end
   end
-  -- ascendance,if=(talent.first_ascendant|fight_remains>200|fight_remains<80|variable.trinket_1_buffs&trinket.1.ready_cooldown|variable.trinket_2_buffs&trinket.2.ready_cooldown|equipped.neural_synapse_enhancer&cooldown.neural_synapse_enhancer.remains=0|equipped.bestinslots&cooldown.bestinslots.remains=0)&(buff.fury_of_storms.up|!talent.fury_of_the_storms)&(cooldown.primordial_wave.remains>25|!talent.primordial_wave)
-  if CDsON() and S.Ascendance:IsCastable() and ((S.FirstAscendant:IsAvailable() or FightRemains > 200 or FightRemains < 80 or VarTrinket1Buffs and Trinket1:CooldownUp() or VarTrinket2Buffs and Trinket2:CooldownUp() or I.NeuralSynapseEnhancer:IsEquippedAndReady() or I.BestinSlotsCaster:IsEquippedAndReady()) and (Player:BuffUp(S.FuryofStormsBuff) or not S.FuryoftheStorms:IsAvailable()) and (S.PrimordialWave:CooldownRemains() > 25 or not S.PrimordialWave:IsAvailable())) then
+  -- ascendance,if=(talent.first_ascendant|fight_remains>200|fight_remains<80
+  -- |variable.trinket_1_buffs&trinket.1.ready_cooldown|variable.trinket_2_buffs&trinket.2.ready_cooldown
+  -- |equipped.neural_synapse_enhancer&cooldown.neural_synapse_enhancer.remains=0|equipped.bestinslots
+  -- &cooldown.bestinslots.remains=0)&(buff.fury_of_storms.up|!talent.fury_of_the_storms)
+  -- &(cooldown.primordial_wave.remains>25|!talent.primordial_wave)
+  if CDsON() and S.Ascendance:IsCastable() and ((S.FirstAscendant:IsAvailable() or FightRemains > 200 or FightRemains < 80
+    or VarTrinket1Buffs and Trinket1:CooldownUp() or VarTrinket2Buffs and Trinket2:CooldownUp()
+    or I.NeuralSynapseEnhancer:IsEquippedAndReady() or I.BestinSlotsCaster:IsEquippedAndReady())
+    and ((S.FuryoftheStorms:IsAvailable() and Player:StormkeeperUp()) or not S.FuryoftheStorms:IsAvailable())
+    and (S.PrimordialWave:CooldownRemains() > 25 or not S.PrimordialWave:IsAvailable())) then
     if Cast(S.Ascendance, Settings.CommonsOGCD.GCDasOffGCD.Ascendance) then return "ascendance single_target 18"; end
   end
   -- tempest,if=buff.surge_of_power.up

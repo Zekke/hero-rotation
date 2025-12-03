@@ -512,7 +512,7 @@ local function Build (ReturnSpellOnly, ForceStealth, BaseSpell)
         return S.ShurikenStorm
       else
         if CastPooling(S.ShurikenStorm) then
-          return "Cast ShurikenStorm"
+          return "Cast ShurikenStorm 1"
         end
       end
     end
@@ -538,7 +538,7 @@ local function Build (ReturnSpellOnly, ForceStealth, BaseSpell)
       return S.ShurikenStorm
     else
       if CastPooling(S.ShurikenStorm) then
-        return "Cast ShurikenStorm"
+        return "Cast ShurikenStorm 2"
       end
     end
   end
@@ -552,7 +552,7 @@ local function Build (ReturnSpellOnly, ForceStealth, BaseSpell)
       return S.ShurikenStorm
     else
       if CastPooling(S.ShurikenStorm) then
-        return "Cast ShurikenStorm"
+        return "Cast ShurikenStorm 3"
       end
     end
   end
@@ -566,7 +566,7 @@ local function Build (ReturnSpellOnly, ForceStealth, BaseSpell)
         return S.ShurikenStorm
       else
         if CastPooling(S.ShurikenStorm) then
-          return "Cast ShurikenStorm"
+          return "Cast ShurikenStorm 4"
         end
       end
     end
@@ -578,7 +578,7 @@ local function Build (ReturnSpellOnly, ForceStealth, BaseSpell)
       return S.Shadowstrike
     else
       if CastPooling(S.Shadowstrike, nil, not Target:IsSpellInRange(S.Shadowstrike)) then
-        return "Cast Shadowstrike"
+        return "Cast Shadowstrike 5"
       end
     end
   end
@@ -666,10 +666,12 @@ end
 local function CDs ()
   -- actions.cds=cold_blood,if=cooldown.secret_technique.up&buff.shadow_dance.up&combo_points>=6&variable.secret
   -- &(buff.flagellation_persist.up|buff.flagellation_buff.remains<=3)
-  if HR.CDsON() and S.ColdBlood:IsReady() and S.SecretTechnique:IsReady() and Player:BuffUp(S.ShadowDanceBuff)
-    and ComboPoints >= 6 and Secret and (Player:BuffUp(S.FlagellationPersistBuff) or Player:BuffRemains(S.FlagellationBuff) <= 3) then
-    if Cast(S.ColdBlood, Settings.CommonsOGCD.OffGCDasOffGCD.ColdBlood) then
-      return "Cast Cold Blood"
+  if HR.CDsON() and S.ColdBlood:IsReady() then
+    if S.SecretTechnique:IsReady() and Player:BuffUp(S.ShadowDanceBuff)
+      and ComboPoints >= 6 and Secret and (Player:BuffUp(S.FlagellationPersistBuff) or (Player:BuffUp(S.FlagellationBuff) and Player:BuffRemains(S.FlagellationBuff) <= 4)) then
+      if Cast(S.ColdBlood, Settings.CommonsOGCD.OffGCDasOffGCD.ColdBlood) then
+        return "Cast Cold Blood"
+      end
     end
   end
 

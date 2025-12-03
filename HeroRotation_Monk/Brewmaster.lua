@@ -123,7 +123,7 @@ local function Defensives()
     if Cast(S.CelestialInfusion, nil, Settings.BrMDS.DisplayStyle.CelestialInfusion) then return "Celestial Infusion"; end
   end
   if S.PurifyingBrew:IsCastable() and ShouldPurify() then
-    if Cast(S.PurifyingBrew, nil, Settings.BrMDS.DisplayStyle.Purify) then return "Purifying Brew (Capping Charges)"; end
+    if Cast(S.PurifyingBrew, nil, Settings.BrMDS.DisplayStyle.PurifyingBrew) then return "Purifying Brew (Capping Charges)"; end
   end
   if S.ExpelHarm:IsReady() and Player:HealthPercentage() <= Settings.Brewmaster.ExpelHarmHP then
     local ExpelHarmMod = (S.StrengthofSpirit:IsAvailable()) and (1 + (1 - Player:HealthPercentage() / 100) * 100) or 1
@@ -264,7 +264,7 @@ local function APL()
     end
     -- black_ox_brew,if=energy<40&(!talent.aspect_of_harmony.enabled|cooldown.celestial_brew.charges_fractional<1)
     if S.BlackOxBrew:IsCastable() and (Player:Energy() < 40 and (not S.AspectofHarmony:IsAvailable() or S.CelestialBrew:ChargesFractional() < 1)) then
-      if Cast(S.BlackOxBrew, Settings.Brewmaster.GCDasOffGCD.BlackOxBrew) then return "black_ox_brew main 4"; end
+      if Cast(S.BlackOxBrew, Settings.Brewmaster.OffGCDasOffGCD.BlackOxBrew) then return "black_ox_brew main 4"; end
     end
     -- celestial_brew,if=(buff.aspect_of_harmony_accumulator.value>0.3*health.max&buff.weapons_of_order.up&!dot.aspect_of_harmony_damage.ticking)
     -- celestial_brew,if=(buff.aspect_of_harmony_accumulator.value>0.3*health.max&!talent.weapons_of_order.enabled&!dot.aspect_of_harmony_damage.ticking)
@@ -324,7 +324,7 @@ local function APL()
       -- purifying_brew,if=buff.blackout_combo.down&(talent.call_to_arms.enabled|talent.invoke_niuzao_the_black_ox.enabled)&cooldown.weapons_of_order.remains>10&cooldown.invoke_niuzao_the_black_ox.remains>10
       ((S.CalltoArms:IsAvailable() or S.InvokeNiuzao:IsAvailable()) and S.WeaponsofOrder:CooldownRemains() > 10 and S.InvokeNiuzao:CooldownRemains() > 10)
     ) then
-      if Cast(S.PurifyingBrew, nil, Settings.BrMDS.DisplayStyle.Purify) then return "purifying_brew main 28"; end
+      if Cast(S.PurifyingBrew, nil, Settings.BrMDS.DisplayStyle.PurifyingBrew) then return "purifying_brew main 28"; end
     end
     -- breath_of_fire,if=(buff.charred_passions.down&(!talent.scalding_brew.enabled|active_enemies<5))|!talent.charred_passions.enabled|(dot.breath_of_fire.remains<3&talent.scalding_brew.enabled)
     if S.BreathofFire:IsCastable() and ((Player:BuffDown(S.CharredPassionsBuff) and (not S.ScaldingBrew:IsAvailable() or EnemiesCount5 < 5)) or not S.CharredPassions:IsAvailable() or (Target:DebuffRemains(S.BreathofFireDotDebuff) < 3 and S.ScaldingBrew:IsAvailable())) then
@@ -332,7 +332,7 @@ local function APL()
     end
     -- exploding_keg,if=!talent.rushing_jade_wind.enabled|buff.rushing_jade_wind.up
     if S.ExplodingKeg:IsCastable() and (not S.RushingJadeWind:IsAvailable() or Player:BuffUp(S.RushingJadeWindBuff)) then
-      if Cast(S.ExplodingKeg, nil, nil, not Target:IsInRange(40)) then return "exploding_keg main 32"; end
+      if Cast(S.ExplodingKeg, Settings.Brewmaster.GCDasOffGCD.ExplodingKeg, nil, not Target:IsInRange(40)) then return "exploding_keg main 32"; end
     end
     -- rushing_jade_wind,if=talent.aspect_of_harmony.enabled&((buff.rushing_jade_wind.remains<2.5&buff.rushing_jade_wind.up)|!buff.rushing_jade_wind.up)
     if S.RushingJadeWind:IsReady() and (S.AspectofHarmony:IsAvailable() and ((Player:BuffRemains(S.RushingJadeWindBuff) < 2.5 and Player:BuffUp(S.RushingJadeWindBuff)) or Player:BuffDown(S.RushingJadeWindBuff))) then

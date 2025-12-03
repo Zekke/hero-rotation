@@ -279,11 +279,11 @@ local function DRCleave()
   end
   -- cobra_shot,if=buff.withering_fire.down&focus.time_to_max<gcd*2
   if S.CobraShot:IsReady() and (Player:BuffDown(S.WitheringFireBuff) and Player:FocusTimeToMax() < Player:GCD() * 2) then
-    if Cast(S.CobraShot, nil, nil, not Target:IsSpellInRange(S.CobraShot)) then return "cobra_shot dr_cleave 20"; end
+    if Cast(S.CobraShot, nil, nil, not Target:IsSpellInRange(S.CobraShot)) then return "cobra_shot dr_cleave 24"; end
   end
   -- explosive_shot
   if S.ExplosiveShot:IsReady() then
-    if Cast(S.ExplosiveShot, Settings.CommonsOGCD.GCDasOffGCD.ExplosiveShot, nil, not Target:IsSpellInRange(S.ExplosiveShot)) then return "explosive_shot dr_cleave 22"; end
+    if Cast(S.ExplosiveShot, Settings.CommonsOGCD.GCDasOffGCD.ExplosiveShot, nil, not Target:IsSpellInRange(S.ExplosiveShot)) then return "explosive_shot dr_cleave 26"; end
   end
 end
 
